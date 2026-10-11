@@ -2,6 +2,9 @@ const escape = '\u{1B}';
 const pasteStart = '\u{1B}[200~';
 const pasteEnd = '\u{1B}[201~';
 
+// How long a lone ESC waits for the rest of its sequence before it is delivered as the Escape key. Most terminals write a sequence in one chunk, so the window only matters when a chunk is split. It sits mid-range: a shorter window risks splitting a sequence that arrives in two reads, and a longer one delays a real Escape press. Tests pin it to 25-50 ms.
+export const escapeFlushDelayMilliseconds = 40;
+
 export type InputEvent = string | {readonly paste: string};
 
 type ParsedInput = {
