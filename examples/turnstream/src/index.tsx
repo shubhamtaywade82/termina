@@ -100,11 +100,22 @@ const Header = ({turn, width}: {readonly turn: TurnState; readonly width: number
 	);
 };
 
-const BlockView = ({block, now}: {readonly block: Block; readonly now: number}) => {
+const DiffLine = ({line}: {readonly line: string}) => {
+	const background = line.startsWith('+') ? '#003200' : line.startsWith('-') ? '#3c0000' : undefined;
+	const color = line.startsWith('+') ? 'green' : line.startsWith('-') ? 'red' : 'gray';
+	return (
+		<Box backgroundColor={background}>
+			<Text color={color}>{line}</Text>
+		</Box>
+	);
+};
+
+const BlockView = ({block, now, collapsed, onToggle}: {readonly block: Block; readonly now: number; readonly collapsed: boolean; readonly onToggle: (id: number) => void}) => {
 	const duration = (block.done ? block.endedAt : now) - block.startedAt;
 	const icon = block.kind === 'tool' ? '⚙' : '✎';
 	return (
 		<Box flexDirection="column" borderStyle="round" borderColor={block.done ? 'gray' : 'yellow'} paddingX={1}>
+			<Box onClick={() => onToggle(block.id)}>
 			<Text>
 				<Text color={phaseColor[block.phase]} bold>
 					{` ${block.phase.toUpperCase()} `}
@@ -116,14 +127,23 @@ const BlockView = ({block, now}: {readonly block: Block; readonly now: number}) 
 					{block.done ? chalk.green('✓') : chalk.yellow('⠋')} {formatMs(duration)} · {block.tokens} tok
 				</Text>
 			</Text>
-			<Text
-				color={block.kind === 'thinking' ? 'gray' : undefined}
-				italic={block.kind === 'thinking'}
-				dimColor={block.kind === 'tool'}
-			>
-				{block.text}
-				{block.done ? '' : '▌'}
-			</Text>
+			</Box>
+			{collapsed ? null : block.kind === 'tool' && block.title.startsWith('Edit') ? (
+				<Box flexDirection="column">
+					{block.text.split('\n').map((line, index) => (
+						<DiffLine key={index} line={line} />
+					))}
+				</Box>
+			) : collapsed ? null : (
+				<Text
+					color={block.kind === 'thinking' ? 'gray' : undefined}
+					italic={block.kind === 'thinking'}
+					dimColor={block.kind === 'tool'}
+				>
+					{block.text}
+					{block.done ? '' : '▌'}
+				</Text>
+			)}
 		</Box>
 	);
 };
@@ -240,6 +260,19 @@ const App = () => {
 		initialTurn,
 	);
 	const [mode, setMode] = useState<'navigate' | 'edit'>('navigate');
+	const [collapsed, setCollapsed] = useState<ReadonlySet<number>>(() => new Set());
+	const toggleBlock = (id: number) => {
+		setCollapsed(current => {
+			const next = new Set(current);
+			if (next.has(id)) {
+				next.delete(id);
+			} else {
+				next.add(id);
+			}
+
+			return next;
+		});
+	};
 	const [prompt, setPrompt] = useState('audit src/auth.ts for security issues, add rate limiting, update tests');
 
 	// The script advances on a fixed tick. Pause and speed are part of the reducer state, so the clock, the script and the rendered frame always agree.
@@ -295,7 +328,7 @@ const App = () => {
 					<ScrollBox height={bodyRows - 3} followTail>
 						<Box flexDirection="column" gap={0}>
 							{turn.blocks.map(block => (
-								<BlockView key={block.id} block={block} now={turn.now} />
+								<BlockView key={block.id} block={block} now={turn.now} collapsed={collapsed.has(block.id)} onToggle={toggleBlock} />
 							))}
 						</Box>
 					</ScrollBox>
@@ -308,10 +341,24 @@ const App = () => {
 			</Box>
 			<Box flexDirection="column" height={footerRows}>
 				<Timeline turn={turn} width={columns} />
-				<Text dimColor>
-					{turn.paused ? chalk.yellow('⏸ paused  ') : ''}
-					space pause · 1-4 speed (×{turn.speed}) · r rerun · / edit prompt · q quit
-				</Text>
+				<Box>
+					<Box onClick={() => dispatch({type: 'toggle_pause'})} backgroundColor={turn.paused ? 'yellow' : 'blue'}>
+						<Text color="black" bold>
+							{turn.paused ? ' ▶ resume ' : ' ⏸ pause '}
+						</Text>
+					</Box>
+					{[0.5, 1, 2, 4].map(speed => (
+						<Box
+							key={speed}
+							marginLeft={1}
+							onClick={() => dispatch({type: 'set_speed', speed})}
+							backgroundColor={turn.speed === speed ? 'blue' : undefined}
+						>
+							<Text color={turn.speed === speed ? 'black' : 'gray'}>{` ${speed}× `}</Text>
+						</Box>
+					))}
+					<Text dimColor>   space pause · 1-4 speed · r rerun · / edit prompt · q quit · shift-drag selects text</Text>
+				</Box>
 				<Box>
 					<Text color="green" bold>
 						❯{' '}
@@ -331,4 +378,4 @@ const App = () => {
 	);
 };
 
-render(<App />, {alternateScreen: true, incrementalRendering: true, maxFps: 30});
+render(<App />, {alternateScreen: true, incrementalRendering: true, maxFps: 30, mouse: true});

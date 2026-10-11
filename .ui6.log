@@ -1,0 +1,754 @@
+TAP version 13
+# Subtest: success
+ok 1 - success
+  ---
+  duration_ms: 51.079038
+  type: 'test'
+  ...
+# Subtest: error
+ok 2 - error
+  ---
+  duration_ms: 5.747791
+  type: 'test'
+  ...
+# Subtest: warning
+ok 3 - warning
+  ---
+  duration_ms: 5.109668
+  type: 'test'
+  ...
+# Subtest: info
+ok 4 - info
+  ---
+  duration_ms: 4.300745
+  type: 'test'
+  ...
+# Subtest: badge
+ok 5 - badge
+  ---
+  duration_ms: 19.136352
+  type: 'test'
+  ...
+# Subtest: confirm via "Y"
+ok 6 - confirm via "Y"
+  ---
+  duration_ms: 131.96229
+  type: 'test'
+  ...
+# Subtest: confirm via "y"
+ok 7 - confirm via "y"
+  ---
+  duration_ms: 104.588854
+  type: 'test'
+  ...
+# Subtest: confirm via enter
+ok 8 - confirm via enter
+  ---
+  duration_ms: 105.601776
+  type: 'test'
+  ...
+# Subtest: confirm with disabled enter
+ok 9 - confirm with disabled enter
+  ---
+  duration_ms: 205.997261
+  type: 'test'
+  ...
+# Subtest: cancel via "N"
+ok 10 - cancel via "N"
+  ---
+  duration_ms: 104.755802
+  type: 'test'
+  ...
+# Subtest: cancel via "n"
+ok 11 - cancel via "n"
+  ---
+  duration_ms: 103.941462
+  type: 'test'
+  ...
+# Subtest: cancel via enter
+ok 12 - cancel via enter
+  ---
+  duration_ms: 104.353694
+  type: 'test'
+  ...
+# Subtest: cancel with disabled enter
+ok 13 - cancel with disabled enter
+  ---
+  duration_ms: 206.910998
+  type: 'test'
+  ...
+# Subtest: placeholder
+ok 14 - placeholder
+  ---
+  duration_ms: 28.200522
+  type: 'test'
+  ...
+# Subtest: cursor can't be moved in placeholder
+ok 15 - cursor can't be moved in placeholder
+  ---
+  duration_ms: 206.52484
+  type: 'test'
+  ...
+# Subtest: hide cursor in placeholder when disabled
+ok 16 - hide cursor in placeholder when disabled
+  ---
+  duration_ms: 3.605186
+  type: 'test'
+  ...
+# Subtest: default value
+ok 17 - default value
+  ---
+  duration_ms: 1.866422
+  type: 'test'
+  ...
+# Subtest: hide cursor in value when disabled
+ok 18 - hide cursor in value when disabled
+  ---
+  duration_ms: 1.634634
+  type: 'test'
+  ...
+# Subtest: insert character
+ok 19 - insert character
+  ---
+  duration_ms: 103.77079
+  type: 'test'
+  ...
+# Subtest: insert text
+ok 20 - insert text
+  ---
+  duration_ms: 103.030286
+  type: 'test'
+  ...
+# Subtest: prevent two "@" characters
+ok 21 - prevent two "@" characters
+  ---
+  duration_ms: 205.166258
+  type: 'test'
+  ...
+# Subtest: ignore input when disabled
+ok 22 - ignore input when disabled
+  ---
+  duration_ms: 104.610155
+  type: 'test'
+  ...
+# Subtest: delete character
+ok 23 - delete character
+  ---
+  duration_ms: 104.087416
+  type: 'test'
+  ...
+# Subtest: delete all text
+ok 24 - delete all text
+  ---
+  duration_ms: 406.056533
+  type: 'test'
+  ...
+# Subtest: move cursor to the left
+ok 25 - move cursor to the left
+  ---
+  duration_ms: 408.264226
+  type: 'test'
+  ...
+# Subtest: cursor can't be moved left when at the beginning of the input
+ok 26 - cursor can't be moved left when at the beginning of the input
+  ---
+  duration_ms: 509.912427
+  type: 'test'
+  ...
+# Subtest: move cursor to the right
+ok 27 - move cursor to the right
+  ---
+  duration_ms: 809.923386
+  type: 'test'
+  ...
+# Subtest: cursor can't be moved right when at the end of the input
+ok 28 - cursor can't be moved right when at the end of the input
+  ---
+  duration_ms: 103.007719
+  type: 'test'
+  ...
+# Subtest: insert character in the middle
+ok 29 - insert character in the middle
+  ---
+  duration_ms: 406.003862
+  type: 'test'
+  ...
+# Subtest: insert text in the middle
+ok 30 - insert text in the middle
+  ---
+  duration_ms: 405.131822
+  type: 'test'
+  ...
+# Subtest: autocomplete domain
+ok 31 - autocomplete domain
+  ---
+  duration_ms: 408.356232
+  type: 'test'
+  ...
+# Subtest: submit on enter
+ok 32 - submit on enter
+  ---
+  duration_ms: 101.944523
+  type: 'test'
+  ...
+# Subtest: a log stays pinned to the newest entry as lines arrive
+ok 33 - a log stays pinned to the newest entry as lines arrive
+  ---
+  duration_ms: 142.92095
+  type: 'test'
+  ...
+# Subtest: scrolling up releases the pin, and End re-pins it
+ok 34 - scrolling up releases the pin, and End re-pins it
+  ---
+  duration_ms: 176.751184
+  type: 'test'
+  ...
+# Subtest: limit number of visible options
+ok 35 - limit number of visible options
+  ---
+  duration_ms: 40.713153
+  type: 'test'
+  ...
+# Subtest: focus next option
+ok 36 - focus next option
+  ---
+  duration_ms: 108.03399
+  type: 'test'
+  ...
+# Subtest: focus next option and scroll down
+ok 37 - focus next option and scroll down
+  ---
+  duration_ms: 613.595141
+  type: 'test'
+  ...
+# Subtest: don't scroll down when focused option is the last one
+ok 38 - don't scroll down when focused option is the last one
+  ---
+  duration_ms: 711.395324
+  type: 'test'
+  ...
+# Subtest: focus previous option
+ok 39 - focus previous option
+  ---
+  duration_ms: 207.026187
+  type: 'test'
+  ...
+# Subtest: focus previous option and scroll up
+ok 40 - focus previous option and scroll up
+  ---
+  duration_ms: 1219.470561
+  type: 'test'
+  ...
+# Subtest: don't scroll up when focused option is the first one
+ok 41 - don't scroll up when focused option is the first one
+  ---
+  duration_ms: 1324.992573
+  type: 'test'
+  ...
+# Subtest: ignore input when disabled
+ok 42 - ignore input when disabled
+  ---
+  duration_ms: 307.669747
+  type: 'test'
+  ...
+# Subtest: toggle focused option
+ok 43 - toggle focused option
+  ---
+  duration_ms: 410.886445
+  type: 'test'
+  ...
+# Subtest: selected options by default
+ok 44 - selected options by default
+  ---
+  duration_ms: 5.221267
+  type: 'test'
+  ...
+# Subtest: submit selected options
+ok 45 - submit selected options
+  ---
+  duration_ms: 104.76049
+  type: 'test'
+  ...
+# Subtest: highlight text in options
+ok 46 - highlight text in options
+  ---
+  duration_ms: 6.141324
+  type: 'test'
+  ...
+# Subtest: ordered list
+ok 47 - ordered list
+  ---
+  duration_ms: 38.096787
+  type: 'test'
+  ...
+# Subtest: nested ordered list
+ok 48 - nested ordered list
+  ---
+  duration_ms: 10.30513
+  type: 'test'
+  ...
+# Subtest: indent all list items equally
+ok 49 - indent all list items equally
+  ---
+  duration_ms: 12.20368
+  type: 'test'
+  ...
+# Subtest: placeholder
+ok 50 - placeholder
+  ---
+  duration_ms: 24.246064
+  type: 'test'
+  ...
+# Subtest: cursor can't be moved in placeholder
+ok 51 - cursor can't be moved in placeholder
+  ---
+  duration_ms: 206.83233
+  type: 'test'
+  ...
+# Subtest: hide cursor in placeholder when disabled
+ok 52 - hide cursor in placeholder when disabled
+  ---
+  duration_ms: 4.683494
+  type: 'test'
+  ...
+# Subtest: insert character
+ok 53 - insert character
+  ---
+  duration_ms: 104.811771
+  type: 'test'
+  ...
+# Subtest: insert text
+ok 54 - insert text
+  ---
+  duration_ms: 105.724949
+  type: 'test'
+  ...
+# Subtest: ignore input when disabled
+ok 55 - ignore input when disabled
+  ---
+  duration_ms: 105.092213
+  type: 'test'
+  ...
+# Subtest: delete character
+ok 56 - delete character
+  ---
+  duration_ms: 205.930051
+  type: 'test'
+  ...
+# Subtest: delete all text
+ok 57 - delete all text
+  ---
+  duration_ms: 511.715134
+  type: 'test'
+  ...
+# Subtest: move cursor to the left
+ok 58 - move cursor to the left
+  ---
+  duration_ms: 510.465316
+  type: 'test'
+  ...
+# Subtest: cursor can't be moved left when at the beginning of the input
+ok 59 - cursor can't be moved left when at the beginning of the input
+  ---
+  duration_ms: 611.120667
+  type: 'test'
+  ...
+# Subtest: move cursor to the right
+ok 60 - move cursor to the right
+  ---
+  duration_ms: 917.504261
+  type: 'test'
+  ...
+# Subtest: cursor can't be moved right when at the end of the input
+ok 61 - cursor can't be moved right when at the end of the input
+  ---
+  duration_ms: 204.320075
+  type: 'test'
+  ...
+# Subtest: insert character in the middle
+ok 62 - insert character in the middle
+  ---
+  duration_ms: 506.875996
+  type: 'test'
+  ...
+# Subtest: insert text in the middle
+ok 63 - insert text in the middle
+  ---
+  duration_ms: 509.292765
+  type: 'test'
+  ...
+# Subtest: submit on enter
+ok 64 - submit on enter
+  ---
+  duration_ms: 205.273527
+  type: 'test'
+  ...
+# Subtest: progress bar
+ok 65 - progress bar
+  ---
+  duration_ms: 51.275419
+  type: 'test'
+  ...
+# Subtest: the viewport shows the first rows and clips the rest
+ok 66 - the viewport shows the first rows and clips the rest
+  ---
+  duration_ms: 76.181639
+  type: 'test'
+  ...
+# Subtest: arrow keys scroll one row at a time
+ok 67 - arrow keys scroll one row at a time
+  ---
+  duration_ms: 140.042392
+  type: 'test'
+  ...
+# Subtest: page keys move by one viewport
+ok 68 - page keys move by one viewport
+  ---
+  duration_ms: 93.713959
+  type: 'test'
+  ...
+# Subtest: End jumps to the last rows and Home returns to the first
+ok 69 - End jumps to the last rows and Home returns to the first
+  ---
+  duration_ms: 136.2086
+  type: 'test'
+  ...
+# Subtest: the offset is clamped at the top and the bottom
+ok 70 - the offset is clamped at the top and the bottom
+  ---
+  duration_ms: 131.250868
+  type: 'test'
+  ...
+# Subtest: onScroll reports each new offset
+ok 71 - onScroll reports each new offset
+  ---
+  duration_ms: 131.672583
+  type: 'test'
+  ...
+# Subtest: the mouse wheel scrolls only the viewport the pointer is over
+ok 72 - the mouse wheel scrolls only the viewport the pointer is over
+  ---
+  duration_ms: 129.006817
+  type: 'test'
+  ...
+# Subtest: limit number of visible options
+ok 73 - limit number of visible options
+  ---
+  duration_ms: 43.285876
+  type: 'test'
+  ...
+# Subtest: focus next option
+ok 74 - focus next option
+  ---
+  duration_ms: 108.171024
+  type: 'test'
+  ...
+# Subtest: focus next option and scroll down
+ok 75 - focus next option and scroll down
+  ---
+  duration_ms: 617.347497
+  type: 'test'
+  ...
+# Subtest: don't scroll down when focused option is the last one
+ok 76 - don't scroll down when focused option is the last one
+  ---
+  duration_ms: 716.544094
+  type: 'test'
+  ...
+# Subtest: focus previous option
+ok 77 - focus previous option
+  ---
+  duration_ms: 210.211648
+  type: 'test'
+  ...
+# Subtest: focus previous option and scroll up
+ok 78 - focus previous option and scroll up
+  ---
+  duration_ms: 1216.800889
+  type: 'test'
+  ...
+# Subtest: don't scroll up when focused option is the first one
+ok 79 - don't scroll up when focused option is the first one
+  ---
+  duration_ms: 1320.214016
+  type: 'test'
+  ...
+# Subtest: ignore input when disabled
+ok 80 - ignore input when disabled
+  ---
+  duration_ms: 309.522259
+  type: 'test'
+  ...
+# Subtest: select focused option
+ok 81 - select focused option
+  ---
+  duration_ms: 208.434853
+  type: 'test'
+  ...
+# Subtest: selected option by default
+ok 82 - selected option by default
+  ---
+  duration_ms: 5.733323
+  type: 'test'
+  ...
+# Subtest: highlight text in options
+ok 83 - highlight text in options
+  ---
+  duration_ms: 5.068058
+  type: 'test'
+  ...
+# Subtest: spatial focus moves to the neighbor in each direction
+ok 84 - spatial focus moves to the neighbor in each direction
+  ---
+  duration_ms: 1.245578
+  type: 'test'
+  ...
+# Subtest: no candidate in the requested direction yields undefined
+ok 85 - no candidate in the requested direction yields undefined
+  ---
+  duration_ms: 0.29571
+  type: 'test'
+  ...
+# Subtest: a target straight ahead beats a diagonal one at a similar distance
+ok 86 - a target straight ahead beats a diagonal one at a similar distance
+  ---
+  duration_ms: 0.147426
+  type: 'test'
+  ...
+# Subtest: a vertical step counts a cell row as more distance than a column
+ok 87 - a vertical step counts a cell row as more distance than a column
+  ---
+  duration_ms: 0.129435
+  type: 'test'
+  ...
+# Subtest: spinner
+ok 88 - spinner
+  ---
+  duration_ms: 855.727833
+  type: 'test'
+  ...
+# Subtest: success
+ok 89 - success
+  ---
+  duration_ms: 41.546783
+  type: 'test'
+  ...
+# Subtest: error
+ok 90 - error
+  ---
+  duration_ms: 4.367773
+  type: 'test'
+  ...
+# Subtest: warning
+ok 91 - warning
+  ---
+  duration_ms: 2.804297
+  type: 'test'
+  ...
+# Subtest: info
+ok 92 - info
+  ---
+  duration_ms: 2.054013
+  type: 'test'
+  ...
+# Subtest: multiline message
+ok 93 - multiline message
+  ---
+  duration_ms: 3.031219
+  type: 'test'
+  ...
+# Subtest: backspace at the start of the input deletes nothing
+ok 94 - backspace at the start of the input deletes nothing
+  ---
+  duration_ms: 129.340216
+  type: 'test'
+  ...
+# Subtest: forward delete removes the character under the cursor
+ok 95 - forward delete removes the character under the cursor
+  ---
+  duration_ms: 86.648079
+  type: 'test'
+  ...
+# Subtest: backspace removes a whole emoji, not half of its surrogate pair
+ok 96 - backspace removes a whole emoji, not half of its surrogate pair
+  ---
+  duration_ms: 79.313738
+  type: 'test'
+  ...
+# Subtest: the cursor steps over a whole emoji in one move
+ok 97 - the cursor steps over a whole emoji in one move
+  ---
+  duration_ms: 84.856973
+  type: 'test'
+  ...
+# Subtest: backspace after one Left removes the emoji before the cursor
+ok 98 - backspace after one Left removes the emoji before the cursor
+  ---
+  duration_ms: 72.840851
+  type: 'test'
+  ...
+# Subtest: backspace removes a combining mark together with its base letter
+ok 99 - backspace removes a combining mark together with its base letter
+  ---
+  duration_ms: 69.169138
+  type: 'test'
+  ...
+# Subtest: ctrl+letter does not insert the letter
+ok 100 - ctrl+letter does not insert the letter
+  ---
+  duration_ms: 55.72227
+  type: 'test'
+  ...
+# Subtest: control characters in pasted text are not inserted
+ok 101 - control characters in pasted text are not inserted
+  ---
+  duration_ms: 54.92822
+  type: 'test'
+  ...
+# Subtest: placeholder
+ok 102 - placeholder
+  ---
+  duration_ms: 19.82287
+  type: 'test'
+  ...
+# Subtest: cursor can't be moved in placeholder
+ok 103 - cursor can't be moved in placeholder
+  ---
+  duration_ms: 206.50175
+  type: 'test'
+  ...
+# Subtest: hide cursor in placeholder when disabled
+ok 104 - hide cursor in placeholder when disabled
+  ---
+  duration_ms: 4.036358
+  type: 'test'
+  ...
+# Subtest: default value
+ok 105 - default value
+  ---
+  duration_ms: 2.28022
+  type: 'test'
+  ...
+# Subtest: hide cursor in value when disabled
+ok 106 - hide cursor in value when disabled
+  ---
+  duration_ms: 1.82423
+  type: 'test'
+  ...
+# Subtest: insert character
+ok 107 - insert character
+  ---
+  duration_ms: 104.712465
+  type: 'test'
+  ...
+# Subtest: insert text
+ok 108 - insert text
+  ---
+  duration_ms: 104.652977
+  type: 'test'
+  ...
+# Subtest: ignore input when disabled
+ok 109 - ignore input when disabled
+  ---
+  duration_ms: 104.631906
+  type: 'test'
+  ...
+# Subtest: delete character
+ok 110 - delete character
+  ---
+  duration_ms: 106.19174
+  type: 'test'
+  ...
+# Subtest: delete all text
+ok 111 - delete all text
+  ---
+  duration_ms: 408.040156
+  type: 'test'
+  ...
+# Subtest: move cursor to the left
+ok 112 - move cursor to the left
+  ---
+  duration_ms: 406.221566
+  type: 'test'
+  ...
+# Subtest: cursor can't be moved left when at the beginning of the input
+ok 113 - cursor can't be moved left when at the beginning of the input
+  ---
+  duration_ms: 508.209139
+  type: 'test'
+  ...
+# Subtest: move cursor to the right
+ok 114 - move cursor to the right
+  ---
+  duration_ms: 810.762037
+  type: 'test'
+  ...
+# Subtest: cursor can't be moved right when at the end of the input
+ok 115 - cursor can't be moved right when at the end of the input
+  ---
+  duration_ms: 103.832156
+  type: 'test'
+  ...
+# Subtest: insert character in the middle
+ok 116 - insert character in the middle
+  ---
+  duration_ms: 405.307189
+  type: 'test'
+  ...
+# Subtest: insert text in the middle
+ok 117 - insert text in the middle
+  ---
+  duration_ms: 405.819199
+  type: 'test'
+  ...
+# Subtest: autocomplete
+ok 118 - autocomplete
+  ---
+  duration_ms: 407.401693
+  type: 'test'
+  ...
+# Subtest: submit on enter
+ok 119 - submit on enter
+  ---
+  duration_ms: 104.137935
+  type: 'test'
+  ...
+# Subtest: unordered list
+ok 120 - unordered list
+  ---
+  duration_ms: 47.873425
+  type: 'test'
+  ...
+# Subtest: custom marker
+ok 121 - custom marker
+  ---
+  duration_ms: 5.081411
+  type: 'test'
+  ...
+# Subtest: nested list
+ok 122 - nested list
+  ---
+  duration_ms: 9.706391
+  type: 'test'
+  ...
+# Subtest: custom marker in nested list
+ok 123 - custom marker in nested list
+  ---
+  duration_ms: 5.086337
+  type: 'test'
+  ...
+# Subtest: custom markers in nested lists
+ok 124 - custom markers in nested lists
+  ---
+  duration_ms: 5.880465
+  type: 'test'
+  ...
+1..124
+# tests 124
+# suites 0
+# pass 124
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 42334.784002

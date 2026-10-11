@@ -36,19 +36,22 @@ const useMouse = (
 	options: Options = {},
 ): void => {
 	// eslint-disable-next-line @typescript-eslint/naming-convention
-	const {setMouseTracking, internal_eventEmitter} = useStdinContext();
+	const {setRawMode, setMouseTracking, internal_eventEmitter} = useStdinContext();
 
 	useEffect(() => {
 		if (options.isActive === false) {
 			return;
 		}
 
+		// Reports only arrive while stdin is read, and stdin is read only in raw mode. Taking raw mode here is what makes a mouse-only component work without useInput.
+		setRawMode(true);
 		setMouseTracking(true);
 
 		return () => {
 			setMouseTracking(false);
+			setRawMode(false);
 		};
-	}, [options.isActive, setMouseTracking]);
+	}, [options.isActive, setRawMode, setMouseTracking]);
 
 	const handleMouse = useEffectEvent((event: MouseEvent) => {
 		// Same priority as useInput and usePaste, so a click is handled in the same batch as the state it changes.

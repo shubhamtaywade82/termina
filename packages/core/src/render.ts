@@ -135,6 +135,13 @@ export type RenderOptions = {
 	@default false
 	*/
 	alternateScreen?: boolean;
+
+	/**
+	Enable mouse tracking so `<Box onClick>`, `onMouseDown`, `onMouseUp` and `onWheel` receive events. Off by default: tracking captures the wheel and suppresses native text selection, so an app must ask for it. Hit-testing assumes the app starts at the terminal's top-left, which holds with `alternateScreen` and no `<Static>` above the app.
+
+	@default false
+	*/
+	mouse?: boolean;
 };
 
 export type Instance = {

@@ -29,6 +29,7 @@ import {
 } from './kitty-keyboard.js';
 import {isTty, type OutputStream} from './stream.js';
 import {detectTerminalCapabilities} from './terminal-capabilities.js';
+import MouseRouter from './components/MouseRouter.js';
 
 const noop = () => {};
 
@@ -163,6 +164,7 @@ export type Options = {
 	waitUntilExit?: () => Promise<unknown>;
 	maxFps?: number;
 	incrementalRendering?: boolean;
+	mouse?: boolean;
 
 	/**
 	Enable React Concurrent Rendering mode.
@@ -1072,7 +1074,10 @@ export default class Ink {
 					onRegisterInputControl={this.registerInputControl}
 					onKittyQueryResponse={this.handleKittyQueryResponse}
 				>
-					<RootNodeContext value={this.rootNode}>{node}</RootNodeContext>
+					<RootNodeContext value={this.rootNode}>
+						{node}
+						{this.options.mouse ? <MouseRouter root={this.rootNode} /> : null}
+					</RootNodeContext>
 				</App>
 			</AccessibilityContext>
 		);

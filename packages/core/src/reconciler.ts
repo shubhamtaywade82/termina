@@ -28,6 +28,7 @@ import {
 } from './dom.js';
 import applyStyles, {type Styles} from './styles.js';
 import {type OutputTransformer} from './render-node-to-output.js';
+import {type MouseHandlers} from './mouse-dispatch.js';
 
 // We need to conditionally perform devtools connection to avoid
 // accidentally breaking other third-party code.
@@ -326,6 +327,11 @@ const hostConfig: HostConfig = {
 				continue;
 			}
 
+			if (key === 'internal_mouseHandlers') {
+				node.internal_mouseHandlers = value as MouseHandlers | undefined;
+				continue;
+			}
+
 			setAttribute(node, key, value as DOMNodeAttribute);
 		}
 
@@ -422,6 +428,11 @@ const hostConfig: HostConfig = {
 
 				if (key === 'internal_static') {
 					node.internal_static = true;
+					continue;
+				}
+
+				if (key === 'internal_mouseHandlers') {
+					node.internal_mouseHandlers = value as MouseHandlers | undefined;
 					continue;
 				}
 

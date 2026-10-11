@@ -4,6 +4,7 @@ import {type Styles} from './styles.js';
 import wrapText from './wrap-text.js';
 import squashTextNodes from './squash-text-nodes.js';
 import {type OutputTransformer} from './render-node-to-output.js';
+import {type MouseHandlers} from './mouse-dispatch.js';
 
 type InkNode = {
 	parentNode: DOMElement | undefined;
@@ -71,6 +72,7 @@ export type DOMElement = {
 	onImmediateRender?: () => void;
 	onStaticChange?: () => void;
 	internal_layoutListeners?: Set<LayoutListener>;
+	internal_mouseHandlers?: MouseHandlers;
 } & InkNode;
 
 export type TextNode = {

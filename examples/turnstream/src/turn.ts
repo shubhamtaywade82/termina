@@ -106,7 +106,7 @@ const buildScript = (): Step[] => {
 	streamBlock('thinking', 'thinking', 'reason',
 		'Writing the fix: Bearer split, timingSafeEqual, explicit 401, rate limit 5 per minute per IP. Then run the tests.', 60, 200);
 	add(0, {type: 'phase', phase: 'act'});
-	toolBlock('Edit src/auth.ts (+14 −6)', '✓ applied · typecheck ✓', 700, 0);
+	toolBlock('Edit src/auth.ts (+3 −2)', ' import { verifyToken } from \'./utils/token\';\n-export async function auth(req) {\n-  const token = req.headers.authorization;\n+import { timingSafeEqual } from \'crypto\';\n+export async function auth(req, res) {\n+  const token = req.headers.authorization?.split(\' \')[1];\n+  if (!token) return res.status(401).json({error: \'missing token\'});\n✓ applied · typecheck ✓', 700, 0);
 	toolBlock('Bash npm test -- --coverage', 'Tests: 31 passed, 31 total · coverage 96.1%', 1200, 0);
 	add(0, {type: 'phase', phase: 'observe'});
 	add(250, {type: 'phase', phase: 'respond'});

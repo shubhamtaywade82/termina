@@ -4,6 +4,7 @@ import {type Styles} from '../styles.js';
 import {type DOMElement} from '../dom.js';
 import {AccessibilityContext} from './AccessibilityContext.js';
 import {BackgroundContext} from './BackgroundContext.js';
+import {type MouseEvent} from '../mouse.js';
 
 export type Props = Except<Styles, 'textWrap'> & {
 	/**
@@ -53,6 +54,26 @@ export type Props = Except<Styles, 'textWrap'> & {
 		readonly required?: boolean;
 		readonly selected?: boolean;
 	};
+
+	/**
+	Called when the element is pressed and released in place. A descendant without its own `onClick` passes the click up to this element. Mouse tracking is enabled with `render(..., {mouse: true})`.
+	*/
+	readonly onClick?: (event: MouseEvent) => void;
+
+	/**
+	Called when a mouse button goes down over this element or a descendant.
+	*/
+	readonly onMouseDown?: (event: MouseEvent) => void;
+
+	/**
+	Called when a mouse button comes up over this element or a descendant.
+	*/
+	readonly onMouseUp?: (event: MouseEvent) => void;
+
+	/**
+	Called for wheel steps over this element or a descendant.
+	*/
+	readonly onWheel?: (event: MouseEvent) => void;
 };
 
 /**
@@ -70,6 +91,10 @@ const Box = forwardRef<DOMElement, PropsWithChildren<Props>>(
 			'aria-hidden': ariaHidden,
 			'aria-role': role,
 			'aria-state': ariaState,
+			onClick,
+			onMouseDown,
+			onMouseUp,
+			onWheel,
 			...style
 		},
 		ref,
@@ -83,6 +108,11 @@ const Box = forwardRef<DOMElement, PropsWithChildren<Props>>(
 		const effectiveBackgroundColor =
 			// eslint-disable-next-line @typescript-eslint/prefer-nullish-coalescing, @typescript-eslint/strict-boolean-expressions -- Empty background colors inherit from the parent too.
 			backgroundColor || inheritedBackgroundColor;
+
+		const mouseHandlers =
+			onClick || onMouseDown || onMouseUp || onWheel
+				? {onClick, onMouseDown, onMouseUp, onWheel}
+				: undefined;
 
 		const boxElement = (
 			<ink-box
@@ -101,6 +131,7 @@ const Box = forwardRef<DOMElement, PropsWithChildren<Props>>(
 					role,
 					state: ariaState,
 				}}
+				internal_mouseHandlers={mouseHandlers}
 			>
 				{isScreenReaderEnabled && Boolean(ariaLabel) ? (
 					<ink-text>{ariaLabel}</ink-text>

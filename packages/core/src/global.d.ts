@@ -21,6 +21,7 @@ declare namespace Ink {
 		ref?: Ref<DOMElement>;
 		style?: Except<Styles, 'textWrap'>;
 		internal_accessibility?: DOMElement['internal_accessibility'];
+		internal_mouseHandlers?: DOMElement['internal_mouseHandlers'];
 	};
 
 	type Text = {

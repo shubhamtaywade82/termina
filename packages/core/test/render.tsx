@@ -691,6 +691,8 @@ test('incremental example keeps its selection visible after resize', async (t: T
 	ps.output = '';
 	ps.resize(100, 30);
 	await ps.waitForOutput('System Services Monitor (10 of 30 services)');
+	// The header can arrive in an earlier chunk than the selected row. Wait for the row itself rather than sampling the output when the header arrives.
+	await ps.waitForOutput('Selected: WebSocket Connection Manager');
 	t.assert.ok(
 		stripAnsi(ps.output).includes('Selected: WebSocket Connection Manager'),
 	);

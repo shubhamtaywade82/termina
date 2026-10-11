@@ -154,3 +154,35 @@ test('mouse tracking is shared by mounted hooks and released with the last one',
 	const disables = stdout.getWrites().filter(write => write === mouseTrackingDisable);
 	t.assert.strictEqual(disables.length, 1);
 });
+
+test('a component that uses only useMouse still receives reports', async (t: TestContext) => {
+	const events: MouseEvent[] = [];
+
+	function MouseOnly() {
+		useMouse(event => {
+			events.push(event);
+		});
+		return <Text>mouse only</Text>;
+	}
+
+	const stdout = createStdout(80, true);
+	const stdin = createInput();
+	const instance = render(<MouseOnly />, {
+		stdout,
+		stdin,
+		stderr: stdout,
+		interactive: true,
+		exitOnCtrlC: false,
+		patchConsole: false,
+	});
+
+	await instance.waitUntilRenderFlush();
+	(stdin as unknown as PassThrough).write(`${esc}[<0;24;12M`);
+	await delay(50);
+
+	t.assert.deepStrictEqual(
+		events.map(event => [event.action, event.x, event.y]),
+		[['press', 24, 12]],
+	);
+	instance.unmount();
+});
