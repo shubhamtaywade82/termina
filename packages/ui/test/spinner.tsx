@@ -1,13 +1,13 @@
 import process from 'node:process';
 import React from 'react';
-import test from 'ava';
-import {render} from 'ink-testing-library';
+import test, {type TestContext} from 'node:test';
+import {render} from './helpers/render.js';
 import chalk from 'chalk';
 import spinners from 'cli-spinners';
 import delay from 'delay';
 import {Spinner} from '../source/index.js';
 
-test('spinner', async t => {
+test('spinner', async (t: TestContext) => {
 	const {frames, unmount} = render(<Spinner label="Loading" />);
 
 	const spinner = spinners.dots;
@@ -20,7 +20,7 @@ test('spinner', async t => {
 		uniqueFrames.pop();
 	}
 
-	t.deepEqual(
+	t.assert.deepStrictEqual(
 		uniqueFrames,
 		spinner.frames.map(frame => `${chalk.blue(frame)} Loading`),
 	);

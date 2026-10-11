@@ -1,13 +1,13 @@
 import React from 'react';
-import test from 'ava';
+import test, {type TestContext} from 'node:test';
+import {render} from './helpers/render.js';
 import {Box} from '@fork/core';
-import {render} from 'ink-testing-library';
 import chalk from 'chalk';
 import figures from 'figures';
 import boxen from 'boxen';
 import {Alert} from '../source/index.js';
 
-test.failing('success', t => {
+test('success', (t: TestContext) => {
 	const {lastFrame} = render(
 		<Box width={16}>
 			<Alert variant="success" title="Success">
@@ -16,7 +16,7 @@ test.failing('success', t => {
 		</Box>,
 	);
 
-	t.is(
+	t.assert.strictEqual(
 		lastFrame(),
 		boxen(
 			[
@@ -37,7 +37,7 @@ test.failing('success', t => {
 	);
 });
 
-test('error', t => {
+test('error', (t: TestContext) => {
 	const {lastFrame} = render(
 		<Box width={16}>
 			<Alert variant="error" title="Error">
@@ -46,7 +46,7 @@ test('error', t => {
 		</Box>,
 	);
 
-	t.is(
+	t.assert.strictEqual(
 		lastFrame(),
 		boxen(
 			[
@@ -67,7 +67,7 @@ test('error', t => {
 	);
 });
 
-test.failing('warning', t => {
+test('warning', (t: TestContext) => {
 	const {lastFrame} = render(
 		<Box width={16}>
 			<Alert variant="warning" title="Warning">
@@ -76,7 +76,7 @@ test.failing('warning', t => {
 		</Box>,
 	);
 
-	t.is(
+	t.assert.strictEqual(
 		lastFrame(),
 		boxen(
 			[
@@ -97,7 +97,7 @@ test.failing('warning', t => {
 	);
 });
 
-test.failing('info', t => {
+test('info', (t: TestContext) => {
 	const {lastFrame} = render(
 		<Box width={16}>
 			<Alert variant="info" title="Info">
@@ -106,7 +106,7 @@ test.failing('info', t => {
 		</Box>,
 	);
 
-	t.is(
+	t.assert.strictEqual(
 		lastFrame(),
 		boxen(
 			[

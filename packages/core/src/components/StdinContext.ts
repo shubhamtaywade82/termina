@@ -23,6 +23,11 @@ export type Props = PublicProps & {
 	/**
 	Enable or disable bracketed paste mode on the terminal. When enabled, pasted text is wrapped in escape sequences that allow it to be distinguished from typed input.
 	*/
+	/**
+	Enable or disable SGR mouse tracking. Reference-counted: tracking stays on while any `useMouse` hook is mounted.
+	*/
+	readonly setMouseTracking: (isEnabled: boolean) => void;
+
 	readonly setBracketedPasteMode: (isEnabled: boolean) => void;
 
 	readonly internal_exitOnCtrlC: boolean;
@@ -40,6 +45,7 @@ const StdinContext = createContext<Props>({
 	internal_eventEmitter: new EventEmitter(),
 	setRawMode() {},
 	setBracketedPasteMode() {},
+	setMouseTracking() {},
 	isRawModeSupported: false,
 	// eslint-disable-next-line @typescript-eslint/naming-convention
 	internal_exitOnCtrlC: true,

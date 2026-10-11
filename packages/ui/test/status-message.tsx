@@ -1,51 +1,51 @@
 import React from 'react';
-import test from 'ava';
+import test, {type TestContext} from 'node:test';
+import {render} from './helpers/render.js';
 import {Box} from '@fork/core';
-import {render} from 'ink-testing-library';
 import chalk from 'chalk';
 import figures from 'figures';
 import {StatusMessage} from '../source/index.js';
 
-test.failing('success', t => {
+test('success', (t: TestContext) => {
 	const {lastFrame} = render(
 		<StatusMessage variant="success">Success</StatusMessage>,
 	);
 
-	t.is(lastFrame(), `${chalk.green(figures.tick)} Success`);
+	t.assert.strictEqual(lastFrame(), `${chalk.green(figures.tick)} Success`);
 });
 
-test('error', t => {
+test('error', (t: TestContext) => {
 	const {lastFrame} = render(
 		<StatusMessage variant="error">Error</StatusMessage>,
 	);
 
-	t.is(lastFrame(), `${chalk.red(figures.cross)} Error`);
+	t.assert.strictEqual(lastFrame(), `${chalk.red(figures.cross)} Error`);
 });
 
-test.failing('warning', t => {
+test('warning', (t: TestContext) => {
 	const {lastFrame} = render(
 		<StatusMessage variant="warning">Warning</StatusMessage>,
 	);
 
-	t.is(lastFrame(), `${chalk.yellow(figures.warning)} Warning`);
+	t.assert.strictEqual(lastFrame(), `${chalk.yellow(figures.warning)} Warning`);
 });
 
-test.failing('info', t => {
+test('info', (t: TestContext) => {
 	const {lastFrame} = render(
 		<StatusMessage variant="info">Info</StatusMessage>,
 	);
 
-	t.is(lastFrame(), `${chalk.blue(figures.info)} Info`);
+	t.assert.strictEqual(lastFrame(), `${chalk.blue(figures.info)} Info`);
 });
 
-test.failing('multiline message', t => {
+test('multiline message', (t: TestContext) => {
 	const {lastFrame} = render(
 		<Box width={8}>
 			<StatusMessage variant="info">Hello world</StatusMessage>
 		</Box>,
 	);
 
-	t.is(
+	t.assert.strictEqual(
 		lastFrame(),
 		[`${chalk.blue(figures.info)} Hello`, '  world'].join('\n'),
 	);

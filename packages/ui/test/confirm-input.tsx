@@ -1,12 +1,12 @@
 import React from 'react';
-import test from 'ava';
-import {render} from 'ink-testing-library';
+import test, {type TestContext} from 'node:test';
+import {render} from './helpers/render.js';
 import delay from 'delay';
 import {ConfirmInput} from '../source/index.js';
 
 const enter = '\r';
 
-test('confirm via "Y"', async t => {
+test('confirm via "Y"', async (t: TestContext) => {
 	let confirmed = false;
 	let cancelled = false;
 
@@ -21,17 +21,17 @@ test('confirm via "Y"', async t => {
 		/>,
 	);
 
-	t.is(lastFrame(), 'Y/n');
+	t.assert.strictEqual(lastFrame(), 'Y/n');
 
 	await delay(50);
 	stdin.write('Y');
 	await delay(50);
 
-	t.true(confirmed);
-	t.false(cancelled);
+	t.assert.ok(confirmed);
+	t.assert.ok(!(cancelled));
 });
 
-test('confirm via "y"', async t => {
+test('confirm via "y"', async (t: TestContext) => {
 	let confirmed = false;
 	let cancelled = false;
 
@@ -46,17 +46,17 @@ test('confirm via "y"', async t => {
 		/>,
 	);
 
-	t.is(lastFrame(), 'Y/n');
+	t.assert.strictEqual(lastFrame(), 'Y/n');
 
 	await delay(50);
 	stdin.write('y');
 	await delay(50);
 
-	t.true(confirmed);
-	t.false(cancelled);
+	t.assert.ok(confirmed);
+	t.assert.ok(!(cancelled));
 });
 
-test('confirm via enter', async t => {
+test('confirm via enter', async (t: TestContext) => {
 	let confirmed = false;
 	let cancelled = false;
 
@@ -71,17 +71,17 @@ test('confirm via enter', async t => {
 		/>,
 	);
 
-	t.is(lastFrame(), 'Y/n');
+	t.assert.strictEqual(lastFrame(), 'Y/n');
 
 	await delay(50);
 	stdin.write(enter);
 	await delay(50);
 
-	t.true(confirmed);
-	t.false(cancelled);
+	t.assert.ok(confirmed);
+	t.assert.ok(!(cancelled));
 });
 
-test('confirm with disabled enter', async t => {
+test('confirm with disabled enter', async (t: TestContext) => {
 	let confirmed = false;
 	let cancelled = false;
 
@@ -97,24 +97,24 @@ test('confirm with disabled enter', async t => {
 		/>,
 	);
 
-	t.is(lastFrame(), 'Y/n');
+	t.assert.strictEqual(lastFrame(), 'Y/n');
 
 	await delay(50);
 	stdin.write(enter);
 	await delay(50);
 
-	t.false(confirmed);
-	t.false(cancelled);
+	t.assert.ok(!(confirmed));
+	t.assert.ok(!(cancelled));
 
 	await delay(50);
 	stdin.write('y');
 	await delay(50);
 
-	t.true(confirmed);
-	t.false(cancelled);
+	t.assert.ok(confirmed);
+	t.assert.ok(!(cancelled));
 });
 
-test('cancel via "N"', async t => {
+test('cancel via "N"', async (t: TestContext) => {
 	let confirmed = false;
 	let cancelled = false;
 
@@ -129,17 +129,17 @@ test('cancel via "N"', async t => {
 		/>,
 	);
 
-	t.is(lastFrame(), 'Y/n');
+	t.assert.strictEqual(lastFrame(), 'Y/n');
 
 	await delay(50);
 	stdin.write('N');
 	await delay(50);
 
-	t.false(confirmed);
-	t.true(cancelled);
+	t.assert.ok(!(confirmed));
+	t.assert.ok(cancelled);
 });
 
-test('cancel via "n"', async t => {
+test('cancel via "n"', async (t: TestContext) => {
 	let confirmed = false;
 	let cancelled = false;
 
@@ -154,17 +154,17 @@ test('cancel via "n"', async t => {
 		/>,
 	);
 
-	t.is(lastFrame(), 'Y/n');
+	t.assert.strictEqual(lastFrame(), 'Y/n');
 
 	await delay(50);
 	stdin.write('n');
 	await delay(50);
 
-	t.false(confirmed);
-	t.true(cancelled);
+	t.assert.ok(!(confirmed));
+	t.assert.ok(cancelled);
 });
 
-test('cancel via enter', async t => {
+test('cancel via enter', async (t: TestContext) => {
 	let confirmed = false;
 	let cancelled = false;
 
@@ -180,17 +180,17 @@ test('cancel via enter', async t => {
 		/>,
 	);
 
-	t.is(lastFrame(), 'y/N');
+	t.assert.strictEqual(lastFrame(), 'y/N');
 
 	await delay(50);
 	stdin.write(enter);
 	await delay(50);
 
-	t.false(confirmed);
-	t.true(cancelled);
+	t.assert.ok(!(confirmed));
+	t.assert.ok(cancelled);
 });
 
-test('cancel with disabled enter', async t => {
+test('cancel with disabled enter', async (t: TestContext) => {
 	let confirmed = false;
 	let cancelled = false;
 
@@ -207,19 +207,19 @@ test('cancel with disabled enter', async t => {
 		/>,
 	);
 
-	t.is(lastFrame(), 'y/N');
+	t.assert.strictEqual(lastFrame(), 'y/N');
 
 	await delay(50);
 	stdin.write(enter);
 	await delay(50);
 
-	t.false(confirmed);
-	t.false(cancelled);
+	t.assert.ok(!(confirmed));
+	t.assert.ok(!(cancelled));
 
 	await delay(50);
 	stdin.write('n');
 	await delay(50);
 
-	t.false(confirmed);
-	t.true(cancelled);
+	t.assert.ok(!(confirmed));
+	t.assert.ok(cancelled);
 });

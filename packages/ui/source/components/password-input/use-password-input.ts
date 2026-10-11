@@ -1,6 +1,7 @@
 import {useMemo} from 'react';
 import {useInput} from '@fork/core';
 import chalk from 'chalk';
+import {splitFirstGrapheme} from '../../lib/grapheme.js';
 import {type PasswordInputState} from './use-password-input-state.js';
 
 export type UsePasswordInputProps = {
@@ -43,9 +44,12 @@ export const usePasswordInput = ({
 			return placeholder ? chalk.dim(placeholder) : '';
 		}
 
-		return placeholder && placeholder.length > 0
-			? chalk.inverse(placeholder[0]) + chalk.dim(placeholder.slice(1))
-			: cursor;
+		if (!placeholder) {
+			return cursor;
+		}
+
+		const [first, rest] = splitFirstGrapheme(placeholder);
+		return chalk.inverse(first) + chalk.dim(rest);
 	}, [isDisabled, placeholder]);
 
 	const renderedValue = useMemo(() => {
@@ -92,8 +96,13 @@ export const usePasswordInput = ({
 				state.moveCursorLeft();
 			} else if (key.rightArrow) {
 				state.moveCursorRight();
-			} else if (key.backspace || key.delete) {
+			} else if (key.backspace) {
 				state.delete();
+			} else if (key.delete) {
+				state.deleteForward();
+			} else if (key.ctrl || key.meta) {
+				// Ctrl and Alt chords are commands, not text.
+				return;
 			} else {
 				state.insert(input);
 			}

@@ -1,7 +1,7 @@
 /* eslint-disable no-await-in-loop */
 import React from 'react';
-import test from 'ava';
-import {render} from 'ink-testing-library';
+import test, {type TestContext} from 'node:test';
+import {render} from './helpers/render.js';
 import chalk from 'chalk';
 import figures from 'figures';
 import delay from 'delay';
@@ -42,12 +42,12 @@ const arrowDown = '\u001B[B';
 const arrowUp = '\u001B[A';
 const enter = '\r';
 
-test('limit number of visible options', t => {
+test('limit number of visible options', (t: TestContext) => {
 	const {lastFrame} = render(
 		<MultiSelect visibleOptionCount={6} options={options} />,
 	);
 
-	t.is(
+	t.assert.strictEqual(
 		lastFrame(),
 		[
 			`${chalk.blue(figures.pointer)} ${chalk.blue('Red')}`,
@@ -60,14 +60,14 @@ test('limit number of visible options', t => {
 	);
 });
 
-test('focus next option', async t => {
+test('focus next option', async (t: TestContext) => {
 	const {lastFrame, stdin} = render(<MultiSelect options={options} />);
 
 	await delay(50);
 	stdin.write(arrowDown);
 	await delay(50);
 
-	t.is(
+	t.assert.strictEqual(
 		lastFrame(),
 		[
 			'  Red',
@@ -79,7 +79,7 @@ test('focus next option', async t => {
 	);
 });
 
-test('focus next option and scroll down', async t => {
+test('focus next option and scroll down', async (t: TestContext) => {
 	const {lastFrame, stdin} = render(<MultiSelect options={options} />);
 
 	for (let press = 0; press < 6; press++) {
@@ -88,7 +88,7 @@ test('focus next option and scroll down', async t => {
 		await delay(50);
 	}
 
-	t.is(
+	t.assert.strictEqual(
 		lastFrame(),
 		[
 			'  Yellow',
@@ -100,7 +100,7 @@ test('focus next option and scroll down', async t => {
 	);
 });
 
-test("don't scroll down when focused option is the last one", async t => {
+test("don't scroll down when focused option is the last one", async (t: TestContext) => {
 	const {lastFrame, stdin} = render(<MultiSelect options={options} />);
 
 	for (let press = 0; press < 7; press++) {
@@ -109,7 +109,7 @@ test("don't scroll down when focused option is the last one", async t => {
 		await delay(50);
 	}
 
-	t.is(
+	t.assert.strictEqual(
 		lastFrame(),
 		[
 			'  Yellow',
@@ -121,14 +121,14 @@ test("don't scroll down when focused option is the last one", async t => {
 	);
 });
 
-test('focus previous option', async t => {
+test('focus previous option', async (t: TestContext) => {
 	const {lastFrame, stdin} = render(<MultiSelect options={options} />);
 
 	await delay(50);
 	stdin.write(arrowDown);
 	await delay(50);
 
-	t.is(
+	t.assert.strictEqual(
 		lastFrame(),
 		[
 			'  Red',
@@ -143,7 +143,7 @@ test('focus previous option', async t => {
 	stdin.write(arrowUp);
 	await delay(50);
 
-	t.is(
+	t.assert.strictEqual(
 		lastFrame(),
 		[
 			`${chalk.blue(figures.pointer)} ${chalk.blue('Red')}`,
@@ -155,7 +155,7 @@ test('focus previous option', async t => {
 	);
 });
 
-test('focus previous option and scroll up', async t => {
+test('focus previous option and scroll up', async (t: TestContext) => {
 	const {lastFrame, stdin} = render(<MultiSelect options={options} />);
 
 	for (let press = 0; press < 6; press++) {
@@ -164,7 +164,7 @@ test('focus previous option and scroll up', async t => {
 		await delay(50);
 	}
 
-	t.is(
+	t.assert.strictEqual(
 		lastFrame(),
 		[
 			'  Yellow',
@@ -181,7 +181,7 @@ test('focus previous option and scroll up', async t => {
 		await delay(50);
 	}
 
-	t.is(
+	t.assert.strictEqual(
 		lastFrame(),
 		[
 			`${chalk.blue(figures.pointer)} ${chalk.blue('Red')}`,
@@ -193,7 +193,7 @@ test('focus previous option and scroll up', async t => {
 	);
 });
 
-test("don't scroll up when focused option is the first one", async t => {
+test("don't scroll up when focused option is the first one", async (t: TestContext) => {
 	const {lastFrame, stdin} = render(<MultiSelect options={options} />);
 
 	for (let press = 0; press < 6; press++) {
@@ -202,7 +202,7 @@ test("don't scroll up when focused option is the first one", async t => {
 		await delay(50);
 	}
 
-	t.is(
+	t.assert.strictEqual(
 		lastFrame(),
 		[
 			'  Yellow',
@@ -219,7 +219,7 @@ test("don't scroll up when focused option is the first one", async t => {
 		await delay(50);
 	}
 
-	t.is(
+	t.assert.strictEqual(
 		lastFrame(),
 		[
 			`${chalk.blue(figures.pointer)} ${chalk.blue('Red')}`,
@@ -231,7 +231,7 @@ test("don't scroll up when focused option is the first one", async t => {
 	);
 });
 
-test('ignore input when disabled', async t => {
+test('ignore input when disabled', async (t: TestContext) => {
 	let value: string[] = [];
 
 	const {lastFrame, stdin} = render(
@@ -244,48 +244,48 @@ test('ignore input when disabled', async t => {
 		/>,
 	);
 
-	t.is(
+	t.assert.strictEqual(
 		lastFrame(),
 		['  Red', '  Green', '  Yellow', '  Blue', '  Magenta'].join('\n'),
 	);
 
-	t.deepEqual(value, []);
+	t.assert.deepStrictEqual(value, []);
 
 	await delay(50);
 	stdin.write(arrowDown);
 	await delay(50);
 
-	t.is(
+	t.assert.strictEqual(
 		lastFrame(),
 		['  Red', '  Green', '  Yellow', '  Blue', '  Magenta'].join('\n'),
 	);
 
-	t.deepEqual(value, []);
+	t.assert.deepStrictEqual(value, []);
 
 	await delay(50);
 	stdin.write(arrowUp);
 	await delay(50);
 
-	t.is(
+	t.assert.strictEqual(
 		lastFrame(),
 		['  Red', '  Green', '  Yellow', '  Blue', '  Magenta'].join('\n'),
 	);
 
-	t.deepEqual(value, []);
+	t.assert.deepStrictEqual(value, []);
 
 	await delay(50);
 	stdin.write(enter);
 	await delay(50);
 
-	t.is(
+	t.assert.strictEqual(
 		lastFrame(),
 		['  Red', '  Green', '  Yellow', '  Blue', '  Magenta'].join('\n'),
 	);
 
-	t.deepEqual(value, []);
+	t.assert.deepStrictEqual(value, []);
 });
 
-test('toggle focused option', async t => {
+test('toggle focused option', async (t: TestContext) => {
 	let value: string[] = [];
 
 	const {lastFrame, stdin} = render(
@@ -297,7 +297,7 @@ test('toggle focused option', async t => {
 		/>,
 	);
 
-	t.is(
+	t.assert.strictEqual(
 		lastFrame(),
 		[
 			`${chalk.blue(figures.pointer)} ${chalk.blue('Red')}`,
@@ -308,13 +308,13 @@ test('toggle focused option', async t => {
 		].join('\n'),
 	);
 
-	t.deepEqual(value, []);
+	t.assert.deepStrictEqual(value, []);
 
 	await delay(50);
 	stdin.write(' ');
 	await delay(50);
 
-	t.is(
+	t.assert.strictEqual(
 		lastFrame(),
 		[
 			`${chalk.blue(figures.pointer)} ${chalk.blue('Red')} ${chalk.green(
@@ -327,13 +327,13 @@ test('toggle focused option', async t => {
 		].join('\n'),
 	);
 
-	t.deepEqual(value, ['red']);
+	t.assert.deepStrictEqual(value, ['red']);
 
 	await delay(50);
 	stdin.write(arrowDown);
 	await delay(50);
 
-	t.is(
+	t.assert.strictEqual(
 		lastFrame(),
 		[
 			`  ${chalk.green('Red')} ${chalk.green(figures.tick)}`,
@@ -348,7 +348,7 @@ test('toggle focused option', async t => {
 	stdin.write(' ');
 	await delay(50);
 
-	t.is(
+	t.assert.strictEqual(
 		lastFrame(),
 		[
 			`  ${chalk.green('Red')} ${chalk.green(figures.tick)}`,
@@ -361,13 +361,13 @@ test('toggle focused option', async t => {
 		].join('\n'),
 	);
 
-	t.deepEqual(value, ['red', 'green']);
+	t.assert.deepStrictEqual(value, ['red', 'green']);
 
 	await delay(50);
 	stdin.write(' ');
 	await delay(50);
 
-	t.is(
+	t.assert.strictEqual(
 		lastFrame(),
 		[
 			`  ${chalk.green('Red')} ${chalk.green(figures.tick)}`,
@@ -378,15 +378,15 @@ test('toggle focused option', async t => {
 		].join('\n'),
 	);
 
-	t.deepEqual(value, ['red']);
+	t.assert.deepStrictEqual(value, ['red']);
 });
 
-test('selected options by default', t => {
+test('selected options by default', (t: TestContext) => {
 	const {lastFrame} = render(
 		<MultiSelect defaultValue={['green', 'magenta']} options={options} />,
 	);
 
-	t.is(
+	t.assert.strictEqual(
 		lastFrame(),
 		[
 			`${chalk.blue(figures.pointer)} ${chalk.blue('Red')}`,
@@ -398,7 +398,7 @@ test('selected options by default', t => {
 	);
 });
 
-test('submit selected options', async t => {
+test('submit selected options', async (t: TestContext) => {
 	let submittedValue: string[] | undefined;
 
 	const {lastFrame, stdin} = render(
@@ -415,7 +415,7 @@ test('submit selected options', async t => {
 	stdin.write(enter);
 	await delay(50);
 
-	t.is(
+	t.assert.strictEqual(
 		lastFrame(),
 		[
 			`${chalk.blue(figures.pointer)} ${chalk.blue('Red')}`,
@@ -426,15 +426,15 @@ test('submit selected options', async t => {
 		].join('\n'),
 	);
 
-	t.deepEqual(submittedValue, ['green', 'magenta']);
+	t.assert.deepStrictEqual(submittedValue, ['green', 'magenta']);
 });
 
-test('highlight text in options', t => {
+test('highlight text in options', (t: TestContext) => {
 	const {lastFrame} = render(
 		<MultiSelect highlightText="l" options={options} />,
 	);
 
-	t.is(
+	t.assert.strictEqual(
 		lastFrame(),
 		[
 			`${chalk.blue(figures.pointer)} ${chalk.blue('Red')}`,

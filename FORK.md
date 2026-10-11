@@ -1,0 +1,71 @@
+# Fork provenance and local changes
+
+## Upstream
+
+| Fork path | Upstream | Commit | License |
+| --- | --- | --- | --- |
+| `packages/core` (`@fork/core`) | https://github.com/vadimdemedes/ink | `26d2c3f83008142061c22267482489588cc3823c` (8.0.0) | MIT, `packages/core/license` |
+| `packages/ui` (`@fork/ui`) | https://github.com/vadimdemedes/ink-ui | `14b1145da0123a48cfc2f0ec9ff33dff0633f464` (2.0.0) | MIT, `packages/ui/license` |
+
+The upstream repositories were shallow-cloned and their `src/`, `source/`, `test/`,
+and `examples/` (the subset the engine tests import) were copied in. Upstream
+history is not carried over. Re-syncing means diffing against the commits above.
+
+## Local changes to `@fork/core`
+
+- **Reflow-aware resize erase.** `src/reflow.ts` (new), `src/log-update.ts`
+  (`clearReflowed`), `src/ink.tsx` (`resized`, `eraseReflowedFrame`,
+  `forgetRenderedFrame`). Erases by physical rows at the new width. Writes are
+  suppressed while suspended. Screen-reader frames end on a fresh row.
+- **Mouse protocol.** `src/mouse.ts` (SGR 1000/1002/1006 parser and enable/disable
+  sequences), `src/hooks/use-mouse.ts` (`useMouse`), App ref-counting and
+  suspend/resume/unmount release in `src/components/App.tsx`, `setMouseTracking`
+  in `StdinContext.ts`. Mouse reports are routed to `useMouse` and never reach `useInput`.
+- **OSC 8 hyperlinks.** `src/hyperlink.ts`. Rejects URLs containing control characters.
+- **OSC 52 clipboard.** `src/clipboard.ts`. Rejects payloads above 74,000 base64 characters.
+- **Capability probe.** `src/terminal-capabilities.ts`. Reads `TERM`, `COLORTERM`,
+  `NO_COLOR`, `FORCE_COLOR`, `CI`, and TTY state. `render()` now also defaults to
+  non-interactive when `TERM=dumb`.
+
+## Local changes to `@fork/ui`
+
+- **TextInput and PasswordInput editing.** Grapheme-aware cursor and deletion,
+  forward Delete, no-op Backspace at 0, Ctrl/Alt chords ignored, pasted control
+  characters removed. Shared module `source/lib/grapheme.ts`.
+- **ScrollBox** (`source/components/scroll-box`): fixed-height viewport, arrow,
+  page, home and end keys, mouse wheel with hit testing, clamped offset, optional
+  tail-follow, scrollbar track. Offsets move from a latest-offset ref, so bursts
+  of events do not act on stale state.
+- **LogStream** (`source/components/log-stream`): tail-following ScrollBox with a
+  `maxLines` cap.
+- **Spatial focus geometry** (`source/lib/spatial.ts`): `nearestInDirection`. Pure
+  function only. It is not wired into focus management.
+
+## Deviations from the original plan
+
+- **Test runner.** Node's built-in `node:test` with `tsx`, not Jest. The inherited
+  core suite (1,600+ tests) and the ported ui suite both use it. Switching would
+  add a transform layer for every test file.
+- **Node 22+** instead of Node 18 (Ink 8 requires it).
+- **Screen-reader output bytes changed.** A trailing newline is now written after
+  each screen-reader frame. This is what keeps the cursor off frame content when
+  the terminal narrows. Three byte-exact tests in `test/screen-reader.tsx` were
+  updated to match. The old reducer-based resize test in `test/render.tsx` now runs on
+  `@xterm/headless`, because the reducer does not model column reflow.
+- **Known-bug markers removed** in `packages/ui/test/alert.tsx` and
+  `packages/ui/test/status-message.tsx`. Their bodies pass on this base.
+- **Not built:** a cell-level back/front buffer renderer. Measured data is in
+  `docs/research/ink-architecture.md`, section 2. The cheap win (incremental
+  rendering) is already in upstream.
+- **Not built yet:** multi-line text editor, DataTable, Modal with focus trap,
+  Tabs and SplitPane, spatial focus wired to `useFocus`, OSC 8 and OSC 52 helpers
+  as Ink components, and a `VirtualTerminal` test API with `emitKey` and
+  `getFocusedId` (the xterm-backed helper in `packages/core/test/helpers` exists
+  and has no key API yet).
+
+## Test dependencies added
+
+`@xterm/headless` (reflowing emulator, used by resize tests), `node-pty` (real
+pseudo-terminal fixtures, as upstream), `delay`, `boxen`, `cat-names`, `p-queue`,
+`ms`, `@faker-js/faker`, all pinned in `packages/*/package.json`. `pnpm-lock.yaml`
+is committed so installs are reproducible. Upstream commits no lockfile.

@@ -20,7 +20,7 @@
   "scripts": {
     "build": "tsc",
     "typecheck": "tsc --noEmit",
-    "test": "node --import=tsx --test --test-concurrency=1 \"test/*.{ts,tsx}\""
+    "test": "FORCE_COLOR=true node --import=tsx --test --test-concurrency=1 \"test/*.{ts,tsx}\""
   },
   "dependencies": {
     "@fork/core": "workspace:*",
@@ -36,9 +36,12 @@
     "@sindresorhus/tsconfig": "^8.1.0",
     "@types/node": "^26.6.3",
     "@types/react": "^19.3.0",
+    "boxen": "^9.0.0",
+    "cat-names": "^4.0.0",
+    "delay": "^7.0.0",
     "react": "^19.3.0",
-    "strip-ansi": "^7.2.0",
     "sinon": "^22.1.0",
+    "strip-ansi": "^7.2.0",
     "tsx": "^4.23.15",
     "typescript": "^5.8.3"
   }

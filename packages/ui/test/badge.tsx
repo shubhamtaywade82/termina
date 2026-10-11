@@ -1,11 +1,11 @@
 import React from 'react';
-import test from 'ava';
-import {render} from 'ink-testing-library';
+import test, {type TestContext} from 'node:test';
+import {render} from './helpers/render.js';
 import chalk from 'chalk';
 import {Badge} from '../source/index.js';
 
-test('badge', t => {
+test('badge', (t: TestContext) => {
 	const {lastFrame} = render(<Badge color="green">Success</Badge>);
 
-	t.is(lastFrame(), chalk.bgGreen(` ${chalk.black('SUCCESS')} `));
+	t.assert.strictEqual(lastFrame(), chalk.bgGreen(` ${chalk.black('SUCCESS')} `));
 });

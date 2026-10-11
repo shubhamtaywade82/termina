@@ -1,8 +1,14 @@
 import {useReducer, useCallback, useEffect, type Reducer, useMemo} from 'react';
+import {
+	nextBoundary,
+	previousBoundary,
+	sanitizeInsertedText,
+} from '../../lib/grapheme.js';
 
 type State = {
 	previousValue: string;
 	value: string;
+	// UTF-16 index into `value`, always on a grapheme boundary.
 	cursorOffset: number;
 };
 
@@ -10,7 +16,8 @@ type Action =
 	| MoveCursorLeftAction
 	| MoveCursorRightAction
 	| InsertAction
-	| DeleteAction;
+	| DeleteAction
+	| DeleteForwardAction;
 
 type MoveCursorLeftAction = {
 	type: 'move-cursor-left';
@@ -29,44 +36,69 @@ type DeleteAction = {
 	type: 'delete';
 };
 
+type DeleteForwardAction = {
+	type: 'delete-forward';
+};
+
 const reducer: Reducer<State, Action> = (state, action) => {
 	switch (action.type) {
 		case 'move-cursor-left': {
 			return {
 				...state,
-				cursorOffset: Math.max(0, state.cursorOffset - 1),
+				cursorOffset: previousBoundary(state.value, state.cursorOffset),
 			};
 		}
 
 		case 'move-cursor-right': {
 			return {
 				...state,
-				cursorOffset: Math.min(state.value.length, state.cursorOffset + 1),
+				cursorOffset: nextBoundary(state.value, state.cursorOffset),
 			};
 		}
 
 		case 'insert': {
+			const text = sanitizeInsertedText(action.text);
+			if (text === '') {
+				return state;
+			}
+
 			return {
 				...state,
 				previousValue: state.value,
 				value:
 					state.value.slice(0, state.cursorOffset) +
-					action.text +
+					text +
 					state.value.slice(state.cursorOffset),
-				cursorOffset: state.cursorOffset + action.text.length,
+				cursorOffset: state.cursorOffset + text.length,
 			};
 		}
 
 		case 'delete': {
-			const newCursorOffset = Math.max(0, state.cursorOffset - 1);
+			const start = previousBoundary(state.value, state.cursorOffset);
+			if (start === state.cursorOffset) {
+				return state;
+			}
 
 			return {
 				...state,
 				previousValue: state.value,
 				value:
-					state.value.slice(0, newCursorOffset) +
-					state.value.slice(newCursorOffset + 1),
-				cursorOffset: newCursorOffset,
+					state.value.slice(0, start) + state.value.slice(state.cursorOffset),
+				cursorOffset: start,
+			};
+		}
+
+		case 'delete-forward': {
+			const end = nextBoundary(state.value, state.cursorOffset);
+			if (end === state.cursorOffset) {
+				return state;
+			}
+
+			return {
+				...state,
+				previousValue: state.value,
+				value:
+					state.value.slice(0, state.cursorOffset) + state.value.slice(end),
 			};
 		}
 	}
@@ -116,9 +148,14 @@ export type TextInputState = State & {
 	insert: (text: string) => void;
 
 	/**
-	 * Delete character.
+	 * Delete the grapheme before the cursor (Backspace).
 	 */
 	delete: () => void;
+
+	/**
+	 * Delete the grapheme after the cursor (Delete).
+	 */
+	deleteForward: () => void;
 
 	/**
 	 * Submit input value.
@@ -173,6 +210,12 @@ export const useTextInputState = ({
 		});
 	}, []);
 
+	const deleteForward = useCallback(() => {
+		dispatch({
+			type: 'delete-forward',
+		});
+	}, []);
+
 	const submit = useCallback(() => {
 		if (suggestion) {
 			insert(suggestion);
@@ -196,6 +239,7 @@ export const useTextInputState = ({
 		moveCursorRight,
 		insert,
 		delete: deleteCharacter,
+		deleteForward,
 		submit,
 	};
 };

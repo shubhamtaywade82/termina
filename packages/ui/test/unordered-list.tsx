@@ -1,7 +1,7 @@
 import React from 'react';
-import test from 'ava';
+import test, {type TestContext} from 'node:test';
 import {Text} from '@fork/core';
-import {render} from 'ink-testing-library';
+import {render} from './helpers/render.js';
 import chalk from 'chalk';
 import {
 	ThemeProvider,
@@ -10,7 +10,7 @@ import {
 	extendTheme,
 } from '../source/index.js';
 
-test('unordered list', t => {
+test('unordered list', (t: TestContext) => {
 	const {lastFrame} = render(
 		<UnorderedList>
 			<UnorderedList.Item>
@@ -25,7 +25,7 @@ test('unordered list', t => {
 		</UnorderedList>,
 	);
 
-	t.is(
+	t.assert.strictEqual(
 		lastFrame(),
 		[
 			`${chalk.dim('─')} Red`,
@@ -35,7 +35,7 @@ test('unordered list', t => {
 	);
 });
 
-test('custom marker', t => {
+test('custom marker', (t: TestContext) => {
 	const customTheme = extendTheme(defaultTheme, {
 		components: {
 			UnorderedList: {
@@ -62,7 +62,7 @@ test('custom marker', t => {
 		</ThemeProvider>,
 	);
 
-	t.is(
+	t.assert.strictEqual(
 		lastFrame(),
 		[
 			`${chalk.dim('+')} Red`,
@@ -72,7 +72,7 @@ test('custom marker', t => {
 	);
 });
 
-test('nested list', t => {
+test('nested list', (t: TestContext) => {
 	const {lastFrame} = render(
 		<UnorderedList>
 			<UnorderedList.Item>
@@ -101,7 +101,7 @@ test('nested list', t => {
 		</UnorderedList>,
 	);
 
-	t.is(
+	t.assert.strictEqual(
 		lastFrame(),
 		[
 			`${chalk.dim('─')} Red`,
@@ -118,7 +118,7 @@ test('nested list', t => {
 	);
 });
 
-test('custom marker in nested list', t => {
+test('custom marker in nested list', (t: TestContext) => {
 	const customTheme = extendTheme(defaultTheme, {
 		components: {
 			UnorderedList: {
@@ -159,7 +159,7 @@ test('custom marker in nested list', t => {
 		</ThemeProvider>,
 	);
 
-	t.is(
+	t.assert.strictEqual(
 		lastFrame(),
 		[
 			`${chalk.dim('+')} Red`,
@@ -176,7 +176,7 @@ test('custom marker in nested list', t => {
 	);
 });
 
-test('custom markers in nested lists', t => {
+test('custom markers in nested lists', (t: TestContext) => {
 	const customTheme = extendTheme(defaultTheme, {
 		components: {
 			UnorderedList: {
@@ -217,7 +217,7 @@ test('custom markers in nested lists', t => {
 		</ThemeProvider>,
 	);
 
-	t.is(
+	t.assert.strictEqual(
 		lastFrame(),
 		[
 			`${chalk.dim('─')} Red`,

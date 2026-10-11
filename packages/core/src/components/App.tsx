@@ -26,6 +26,11 @@ import FocusContext from './FocusContext.js';
 import AnimationContext from './AnimationContext.js';
 import CursorContext from './CursorContext.js';
 import ErrorBoundary from './ErrorBoundary.js';
+import {
+	mouseTrackingDisable,
+	mouseTrackingEnable,
+	parseMouseEvent,
+} from '../mouse.js';
 
 type AnimationSubscriber = {
 	readonly callback: (currentTime: number) => void;
@@ -114,6 +119,7 @@ function App({
 	const isInputPausedRef = useRef(false);
 	// Count how many components enabled bracketed paste mode
 	const bracketedPasteModeEnabledCountRef = useRef(0);
+const mouseTrackingCountRef = useRef(0);
 	const eventEmitterRef = useRef(new EventEmitter());
 	// Each useInput hook adds a listener, so the count can legitimately exceed the default limit of 10.
 	eventEmitterRef.current.setMaxListeners(Infinity);
@@ -329,6 +335,13 @@ function App({
 					return;
 				}
 
+				// SGR mouse reports are delivered only to useMouse. They are complete CSI sequences, so they must never reach useInput as text.
+				const mouseEvent = parseMouseEvent(event);
+				if (mouseEvent) {
+					eventEmitterRef.current.emit('mouse', mouseEvent);
+					return;
+				}
+
 				// A complete CSI or SS3 sequence that maps to no key Ink can represent is not printable text. Terminal replies (focus in/out, cursor position, mouse, device attributes) and keys without a `Key` field would otherwise reach `useInput` with the ESC stripped, as if typed.
 				if (isCompleteControlSequence(event)) {
 					const key = parseKeypress(event);
@@ -482,6 +495,33 @@ function App({
 		[stdout],
 	);
 
+	// Mouse tracking follows the bracketed-paste ownership rules: every mounted useMouse shares one mode, and it is released with the last one.
+	const handleSetMouseTracking = useCallback(
+		(isEnabled: boolean): void => {
+			if (!stdout.isTTY) {
+				return;
+			}
+
+			if (isEnabled) {
+				if (mouseTrackingCountRef.current === 0 && !isInputPausedRef.current) {
+					stdout.write(mouseTrackingEnable);
+				}
+
+				mouseTrackingCountRef.current++;
+				return;
+			}
+
+			if (mouseTrackingCountRef.current === 0) {
+				return;
+			}
+
+			if (--mouseTrackingCountRef.current === 0 && !isInputPausedRef.current) {
+				stdout.write(mouseTrackingDisable);
+			}
+		},
+		[stdout],
+	);
+
 	// Pausing and resuming leave the ref counts untouched: the React components
 	// still "own" raw mode/bracketed paste across the suspension.
 	const pauseInput = useCallback((): void => {
@@ -490,6 +530,12 @@ function App({
 		if (bracketedPasteModeEnabledCountRef.current > 0 && stdout.isTTY) {
 			try {
 				stdout.write('\u{1B}[?2004l');
+			} catch {}
+		}
+
+		if (mouseTrackingCountRef.current > 0 && stdout.isTTY) {
+			try {
+				stdout.write(mouseTrackingDisable);
 			} catch {}
 		}
 
@@ -523,6 +569,12 @@ function App({
 				stdout.write('\u{1B}[?2004h');
 			} catch {}
 		}
+		if (mouseTrackingCountRef.current > 0 && stdout.isTTY) {
+			try {
+				stdout.write(mouseTrackingEnable);
+			} catch {}
+		}
+
 	}, [isRawModeSupported, rawModeStdin, stdout, attachReadableListener]);
 
 	// Register input pause/resume in an insertion effect: it runs before every
@@ -718,6 +770,12 @@ function App({
 				disableRawMode();
 			}
 
+			if (mouseTrackingCountRef.current > 0 && canWriteToStdout && stdout.isTTY) {
+				stdout.write(mouseTrackingDisable);
+			}
+
+			mouseTrackingCountRef.current = 0;
+
 			if (!(bracketedPasteModeEnabledCountRef.current > 0)) {
 				return;
 			}
@@ -746,6 +804,7 @@ function App({
 			stdin,
 			setRawMode: handleSetRawMode,
 			setBracketedPasteMode: handleSetBracketedPasteMode,
+			setMouseTracking: handleSetMouseTracking,
 			isRawModeSupported,
 			// eslint-disable-next-line @typescript-eslint/naming-convention
 			internal_exitOnCtrlC: exitOnCtrlC,
@@ -756,6 +815,7 @@ function App({
 			stdin,
 			handleSetRawMode,
 			handleSetBracketedPasteMode,
+			handleSetMouseTracking,
 			isRawModeSupported,
 			exitOnCtrlC,
 		],

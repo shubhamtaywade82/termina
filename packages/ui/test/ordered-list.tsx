@@ -1,11 +1,11 @@
 import React from 'react';
-import test from 'ava';
+import test, {type TestContext} from 'node:test';
 import {Text} from '@fork/core';
-import {render} from 'ink-testing-library';
+import {render} from './helpers/render.js';
 import chalk from 'chalk';
 import {OrderedList} from '../source/index.js';
 
-test('ordered list', t => {
+test('ordered list', (t: TestContext) => {
 	const {lastFrame} = render(
 		<OrderedList>
 			<OrderedList.Item>
@@ -20,7 +20,7 @@ test('ordered list', t => {
 		</OrderedList>,
 	);
 
-	t.is(
+	t.assert.strictEqual(
 		lastFrame(),
 		[
 			`${chalk.dim('1.')} Red`,
@@ -30,7 +30,7 @@ test('ordered list', t => {
 	);
 });
 
-test('nested ordered list', t => {
+test('nested ordered list', (t: TestContext) => {
 	const {lastFrame} = render(
 		<OrderedList>
 			<OrderedList.Item>
@@ -59,7 +59,7 @@ test('nested ordered list', t => {
 		</OrderedList>,
 	);
 
-	t.is(
+	t.assert.strictEqual(
 		lastFrame(),
 		[
 			`${chalk.dim('1.')} Red`,
@@ -76,7 +76,7 @@ test('nested ordered list', t => {
 	);
 });
 
-test('indent all list items equally', t => {
+test('indent all list items equally', (t: TestContext) => {
 	const {lastFrame} = render(
 		<OrderedList>
 			<OrderedList.Item>
@@ -112,7 +112,7 @@ test('indent all list items equally', t => {
 		</OrderedList>,
 	);
 
-	t.is(
+	t.assert.strictEqual(
 		lastFrame(),
 		[
 			`${chalk.dim(' 1.')} One`,

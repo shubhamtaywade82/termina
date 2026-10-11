@@ -28,6 +28,7 @@ import {
 	resolveFlags,
 } from './kitty-keyboard.js';
 import {isTty, type OutputStream} from './stream.js';
+import {detectTerminalCapabilities} from './terminal-capabilities.js';
 
 const noop = () => {};
 
@@ -684,7 +685,11 @@ export default class Ink {
 	}
 
 	private resolveInteractiveOption(interactive: boolean | undefined): boolean {
-		return interactive ?? (!isInCi && Boolean(this.options.stdout.isTTY));
+		return (
+			interactive ??
+			detectTerminalCapabilities(process.env, this.options.stdout, isInCi)
+				.interactive
+		);
 	}
 
 	private resolveAlternateScreenOption(

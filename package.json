@@ -10,7 +10,7 @@
   "scripts": {
     "build": "pnpm -r --filter './packages/*' run build",
     "typecheck": "pnpm -r --filter './packages/*' run typecheck",
-    "test": "pnpm -r --filter './packages/*' run test",
+    "test": "pnpm run build && pnpm -r --filter './packages/*' run test",
     "verify": "pnpm run typecheck && pnpm run test"
   },
   "pnpm": {

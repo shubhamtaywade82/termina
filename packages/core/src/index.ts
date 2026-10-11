@@ -19,7 +19,15 @@ export {default as Newline} from './components/Newline.js';
 export {default as Spacer} from './components/Spacer.js';
 export type {Key} from './hooks/use-input.js';
 export {default as useInput} from './hooks/use-input.js';
+export {default as useMouse} from './hooks/use-mouse.js';
+export type {MouseEvent, MouseAction, MouseButton} from './mouse.js';
+export {parseMouseEvent} from './mouse.js';
+
 export {default as usePaste} from './hooks/use-paste.js';
+export {hyperlink} from './hyperlink.js';
+export {clipboardSequence, copyToClipboard} from './clipboard.js';
+export {detectTerminalCapabilities} from './terminal-capabilities.js';
+export type {ColorLevel, TerminalCapabilities} from './terminal-capabilities.js';
 export type {
 	SuspendTerminal,
 	TerminalSuspension,

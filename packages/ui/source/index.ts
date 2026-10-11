@@ -13,3 +13,7 @@ export * from './components/status-message/index.js';
 export * from './components/alert/index.js';
 export * from './components/email-input/index.js';
 export * from './types.js';
+export * from './components/scroll-box/index.js';
+export * from './components/log-stream/index.js';
+export {nearestInDirection} from './lib/spatial.js';
+export type {Direction, FocusCandidate, Rect} from './lib/spatial.js';
