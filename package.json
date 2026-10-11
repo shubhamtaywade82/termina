@@ -1,0 +1,21 @@
+{
+  "name": "termina-tui",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "packageManager": "pnpm@10.28.0",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "build": "pnpm -r --filter './packages/*' run build",
+    "typecheck": "pnpm -r --filter './packages/*' run typecheck",
+    "test": "pnpm run build && pnpm -r --filter './packages/*' run test",
+    "verify": "pnpm run typecheck && pnpm run test"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "node-pty"
+    ]
+  }
+}
