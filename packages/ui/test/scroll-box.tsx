@@ -1,7 +1,8 @@
 import React from 'react';
 import test, {type TestContext} from 'node:test';
 import delay from 'delay';
-import {Text} from '@fork/core';
+import stripAnsi from 'strip-ansi';
+import {Box, Text} from '@fork/core';
 import {render} from './helpers/render.js';
 import {ScrollBox} from '../source/index.js';
 
@@ -126,5 +127,92 @@ test('the mouse wheel scrolls only the viewport the pointer is over', async (t: 
 	instance.stdin.write(wheelDown(2, 2));
 	await settle();
 	t.assert.ok((instance.lastFrame() ?? '').includes('line 03'));
+	instance.unmount();
+});
+
+test('the wheel does nothing over a ScrollBox that is clipped out of view', async (t: TestContext) => {
+	const instance = render(
+		<Box flexDirection="column" height={2} overflow="hidden">
+			<ScrollBox height={5}>
+				{rows.map(row => (
+					<Text key={row}>{row}</Text>
+				))}
+			</ScrollBox>
+		</Box>,
+	);
+	await settle();
+
+	// Row 5 lies inside the ScrollBox's layout rectangle but below the two-row clip, so it is not on screen.
+	instance.stdin.write(wheelDown(1, 5));
+	await settle();
+	t.assert.ok((instance.lastFrame() ?? '').includes('line 00'));
+
+	// Row 2 is on screen, so the same wheel step scrolls.
+	instance.stdin.write(wheelDown(1, 2));
+	await settle();
+	t.assert.ok((instance.lastFrame() ?? '').includes('line 03'));
+	instance.unmount();
+});
+
+// The thumb is the last column of each viewport row, so the track is read from the end of every line.
+const trackOf = (frame: string, rows: number): string[] =>
+	stripAnsi(frame)
+		.split('\n')
+		.slice(0, rows)
+		.map(line => line.at(-1) ?? '');
+
+const Tall = ({rows: count, showScrollbar}: {readonly rows: number; readonly showScrollbar?: boolean}) => (
+	<ScrollBox height={5} showScrollbar={showScrollbar}>
+		{Array.from({length: count}, (_, index) => (
+			<Text key={index}>{`row ${index}`}</Text>
+		))}
+	</ScrollBox>
+);
+
+test('the thumb sits at the top, moves with the scroll position, and reaches the bottom at the end', async (t: TestContext) => {
+	const instance = render(<Viewport />);
+	await settle();
+	t.assert.deepStrictEqual(trackOf(instance.lastFrame() ?? '', 5), ['█', '│', '│', '│', '│']);
+
+	// One page of 25 rows of scroll range over 4 track gaps: a 5-row offset lands on the second row.
+	instance.stdin.write(pageDown);
+	await settle();
+	t.assert.deepStrictEqual(trackOf(instance.lastFrame() ?? '', 5), ['│', '█', '│', '│', '│']);
+
+	instance.stdin.write(end);
+	await settle();
+	t.assert.deepStrictEqual(trackOf(instance.lastFrame() ?? '', 5), ['│', '│', '│', '│', '█']);
+	instance.unmount();
+});
+
+test('the thumb is sized by the visible fraction of the content', async (t: TestContext) => {
+	// 5 visible rows of 6: the thumb is round(25 / 6) = 4 rows tall.
+	const instance = render(<Tall rows={6} />);
+	await settle();
+	t.assert.deepStrictEqual(trackOf(instance.lastFrame() ?? '', 5), ['█', '█', '█', '█', '│']);
+
+	instance.stdin.write(end);
+	await settle();
+	t.assert.deepStrictEqual(trackOf(instance.lastFrame() ?? '', 5), ['│', '█', '█', '█', '█']);
+	instance.unmount();
+});
+
+test('no track is drawn when the content fits the viewport', async (t: TestContext) => {
+	const instance = render(<Tall rows={3} />);
+	await settle();
+
+	const frame = stripAnsi(instance.lastFrame() ?? '');
+	t.assert.strictEqual(frame.includes('█'), false);
+	t.assert.strictEqual(frame.includes('│'), false);
+	instance.unmount();
+});
+
+test('showScrollbar={false} hides the track even when the content overflows', async (t: TestContext) => {
+	const instance = render(<Tall rows={30} showScrollbar={false} />);
+	await settle();
+
+	const frame = stripAnsi(instance.lastFrame() ?? '');
+	t.assert.strictEqual(frame.includes('█'), false);
+	t.assert.strictEqual(frame.includes('│'), false);
 	instance.unmount();
 });
