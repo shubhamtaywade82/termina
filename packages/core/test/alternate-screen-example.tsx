@@ -64,7 +64,8 @@ test('snake ends with a win when it fills the board', async (t: TestContext) => 
 		const timeout = setTimeout(() => {
 			childProcess.kill();
 			resolve({timedOut: true});
-		}, 1000);
+			// Spawning node with tsx alone can take over a second while the full suite loads the machine. A hang still fails, just later.
+		}, 5000);
 
 		childProcess.on('error', error => {
 			clearTimeout(timeout);

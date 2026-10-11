@@ -35,7 +35,7 @@ export type ScrollBoxProps = {
 	readonly wheelStep?: number;
 
 	/**
-	 * When false, keyboard and wheel input are ignored.
+	 * When false, keyboard and wheel input are ignored. Every active box reads the arrow keys, so with several on screen, activate only the focused one.
 	 *
 	 * @default true
 	 */
@@ -91,7 +91,8 @@ export const ScrollBox = ({
 	const {isRawModeSupported} = useStdin();
 
 	const [ownOffset, setOwnOffset] = useState(0);
-	const [isFollowing, setIsFollowing] = useState(followTail);
+	// Tracks the user scrolling away from the tail rather than the pin itself, so turning `followTail` on later pins at once.
+	const [isTailReleased, setIsTailReleased] = useState(false);
 	// Input events can arrive faster than React renders. Each scroll therefore moves from the latest offset, not from the one captured by the last render.
 	const latestOffsetRef = useRef(0);
 
@@ -101,7 +102,7 @@ export const ScrollBox = ({
 	const contentHeight = content.height;
 	const maxOffset = Math.max(0, contentHeight - height);
 	const currentOffset =
-		followTail && isFollowing
+		followTail && !isTailReleased
 			? maxOffset
 			: clamp(requestedOffset, 0, maxOffset);
 
@@ -120,7 +121,7 @@ export const ScrollBox = ({
 		}
 
 		if (followTail) {
-			setIsFollowing(next >= maxOffset);
+			setIsTailReleased(next < maxOffset);
 		}
 
 		onScroll?.(next);
