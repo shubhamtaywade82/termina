@@ -390,19 +390,27 @@ test('calculate layout while rendering is throttled', async (t: TestContext) => 
 
 	const {rerender} = render(null, {stdout, patchConsole: false});
 	rerender(<Test />);
-	await delay(50);
 
 	// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call
-	const writes: string[] = (stdout.write as any)
-		.getCalls()
-		.map((c: any) => c.args[0] as string)
-		.filter(
-			(w: string) =>
-				!w.startsWith('\u{1B}[?25') && !w.startsWith('\u{1B}[?2026'),
-		);
-	const lastContentWrite = writes.at(-1)!;
+	const contentWrites = (): string[] =>
+		(stdout.write as any)
+			.getCalls()
+			.map((c: any) => c.args[0] as string)
+			.filter(
+				(w: string) =>
+					!w.startsWith('\u{1B}[?25') && !w.startsWith('\u{1B}[?2026'),
+			);
+	const lastContent = (): string =>
+		stripAnsi(contentWrites().at(-1) ?? '').trim();
 
-	t.assert.strictEqual(stripAnsi(lastContentWrite).trim(), 'Width: 100');
+	// The measured width reaches the output through a throttled re-render, so a fixed delay is not a reliable bound. Poll for the expected output instead. If it never arrives, the assertion below reports the last content that was written.
+	const deadline = Date.now() + 2000;
+	while (lastContent() !== 'Width: 100' && Date.now() < deadline) {
+		// eslint-disable-next-line no-await-in-loop
+		await delay(5);
+	}
+
+	t.assert.strictEqual(lastContent(), 'Width: 100');
 });
 
 test('measure element client size with overflowing content', async (t: TestContext) => {
