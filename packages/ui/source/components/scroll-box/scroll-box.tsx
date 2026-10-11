@@ -2,11 +2,11 @@ import React, {useRef, useState, type ReactNode} from 'react';
 import {
 	Box,
 	type DOMElement,
+	type MouseEvent,
 	Text,
-	measureElement,
 	useBoxMetrics,
 	useInput,
-	useMouse,
+	useStdin,
 } from '@fork/core';
 
 export type ScrollBoxProps = {
@@ -72,9 +72,9 @@ const scrollbarRows = (
 };
 
 /**
-A fixed-height viewport over taller content. Arrow keys scroll by a row, PageUp and PageDown by a viewport, Home and End jump to the edges, and the mouse wheel scrolls by `wheelStep` rows inside the viewport.
+A fixed-height viewport over taller content. Arrow keys scroll by a row, PageUp and PageDown by a viewport, and Home and End jump to the edges. With `render(..., {mouse: true})`, the mouse wheel scrolls by `wheelStep` rows inside the viewport.
 
-Mouse hit-testing uses `measureElement`, whose coordinates are relative to the live region. In alternate-screen mode, with no `<Static>` output above the box, that region starts at the terminal's top-left, which is what the hit test assumes.
+Keys are read only when stdin supports raw mode, so the box also renders under piped stdin and in CI.
 */
 export const ScrollBox = ({
 	height,
@@ -86,9 +86,9 @@ export const ScrollBox = ({
 	followTail = false,
 	showScrollbar = true,
 }: ScrollBoxProps) => {
-	const viewportRef = useRef<DOMElement>(null);
 	const contentRef = useRef<DOMElement>(null);
 	const content = useBoxMetrics(contentRef);
+	const {isRawModeSupported} = useStdin();
 
 	const [ownOffset, setOwnOffset] = useState(0);
 	const [isFollowing, setIsFollowing] = useState(followTail);
@@ -142,52 +142,28 @@ export const ScrollBox = ({
 				scrollTo(maxOffset);
 			}
 		},
-		{isActive},
+		{isActive: isActive && isRawModeSupported},
 	);
 
-	useMouse(
-		event => {
-			if (event.action !== 'wheel') {
-				return;
-			}
-
-			const viewport = viewportRef.current;
-			if (!viewport) {
-				return;
-			}
-
-			const rect = measureElement(viewport);
-			const column = event.x - 1;
-			const row = event.y - 1;
-			const isInside =
-				column >= rect.x &&
-				column < rect.x + rect.width &&
-				row >= rect.y &&
-				row < rect.y + rect.height;
-			if (!isInside) {
-				return;
-			}
-
-			if (event.button === 'wheelUp') {
-				scrollTo(latestOffsetRef.current - wheelStep);
-			} else if (event.button === 'wheelDown') {
-				scrollTo(latestOffsetRef.current + wheelStep);
-			}
-		},
-		{isActive},
-	);
+	const handleWheel = (event: MouseEvent): void => {
+		if (event.button === 'wheelUp') {
+			scrollTo(latestOffsetRef.current - wheelStep);
+		} else if (event.button === 'wheelDown') {
+			scrollTo(latestOffsetRef.current + wheelStep);
+		}
+	};
 
 	const showTrack = showScrollbar && maxOffset > 0;
 
 	return (
 		<Box flexDirection="row" height={height}>
 			<Box
-				ref={viewportRef}
 				flexDirection="column"
 				flexGrow={1}
 				height={height}
 				overflow="hidden"
 				contentOffsetY={currentOffset}
+				onWheel={isActive ? handleWheel : undefined}
 			>
 				<Box ref={contentRef} flexDirection="column" flexShrink={0}>
 					{children}

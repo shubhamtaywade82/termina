@@ -3,8 +3,14 @@ import {PassThrough} from 'node:stream';
 import {type ReactNode} from 'react';
 import {render as renderInk} from '@fork/core';
 
+type Options = {
+	readonly mouse?: boolean;
+	// Piped stdin is not a TTY and has no setRawMode, as in CI.
+	readonly isStdinPiped?: boolean;
+};
+
 // Mirrors the surface of ink-testing-library, on top of the forked core. `debug` writes each frame in full, so `lastFrame()` is the frame on screen and `frames` is every frame in order.
-export const render = (node: ReactNode) => {
+export const render = (node: ReactNode, {mouse = false, isStdinPiped = false}: Options = {}) => {
 	const frames: string[] = [];
 	const stdout = new EventEmitter() as EventEmitter & {
 		isTTY: boolean;
@@ -28,8 +34,10 @@ export const render = (node: ReactNode) => {
 		isTTY: boolean;
 		setRawMode: (mode: boolean) => void;
 	};
-	stdin.isTTY = true;
-	stdin.setRawMode = () => {};
+	if (!isStdinPiped) {
+		stdin.isTTY = true;
+		stdin.setRawMode = () => {};
+	}
 
 	const instance = renderInk(node, {
 		stdout: stdout as unknown as NodeJS.WriteStream,
@@ -38,6 +46,7 @@ export const render = (node: ReactNode) => {
 		debug: true,
 		patchConsole: false,
 		exitOnCtrlC: false,
+		mouse,
 	});
 
 	return {

@@ -23,12 +23,12 @@ export type Props = PublicProps & {
 	/**
 	Enable or disable bracketed paste mode on the terminal. When enabled, pasted text is wrapped in escape sequences that allow it to be distinguished from typed input.
 	*/
+	readonly setBracketedPasteMode: (isEnabled: boolean) => void;
+
 	/**
 	Enable or disable SGR mouse tracking. Reference-counted: tracking stays on while any `useMouse` hook is mounted.
 	*/
 	readonly setMouseTracking: (isEnabled: boolean) => void;
-
-	readonly setBracketedPasteMode: (isEnabled: boolean) => void;
 
 	readonly internal_exitOnCtrlC: boolean;
 

@@ -33,7 +33,8 @@ history is not carried over. Re-syncing means diffing against the commits above.
   forward Delete, no-op Backspace at 0, Ctrl/Alt chords ignored, pasted control
   characters removed. Shared module `source/lib/grapheme.ts`.
 - **ScrollBox** (`source/components/scroll-box`): fixed-height viewport, arrow,
-  page, home and end keys, mouse wheel with hit testing, clamped offset, optional
+  page, home and end keys, mouse wheel through `<Box onWheel>` (needs `render(..., {mouse: true})`),
+  keys read only when stdin supports raw mode, clamped offset, optional
   tail-follow, scrollbar track. Offsets move from a latest-offset ref, so bursts
   of events do not act on stale state.
 - **LogStream** (`source/components/log-stream`): tail-following ScrollBox with a
