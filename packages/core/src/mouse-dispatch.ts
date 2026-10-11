@@ -144,3 +144,24 @@ export class MouseDispatcher {
 		node?.internal_mouseHandlers?.[name]?.(event);
 	}
 }
+
+/**
+True when the terminal cell (x, y), 1-based as reported, lands on `element` or on one of its descendants.
+
+Layout rectangles alone cannot answer this. An element can sit inside a clipping ancestor, or be scrolled out of view by `contentOffset`, and the hit walk applies both. Something drawn over the element, such as a modal, also answers false.
+*/
+export const isElementAt = (element: DOMElement, x: number, y: number): boolean => {
+	let root = element;
+	while (root.parentNode) {
+		root = root.parentNode as DOMElement;
+	}
+
+	const hit = hitNode(root, x - 1, y - 1, 0, 0, undefined);
+	for (let node: DOMElement | undefined = hit; node; node = node.parentNode as DOMElement | undefined) {
+		if (node === element) {
+			return true;
+		}
+	}
+
+	return false;
+};

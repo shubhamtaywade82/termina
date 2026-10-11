@@ -22,6 +22,7 @@ export {default as useInput} from './hooks/use-input.js';
 export {default as useMouse} from './hooks/use-mouse.js';
 export type {MouseEvent, MouseAction, MouseButton} from './mouse.js';
 export {parseMouseEvent} from './mouse.js';
+export {isElementAt} from './mouse-dispatch.js';
 
 export {default as usePaste} from './hooks/use-paste.js';
 export {hyperlink} from './hyperlink.js';

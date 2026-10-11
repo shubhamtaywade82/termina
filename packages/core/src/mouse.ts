@@ -51,6 +51,11 @@ export const parseMouseEvent = (sequence: string): MouseEvent | undefined => {
 		return undefined;
 	}
 
+	// Bit 128 marks the extra buttons (back, forward). They have no MouseButton, so they are ignored rather than decoded as the left button.
+	if ((code & 128) !== 0) {
+		return undefined;
+	}
+
 	const modifiers = {
 		shift: (code & 4) !== 0,
 		meta: (code & 8) !== 0,
