@@ -333,3 +333,64 @@ test('submit on enter', async (t: TestContext) => {
 
 	t.assert.strictEqual(submittedValue, 'Test');
 });
+
+// Types each piece of text in order, pausing so each one is its own input event.
+const typeText = async (stdin: {write: (data: string) => void}, ...pieces: string[]) => {
+	for (const piece of pieces) {
+		stdin.write(piece);
+		await delay(20);
+	}
+};
+
+test('an emoji is masked as one asterisk, not one per UTF-16 unit', async (t: TestContext) => {
+	const {lastFrame, stdin, unmount} = render(<PasswordInput />);
+
+	await delay(20);
+	await typeText(stdin, 'a😀b');
+	t.assert.strictEqual(lastFrame(), `***${cursor()}`);
+	unmount();
+});
+
+test('a letter with a combining mark is masked as one asterisk', async (t: TestContext) => {
+	const {lastFrame, stdin, unmount} = render(<PasswordInput />);
+
+	await delay(20);
+	await typeText(stdin, 'é');
+	t.assert.strictEqual(lastFrame(), `*${cursor()}`);
+	unmount();
+});
+
+test('the cursor highlights a whole emoji when moved over it', async (t: TestContext) => {
+	const {lastFrame, stdin, unmount} = render(<PasswordInput />);
+
+	await delay(20);
+	await typeText(stdin, 'a😀', arrowLeft);
+	t.assert.strictEqual(lastFrame(), `*${cursor('*')}`);
+	unmount();
+});
+
+test('backspace removes a whole emoji from the mask', async (t: TestContext) => {
+	const {lastFrame, stdin, unmount} = render(<PasswordInput />);
+
+	await delay(20);
+	await typeText(stdin, 'a😀', del);
+	t.assert.strictEqual(lastFrame(), `*${cursor()}`);
+	unmount();
+});
+
+test('the submitted value keeps the emoji intact while the display stays masked', async (t: TestContext) => {
+	let submitted: string | undefined;
+	const {lastFrame, stdin, unmount} = render(
+		<PasswordInput
+			onSubmit={value => {
+				submitted = value;
+			}}
+		/>,
+	);
+
+	await delay(20);
+	await typeText(stdin, '😀', enter);
+	t.assert.strictEqual(submitted, '😀');
+	t.assert.strictEqual(lastFrame(), `*${cursor()}`);
+	unmount();
+});
