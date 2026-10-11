@@ -21,27 +21,27 @@ React tree ──► react-reconciler (src/reconciler.ts, host config)
            ──► DOM-like nodes (src/dom.ts: ink-root, ink-box, ink-text)
            ──► Yoga layout (ink.tsx calculateLayout: width = stdout.columns, height = content)
            ──► render-node-to-output.ts walks nodes into output.ts (Output grid, clip/unclip ops)
-           ──► Output.get(): one string per row, each row trimEnd()ed (output.ts:386)
+           ──► Output.get(): one string per row, each row trimEnd()ed (output.ts:392)
            ──► log-update.ts diff ──► stdout, wrapped in DEC 2026 BSU/ESU (write-synchronized.ts)
 ```
 
-- Renders are throttled to `maxFps` (default 30, `ink.tsx:425`), via es-toolkit `throttle`.
+- Renders are throttled to `maxFps` (default 30, `ink.tsx:452`), via es-toolkit `throttle`.
 - Two writers exist in `log-update.ts`:
   - **standard** (default): erases the previous frame with `eraseLines(previousLineCount)` and rewrites the whole frame.
   - **incremental** (`incrementalRendering: true`): compares row by row and rewrites only changed rows. `line-update.ts` further narrows a changed row to its differing suffix, grapheme-aware.
 - `<Static>` output is written once above the live frame and never redrawn. In alternate-screen mode it is replayed from `fullStaticOutput` on full clears (`ink.tsx`, `renderInteractiveFrame`).
-- `alternateScreen: true` enters DECSET 1049, hides the cursor, and uses absolute `homeAndEraseDown` for full clears (`ink.tsx:52`).
+- `alternateScreen: true` enters DECSET 1049, hides the cursor, and uses absolute `homeAndEraseDown` for full clears (`ink.tsx:54`).
 - Non-interactive mode (CI, piped stdout) writes only the final frame at unmount.
 
 ### Measured cost of the default writer
 
 Same 200-row frame, 120 columns, one counter changed per update
-(`scratchpad/bytes-exp.mjs`):
+(`docs/research/measure-output-bytes.mjs`, run after `pnpm --filter @fork/core run build`):
 
 | Mode | Bytes per one-counter update |
 | --- | --- |
-| default (full frame) | 19,588 |
-| `incrementalRendering: true` | 691 |
+| default (full frame) | 21,588 |
+| `incrementalRendering: true` | 701 |
 
 A cell-level back/front buffer could go lower again, but this measurement shows
 the cheap win is already in upstream and off by default.
@@ -56,7 +56,7 @@ stdin 'readable' ──► input-parser.ts   tokenizes ESC/CSI/SS3/paste into ev
 ```
 
 - Bracketed paste (`?2004h`) and raw mode are reference-counted by the App and released on suspend and unmount.
-- A lone ESC is flushed after 20 ms (`App.tsx:125`), which is how ESC and arrow keys are told apart. The constant is not configurable.
+- A lone ESC is flushed after 40 ms (`escapeFlushDelayMilliseconds` in `input-parser.ts`, scheduled by `App.tsx`), which is how ESC and arrow keys are told apart. The window is 25–50 ms. It is a module constant, not a render option, so `test/escape-timing.tsx` pins the range instead of a caller setting.
 - Kitty keyboard protocol: `CSI ? u` query, then `CSI > flags u` on success (`kitty-keyboard.ts`, `ink.tsx`).
 - Upstream discards SGR mouse reports. Its test asserts they never reach `useInput`. This fork adds a mouse channel (see `FORK.md`).
 
@@ -114,7 +114,7 @@ reliably defined across terminals.
 - `source/components/<name>/` holds the component, its `theme.ts`, and its state hook.
 - `source/theme.tsx`: `ThemeProvider`, `useComponentTheme`, and `extendTheme` (deepmerge over per-component `styles`/`config` functions).
 - Components: Alert, Badge, ConfirmInput, EmailInput, MultiSelect, OrderedList, PasswordInput, ProgressBar, Select, Spinner, StatusMessage, TextInput, UnorderedList.
-- Not present: multi-line input, scroll viewport, log stream, data table, modal, tabs, split pane, spatial focus. The fork adds the first two (see below).
+- Not present: multi-line input, scroll viewport, log stream, data table, modal, tabs, split pane, spatial focus. The fork adds `ScrollBox` and `LogStream` (see below). Spatial focus exists only as the pure `nearestInDirection` helper, which the focus system does not call yet. Multi-line input is not built.
 
 ### Defects confirmed in `TextInput` and `PasswordInput`
 
@@ -142,7 +142,7 @@ semantics require.
 | --- | --- |
 | No synchronized output (DEC 2026) | Present. Applied around every log, clear and console write. |
 | No alternate screen | Present (`alternateScreen`). |
-| Escape-key ambiguity needs a timer | Present: 20 ms flush (`App.tsx:125`). Not configurable. |
+| Escape-key ambiguity needs a timer | Present: 20 ms flush in upstream. The fork moves it to `escapeFlushDelayMilliseconds` (40 ms, `input-parser.ts`). Still a constant, not a render option. |
 | Kitty keyboard unsupported | Present (query, enable, flags). |
 | Bracketed paste unsupported | Present, reference-counted. |
 | Resize ghosting unaddressed | Real. Fixed in the fork (section 6). |
