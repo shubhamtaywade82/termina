@@ -16,16 +16,20 @@ history is not carried over. Re-syncing means diffing against the commits above.
 - **Reflow-aware resize erase.** `src/reflow.ts` (new), `src/log-update.ts`
   (`clearReflowed`), `src/ink.tsx` (`resized`, `eraseReflowedFrame`,
   `forgetRenderedFrame`). Erases by physical rows at the new width. Writes are
-  suppressed while suspended. Screen-reader frames end on a fresh row.
+  suppressed while suspended. Screen-reader frames end on a fresh row. Rows are counted
+  per grapheme, so a wide character that wraps early is not undercounted.
 - **Mouse protocol.** `src/mouse.ts` (SGR 1000/1002/1006 parser and enable/disable
   sequences), `src/hooks/use-mouse.ts` (`useMouse`), App ref-counting and
   suspend/resume/unmount release in `src/components/App.tsx`, `setMouseTracking`
   in `StdinContext.ts`. Mouse reports are routed to `useMouse` and never reach `useInput`.
+  `<Box onClick onMouseDown onMouseUp onWheel>` are hit-tested by `src/mouse-dispatch.ts`
+  when `render(..., {mouse: true, alternateScreen: true})` is set and stdin supports raw
+  mode. `onClick` is left-button only.
 - **OSC 8 hyperlinks.** `src/hyperlink.ts`. Rejects URLs containing control characters.
 - **OSC 52 clipboard.** `src/clipboard.ts`. Rejects payloads above 74,000 base64 characters.
 - **Capability probe.** `src/terminal-capabilities.ts`. Reads `TERM`, `COLORTERM`,
   `NO_COLOR`, `FORCE_COLOR`, `CI`, and TTY state. `render()` now also defaults to
-  non-interactive when `TERM=dumb`.
+  non-interactive when `TERM=dumb`. `FORCE_COLOR` levels follow chalk; `NO_COLOR` wins over them.
 
 ## Local changes to `@fork/ui`
 
@@ -39,8 +43,6 @@ history is not carried over. Re-syncing means diffing against the commits above.
   of events do not act on stale state.
 - **LogStream** (`source/components/log-stream`): tail-following ScrollBox with a
   `maxLines` cap.
-- **Spatial focus geometry** (`source/lib/spatial.ts`): `nearestInDirection`. Pure
-  function only. It is not wired into focus management.
 
 ## Deviations from the original plan
 

@@ -1,4 +1,7 @@
 import stringWidth from 'string-width';
+import stripAnsi from 'strip-ansi';
+
+const segmenter = new Intl.Segmenter(undefined, {granularity: 'grapheme'});
 
 /**
 Rows one logical line occupies once a terminal has wrapped it at `columns`.
@@ -6,8 +9,24 @@ Rows one logical line occupies once a terminal has wrapped it at `columns`.
 An empty line still takes one row. A line that exactly fills `columns` does not wrap: the terminal keeps the cursor in a pending-wrap state until the newline after it, so it takes one row too.
 */
 export const rowsForLine = (line: string, columns: number): number => {
-	const width = Number.isFinite(columns) && columns >= 1 ? columns : Infinity;
-	return Math.max(1, Math.ceil(stringWidth(line) / width));
+	if (!Number.isFinite(columns) || columns < 1 || stringWidth(line) <= columns) {
+		return 1;
+	}
+
+	let rows = 1;
+	let column = 0;
+	for (const {segment} of segmenter.segment(stripAnsi(line))) {
+		const width = stringWidth(segment);
+		// A wide character that does not fit in the cells left on a row moves whole to the next row and leaves the last cell blank, so dividing the total width by `columns` would undercount.
+		if (column > 0 && column + width > columns) {
+			rows++;
+			column = 0;
+		}
+
+		column += width;
+	}
+
+	return rows;
 };
 
 /**

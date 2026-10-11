@@ -137,7 +137,7 @@ export type RenderOptions = {
 	alternateScreen?: boolean;
 
 	/**
-	Enable mouse tracking so `<Box onClick>`, `onMouseDown`, `onMouseUp` and `onWheel` receive events. Off by default: tracking captures the wheel and suppresses native text selection, so an app must ask for it. Hit-testing assumes the app starts at the terminal's top-left, which holds with `alternateScreen` and no `<Static>` above the app.
+	Enable mouse tracking so `<Box onClick>`, `onMouseDown`, `onMouseUp` and `onWheel` receive events. Off by default: tracking captures the wheel and suppresses native text selection, so an app must ask for it. It takes effect only together with `alternateScreen`, because hit-testing needs the app at the terminal's top-left, and only when stdin supports raw mode. `<Static>` output above the app also shifts hits.
 
 	@default false
 	*/

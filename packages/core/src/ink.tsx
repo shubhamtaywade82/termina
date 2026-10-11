@@ -1076,7 +1076,10 @@ export default class Ink {
 				>
 					<RootNodeContext value={this.rootNode}>
 						{node}
-						{this.options.mouse ? <MouseRouter root={this.rootNode} /> : null}
+						{/* Hit-testing needs the frame at the terminal's top-left, which only the alternate screen guarantees. On the primary screen clicks would land on the wrong element. */}
+						{this.options.mouse && this.alternateScreen ? (
+							<MouseRouter root={this.rootNode} />
+						) : null}
 					</RootNodeContext>
 				</App>
 			</AccessibilityContext>

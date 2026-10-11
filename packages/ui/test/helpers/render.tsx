@@ -18,7 +18,8 @@ export const render = (node: ReactNode, {mouse = false, isStdinPiped = false}: O
 		rows: number;
 		write: (data: string) => boolean;
 	};
-	stdout.isTTY = false;
+	// Mouse routing runs only on the alternate screen, which requires a TTY.
+	stdout.isTTY = mouse;
 	stdout.columns = 100;
 	stdout.rows = 24;
 	let isRecording = true;
@@ -46,7 +47,7 @@ export const render = (node: ReactNode, {mouse = false, isStdinPiped = false}: O
 		debug: true,
 		patchConsole: false,
 		exitOnCtrlC: false,
-		mouse,
+		...(mouse ? {mouse, alternateScreen: true, interactive: true} : {}),
 	});
 
 	return {

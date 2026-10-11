@@ -106,9 +106,9 @@ const findHandler = (
 /**
 Routes SGR mouse reports to `<Box>` handlers by hit-testing the layout.
 
-A click is a press and a release that resolve to the same `onClick` element. Dragging off a button therefore cancels the click.
+A click is a left-button press and release that resolve to the same `onClick` element. Dragging off a button therefore cancels the click. Other buttons reach only `onMouseDown` and `onMouseUp`.
 
-Coordinates are assumed to start at the terminal's top-left. That holds in alternate-screen mode when no `<Static>` output sits above the app. On the primary screen the live region moves down as output accumulates, so the hit test would be off by that offset.
+Coordinates are assumed to start at the terminal's top-left, which is why routing is only mounted on the alternate screen. `<Static>` output above the app would still shift hits.
 */
 export class MouseDispatcher {
 	private pressTarget: DOMElement | undefined;
@@ -125,7 +125,8 @@ export class MouseDispatcher {
 
 		if (event.action === 'press') {
 			this.call(findHandler(root, x, y, 'onMouseDown'), 'onMouseDown', event);
-			this.pressTarget = findHandler(root, x, y, 'onClick');
+			this.pressTarget =
+				event.button === 'left' ? findHandler(root, x, y, 'onClick') : undefined;
 			return;
 		}
 
@@ -134,7 +135,7 @@ export class MouseDispatcher {
 			const releaseTarget = findHandler(root, x, y, 'onClick');
 			const pressTarget = this.pressTarget;
 			this.pressTarget = undefined;
-			if (releaseTarget && releaseTarget === pressTarget) {
+			if (event.button === 'left' && releaseTarget && releaseTarget === pressTarget) {
 				this.call(releaseTarget, 'onClick', event);
 			}
 		}

@@ -9,6 +9,8 @@ import createStdout from './helpers/create-stdout.js';
 const esc = '\u{1B}';
 const press = (x: number, y: number) => `${esc}[<0;${x};${y}M`;
 const release = (x: number, y: number) => `${esc}[<0;${x};${y}m`;
+const rightPress = (x: number, y: number) => `${esc}[<2;${x};${y}M`;
+const rightRelease = (x: number, y: number) => `${esc}[<2;${x};${y}m`;
 const wheelDown = (x: number, y: number) => `${esc}[<65;${x};${y}M`;
 
 const createInput = (): NodeJS.ReadStream => {
@@ -21,8 +23,8 @@ const createInput = (): NodeJS.ReadStream => {
 	return stdin as unknown as NodeJS.ReadStream;
 };
 
-// Mounts with mouse tracking on, unless told otherwise. Positions in the tests are 1-based, as the terminal reports them.
-const mount = async (element: React.ReactElement, mouse = true) => {
+// Mounts on the alternate screen with mouse tracking on, unless told otherwise. Positions in the tests are 1-based, as the terminal reports them.
+const mount = async (element: React.ReactElement, mouse = true, alternateScreen = true) => {
 	const stdout = createStdout(40, true);
 	const stdin = createInput();
 	const instance = render(element, {
@@ -30,6 +32,7 @@ const mount = async (element: React.ReactElement, mouse = true) => {
 		stdin,
 		stderr: stdout,
 		interactive: true,
+		alternateScreen,
 		mouse,
 		exitOnCtrlC: false,
 		patchConsole: false,
@@ -160,6 +163,40 @@ test('without the mouse option nothing enables tracking and nothing is dispatche
 		<Box width={10} height={3} onClick={() => clicks.push('box')}>
 			<Text>button</Text>
 		</Box>,
+		false,
+	);
+
+	await send(stdin, press(3, 2), release(3, 2));
+	t.assert.strictEqual(stdout.getWrites().includes(mouseTrackingEnable), false);
+	t.assert.deepStrictEqual(clicks, []);
+	instance.unmount();
+});
+
+test('a right-button press and release is not a click', async (t: TestContext) => {
+	const events: string[] = [];
+	const {instance, stdin} = await mount(
+		<Box
+			width={10}
+			height={3}
+			onClick={() => events.push('click')}
+			onMouseDown={() => events.push('down')}
+		>
+			<Text>button</Text>
+		</Box>,
+	);
+
+	await send(stdin, rightPress(3, 2), rightRelease(3, 2));
+	t.assert.deepStrictEqual(events, ['down']);
+	instance.unmount();
+});
+
+test('on the primary screen the mouse option enables nothing, since hits would be offset', async (t: TestContext) => {
+	const clicks: string[] = [];
+	const {instance, stdin, stdout} = await mount(
+		<Box width={10} height={3} onClick={() => clicks.push('box')}>
+			<Text>button</Text>
+		</Box>,
+		true,
 		false,
 	);
 

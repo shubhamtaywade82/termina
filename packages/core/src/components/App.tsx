@@ -119,7 +119,7 @@ function App({
 	const isInputPausedRef = useRef(false);
 	// Count how many components enabled bracketed paste mode
 	const bracketedPasteModeEnabledCountRef = useRef(0);
-const mouseTrackingCountRef = useRef(0);
+	const mouseTrackingCountRef = useRef(0);
 	const eventEmitterRef = useRef(new EventEmitter());
 	// Each useInput hook adds a listener, so the count can legitimately exceed the default limit of 10.
 	eventEmitterRef.current.setMaxListeners(Infinity);
@@ -574,7 +574,6 @@ const mouseTrackingCountRef = useRef(0);
 				stdout.write(mouseTrackingEnable);
 			} catch {}
 		}
-
 	}, [isRawModeSupported, rawModeStdin, stdout, attachReadableListener]);
 
 	// Register input pause/resume in an insertion effect: it runs before every
