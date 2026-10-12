@@ -56,7 +56,7 @@ function Processes() {
 render(<Processes />);
 ```
 
-`onSelect` receives the row object from `rows`. The table does not exit on its own, so the example calls `exit()` after the choice.
+`onSelect` receives the row object from `rows`, and the example calls `exit()` after the choice because the table does not exit on its own.
 
 ## Props
 
@@ -82,7 +82,7 @@ The focused row has a blue background. The focused column's header is underlined
 | Right | Focuses the column to the right. Focus does not wrap from the last column to the first. |
 | `s` | Sorts by the focused column: ascending first, then descending, then no sort. Sorting a different column starts ascending on that column. |
 | Enter | Calls `onSelect` with the focused row. |
-| Any other key | Ignored. Ctrl and Alt chords are ignored too, including Ctrl+s, Alt+s, and chords that include an arrow key, such as Ctrl+Down. |
+| Any other key | Ignored. Ctrl and Alt chords are ignored too, such as Ctrl+s, Alt+s, and Ctrl+Down. |
 
 When `isActive` is false, or when stdin is not in raw mode (for example, piped input), no key has an effect. The table still renders.
 
@@ -97,7 +97,7 @@ The component reads the `DataTable` entry of the theme. To change a key, pass a 
 | `styles.row` | `{isFocused}` | Box props: `flexDirection: 'row'`, `gap: 2`, `minHeight: 1`, and `backgroundColor: 'blue'` when focused, otherwise unset. Applied to the header and to each body row, so the background covers the gaps between cells. |
 | `styles.cell` | none | Box props: `flexShrink: 0`. Applied to every header and data cell. |
 | `styles.separator` | none | Text props: `dimColor: true`. Applied to the rule under the header. |
-| `styles.sortIndicator` | none | Text props: `color: 'cyan'`. Applied to the arrow in the sorted column's header. |
+| `styles.sortIndicator` | none | Text props: `color: 'cyan'`. Applied to the space and arrow after the label in the sorted column's header. |
 
 The rule's `─` glyph and the sort arrows are set in the component, so the theme controls only their style. Column alignment is not a theme key. It comes from `align` on each column.
 
@@ -113,6 +113,8 @@ The rule's `─` glyph and the sort arrows are set in the component, so the them
 - Each header reserves room for the sort arrow, so sorting never changes a column's width.
 - Sorting does not move focus. The focus stays on the same position, so the highlight can land on a different row.
 - Blank cells sort first in ascending order, and they are not read as 0.
-- Two cells compare as numbers only when both parse as numbers, so `9` sorts before `10`. Any other pair compares as text, ignoring case, so `apple` sorts before `Banana`.
+- In a column that mixes kinds, blank cells sort first, then numbers, then text. So `9`, `10` and `1a` sort in that order, whatever the order of the rows. Within numbers, values compare by value, so `9` sorts before `10`. Within text, the comparison ignores case, so `apple` sorts before `Banana`.
+- A `visibleRowCount` below 1 shows one row, and a fraction is rounded down.
+- When `visibleRowCount` shrinks after mount, the window moves so the focused row stays visible.
 - `onSelect` receives the object from `rows`, even when the table is sorted.
 - When `rows` shrinks after mount, a focus position past the last remaining row moves to that row, and Enter selects it.

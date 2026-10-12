@@ -46,9 +46,23 @@ const parseNumber = (text: string): number | undefined => {
 	return Number.isFinite(value) ? value : undefined;
 };
 
+// Blank cells rank first, then numbers, then text. A fixed rank per kind keeps the order total, so a mixed column sorts the same whatever the order of its rows.
+const cellRank = (text: string, number: number | undefined): number => {
+	if (text.trim() === '') {
+		return 0;
+	}
+
+	return number === undefined ? 2 : 1;
+};
+
 const compareCells = (left: string, right: string): number => {
 	const leftNumber = parseNumber(left);
 	const rightNumber = parseNumber(right);
+	const rankDifference = cellRank(left, leftNumber) - cellRank(right, rightNumber);
+
+	if (rankDifference !== 0) {
+		return rankDifference;
+	}
 
 	if (leftNumber !== undefined && rightNumber !== undefined) {
 		return leftNumber - rightNumber;
@@ -84,13 +98,25 @@ export const getSortDirection = (
 const clamp = (value: number, maxValue: number): number =>
 	Math.min(Math.max(value, 0), Math.max(maxValue, 0));
 
-// Rows and columns can shrink after mount, so stored positions are clamped to what exists now.
-const clampState = (state: DataTableState, layout: Layout): DataTableState => ({
-	...state,
-	focusedRow: clamp(state.focusedRow, layout.rowCount - 1),
-	scrollTop: clamp(state.scrollTop, layout.rowCount - layout.visibleRowCount),
-	focusedColumn: clamp(state.focusedColumn, layout.columns.length - 1),
-});
+// Rows, columns and the window can shrink after mount, so stored positions are clamped to what exists now.
+const clampScrollTop = (scrollTop: number, focusedRow: number, layout: Layout): number => {
+	// The window must still hold the focused row, or a shrink would hide it.
+	const lowestScrollTop = Math.max(focusedRow - layout.visibleRowCount + 1, 0);
+	const highestScrollTop = Math.min(focusedRow, Math.max(layout.rowCount - layout.visibleRowCount, 0));
+
+	return Math.min(Math.max(scrollTop, lowestScrollTop), highestScrollTop);
+};
+
+const clampState = (state: DataTableState, layout: Layout): DataTableState => {
+	const focusedRow = clamp(state.focusedRow, layout.rowCount - 1);
+
+	return {
+		...state,
+		focusedRow,
+		scrollTop: clampScrollTop(state.scrollTop, focusedRow, layout),
+		focusedColumn: clamp(state.focusedColumn, layout.columns.length - 1),
+	};
+};
 
 const moveFocusedRow = (
 	state: DataTableState,

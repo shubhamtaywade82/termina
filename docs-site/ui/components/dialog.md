@@ -52,7 +52,7 @@ Escape calls `onClose`, and the dialog stays on screen until the parent stops re
 | Prop | Type | Default | Description |
 | --- | --- | --- | --- |
 | `title` | `string` | Required | Title, shown on the first line inside the border. |
-| `children` | `ReactNode` | Required | Content, stacked in one column below the title. Wrap text in `Text`. |
+| `children` | `ReactNode` | Required | Content, stacked in one column below the title. A string is drawn as text, and an element is drawn as given. |
 | `onClose` | `() => void` | `undefined` | Called when the user presses Escape. When omitted, Escape is ignored and the footer is hidden. |
 | `width` | `number` | Fills the parent | Width in columns, including the border. See Edge cases for the default. |
 

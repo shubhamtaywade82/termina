@@ -97,7 +97,7 @@ export function Tabs({tabs, defaultTabId, onChange, isActive = true}: TabsProps)
 	// Keyed by id so switching tabs remounts the content. Without the key, two tabs holding the same component would share its state.
 	const panel = activeTab && (
 		<Box key={activeTab.id} {...styles.panel()}>
-			{activeTab.content}
+			{typeof activeTab.content === 'string' ? <Text>{activeTab.content}</Text> : activeTab.content}
 		</Box>
 	);
 

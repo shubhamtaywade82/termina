@@ -28,7 +28,7 @@ export default function DataTableBasic() {
       <DataTable
         columns={columns}
         rows={processes}
-        onSelect={row => setSelected(String(row.name))}
+        onSelect={row => setSelected(String(row['name']))}
       />
       <Text color="green">› selected {selected}</Text>
     </Box>

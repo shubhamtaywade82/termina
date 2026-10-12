@@ -18,11 +18,7 @@ const sortKey = 's';
 const ctrlS = '\u0013';
 const altS = '\u001Bs';
 const HIGHLIGHT_START = '\u001B[44m';
-const columns: TableColumn[] = [
-	{key: 'name', header: 'Name'},
-	{key: 'pid', header: 'PID', align: 'right'},
-	{key: 'cpu', header: 'CPU', align: 'right'},
-];
+const columns: TableColumn[] = [{key: 'name', header: 'Name'}, {key: 'pid', header: 'PID', align: 'right'}, {key: 'cpu', header: 'CPU', align: 'right'}];
 
 const processes: TableRow[] = [
 	{name: 'nginx', pid: 1234, cpu: 1.8},
@@ -77,15 +73,8 @@ test('renders a bold header, a dim rule, and five rows, with the focused row hig
 });
 
 test('sizes each column to its widest cell, header and sort room included, and measures every row', (t: TestContext) => {
-	const container = render(
-		<DataTable columns={[{key: 'name', header: 'Container'}, {key: 'state', header: 'State'}]} rows={[{name: 'api', state: 'up'}, {name: 'db', state: 'down'}]} />,
-	);
-	t.assert.deepStrictEqual(plainLines(container.lastFrame()), [
-		'Container    State',
-		'─'.repeat(20),
-		'api          up',
-		'db           down',
-	]);
+	const container = render(<DataTable columns={[{key: 'name', header: 'Container'}, {key: 'state', header: 'State'}]} rows={[{name: 'api', state: 'up'}, {name: 'db', state: 'down'}]} />);
+	t.assert.deepStrictEqual(plainLines(container.lastFrame()), ['Container    State', '─'.repeat(20), 'api          up', 'db           down']);
 
 	const hidden = render(<DataTable columns={[{key: 'name', header: 'Name'}]} rows={[{name: 'a'}, {name: 'longest'}]} visibleRowCount={1} />);
 	t.assert.deepStrictEqual(plainLines(hidden.lastFrame()), ['Name', '─'.repeat(7), 'a']);
@@ -146,12 +135,25 @@ test('sorts cells that parse as numbers by value, and other cells as text ignori
 	const fruit = render(<DataTable columns={[{key: 'name', header: 'Fruit'}]} rows={[{name: 'Banana'}, {name: 'apple'}, {name: 'cherry'}]} />);
 	await pressKeys(fruit.stdin, [sortKey]);
 	t.assert.deepStrictEqual(bodyNames(fruit.lastFrame()), ['apple', 'Banana', 'cherry']);
+
+	// Numbers sort before text, so 9 comes before 1a.
+	const mixed = render(<DataTable columns={[{key: 'v', header: 'V'}]} rows={[{v: '1a'}, {v: '9'}]} />);
+	await pressKeys(mixed.stdin, [sortKey]);
+	t.assert.deepStrictEqual(bodyNames(mixed.lastFrame()), ['9', '1a']);
+});
+
+test('gives a mixed column one order, whatever the order of its rows', async (t: TestContext) => {
+	const column = [{key: 'v', header: 'V'}];
+	const first = render(<DataTable columns={column} rows={[{v: '10'}, {v: '1a'}, {v: '9'}]} />);
+	const second = render(<DataTable columns={column} rows={[{v: '1a'}, {v: '10'}, {v: '9'}]} />);
+	await pressKeys(first.stdin, [sortKey]);
+	await pressKeys(second.stdin, [sortKey]);
+	t.assert.deepStrictEqual(bodyNames(first.lastFrame()), ['9', '10', '1a']);
+	t.assert.deepStrictEqual(bodyNames(second.lastFrame()), ['9', '10', '1a']);
 });
 
 test('sorts blank cells first in ascending order, without reading them as 0', async (t: TestContext) => {
-	const {lastFrame, stdin} = render(
-		<DataTable columns={[{key: 'name', header: 'Name'}, {key: 'cpu', header: 'CPU', align: 'right'}]} rows={[{name: 'a', cpu: -1}, {name: 'b'}, {name: 'c', cpu: 0}]} />,
-	);
+	const {lastFrame, stdin} = render(<DataTable columns={[{key: 'name', header: 'Name'}, {key: 'cpu', header: 'CPU', align: 'right'}]} rows={[{name: 'a', cpu: -1}, {name: 'b'}, {name: 'c', cpu: 0}]} />);
 
 	await pressKeys(stdin, [right, sortKey]);
 	t.assert.deepStrictEqual(bodyNames(lastFrame()), ['b', 'a', 'c']);
@@ -201,9 +203,7 @@ test('renders only the header and rule when rows is empty, and ignores keys', as
 test('ignores keys when isActive is false or stdin is piped, and still renders', async (t: TestContext) => {
 	const selected: TableRow[] = [];
 	const onSelect = (row: TableRow) => selected.push(row);
-	const inactive = render(
-		<DataTable columns={columns} rows={processes} isActive={false} onSelect={onSelect} />,
-	);
+	const inactive = render(<DataTable columns={columns} rows={processes} isActive={false} onSelect={onSelect} />);
 	const piped = render(<DataTable columns={columns} rows={processes} onSelect={onSelect} />, {isStdinPiped: true});
 
 	for (const instance of [inactive, piped]) {
@@ -224,7 +224,7 @@ test('ignores Ctrl and Alt chords and other keys, so Ctrl+s, Alt+s, Ctrl+Down, x
 	t.assert.strictEqual(lastFrame(), before);
 });
 
-test('keeps focus on the last row when rows shrink, and Enter selects that row', async (t: TestContext) => {
+test('keeps focus on the last row when rows shrink, and keeps it visible when visibleRowCount shrinks', async (t: TestContext) => {
 	const selected: TableRow[] = [];
 	const onSelect = (row: TableRow) => selected.push(row);
 	const instance = render(<DataTable columns={columns} rows={processes} onSelect={onSelect} />);
@@ -237,14 +237,30 @@ test('keeps focus on the last row when rows shrink, and Enter selects that row',
 	t.assert.strictEqual(highlightedRow(instance.lastFrame()), 'node     5678   10.1');
 	await pressKeys(instance.stdin, [enter]);
 	t.assert.strictEqual(selected[0], processes[1]);
+
+	const windowed = render(<DataTable columns={columns} rows={processes} onSelect={onSelect} />);
+	await pressKeys(windowed.stdin, [down, down, down, down]);
+	windowed.rerender(<DataTable columns={columns} rows={processes} visibleRowCount={2} onSelect={onSelect} />);
+	await delay(20);
+	t.assert.ok(highlightedRow(windowed.lastFrame())?.startsWith('zsh'));
+	await pressKeys(windowed.stdin, [enter]);
+	t.assert.strictEqual(selected[1], processes[4]);
 });
 
-test('shows every row without blank lines when visibleRowCount exceeds the row count', async (t: TestContext) => {
+test('sizes the window from visibleRowCount: every row when it is large, one when below 1, and rounded down', async (t: TestContext) => {
 	const {lastFrame, stdin} = render(<DataTable columns={columns} rows={processes} visibleRowCount={10} />);
 	t.assert.strictEqual(plainLines(lastFrame()).length, 8);
 
 	await pressKeys(stdin, [down, down, down, down, down]);
 	t.assert.strictEqual(highlightedRow(lastFrame()), 'postgres    999     22');
+
+	const single = render(<DataTable columns={columns} rows={processes} visibleRowCount={0} />);
+	await pressKeys(single.stdin, [down, down]);
+	t.assert.deepStrictEqual(bodyNames(single.lastFrame()), ['redis']);
+	t.assert.ok(highlightedRow(single.lastFrame())?.startsWith('redis'));
+
+	const fraction = render(<DataTable columns={columns} rows={processes} visibleRowCount={2.5} />);
+	t.assert.deepStrictEqual(bodyNames(fraction.lastFrame()), ['nginx', 'node']);
 });
 
 test('gives a row with only blank cells one line', async (t: TestContext) => {
@@ -262,13 +278,7 @@ test('renders blank lines and no rule when there are no columns, and ignores sor
 });
 
 test('lays out the demo in 11 lines', (t: TestContext) => {
-	const demoColumns: TableColumn[] = [
-		{key: 'name', header: 'Process'},
-		{key: 'pid', header: 'PID', align: 'right'},
-		{key: 'cpu', header: 'CPU %', align: 'right'},
-		{key: 'memory', header: 'Memory MB', align: 'right'},
-		{key: 'status', header: 'Status'},
-	];
+	const demoColumns: TableColumn[] = [{key: 'name', header: 'Process'}, {key: 'pid', header: 'PID', align: 'right'}, {key: 'cpu', header: 'CPU %', align: 'right'}, {key: 'memory', header: 'Memory MB', align: 'right'}, {key: 'status', header: 'Status'}];
 	const demoRows: TableRow[] = [
 		{name: 'nginx', pid: 1234, cpu: 1.8, memory: 126, status: 'running'},
 		{name: 'node', pid: 5678, cpu: 10.1, memory: 248, status: 'running'},

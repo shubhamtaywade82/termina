@@ -181,7 +181,9 @@ export function DataTable({
 	isActive = true,
 	onSelect,
 }: DataTableProps) {
-	const state = useDataTableState({columns, rows, visibleRowCount, isActive, onSelect});
+	// Below one row the focused row would be hidden, and a fraction makes the slice and the scroll math disagree.
+	const windowRowCount = Math.max(Math.floor(visibleRowCount), 1);
+	const state = useDataTableState({columns, rows, visibleRowCount: windowRowCount, isActive, onSelect});
 	const {styles} = useComponentTheme<Theme>('DataTable');
 	const widths = columns.map(column => getColumnWidth(column, rows));
 	const measure: Measure = {
@@ -197,7 +199,7 @@ export function DataTable({
 				measure={measure}
 				rows={sortRows(rows, state.sort)}
 				state={state}
-				visibleRowCount={visibleRowCount}
+				visibleRowCount={windowRowCount}
 			/>
 		</Box>
 	);

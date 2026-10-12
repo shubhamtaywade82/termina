@@ -22,7 +22,7 @@ export type AccordionItem = {
 	readonly title: string;
 
 	/**
-	 * Shown below the title while the section is open. Ink renders text only inside `<Text>`, so wrap a string in one.
+	 * Shown below the title while the section is open. A string is drawn as text.
 	 */
 	readonly content: ReactNode;
 };
@@ -216,7 +216,11 @@ function AccordionSection({
 				<Text {...styles.icon({isOpen})}>{glyph}</Text>{' '}
 				<Text {...styles.title({isFocused})}>{title}</Text>
 			</Text>
-			{isOpen && <Box {...styles.content()}>{content}</Box>}
+			{isOpen && (
+				<Box {...styles.content()}>
+					{typeof content === 'string' ? <Text>{content}</Text> : content}
+				</Box>
+			)}
 		</>
 	);
 }

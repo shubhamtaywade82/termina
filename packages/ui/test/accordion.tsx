@@ -3,6 +3,7 @@ import React from 'react';
 import test, {type TestContext} from 'node:test';
 import chalk from 'chalk';
 import delay from 'delay';
+import stripAnsi from 'strip-ansi';
 import figures from 'figures';
 import {Text} from '@nemesis-oss/termina-core';
 import {render} from './helpers/render.js';
@@ -148,12 +149,6 @@ test('renders its open content under piped stdin and ignores keys instead of thr
 	instance.unmount();
 });
 
-test('a bare string as content renders nothing, so content must be wrapped in Text', (t: TestContext) => {
-	const instance = render(<Accordion items={[{id: 'bare', title: 'Bare', content: 'text'}]} defaultOpenIds={['bare']} />);
-	t.assert.strictEqual(instance.lastFrame() ?? '', '');
-	instance.unmount();
-});
-
 test('changing defaultOpenIds after mount has no effect', async (t: TestContext) => {
 	const instance = render(<Accordion items={items} defaultOpenIds={['api']} />);
 	instance.rerender(<Accordion items={items} defaultOpenIds={['deploy']} />);
@@ -268,4 +263,15 @@ test('keys sent one event at a time, a macrotask apart, are all applied to the n
 	t.assert.strictEqual(instance.lastFrame(), frame(closedRow('Database'), openRow('API'), timeoutLine, focusedClosedRow('Deployment')));
 	t.assert.deepStrictEqual(changes, [['api']]);
 	instance.unmount();
+});
+
+test('draws a string content as text when the section is open', (t: TestContext) => {
+	const {lastFrame} = render(
+		<Accordion
+			items={[{id: 'alpha', title: 'Alpha', content: 'body text'}]}
+			defaultOpenIds={['alpha']}
+		/>,
+	);
+
+	t.assert.ok(stripAnsi(lastFrame() ?? '').includes('body text'));
 });

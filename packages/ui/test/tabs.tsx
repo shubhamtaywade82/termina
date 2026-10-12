@@ -2,6 +2,7 @@ import React, {useState} from 'react';
 import test, {type TestContext} from 'node:test';
 import chalk from 'chalk';
 import delay from 'delay';
+import stripAnsi from 'strip-ansi';
 import {Text} from '@nemesis-oss/termina-core';
 import {render} from './helpers/render.js';
 import {Tabs, type TabsItem} from '../source/components/tabs/index.js';
@@ -293,4 +294,12 @@ test('renders the active content when stdin is piped', async (t: TestContext) =>
 		lastFrame(),
 		[`${active('Files')}  Logs  Config`, 'src/index.ts'].join('\n'),
 	);
+});
+
+test('draws a string content as text in the active panel', (t: TestContext) => {
+	const {lastFrame} = render(
+		<Tabs tabs={[{id: 'one', label: 'One', content: 'body text'}]} />,
+	);
+
+	t.assert.ok(stripAnsi(lastFrame() ?? '').includes('body text'));
 });

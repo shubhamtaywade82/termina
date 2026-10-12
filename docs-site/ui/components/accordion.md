@@ -36,7 +36,7 @@ render(<Accordion items={sections} defaultOpenIds={['api']} />);
 
 ## Props
 
-`AccordionProps` is exported from `@nemesis-oss/termina-ui`. `AccordionItem` is also exported. It has the shape `{id: string; title: string; content: ReactNode}`. Ink renders text only inside `<Text>`, so `content` must be an element such as `<Text>`, not a bare string.
+`AccordionProps` is exported from `@nemesis-oss/termina-ui`. `AccordionItem` is also exported. It has the shape `{id: string; title: string; content: ReactNode}`. A string `content` is drawn as text, and an element is drawn as given.
 
 | Prop | Type | Default | Description |
 | --- | --- | --- | --- |

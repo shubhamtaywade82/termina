@@ -273,3 +273,9 @@ test('renders the footer but ignores Escape when stdin is piped', async (t: Test
 	t.assert.ok(plain(lastFrame()).includes('Esc to close'));
 	t.assert.strictEqual(closeCount, 0);
 });
+
+test('draws a string child as text', (t: TestContext) => {
+	const {lastFrame} = render(<Dialog title="Notes">hello there</Dialog>);
+
+	t.assert.ok(stripAnsi(lastFrame() ?? '').includes('hello there'));
+});
