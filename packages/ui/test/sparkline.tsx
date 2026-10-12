@@ -2,6 +2,7 @@ import React from 'react';
 import test, {type TestContext} from 'node:test';
 import chalk from 'chalk';
 import delay from 'delay';
+import stripAnsi from 'strip-ansi';
 import {Box, Text} from '@nemesis-oss/termina-core';
 import {render} from './helpers/render.js';
 import {Sparkline} from '../source/components/sparkline/index.js';
@@ -157,4 +158,10 @@ test('draws the bars in the color of a bars() theme override', (t: TestContext) 
 	);
 
 	t.assert.strictEqual(lastFrame(), chalk.magenta('▁█'));
+});
+
+test('scales values near the largest finite number without overflowing', (t: TestContext) => {
+	const {lastFrame} = render(<Sparkline data={[-Number.MAX_VALUE, 0, Number.MAX_VALUE]} />);
+
+	t.assert.strictEqual(stripAnsi(lastFrame() ?? ''), '▁▅█');
 });

@@ -29,21 +29,22 @@ const toFiniteValue = (value: number): number =>
 const takeLast = (values: number[], count: number): number[] =>
 	values.slice(Math.max(0, values.length - count));
 
-const toBlock = (value: number, min: number, range: number): string => {
-	// A zero range would divide by zero, so every value takes the lowest block.
-	if (range === 0) {
+const toBlock = (value: number, min: number, max: number): string => {
+	// An equal min and max would divide by zero, so every value takes the lowest block.
+	if (min === max) {
 		return BLOCKS.charAt(0);
 	}
 
-	const level = Math.round(((value - min) * (BLOCKS.length - 1)) / range);
-	return BLOCKS.charAt(level);
+	// Halving each term first keeps the differences finite near Number.MAX_VALUE.
+	const fraction = (value / 2 - min / 2) / (max / 2 - min / 2);
+	return BLOCKS.charAt(Math.round(fraction * (BLOCKS.length - 1)));
 };
 
 const toBlocks = (values: number[]): string => {
 	const min = values.reduce((lowest, value) => Math.min(lowest, value));
 	const max = values.reduce((highest, value) => Math.max(highest, value));
 
-	return values.map(value => toBlock(value, min, max - min)).join('');
+	return values.map(value => toBlock(value, min, max)).join('');
 };
 
 export function Sparkline({data, width = data.length}: SparklineProps) {
