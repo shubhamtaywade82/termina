@@ -8,6 +8,20 @@ outline: [2, 3]
 
 `TextInput` is exported from `@nemesis-oss/termina-ui`. `@nemesis-oss/termina-ui` is a workspace package in this repository and is not published to npm yet, so import it from another workspace package. For the full component list, read the [UI Kit overview](/ui/overview).
 
+## Preview
+
+The first frame is an empty TextInput with the placeholder `type a command`, which shows the first letter with the cursor on it and the rest dimmed.
+
+<TerminalPreview id="text-input-placeholder" />
+
+The second frame is a TextInput with the value `deploy`, and the cursor sits after the last letter.
+
+<TerminalPreview id="text-input-value" />
+
+The third frame is a TextInput with the value `de` and the suggestions `deploy`, `destroy`, and `status`, which shows the completion `ploy` after the value.
+
+<TerminalPreview id="text-input-completion" />
+
 ## Usage
 
 ```tsx

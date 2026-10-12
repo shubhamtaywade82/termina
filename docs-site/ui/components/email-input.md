@@ -8,6 +8,16 @@ outline: [2, 3]
 
 `EmailInput` is exported from `@nemesis-oss/termina-ui`. `@nemesis-oss/termina-ui` is a workspace package in this repository and is not published to npm yet, so import it from another workspace package. For the full component list, read the [UI Kit overview](/ui/overview).
 
+## Preview
+
+This frame shows an empty field with the placeholder `name@example.com`.
+
+<TerminalPreview id="email-input-placeholder" />
+
+This frame shows a field holding `jane@gm`, followed by the dimmed suggestion `ail.com`, which completes `gmail.com`.
+
+<TerminalPreview id="email-input-domain-suggestion" />
+
 ## Usage
 
 ```tsx

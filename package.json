@@ -13,7 +13,9 @@
     "test": "pnpm run build && pnpm -r --filter './packages/*' run test",
     "verify": "pnpm run typecheck && pnpm run test",
     "docs:dev": "npm --prefix docs-site run dev",
-    "docs:build": "npm --prefix docs-site run build"
+    "docs:build": "npm --prefix docs-site run build",
+    "docs:previews": "pnpm --filter termina-docs-previews run generate",
+    "docs:previews:check": "pnpm --filter termina-docs-previews run check"
   },
   "pnpm": {
     "onlyBuiltDependencies": [

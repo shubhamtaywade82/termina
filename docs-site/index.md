@@ -30,3 +30,9 @@ features:
     details: The test suite drives output through an xterm.js emulator and pseudo-terminals, not only string snapshots.
     link: /guide/testing
 ---
+
+## Preview
+
+The frame shows a release panel with its upload at 75 percent, then a success, a warning, and an error StatusMessage.
+
+<TerminalPreview id="index-release-dashboard" />

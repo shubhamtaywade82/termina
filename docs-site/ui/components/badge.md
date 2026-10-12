@@ -8,6 +8,16 @@ outline: [2, 3]
 
 `Badge` is exported from `@nemesis-oss/termina-ui`. `@nemesis-oss/termina-ui` is a workspace package in this repository and is not published to npm yet, so import it from another workspace package. For the full component list, read the [UI Kit overview](/ui/overview).
 
+## Preview
+
+This frame shows a badge with no color prop, which takes the default magenta background.
+
+<TerminalPreview id="badge-default" />
+
+This frame shows two check rows, with a green PASS badge and a red FAIL badge.
+
+<TerminalPreview id="badge-pass-fail" />
+
 ## Usage
 
 ```tsx

@@ -8,6 +8,20 @@ outline: [2, 3]
 
 `Select` is exported from `@nemesis-oss/termina-ui`. `@nemesis-oss/termina-ui` is a workspace package in this repository and is not published to npm yet, so import it from another workspace package. For the full component list, read the [UI Kit overview](/ui/overview).
 
+## Preview
+
+The first frame is a Select with `defaultValue` set to `staging`, which marks Staging with a green check mark while the focus pointer stays on Development, the first option, because focus starts there.
+
+<TerminalPreview id="select-default-value" />
+
+The second frame is a disabled Select with the same `defaultValue`, which draws no focus pointer and keeps the Staging mark.
+
+<TerminalPreview id="select-disabled" />
+
+The third frame is a Select with `highlightText` set to `config`, which bolds that word in the labels `config.json` and `config.yaml`.
+
+<TerminalPreview id="select-highlight-text" />
+
 ## Usage
 
 ```tsx

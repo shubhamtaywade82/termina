@@ -8,6 +8,16 @@ outline: [2, 3]
 
 `LogStream` and `LogStreamProps` are exported from `@nemesis-oss/termina-ui`, the `packages/ui` workspace package in this repository. The package is not published to npm yet, so import it from another workspace package. For the full component list, read the [UI Kit overview](/ui/overview).
 
+## Preview
+
+This frame shows three entries in a 6-row viewport, where a newline and a long entry each take a second row.
+
+<TerminalPreview id="log-stream-entries-wrap" />
+
+This frame shows a LogStream with `maxLines` set to 3, so only the newest three of fourteen entries are rendered.
+
+<TerminalPreview id="log-stream-max-lines" />
+
 ## Usage
 
 ```tsx

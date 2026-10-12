@@ -6,6 +6,16 @@ outline: [2, 3]
 
 Each themed component reads its styles and config from a theme object that React context supplies. `defaultTheme` is the theme used when no `ThemeProvider` is above a component. `ThemeProvider` gives a subtree a different theme, and `extendTheme` builds that theme from `defaultTheme` without changing it. This page covers the theme shape, the keys each component reads, and one override worked through in full. Use it when you need to change colors, characters, or icons across an app.
 
+## Preview
+
+The first frame is a 40 percent `ProgressBar` under `defaultTheme`, with filled cells in magenta.
+
+<TerminalPreview id="theming-default-progress-bar" />
+
+The second frame is the same bar after `extendTheme` overrides the `ProgressBar.config` entry, so filled cells are `#` and empty cells are `-`.
+
+<TerminalPreview id="theming-extended-progress-bar-config" />
+
 ## Theme shape
 
 ```ts

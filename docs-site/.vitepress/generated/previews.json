@@ -1,0 +1,338 @@
+{
+  "alert-error-no-title": {
+    "title": "Alert, error variant without title",
+    "caption": "An error Alert with no title, so its message is the only text inside a red rounded border with a cross icon, wrapped to the 40-column Box.",
+    "columns": 40,
+    "html": "<span style=\"color:#cd3131\">╭──────────────────────────────────────╮</span>\n<span style=\"color:#cd3131\">│</span> <span style=\"color:#cd3131\">✘</span> Could not reach the registry.      <span style=\"color:#cd3131\">│</span>\n<span style=\"color:#cd3131\">│</span>   Check your network and try again.  <span style=\"color:#cd3131\">│</span>\n<span style=\"color:#cd3131\">╰──────────────────────────────────────╯</span>",
+    "text": "╭──────────────────────────────────────╮\n│ ✘ Could not reach the registry.      │\n│   Check your network and try again.  │\n╰──────────────────────────────────────╯"
+  },
+  "alert-warning-title": {
+    "title": "Alert, warning variant with title",
+    "caption": "A warning Alert with the bold title Deprecated command above its message, inside a yellow rounded border with a warning icon, in a 60-column Box.",
+    "columns": 60,
+    "html": "<span style=\"color:#e5e510\">╭──────────────────────────────────────────────────────────╮</span>\n<span style=\"color:#e5e510\">│</span> <span style=\"color:#e5e510\">⚠</span> <span style=\"font-weight:bold\">Deprecated command</span>                                     <span style=\"color:#e5e510\">│</span>\n<span style=\"color:#e5e510\">│</span>                                                          <span style=\"color:#e5e510\">│</span>\n<span style=\"color:#e5e510\">│</span>   The sync command is deprecated. Run update instead.    <span style=\"color:#e5e510\">│</span>\n<span style=\"color:#e5e510\">╰──────────────────────────────────────────────────────────╯</span>",
+    "text": "╭──────────────────────────────────────────────────────────╮\n│ ⚠ Deprecated command                                     │\n│                                                          │\n│   The sync command is deprecated. Run update instead.    │\n╰──────────────────────────────────────────────────────────╯"
+  },
+  "alternate-screen-and-suspend-viewer-idle": {
+    "title": "notes viewer, initial status",
+    "caption": "A rounded box ten rows tall with notes.txt in a one-row header, the status line press e to edit notes.txt, q to quit in a body that takes the remaining rows, and key hints in a one-row footer; the alternate-screen sequences are not part of this frame.",
+    "columns": 48,
+    "html": "╭──────────────────────────────────────────────╮\n│ <span style=\"font-weight:bold\">notes.txt</span>                                    │\n│ press e to edit notes.txt, q to quit         │\n│                                              │\n│                                              │\n│                                              │\n│                                              │\n│                                              │\n│ <span style=\"color:#666666\">e edit  q quit</span>                               │\n╰──────────────────────────────────────────────╯",
+    "text": "╭──────────────────────────────────────────────╮\n│ notes.txt                                    │\n│ press e to edit notes.txt, q to quit         │\n│                                              │\n│                                              │\n│                                              │\n│                                              │\n│                                              │\n│ e edit  q quit                               │\n╰──────────────────────────────────────────────╯"
+  },
+  "badge-default": {
+    "title": "Badge with default color",
+    "caption": "A Badge with no color prop, so the label beta is uppercased to BETA on the default magenta background.",
+    "columns": 30,
+    "html": "<span style=\"background-color:#bc3fbc\"> </span><span style=\"color:#000000;background-color:#bc3fbc\">BETA</span><span style=\"background-color:#bc3fbc\"> </span>",
+    "text": " BETA "
+  },
+  "badge-pass-fail": {
+    "title": "Badge rows, green and red",
+    "caption": "Two check rows: PASS on a green background beside lint, and FAIL on a red background beside unit tests.",
+    "columns": 40,
+    "html": "<span style=\"background-color:#0dbc79\"> </span><span style=\"color:#000000;background-color:#0dbc79\">PASS</span><span style=\"background-color:#0dbc79\"> </span> lint\n<span style=\"background-color:#cd3131\"> </span><span style=\"color:#000000;background-color:#cd3131\">FAIL</span><span style=\"background-color:#cd3131\"> </span> unit tests",
+    "text": " PASS  lint\n FAIL  unit tests"
+  },
+  "confirm-input-cancel-default": {
+    "title": "ConfirmInput, default cancel choice",
+    "caption": "The same question with defaultChoice set to cancel, so the hint after it is y/N.",
+    "columns": 40,
+    "html": "Delete the build cache? y/N",
+    "text": "Delete the build cache? y/N"
+  },
+  "confirm-input-default": {
+    "title": "ConfirmInput, default confirm choice",
+    "caption": "The question Delete the build cache? followed by the Y/n hint of a ConfirmInput with the default confirm choice.",
+    "columns": 40,
+    "html": "Delete the build cache? Y/n",
+    "text": "Delete the build cache? Y/n"
+  },
+  "confirm-input-disabled": {
+    "title": "ConfirmInput, disabled",
+    "caption": "A disabled ConfirmInput after the question Delete the build cache?, whose Y/n hint is dimmed.",
+    "columns": 40,
+    "html": "Delete the build cache? <span style=\"opacity:0.6\">Y/n</span>",
+    "text": "Delete the build cache? Y/n"
+  },
+  "email-input-domain-suggestion": {
+    "title": "EmailInput, domain suggestion",
+    "caption": "An EmailInput holding jane@gm, followed by the dimmed completion ail.com, which completes gmail.com, with the first character of the completion drawn as the cursor.",
+    "columns": 40,
+    "html": "Email address\n\njane@gm<span style=\"color:#0b0f14;background-color:#e5e5e5\">a</span><span style=\"opacity:0.6\">il.com</span>",
+    "text": "Email address\n\njane@gmail.com"
+  },
+  "email-input-placeholder": {
+    "title": "EmailInput, empty with placeholder",
+    "caption": "An empty EmailInput under the label Email address, showing the placeholder name@example.com, with its first character drawn as the cursor and the rest dimmed.",
+    "columns": 40,
+    "html": "Email address\n\n<span style=\"color:#0b0f14;background-color:#e5e5e5\">n</span><span style=\"opacity:0.6\">ame@example.com</span>",
+    "text": "Email address\n\nname@example.com"
+  },
+  "getting-started-counter": {
+    "title": "app.tsx, third tick",
+    "caption": "The frame the counter app draws at the third tick. The app exits right after it.",
+    "columns": 40,
+    "html": "╭──────────────────────────────────────╮\n│ <span style=\"color:#0dbc79\">Ticks: 3</span>                             │\n╰──────────────────────────────────────╯",
+    "text": "╭──────────────────────────────────────╮\n│ Ticks: 3                             │\n╰──────────────────────────────────────╯"
+  },
+  "index-release-dashboard": {
+    "title": "Release panel with progress and status",
+    "caption": "A bordered panel titled Release 2.4.0 with an Upload ProgressBar at 75 percent, then a success, a warning, and an error StatusMessage.",
+    "columns": 56,
+    "html": "<span style=\"color:#666666\">╭──────────────────────────────────────────────────────╮</span>\n<span style=\"color:#666666\">│</span> <span style=\"font-weight:bold\">Release 2.4.0</span>                                        <span style=\"color:#666666\">│</span>\n<span style=\"color:#666666\">│</span>                                                      <span style=\"color:#666666\">│</span>\n<span style=\"color:#666666\">│</span> Upload <span style=\"color:#bc3fbc\">██████████████████████████████████</span><span style=\"opacity:0.6\">░░░░░░░░░░░</span> <span style=\"color:#666666\">│</span>\n<span style=\"color:#666666\">│</span>                                                      <span style=\"color:#666666\">│</span>\n<span style=\"color:#666666\">│</span> <span style=\"color:#0dbc79\">✔</span> Tests passed (182 of 182)                          <span style=\"color:#666666\">│</span>\n<span style=\"color:#666666\">│</span>                                                      <span style=\"color:#666666\">│</span>\n<span style=\"color:#666666\">│</span> <span style=\"color:#e5e510\">⚠</span> 2 packages are outdated                            <span style=\"color:#666666\">│</span>\n<span style=\"color:#666666\">│</span>                                                      <span style=\"color:#666666\">│</span>\n<span style=\"color:#666666\">│</span> <span style=\"color:#cd3131\">✘</span> Signing key expired                                <span style=\"color:#666666\">│</span>\n<span style=\"color:#666666\">╰──────────────────────────────────────────────────────╯</span>",
+    "text": "╭──────────────────────────────────────────────────────╮\n│ Release 2.4.0                                        │\n│                                                      │\n│ Upload ██████████████████████████████████░░░░░░░░░░░ │\n│                                                      │\n│ ✔ Tests passed (182 of 182)                          │\n│                                                      │\n│ ⚠ 2 packages are outdated                            │\n│                                                      │\n│ ✘ Signing key expired                                │\n╰──────────────────────────────────────────────────────╯"
+  },
+  "keyboard-and-focus-focused-field": {
+    "title": "Focused and unfocused field",
+    "caption": "Two field labels: Name is drawn with the inverse style on, and Email is drawn in the plain style.",
+    "columns": 40,
+    "html": "<span style=\"color:#0b0f14;background-color:#e5e5e5\">Name</span>\nEmail",
+    "text": "Name\nEmail"
+  },
+  "layout-and-text-column-screen": {
+    "title": "Screen.tsx, header, body, footer",
+    "caption": "A rounded box 8 rows tall with a one-row header, a body that takes the remaining rows, and a one-row footer.",
+    "columns": 40,
+    "html": "╭──────────────────────────────────────╮\n│header                                │\n│ The body takes the rows that remain. │\n│                                      │\n│                                      │\n│                                      │\n│<span style=\"color:#666666\">footer</span>                                │\n╰──────────────────────────────────────╯",
+    "text": "╭──────────────────────────────────────╮\n│header                                │\n│ The body takes the rows that remain. │\n│                                      │\n│                                      │\n│                                      │\n│footer                                │\n╰──────────────────────────────────────╯"
+  },
+  "layout-and-text-newline-truncate": {
+    "title": "Message.tsx, Newline and truncation",
+    "caption": "A column 20 columns wide with a bold green line, a dimmed line cut to one row with an ellipsis, and a Text that a Newline splits into two rows.",
+    "columns": 30,
+    "html": "<span style=\"color:#0dbc79;font-weight:bold\">Build passed</span>\n<span style=\"opacity:0.6\">3 suites, 42 tests,…</span>\nline one\nline two",
+    "text": "Build passed\n3 suites, 42 tests,…\nline one\nline two"
+  },
+  "layout-and-text-status-bar": {
+    "title": "StatusBar.tsx, row with Spacer",
+    "caption": "A single-bordered row 40 columns wide, with termina at the left, ready at the right, and one column of padding on each side.",
+    "columns": 40,
+    "html": "┌──────────────────────────────────────┐\n│ <span style=\"font-weight:bold\">termina</span>                        <span style=\"color:#666666\">ready</span> │\n└──────────────────────────────────────┘",
+    "text": "┌──────────────────────────────────────┐\n│ termina                        ready │\n└──────────────────────────────────────┘"
+  },
+  "log-stream-entries-wrap": {
+    "title": "LogStream, multi-line and wrapped entries",
+    "caption": "Three entries in a 6-row LogStream at 40 columns: the second entry's newline starts a second row, and the third entry wraps onto a second row at the viewport width.",
+    "columns": 40,
+    "html": "server started\nlistening on 127.0.0.1:8080\nready to accept connections\nGET /health 200 OK in 3ms from the\nmonitoring agent at the edge\n",
+    "text": "server started\nlistening on 127.0.0.1:8080\nready to accept connections\nGET /health 200 OK in 3ms from the\nmonitoring agent at the edge\n"
+  },
+  "log-stream-max-lines": {
+    "title": "LogStream, maxLines of 3",
+    "caption": "Fourteen entries with maxLines set to 3 in a 3-row LogStream: only entry 11, entry 12 and entry 13 are rendered, and they fill the viewport.",
+    "columns": 40,
+    "html": "entry 11\nentry 12\nentry 13",
+    "text": "entry 11\nentry 12\nentry 13"
+  },
+  "mouse-button-default": {
+    "title": "Button before any click",
+    "caption": "A round-bordered Box that reads Clicked 0 times, with Press q to quit below it, which is the click counter before any click.",
+    "columns": 40,
+    "html": "╭──────────────────────────────────────╮\n│ Clicked 0 times                      │\n╰──────────────────────────────────────╯\nPress q to quit",
+    "text": "╭──────────────────────────────────────╮\n│ Clicked 0 times                      │\n╰──────────────────────────────────────╯\nPress q to quit"
+  },
+  "multi-select-default-selection": {
+    "title": "MultiSelect with defaultValue",
+    "caption": "Five of the six toppings, with Cheese and Olives selected and each showing a tick, and the pointer on Cheese as the focused row; Onions is below the visible rows.",
+    "columns": 40,
+    "html": "<span style=\"color:#3b8eea\">❯</span> <span style=\"color:#3b8eea\">Cheese</span> <span style=\"color:#0dbc79\">✔</span>\n  Ham\n  Pineapple\n  <span style=\"color:#0dbc79\">Olives</span> <span style=\"color:#0dbc79\">✔</span>\n  Peppers",
+    "text": "❯ Cheese ✔\n  Ham\n  Pineapple\n  Olives ✔\n  Peppers"
+  },
+  "multi-select-highlight-text": {
+    "title": "MultiSelect with highlightText",
+    "caption": "The five visible toppings with highlightText set to e, so the first e in each visible label that contains one is bold, and no topping is selected.",
+    "columns": 40,
+    "html": "<span style=\"color:#3b8eea\">❯</span> <span style=\"color:#3b8eea\">Ch</span><span style=\"color:#3b8eea;font-weight:bold\">e</span><span style=\"color:#3b8eea\">ese</span>\n  Ham\n  Pin<span style=\"font-weight:bold\">e</span>apple\n  Oliv<span style=\"font-weight:bold\">e</span>s\n  P<span style=\"font-weight:bold\">e</span>ppers",
+    "text": "❯ Cheese\n  Ham\n  Pineapple\n  Olives\n  Peppers"
+  },
+  "ordered-list-nested-steps": {
+    "title": "OrderedList with nested items",
+    "caption": "Three numbered steps, where the middle step has two nested items numbered 2.1. and 2.2. indented under its text.",
+    "columns": 48,
+    "html": "<span style=\"opacity:0.6\">1.</span> Install dependencies\n<span style=\"opacity:0.6\">2.</span> Build the packages\n   <span style=\"opacity:0.6\">2.1.</span> Build core\n   <span style=\"opacity:0.6\">2.2.</span> Build ui\n<span style=\"opacity:0.6\">3.</span> Run the tests",
+    "text": "1. Install dependencies\n2. Build the packages\n   2.1. Build core\n   2.2. Build ui\n3. Run the tests"
+  },
+  "ordered-list-ten-items": {
+    "title": "OrderedList with ten items",
+    "caption": "Ten numbered items, where the markers 1. through 9. start with a space so that the item text lines up with the marker 10.",
+    "columns": 48,
+    "html": "<span style=\"opacity:0.6\"> 1.</span> Clone the repository\n<span style=\"opacity:0.6\"> 2.</span> Install dependencies\n<span style=\"opacity:0.6\"> 3.</span> Build the packages\n<span style=\"opacity:0.6\"> 4.</span> Run the linter\n<span style=\"opacity:0.6\"> 5.</span> Run the type checker\n<span style=\"opacity:0.6\"> 6.</span> Run the unit tests\n<span style=\"opacity:0.6\"> 7.</span> Start the dev server\n<span style=\"opacity:0.6\"> 8.</span> Open the docs\n<span style=\"opacity:0.6\"> 9.</span> Commit the change\n<span style=\"opacity:0.6\">10.</span> Push the branch",
+    "text": " 1. Clone the repository\n 2. Install dependencies\n 3. Build the packages\n 4. Run the linter\n 5. Run the type checker\n 6. Run the unit tests\n 7. Start the dev server\n 8. Open the docs\n 9. Commit the change\n10. Push the branch"
+  },
+  "overview-tour": {
+    "title": "Four components, default states",
+    "caption": "An info Alert with a title, a Badge whose label is uppercased to BETA on the default magenta background, a ProgressBar at 40 percent, and a Spinner labeled Deploying at its first animation frame.",
+    "columns": 56,
+    "html": "<span style=\"color:#3b8eea\">╭──────────────────────────────────────────────────────╮</span>\n<span style=\"color:#3b8eea\">│</span> <span style=\"color:#3b8eea\">ℹ</span> <span style=\"font-weight:bold\">Deploy</span>                                             <span style=\"color:#3b8eea\">│</span>\n<span style=\"color:#3b8eea\">│</span>                                                      <span style=\"color:#3b8eea\">│</span>\n<span style=\"color:#3b8eea\">│</span>   Choose a target, then enter a tag.                 <span style=\"color:#3b8eea\">│</span>\n<span style=\"color:#3b8eea\">╰──────────────────────────────────────────────────────╯</span>\n\n<span style=\"background-color:#bc3fbc\"> </span><span style=\"color:#000000;background-color:#bc3fbc\">BETA</span><span style=\"background-color:#bc3fbc\"> </span>\n\n<span style=\"color:#bc3fbc\">██████████████████████</span><span style=\"opacity:0.6\">░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░</span>\n\n<span style=\"color:#3b8eea\">⠋</span> Deploying",
+    "text": "╭──────────────────────────────────────────────────────╮\n│ ℹ Deploy                                             │\n│                                                      │\n│   Choose a target, then enter a tag.                 │\n╰──────────────────────────────────────────────────────╯\n\n BETA \n\n██████████████████████░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░\n\n⠋ Deploying"
+  },
+  "password-input-disabled-placeholder": {
+    "title": "PasswordInput, disabled with placeholder",
+    "caption": "A disabled PasswordInput under the label API key, showing the placeholder Paste your key dimmed, with no cursor.",
+    "columns": 40,
+    "html": "API key\n\n<span style=\"opacity:0.6\">Paste your key</span>",
+    "text": "API key\n\nPaste your key"
+  },
+  "password-input-placeholder": {
+    "title": "PasswordInput, empty with placeholder",
+    "caption": "An empty PasswordInput under the label API key, showing the unmasked placeholder Paste your key, with its first character drawn as the cursor and the rest dimmed.",
+    "columns": 40,
+    "html": "API key\n\n<span style=\"color:#0b0f14;background-color:#e5e5e5\">P</span><span style=\"opacity:0.6\">aste your key</span>",
+    "text": "API key\n\nPaste your key"
+  },
+  "progress-bar-empty": {
+    "title": "ProgressBar at 0",
+    "caption": "A ProgressBar with value 0, so no cells are completed and the full 40-column width is drawn as the dimmed light shade character.",
+    "columns": 40,
+    "html": "<span style=\"opacity:0.6\">░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░</span>",
+    "text": "░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░"
+  },
+  "progress-bar-full": {
+    "title": "ProgressBar at 100",
+    "caption": "A ProgressBar with value 100, so all 40 columns are drawn as magenta solid squares and none are left as remaining cells.",
+    "columns": 40,
+    "html": "<span style=\"color:#bc3fbc\">████████████████████████████████████████</span>",
+    "text": "████████████████████████████████████████"
+  },
+  "progress-bar-half": {
+    "title": "ProgressBar at 50",
+    "caption": "A ProgressBar with value 50, so the first 20 of its 40 columns are drawn as magenta solid squares and the other 20 as the dimmed light shade character.",
+    "columns": 40,
+    "html": "<span style=\"color:#bc3fbc\">████████████████████</span><span style=\"opacity:0.6\">░░░░░░░░░░░░░░░░░░░░</span>",
+    "text": "████████████████████░░░░░░░░░░░░░░░░░░░░"
+  },
+  "rendering-flex-justify": {
+    "title": "JustifyModes.tsx, justifyContent values",
+    "caption": "Each row places two children in a bordered Box with one justifyContent value, from flex-start at the top to space-evenly at the bottom.",
+    "columns": 48,
+    "html": "                ┌──────────────────────────────┐\n<span style=\"color:#666666\">flex-start</span>      │<span style=\"color:#11a8cd\">[a]</span><span style=\"color:#bc3fbc\">[b]</span>                        │\n                └──────────────────────────────┘\n                ┌──────────────────────────────┐\n<span style=\"color:#666666\">center</span>          │            <span style=\"color:#11a8cd\">[a]</span><span style=\"color:#bc3fbc\">[b]</span>            │\n                └──────────────────────────────┘\n                ┌──────────────────────────────┐\n<span style=\"color:#666666\">flex-end</span>        │                        <span style=\"color:#11a8cd\">[a]</span><span style=\"color:#bc3fbc\">[b]</span>│\n                └──────────────────────────────┘\n                ┌──────────────────────────────┐\n<span style=\"color:#666666\">space-between</span>   │<span style=\"color:#11a8cd\">[a]</span>                        <span style=\"color:#bc3fbc\">[b]</span>│\n                └──────────────────────────────┘\n                ┌──────────────────────────────┐\n<span style=\"color:#666666\">space-around</span>    │      <span style=\"color:#11a8cd\">[a]</span>            <span style=\"color:#bc3fbc\">[b]</span>      │\n                └──────────────────────────────┘\n                ┌──────────────────────────────┐\n<span style=\"color:#666666\">space-evenly</span>    │        <span style=\"color:#11a8cd\">[a]</span>        <span style=\"color:#bc3fbc\">[b]</span>        │\n                └──────────────────────────────┘",
+    "text": "                ┌──────────────────────────────┐\nflex-start      │[a][b]                        │\n                └──────────────────────────────┘\n                ┌──────────────────────────────┐\ncenter          │            [a][b]            │\n                └──────────────────────────────┘\n                ┌──────────────────────────────┐\nflex-end        │                        [a][b]│\n                └──────────────────────────────┘\n                ┌──────────────────────────────┐\nspace-between   │[a]                        [b]│\n                └──────────────────────────────┘\n                ┌──────────────────────────────┐\nspace-around    │      [a]            [b]      │\n                └──────────────────────────────┘\n                ┌──────────────────────────────┐\nspace-evenly    │        [a]        [b]        │\n                └──────────────────────────────┘"
+  },
+  "rendering-static-live-region": {
+    "title": "Build.tsx, two steps done",
+    "caption": "Two completed steps sit above the live line, which names the step that is still running.",
+    "columns": 40,
+    "html": "<span style=\"color:#0dbc79\">ok install</span>\n<span style=\"color:#0dbc79\">ok compile</span>\nrunning test",
+    "text": "ok install\nok compile\nrunning test"
+  },
+  "resize-narrow": {
+    "title": "Frame.tsx, 34 columns",
+    "caption": "The same frame at 34 columns, where the same paragraph wraps to five rows and the whole frame is nine rows tall.",
+    "columns": 34,
+    "html": "╭────────────────────────────────╮\n│ <span style=\"font-weight:bold\">status</span>                         │\n│ This paragraph wraps to the    │\n│ width of the terminal. A       │\n│ narrower terminal wraps it     │\n│ onto more rows, so the frame   │\n│ grows taller.                  │\n│ <span style=\"color:#666666\">press q to quit</span>                │\n╰────────────────────────────────╯",
+    "text": "╭────────────────────────────────╮\n│ status                         │\n│ This paragraph wraps to the    │\n│ width of the terminal. A       │\n│ narrower terminal wraps it     │\n│ onto more rows, so the frame   │\n│ grows taller.                  │\n│ press q to quit                │\n╰────────────────────────────────╯"
+  },
+  "resize-wide": {
+    "title": "Frame.tsx, 60 columns",
+    "caption": "The frame at 60 columns, where the paragraph wraps to three rows and the whole frame is seven rows tall.",
+    "columns": 60,
+    "html": "╭──────────────────────────────────────────────────────────╮\n│ <span style=\"font-weight:bold\">status</span>                                                   │\n│ This paragraph wraps to the width of the terminal. A     │\n│ narrower terminal wraps it onto more rows, so the frame  │\n│ grows taller.                                            │\n│ <span style=\"color:#666666\">press q to quit</span>                                          │\n╰──────────────────────────────────────────────────────────╯",
+    "text": "╭──────────────────────────────────────────────────────────╮\n│ status                                                   │\n│ This paragraph wraps to the width of the terminal. A     │\n│ narrower terminal wraps it onto more rows, so the frame  │\n│ grows taller.                                            │\n│ press q to quit                                          │\n╰──────────────────────────────────────────────────────────╯"
+  },
+  "scroll-box-first-render": {
+    "title": "ScrollBox, first render",
+    "caption": "The Usage example's ScrollBox at its first render: a 10-row viewport at offset 0 shows row 0 to row 9 of the 100 rows, and no scrollbar column is drawn yet.",
+    "columns": 40,
+    "html": "row 0\nrow 1\nrow 2\nrow 3\nrow 4\nrow 5\nrow 6\nrow 7\nrow 8\nrow 9",
+    "text": "row 0\nrow 1\nrow 2\nrow 3\nrow 4\nrow 5\nrow 6\nrow 7\nrow 8\nrow 9"
+  },
+  "select-default-value": {
+    "title": "Select with defaultValue",
+    "caption": "A Select with three options and defaultValue staging, so Staging has a green label and a green check mark while the blue pointer stays on Development, the first option, because focus starts there.",
+    "columns": 40,
+    "html": "<span style=\"color:#3b8eea\">❯</span> <span style=\"color:#3b8eea\">Development</span>\n  <span style=\"color:#0dbc79\">Staging</span> <span style=\"color:#0dbc79\">✔</span>\n  Production",
+    "text": "❯ Development\n  Staging ✔\n  Production"
+  },
+  "select-disabled": {
+    "title": "Disabled Select with defaultValue",
+    "caption": "A disabled Select with defaultValue staging, so no focus pointer is drawn and Staging keeps its green label and green check mark.",
+    "columns": 40,
+    "html": "  Development\n  <span style=\"color:#0dbc79\">Staging</span> <span style=\"color:#0dbc79\">✔</span>\n  Production",
+    "text": "  Development\n  Staging ✔\n  Production"
+  },
+  "select-highlight-text": {
+    "title": "Select with highlightText",
+    "caption": "A Select with highlightText set to config, so the word config is bold in config.json and config.yaml, and package.json has no bold text.",
+    "columns": 40,
+    "html": "<span style=\"color:#3b8eea\">❯</span> <span style=\"color:#3b8eea;font-weight:bold\">config</span><span style=\"color:#3b8eea\">.json</span>\n  <span style=\"font-weight:bold\">config</span>.yaml\n  package.json",
+    "text": "❯ config.json\n  config.yaml\n  package.json"
+  },
+  "status-message-variants": {
+    "title": "StatusMessage in each variant",
+    "caption": "Four StatusMessage rows, one for each variant, with the icon and color that name each kind: success in green, info in blue, warning in yellow, and error in red.",
+    "columns": 40,
+    "html": "<span style=\"color:#0dbc79\">✔</span> Saved 3 files\n\n<span style=\"color:#3b8eea\">ℹ</span> Watching for changes\n\n<span style=\"color:#e5e510\">⚠</span> The timeout key is deprecated\n\n<span style=\"color:#cd3131\">✘</span> Upload failed: connection reset",
+    "text": "✔ Saved 3 files\n\nℹ Watching for changes\n\n⚠ The timeout key is deprecated\n\n✘ Upload failed: connection reset"
+  },
+  "status-message-wrap": {
+    "title": "StatusMessage that wraps",
+    "caption": "An error StatusMessage in a 26-column box, where the message wraps onto a second line that starts under the message text, not under the cross icon.",
+    "columns": 30,
+    "html": "<span style=\"color:#cd3131\">✘</span> Upload failed:\n  connection reset by peer",
+    "text": "✘ Upload failed:\n  connection reset by peer"
+  },
+  "terminal-features-color-truecolor": {
+    "title": "Colors at truecolor",
+    "caption": "Three colored lines rendered with chalk at its truecolor level, which the docs generator forces with FORCE_COLOR=3: a named green, a hex orange, and an RGB blue.",
+    "columns": 48,
+    "html": "<span style=\"color:#0dbc79\">green: named color</span>\n<span style=\"color:#ff8800\">#ff8800: hex color</span>\n<span style=\"color:#00a0ff\">rgb(0, 160, 255): RGB color</span>",
+    "text": "green: named color\n#ff8800: hex color\nrgb(0, 160, 255): RGB color"
+  },
+  "testing-bordered-box": {
+    "title": "render-to-string.tsx, render box with border",
+    "caption": "A single-bordered box 20 columns wide around the text Bordered, which is the string the test compares with boxen output for the same width and border.",
+    "columns": 30,
+    "html": "┌──────────────────┐\n│Bordered          │\n└──────────────────┘",
+    "text": "┌──────────────────┐\n│Bordered          │\n└──────────────────┘"
+  },
+  "text-input-completion": {
+    "title": "TextInput with a suggestion",
+    "caption": "A TextInput with defaultValue de and suggestions deploy, destroy, and status, so the completion ploy follows de, with p drawn inverse as the cursor and loy dimmed.",
+    "columns": 40,
+    "html": "de<span style=\"color:#0b0f14;background-color:#e5e5e5\">p</span><span style=\"opacity:0.6\">loy</span>",
+    "text": "deploy"
+  },
+  "text-input-placeholder": {
+    "title": "Empty TextInput with placeholder",
+    "caption": "An empty TextInput with the placeholder type a command, where the first letter t is drawn inverse with the cursor on it and the rest of the placeholder is dimmed.",
+    "columns": 40,
+    "html": "<span style=\"color:#0b0f14;background-color:#e5e5e5\">t</span><span style=\"opacity:0.6\">ype a command</span>",
+    "text": "type a command"
+  },
+  "text-input-value": {
+    "title": "TextInput with a value",
+    "caption": "A TextInput with defaultValue deploy, so the value is drawn with the cursor as an inverse space after the last letter.",
+    "columns": 40,
+    "html": "deploy<span style=\"color:#0b0f14;background-color:#e5e5e5\"> </span>",
+    "text": "deploy "
+  },
+  "theming-default-progress-bar": {
+    "title": "ProgressBar with defaultTheme",
+    "caption": "A ProgressBar at 40 percent under defaultTheme, with the default characters and the filled cells in magenta.",
+    "columns": 40,
+    "html": "<span style=\"color:#bc3fbc\">████████████████</span><span style=\"opacity:0.6\">░░░░░░░░░░░░░░░░░░░░░░░░</span>",
+    "text": "████████████████░░░░░░░░░░░░░░░░░░░░░░░░"
+  },
+  "theming-extended-progress-bar-config": {
+    "title": "ProgressBar with extendTheme override",
+    "caption": "The same 40 percent ProgressBar after the ProgressBar.config entry is overridden in extendTheme, so filled cells are # and empty cells are -.",
+    "columns": 40,
+    "html": "<span style=\"color:#bc3fbc\">################</span><span style=\"opacity:0.6\">------------------------</span>",
+    "text": "################------------------------"
+  },
+  "unordered-list-depth-markers": {
+    "title": "UnorderedList with depth markers",
+    "caption": "A three-level UnorderedList under a theme whose marker array is ■ and –, so depth 0 uses ■, and depths 1 and 2 use – because the last array entry is reused.",
+    "columns": 40,
+    "html": "<span style=\"opacity:0.6\">■</span> Top level\n  <span style=\"opacity:0.6\">–</span> Nested\n    <span style=\"opacity:0.6\">–</span> Deeper",
+    "text": "■ Top level\n  – Nested\n    – Deeper"
+  },
+  "unordered-list-nested": {
+    "title": "UnorderedList with nested items",
+    "caption": "A two-level UnorderedList with the default marker, where Keyboard input has the nested items Arrow keys and Enter to submit indented two columns under it.",
+    "columns": 40,
+    "html": "<span style=\"opacity:0.6\">─</span> Fast startup\n<span style=\"opacity:0.6\">─</span> Keyboard input\n  <span style=\"opacity:0.6\">─</span> Arrow keys\n  <span style=\"opacity:0.6\">─</span> Enter to submit",
+    "text": "─ Fast startup\n─ Keyboard input\n  ─ Arrow keys\n  ─ Enter to submit"
+  }
+}

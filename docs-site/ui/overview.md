@@ -6,6 +6,12 @@ outline: [2, 3]
 
 `@nemesis-oss/termina-ui` is a kit of 15 components for terminal interfaces: text input, selection, status, progress, lists, and two scrolling viewers, `ScrollBox` and `LogStream`. The components render through `@nemesis-oss/termina-core`. Thirteen of them read their styles from a theme, so one `ThemeProvider` can restyle a whole screen. The two viewers do not use the theme. Use the kit when you need these standard parts in a terminal app built on `@nemesis-oss/termina-core`. It is a fork of `ink-ui` 2.0.0, ported onto `@nemesis-oss/termina-core`. If you have not set up a workspace app yet, start with [Getting Started](/guide/getting-started).
 
+## Preview
+
+This frame shows an Alert, a Badge, a ProgressBar, and a Spinner together, each with its default theme entry.
+
+<TerminalPreview id="overview-tour" />
+
 ## Install in this workspace
 
 `@nemesis-oss/termina-ui` is a workspace package in this repository. It is not published to npm. Another package in the workspace uses it by declaring it as a workspace dependency:

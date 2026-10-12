@@ -8,6 +8,16 @@ outline: [2, 3]
 
 `Alert` is exported from `@nemesis-oss/termina-ui`. `@nemesis-oss/termina-ui` is a workspace package in this repository and is not published to npm yet, so import it from another workspace package. For the full component list, read the [UI Kit overview](/ui/overview).
 
+## Preview
+
+This frame shows a warning alert with a title, in a 60-column box, the same as the usage example below.
+
+<TerminalPreview id="alert-warning-title" />
+
+This frame shows an error alert with no title, where the message wraps inside the border in a 40-column box.
+
+<TerminalPreview id="alert-error-no-title" />
+
 ## Usage
 
 ```tsx

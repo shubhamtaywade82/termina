@@ -8,6 +8,20 @@ outline: [2, 3]
 
 `ConfirmInput` is exported from `@nemesis-oss/termina-ui`. `@nemesis-oss/termina-ui` is a workspace package in this repository and is not published to npm yet, so import it from another workspace package. For the full component list, read the [UI Kit overview](/ui/overview).
 
+## Preview
+
+This frame shows the default confirm choice, where the hint is `Y/n`.
+
+<TerminalPreview id="confirm-input-default" />
+
+This frame shows the cancel choice set by `defaultChoice`, where the hint is `y/N`.
+
+<TerminalPreview id="confirm-input-cancel-default" />
+
+This frame shows a disabled `ConfirmInput`, whose hint is dimmed.
+
+<TerminalPreview id="confirm-input-disabled" />
+
 ## Usage
 
 ```tsx

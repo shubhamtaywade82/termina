@@ -8,6 +8,12 @@ The alternate screen runs the app on a separate buffer, and the primary screen r
 
 For the render options these build on, see [Rendering](/guide/rendering). For mouse tracking across a suspension, see [Mouse](/guide/mouse).
 
+## Preview
+
+A ten-row layout with a notes.txt header and a key-hint footer, showing the status line in its first state, before `e` has been pressed.
+
+<TerminalPreview id="alternate-screen-and-suspend-viewer-idle" />
+
 ## Alternate screen
 
 Pass `alternateScreen: true` to `render()`. The option is off by default. It takes effect only when the renderer is interactive and stdout is a TTY. In non-interactive mode, or when stdout is not a TTY, it is ignored.

@@ -97,6 +97,12 @@ The example uses three parts of the public API:
 - `useApp()` returns `exit`, which unmounts the app.
 - `waitUntilExit()` returns a promise that settles when the app unmounts.
 
+## Preview
+
+This is the frame the counter app draws at the third tick. The preview is rendered from the same JSX by the package itself, so it shows what the code produces.
+
+<TerminalPreview id="getting-started-counter" />
+
 ## Exiting
 
 `exit()` unmounts the app. The promise returned by `waitUntilExit()` settles based on the argument passed to `exit()`:

@@ -8,6 +8,12 @@ These exports report what the terminal can do and produce escape sequences for h
 
 All exports on this page come from `@nemesis-oss/termina-core`. The package is a workspace package in this repository and is not published to npm.
 
+## Preview
+
+The frame shows three colored lines, a named green, a hex orange, and an RGB blue, rendered at the truecolor level that the docs generator forces with FORCE_COLOR=3.
+
+<TerminalPreview id="terminal-features-color-truecolor" />
+
 ## detectTerminalCapabilities
 
 `detectTerminalCapabilities` reads the environment and a stream once, and returns the features the stream supports.
