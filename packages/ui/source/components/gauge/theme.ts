@@ -11,9 +11,7 @@ const theme = {
 			gap: 1,
 		}),
 		label: (): TextProps => ({}),
-		filled: ({color}: {color: string}): TextProps => ({
-			color,
-		}),
+		filled: (): TextProps => ({}),
 		empty: (): TextProps => ({
 			dimColor: true,
 		}),

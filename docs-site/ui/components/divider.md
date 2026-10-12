@@ -4,7 +4,7 @@ outline: [2, 3]
 
 # Divider
 
-`Divider` is a horizontal rule that fills the width of its parent. Use it to separate sections of output, and add a title when a section needs a label. Unlike [Header](/ui/components/header), which is the title bar at the top of an application, a divider only separates content. It is one row high unless a title wraps.
+`Divider` is a horizontal rule that fills the width of its parent. Use it to separate sections of output, and add a title when a section needs a label. Unlike [Header](/ui/components/header), which is the title bar at the top of an application, a divider only separates content. In a column, it is one row high unless a title wraps.
 
 `Divider` is exported from `@nemesis-oss/termina-ui`. `@nemesis-oss/termina-ui` is a workspace package in this repository and is not published to npm yet, so import it from another workspace package. For the full component list, read the [UI Kit overview](/ui/overview).
 
@@ -63,7 +63,8 @@ The two-column line before the title is set in the component. The theme controls
 
 ## Edge cases
 
-- The rule takes the width of its parent, not the terminal. In a 40-column `Box`, it draws 40 columns.
+- The rule fills the content width of its parent, not the terminal. In a 40-column `Box` with no padding, it draws 40 columns. With `paddingX={2}` the same `Box` leaves 36 columns for the rule.
 - An empty `title` draws the plain rule, the same as leaving `title` out.
 - A title that does not fit in the row after the two-column line and the two gaps wraps onto more rows. The trailing line is not drawn once the title fills the row.
 - In a parent four columns or narrower, the two-column line and the gaps leave no room for the title. The title keeps its full width and runs past the parent's edge.
+- In a row that holds other content, the rule is sized to the whole row, which squeezes that content. The row can also gain an empty line below the rule. To give the rule only the width that is left, wrap it in a `Box` with `flexGrow={1}`.

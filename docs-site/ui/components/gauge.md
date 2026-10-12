@@ -58,12 +58,12 @@ The component reads the `Gauge` entry of the theme. To change a key, pass a them
 | --- | --- | --- |
 | `styles.container` | none | Box props: `flexDirection: 'row'`, `gap: 1` |
 | `styles.label` | none | Text props: none set |
-| `styles.filled` | `{color}` | Text props: `color` set to the argument. The component passes the color from `config`. |
+| `styles.filled` | none | Text props: none set. The component sets `color` from `config` first, so a `color` returned here overrides it. |
 | `styles.empty` | none | Text props: `dimColor: true` |
 | `styles.value` | none | Text props: none set |
 | `config` | `{value}` | `{color}`: `'green'` below 70, `'yellow'` from 70 to below 90, `'red'` from 90 |
 
-The bar is drawn with `figures.square` (`█`) for filled cells and `figures.squareLightShade` (`░`) for empty cells. The glyphs are set in the component, so the theme controls only their colors. `config` receives the clamped value, before the text is rounded.
+The bar is drawn with `figures.square` (`█`) for filled cells and `figures.squareLightShade` (`░`) for empty cells. The glyphs are set in the component, so the theme controls how the cells are styled, not which characters are drawn. `config` receives the clamped value, before the text is rounded.
 
 ## Edge cases
 

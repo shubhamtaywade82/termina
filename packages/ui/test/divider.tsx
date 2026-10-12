@@ -8,10 +8,13 @@ import {Divider} from '../source/components/divider/index.js';
 // The render helper reports 100 columns, so a rule at the root is 100 wide.
 const TERMINAL_COLUMNS = 100;
 
+// The two-column lead and a one-column gap on each side of the title take four columns.
+const TITLE_CHROME_COLUMNS = 4;
+
 const rule = (columns: number): string => chalk.gray('─'.repeat(columns));
 
 const titledRule = (title: string, columns: number): string =>
-	`${chalk.gray('──')} ${chalk.bold(title)} ${rule(columns - title.length - 4)}`;
+	`${chalk.gray('──')} ${chalk.bold(title)} ${rule(columns - title.length - TITLE_CHROME_COLUMNS)}`;
 
 test('draws a plain rule across the terminal width', (t: TestContext) => {
 	const {lastFrame} = render(<Divider />);
@@ -39,6 +42,16 @@ test('fills the width of its parent instead of the terminal', (t: TestContext) =
 	);
 
 	t.assert.strictEqual(lastFrame(), rule(40));
+});
+
+test('fills the content width of a padded parent', (t: TestContext) => {
+	const {lastFrame} = render(
+		<Box width={40} paddingX={2}>
+			<Divider />
+		</Box>,
+	);
+
+	t.assert.strictEqual(lastFrame(), `  ${rule(36)}`);
 });
 
 test('fills the parent width around a title', (t: TestContext) => {
@@ -77,6 +90,30 @@ test('runs a title past the edge when the parent is four columns or narrower', (
 			`${chalk.gray('──')} ${chalk.bold('Results')}`,
 		);
 	}
+});
+
+test('squeezes a sibling in the same row and adds an empty row below', (t: TestContext) => {
+	const {lastFrame} = render(
+		<Box width={20}>
+			<Text>left</Text>
+			<Divider title="Results" />
+		</Box>,
+	);
+
+	t.assert.strictEqual(lastFrame(), `lef${titledRule('Results', 17)}\n`);
+});
+
+test('takes only the leftover width when wrapped in a flexGrow box', (t: TestContext) => {
+	const {lastFrame} = render(
+		<Box width={20}>
+			<Text>left</Text>
+			<Box flexGrow={1}>
+				<Divider title="Results" />
+			</Box>
+		</Box>,
+	);
+
+	t.assert.strictEqual(lastFrame(), `left${titledRule('Results', 16)}`);
 });
 
 test('draws sections of a report in a column', (t: TestContext) => {

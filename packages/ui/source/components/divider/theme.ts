@@ -3,13 +3,15 @@ import {type ComponentTheme} from '../../theme.js';
 
 const theme = {
 	styles: {
-		// A row parent sizes its children to their content, so the rule needs an explicit width to fill it.
+		// A row sizes its children to their content, so the row needs a width for the rule to fill.
+		// flexGrow would leave siblings unsqueezed, but it would also let the rule take spare height
+		// in a fixed-height column.
 		container: (): BoxProps => ({
 			flexDirection: 'row',
 			gap: 1,
 			width: '100%',
 		}),
-		// Keeps the lead and the rule at their width when a long title takes the row.
+		// Keeps the two-column lead from shrinking when a long title takes the row.
 		line: (): BoxProps => ({
 			borderStyle: 'single',
 			borderBottom: false,

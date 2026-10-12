@@ -2,17 +2,18 @@ import React from 'react';
 import test, {type TestContext} from 'node:test';
 import chalk from 'chalk';
 import delay from 'delay';
-import figures from 'figures';
 import {Box, Text} from '@nemesis-oss/termina-core';
 import {render} from './helpers/render.js';
 import {Gauge} from '../source/components/gauge/index.js';
+import {ThemeProvider, defaultTheme, extendTheme} from '../source/theme.js';
 
-type Color = 'green' | 'yellow' | 'red';
+type Color = 'green' | 'yellow' | 'red' | 'blue';
 
 // Mirrors the chalk calls the theme's styles resolve to, so each frame compares as one string.
+// Literal glyphs, not figures, so the test also pins the glyphs the docs name.
 const bar = (filledCount: number, color: Color, width = 20): string => {
-	const filled = chalk[color](figures.square.repeat(filledCount));
-	const empty = chalk.dim(figures.squareLightShade.repeat(width - filledCount));
+	const filled = chalk[color]('█'.repeat(filledCount));
+	const empty = chalk.dim('░'.repeat(width - filledCount));
 	return `${filled}${empty}`;
 };
 
@@ -119,4 +120,42 @@ test('stacks gauges in a column under a heading', (t: TestContext) => {
 			`NET ${bar(19, 'red')} 93%`,
 		].join('\n'),
 	);
+});
+
+test('a filled() theme override replaces the config color', (t: TestContext) => {
+	const theme = extendTheme(defaultTheme, {
+		components: {
+			Gauge: {
+				styles: {
+					filled: () => ({color: 'blue'}),
+				},
+			},
+		},
+	});
+	const {lastFrame} = render(
+		<ThemeProvider theme={theme}>
+			<Gauge value={52} />
+		</ThemeProvider>,
+	);
+
+	t.assert.strictEqual(lastFrame(), `${bar(10, 'blue')} 52%`);
+});
+
+test('passes config() the clamped value, not the raw one', (t: TestContext) => {
+	const theme = extendTheme(defaultTheme, {
+		components: {
+			Gauge: {
+				config: ({value}: {value: number}) => ({
+					color: value === 100 ? 'red' : 'green',
+				}),
+			},
+		},
+	});
+	const {lastFrame} = render(
+		<ThemeProvider theme={theme}>
+			<Gauge value={150} />
+		</ThemeProvider>,
+	);
+
+	t.assert.strictEqual(lastFrame(), `${bar(20, 'red')} 100%`);
 });

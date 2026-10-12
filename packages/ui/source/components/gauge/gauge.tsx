@@ -48,7 +48,7 @@ export function Gauge({value, label, width = 20, showValue = true}: GaugeProps) 
 		<Box {...styles.container()}>
 			{label ? <Text {...styles.label()}>{label}</Text> : null}
 			<Text>
-				<Text {...styles.filled({color})}>
+				<Text color={color} {...styles.filled()}>
 					{figures.square.repeat(filledCount)}
 				</Text>
 				<Text {...styles.empty()}>

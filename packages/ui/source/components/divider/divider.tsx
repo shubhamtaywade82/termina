@@ -3,6 +3,8 @@ import {Box, Text} from '@nemesis-oss/termina-core';
 import {useComponentTheme} from '../../theme.js';
 import {type Theme} from './theme.js';
 
+const LEAD_LINE_COLUMNS = 2;
+
 export type DividerProps = {
 	/**
 	 * Text drawn after a two-column line, with one space on each side. An empty string draws the plain rule.
@@ -20,7 +22,7 @@ export function Divider({title}: DividerProps) {
 		<Box {...styles.container()}>
 			{title ? (
 				<>
-					<Box {...styles.line()} width={2} />
+					<Box {...styles.line()} width={LEAD_LINE_COLUMNS} />
 					<Text {...styles.title()}>{title}</Text>
 				</>
 			) : null}
