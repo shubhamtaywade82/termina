@@ -141,22 +141,6 @@ const applyKey = (
 	};
 };
 
-type CommitTarget = {
-	readonly latestStateRef: {current: AccordionState};
-	readonly setState: (next: AccordionState) => void;
-	readonly onChange?: (openIds: string[]) => void;
-};
-
-const commitState = (target: CommitTarget, next: AccordionState): void => {
-	const previous = target.latestStateRef.current;
-	target.latestStateRef.current = next;
-	target.setState(next);
-	// Focus moves reuse the same openIds array, so a new reference means the open set changed.
-	if (next.openIds !== previous.openIds) {
-		target.onChange?.(next.openIds);
-	}
-};
-
 type UseAccordionStateProps = {
 	readonly items: AccordionItem[];
 	readonly defaultOpenIds: string[];
@@ -165,25 +149,22 @@ type UseAccordionStateProps = {
 	readonly onChange?: (openIds: string[]) => void;
 };
 
-const useAccordionState = ({
-	items,
-	defaultOpenIds,
-	multiple,
-	isActive,
-	onChange,
-}: UseAccordionStateProps): AccordionState => {
+const useAccordionState = ({items, defaultOpenIds, multiple, isActive, onChange}: UseAccordionStateProps): AccordionState => {
 	const {isRawModeSupported} = useStdin();
-	const [state, setState] = useState<AccordionState>({
-		openIds: defaultOpenIds,
-		focusedIndex: 0,
-	});
+	const [state, setState] = useState<AccordionState>({openIds: defaultOpenIds, focusedIndex: 0});
 	// Key events can outpace renders, so each one reads the newest state, not the one from the last render.
 	const latestStateRef = useRef(state);
 
 	useInput(
 		(input, key) => {
-			const next = applyKey(latestStateRef.current, {input, key, items, multiple});
-			commitState({latestStateRef, setState, onChange}, next);
+			const previous = latestStateRef.current;
+			const next = applyKey(previous, {input, key, items, multiple});
+			latestStateRef.current = next;
+			setState(next);
+			// Focus moves reuse the same openIds array, so a new reference means the open set changed.
+			if (next.openIds !== previous.openIds) {
+				onChange?.(next.openIds);
+			}
 		},
 		{isActive: isActive && isRawModeSupported},
 	);

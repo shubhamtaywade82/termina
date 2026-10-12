@@ -186,50 +186,24 @@ const applyKey = (
 	return key.return && row.isBranch ? withToggledRow(state, row) : state;
 };
 
-type TreeViewSource = {
-	readonly nodes: TreeViewNode[];
-	readonly startsExpanded: boolean;
-	readonly onSelect: TreeViewProps['onSelect'];
-};
-
-const handleKeyPress = (
-	current: TreeViewState,
-	key: Key,
-	source: TreeViewSource,
-): TreeViewState => {
-	const rows = collectRows(source.nodes, {
-		toggledKeys: current.toggledKeys,
-		startsExpanded: source.startsExpanded,
-	});
-	const focusedRow = rows[clampIndex(current.focusedIndex, rows.length)];
-	if (focusedRow === undefined) {
-		return current;
-	}
-
-	if (key.return) {
-		source.onSelect?.(focusedRow.label, focusedRow.path);
-	}
-
-	return applyKey(current, key, rows);
-};
-
-const useTreeViewState = (
-	nodes: TreeViewNode[],
-	defaultExpanded: boolean,
-	onSelect: TreeViewProps['onSelect'],
-	isActive: boolean,
-) => {
+const useTreeViewState = (nodes: TreeViewNode[], defaultExpanded: boolean, onSelect: TreeViewProps['onSelect'], isActive: boolean) => {
 	const {isRawModeSupported} = useStdin();
 	// Read once, so a later change does not flip branches the user has not toggled.
 	const [startsExpanded] = useState(defaultExpanded);
 	const [state, setState] = useState(initialState);
 	// Keys pressed before a render must build on the newest state, not on the state from the last render.
 	const latestStateRef = useRef(state);
-	const source = {nodes, startsExpanded, onSelect};
 
 	useInput(
 		(_input, key) => {
-			latestStateRef.current = handleKeyPress(latestStateRef.current, key, source);
+			const current = latestStateRef.current;
+			const keyRows = collectRows(nodes, {toggledKeys: current.toggledKeys, startsExpanded});
+			const focusedRow = keyRows[clampIndex(current.focusedIndex, keyRows.length)];
+			if (key.return && focusedRow) {
+				onSelect?.(focusedRow.label, focusedRow.path);
+			}
+
+			latestStateRef.current = applyKey(current, key, keyRows);
 			setState(latestStateRef.current);
 		},
 		{isActive: isActive && isRawModeSupported},
