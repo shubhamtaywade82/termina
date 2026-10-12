@@ -48,6 +48,28 @@ test('should remove the subtitle when a re-render drops it', async (t: TestConte
 	t.assert.strictEqual(lastFrame(), chalk.bold('Deployer'));
 });
 
+test('should wrap the title and subtitle onto more rows when the row is too narrow for both', (t: TestContext) => {
+	const {lastFrame} = render(
+		<Box width={24}>
+			<Header title="Deployer" subtitle="Targeting: production" />
+		</Box>,
+	);
+	const rows = (lastFrame() ?? '').split('\n');
+
+	t.assert.ok(rows.length > 1);
+	t.assert.ok(rows.every(row => !row.includes('Deployer')));
+});
+
+test('should wrap a title wider than the row onto more rows', (t: TestContext) => {
+	const {lastFrame} = render(
+		<Box width={7}>
+			<Header title="Deployer" />
+		</Box>,
+	);
+
+	t.assert.ok((lastFrame() ?? '').split('\n').length > 1);
+});
+
 test('should draw the demo layout with the header above a status list', (t: TestContext) => {
 	const {lastFrame} = render(
 		<Box flexDirection="column" gap={1}>

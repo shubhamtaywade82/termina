@@ -148,6 +148,12 @@ test('renders its open content under piped stdin and ignores keys instead of thr
 	instance.unmount();
 });
 
+test('a bare string as content renders nothing, so content must be wrapped in Text', (t: TestContext) => {
+	const instance = render(<Accordion items={[{id: 'bare', title: 'Bare', content: 'text'}]} defaultOpenIds={['bare']} />);
+	t.assert.strictEqual(instance.lastFrame() ?? '', '');
+	instance.unmount();
+});
+
 test('changing defaultOpenIds after mount has no effect', async (t: TestContext) => {
 	const instance = render(<Accordion items={items} defaultOpenIds={['api']} />);
 	instance.rerender(<Accordion items={items} defaultOpenIds={['deploy']} />);
@@ -197,6 +203,18 @@ test('ids that match no section stay in the open set and onChange reports them',
 	instance.unmount();
 });
 
+test('in single mode, the next open drops ids that match no section and the id of a removed section', async (t: TestContext) => {
+	const {changes, onChange} = recordChanges();
+	const instance = render(<Accordion items={items} defaultOpenIds={['ghost', 'api']} onChange={onChange} />);
+	instance.rerender(<Accordion items={items.filter(item => item.id !== 'api')} onChange={onChange} />);
+	await press(instance, [enter]);
+	t.assert.deepStrictEqual(changes, [['database']]);
+	instance.rerender(<Accordion items={items} onChange={onChange} />);
+	await delay(20);
+	t.assert.strictEqual(instance.lastFrame(), frame(focusedOpenRow('Database'), hostLine, closedRow('API'), closedRow('Deployment')));
+	instance.unmount();
+});
+
 test('a section removed from items and added back with its id is open again', async (t: TestContext) => {
 	const instance = render(<Accordion items={items} defaultOpenIds={['api']} />);
 	instance.rerender(<Accordion items={items.filter(item => item.id !== 'api')} />);
@@ -208,7 +226,7 @@ test('a section removed from items and added back with its id is open again', as
 	instance.unmount();
 });
 
-test('focus moves to the last section when items shrink past the focused one', async (t: TestContext) => {
+test('focus is shown on the last section when items shrink past the focused one', async (t: TestContext) => {
 	const {changes, onChange} = recordChanges();
 	const instance = render(<Accordion items={items} onChange={onChange} />);
 	await press(instance, ['G']);
@@ -222,15 +240,17 @@ test('focus moves to the last section when items shrink past the focused one', a
 
 test('empty items render nothing and keys do nothing, keeping focus for when sections arrive', async (t: TestContext) => {
 	const {changes, onChange} = recordChanges();
-	const instance = render(<Accordion items={[]} onChange={onChange} />);
-	await press(instance, [enter, down, 'G']);
+	const instance = render(<Accordion items={items} onChange={onChange} />);
+	await press(instance, ['G']);
+	instance.rerender(<Accordion items={[]} onChange={onChange} />);
+	await press(instance, [enter, up, 'g']);
 	t.assert.strictEqual(instance.lastFrame() ?? '', '');
 	t.assert.deepStrictEqual(changes, []);
 	instance.rerender(<Accordion items={items} onChange={onChange} />);
 	await delay(20);
-	t.assert.strictEqual(instance.lastFrame(), initialFrame);
+	t.assert.strictEqual(instance.lastFrame(), deployFocusedFrame);
 	await press(instance, [enter]);
-	t.assert.deepStrictEqual(changes, [['database']]);
+	t.assert.deepStrictEqual(changes, [['deploy']]);
 	instance.unmount();
 });
 

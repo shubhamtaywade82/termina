@@ -95,10 +95,7 @@ test('shows at most five rows by default and cannot highlight a later match', as
 	await typeText(instance, 'a');
 	await press(instance, [down, down, down, down, down]);
 
-	t.assert.strictEqual(
-		instance.lastFrame(),
-		lines(`a${cursor}`, '  a1', '  a2', '  a3', '  a4', pointerRow('a5')),
-	);
+	t.assert.strictEqual(instance.lastFrame(), lines(`a${cursor}`, '  a1', '  a2', '  a3', '  a4', pointerRow('a5')));
 	instance.unmount();
 });
 
@@ -117,11 +114,10 @@ test('enter sets the value to the highlighted row, hides the list, and reports t
 	const instance = render(<Autocomplete options={packages} onChange={collect(changes)} />);
 
 	await typeText(instance, 'red');
-	const changesBeforeEnter = changes.length;
 	await press(instance, [enter]);
 
 	t.assert.strictEqual(instance.lastFrame(), `Redux${cursor}`);
-	t.assert.deepStrictEqual(changes.slice(changesBeforeEnter), ['Redux']);
+	t.assert.deepStrictEqual(changes, ['r', 're', 'red', 'Redux']);
 	instance.unmount();
 });
 
@@ -150,24 +146,18 @@ test('enter after accepting a row submits the accepted value', async (t: TestCon
 	instance.unmount();
 });
 
-test('editing after accepting a row reopens the list', async (t: TestContext) => {
+test('after Enter accepts a row, cursor moves keep the list hidden and typing or backspace reopens it', async (t: TestContext) => {
 	const instance = render(<Autocomplete options={packages} />);
 
 	await typeText(instance, 're');
-	await press(instance, [enter, backspace]);
+	await press(instance, [enter, left, right]);
+	t.assert.strictEqual(instance.lastFrame(), `react${cursor}`);
 
-	t.assert.strictEqual(instance.lastFrame(), lines(`reac${cursor}`, pointerRow('react'), '  preact'));
-	instance.unmount();
-});
-
-test('typing after accepting a row reopens the list', async (t: TestContext) => {
-	const instance = render(<Autocomplete options={packages} />);
-
-	await typeText(instance, 're');
-	await press(instance, [enter]);
 	await typeText(instance, 'x');
-
 	t.assert.strictEqual(instance.lastFrame(), lines(`reactx${cursor}`, chalk.dim('No matches')));
+
+	await press(instance, [backspace]);
+	t.assert.strictEqual(instance.lastFrame(), lines(`react${cursor}`, pointerRow('react'), '  preact'));
 	instance.unmount();
 });
 
@@ -194,23 +184,23 @@ test('left and right step over a whole emoji', async (t: TestContext) => {
 	instance.unmount();
 });
 
-test('forward delete removes the character after the cursor', async (t: TestContext) => {
+test('forward delete removes a whole emoji after the cursor', async (t: TestContext) => {
 	const submitted: string[] = [];
 	const instance = render(<Autocomplete options={[]} onSubmit={collect(submitted)} />);
 
-	await typeText(instance, 'ab');
+	await typeText(instance, 'a😀');
 	await press(instance, [left, forwardDelete, enter]);
 
 	t.assert.deepStrictEqual(submitted, ['a']);
 	instance.unmount();
 });
 
-test('tab and escape have no effect', async (t: TestContext) => {
+test('tab, escape, Home, End and F1 have no effect', async (t: TestContext) => {
 	const submitted: string[] = [];
 	const instance = render(<Autocomplete options={packages} onSubmit={collect(submitted)} />);
 
 	await typeText(instance, 're');
-	await press(instance, [tab, escape]);
+	await press(instance, [tab, escape, '\u001B[H', '\u001B[F', '\u001BOP']);
 
 	t.assert.strictEqual(instance.lastFrame(), lines(`re${cursor}`, pointerRow('react'), '  Redux', '  preact'));
 	t.assert.deepStrictEqual(submitted, []);
@@ -238,10 +228,9 @@ test('accepting a row equal to the input does not call onChange', async (t: Test
 	const instance = render(<Autocomplete options={['react']} onChange={collect(changes)} />);
 
 	await typeText(instance, 'react');
-	const changesBeforeEnter = changes.length;
 	await press(instance, [enter]);
 
-	t.assert.strictEqual(changes.length, changesBeforeEnter);
+	t.assert.deepStrictEqual(changes, ['r', 're', 'rea', 'reac', 'react']);
 	t.assert.strictEqual(instance.lastFrame(), `react${cursor}`);
 	instance.unmount();
 });
@@ -274,15 +263,7 @@ test('changing options after mount updates the list and keeps the input', async 
 test('disabled ignores keys and highlights no row', async (t: TestContext) => {
 	const changes: string[] = [];
 	const submitted: string[] = [];
-	const instance = render(
-		<Autocomplete
-			isDisabled
-			defaultValue="re"
-			options={packages}
-			onChange={collect(changes)}
-			onSubmit={collect(submitted)}
-		/>,
-	);
+	const instance = render(<Autocomplete isDisabled defaultValue="re" options={packages} onChange={collect(changes)} onSubmit={collect(submitted)} />);
 
 	await press(instance, ['x', down, enter]);
 
@@ -307,9 +288,7 @@ test('pasted control characters are removed from the input', async (t: TestConte
 	const submitted: string[] = [];
 	const instance = render(<Autocomplete options={['react']} onSubmit={collect(submitted)} />);
 
-	instance.stdin.write('x\ny');
-	await delay(20);
-	await press(instance, [enter]);
+	await press(instance, ['x\ny', enter]);
 
 	t.assert.deepStrictEqual(submitted, ['xy']);
 	instance.unmount();

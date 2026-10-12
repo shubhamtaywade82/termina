@@ -60,7 +60,7 @@ Enter accepts the highlighted row and hides the list, so a second Enter calls `o
 | `placeholder` | `string` | `''` | Text shown while the input is empty. |
 | `limit` | `number` | `5` | Maximum number of rows in the list. Only these rows can be highlighted. |
 | `isDisabled` | `boolean` | `false` | When true, key input is ignored and no row is highlighted. |
-| `onChange` | `(value: string) => void` | `undefined` | Called with the value after each change to it, including when Enter accepts a row. |
+| `onChange` | `(value: string) => void` | `undefined` | Called with the value after each change to it, including when Enter accepts a row that changes it. |
 | `onSubmit` | `(value: string) => void` | `undefined` | Called with the input value when Enter is pressed and no row is highlighted. |
 
 ## Keyboard
@@ -73,10 +73,10 @@ Enter accepts the highlighted row and hides the list, so a second Enter calls `o
 | Delete | Deletes the grapheme after the cursor. |
 | Up | Moves the highlight to the previous row. Does not wrap from the first row to the last. |
 | Down | Moves the highlight to the next row. Does not wrap from the last row to the first. |
-| Enter | With a row highlighted, sets the value to that row, hides the list, and calls `onChange`. With no row highlighted, calls `onSubmit` with the input value. |
+| Enter | With a row highlighted, sets the value to that row and hides the list. Calls `onChange` when the value changes. With no row highlighted, calls `onSubmit` with the input value. |
 | Any other key | Ignored, including Tab and Escape. |
 
-When `isDisabled` is true, no key has an effect and no row is highlighted.
+When `isDisabled` is true, no key has an effect and no row is highlighted, so the rows show without the pointer.
 
 ## Theme keys
 
@@ -97,9 +97,9 @@ The component reads the `Autocomplete` entry of the theme. To change a key, pass
 - Only the first `limit` matches are listed, so a later match cannot be highlighted. Type more text to narrow the list.
 - Matching is a substring test, so `rea` matches `preact`. The accepted row keeps its own spelling: after typing `red`, Enter accepts `Redux`.
 - If nothing matches, the list shows a dimmed `No matches` row. Enter then calls `onSubmit` with the typed text.
-- After Enter accepts a row, the list stays hidden until the next edit. A second Enter calls `onSubmit` with the accepted text.
+- After Enter accepts a row, the list stays hidden until the next edit, so cursor moves do not reopen it. A second Enter calls `onSubmit` with the accepted text.
 - Accepting a row whose text equals the input does not call `onChange`, because the value did not change.
 - `onChange` runs from an effect keyed on the value, not on the callback. A parent that passes a new callback on each render does not receive the last change again.
 - Changing `options` after mount updates the list on the next render, and the input keeps its value.
 - Control characters in pasted text are removed before insertion, as in `TextInput`.
-- When stdin cannot enter raw mode, as with piped input, the input shows no cursor, keys are not read, and the list still renders.
+- When stdin cannot enter raw mode, as with piped input, the input shows no cursor, keys are not read, and the list still renders with its first row marked by the pointer.

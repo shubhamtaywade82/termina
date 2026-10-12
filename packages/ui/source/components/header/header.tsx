@@ -16,7 +16,7 @@ export type HeaderProps = {
 };
 
 /**
- * One-line header: a bold title, then an optional dimmed subtitle on the same line.
+ * Title bar: a bold title, then an optional dimmed subtitle on the same line.
  */
 export function Header({title, subtitle}: HeaderProps) {
 	const {styles} = useComponentTheme<Theme>('Header');

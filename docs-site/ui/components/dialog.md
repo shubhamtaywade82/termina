@@ -43,7 +43,7 @@ function Cleanup() {
 render(<Cleanup />);
 ```
 
-Escape calls `onClose`. The dialog stays on screen until the parent stops rendering it, which is what `isOpen` does here.
+Escape calls `onClose`, and the dialog stays on screen until the parent stops rendering it, as `isOpen` does here.
 
 ## Props
 
@@ -85,5 +85,5 @@ The component reads the `Dialog` entry of the theme. To change a key, pass a the
 - Escape does not hide the dialog. After `onClose` runs, the dialog renders as before until the parent stops rendering it.
 - Adding `onClose` after mount shows the footer and enables Escape. Removing it hides the footer and disables Escape.
 - When `width` is omitted, the dialog fills the width of a column parent, and the terminal width at the root. Inside a row parent it is only as wide as its content, because it does not grow along the row.
-- Long text in the title or the content wraps inside the border, so the box keeps its width.
+- With `width` set, long text in the title or the content wraps inside the border and the box keeps that width.
 - With stdin that is not a TTY, such as piped input, the dialog renders and the footer still shows, but Escape is not read because raw mode is unavailable.

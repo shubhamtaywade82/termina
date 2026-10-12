@@ -59,11 +59,13 @@ function useRevealedCount({text, characterCount, speed}: RevealOptions): number 
 	const isComplete = reveal.revealedCount >= characterCount;
 
 	useEffect(() => {
-		if (isComplete) {
+		// Node warns on a zero, negative or NaN delay and then runs it at 1 ms, so such a speed starts no timer.
+		if (isComplete || !(speed > 0)) {
 			return undefined;
 		}
 
 		// Keyed on text so a new text waits a full interval before its first character.
+		// ponytail: setInterval truncates to whole milliseconds, so 60 per second runs at about 62. Exact pacing needs a clock-based scheduler.
 		const timer = setInterval(() => {
 			setReveal(current => ({...current, revealedCount: current.revealedCount + 1}));
 		}, 1000 / speed);

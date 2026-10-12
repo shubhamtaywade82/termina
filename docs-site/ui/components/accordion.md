@@ -78,8 +78,8 @@ The icon glyphs are set in the component, so the theme controls only the icon's 
 - `defaultOpenIds` is read once at mount. Changing it later has no effect.
 - Single mode acts only when a section opens, and then it closes every other open section. Sections that are already open, either from `defaultOpenIds` or because `multiple` changed to `false`, stay open until the user closes them or opens another section. Closing a section never opens another.
 - `onChange` runs from the key handler, so it is called once per user change. It is not called at mount, or when the parent re-renders with a new callback. The next change calls the newest callback.
-- The open set holds ids, not sections. Ids in `defaultOpenIds` that match no section stay in the set, and `onChange` reports them.
-- If an open section is removed from `items`, its id stays in the open set, so a section added back with the same id is open again.
-- If `items` shrinks past the focused section, focus moves to the last section.
+- The open set holds ids, not sections. Ids in `defaultOpenIds` that match no section stay in the set, and `onChange` reports them. In single mode, the next open replaces the set and drops them.
+- If an open section is removed from `items`, its id stays in the open set, so a section added back with the same id is open again. In single mode, the next open drops that id too.
+- If `items` shrinks past the focused section, the last section is shown focused.
 - In multiple mode, `onChange` reports ids in the order they were opened, after the ids from `defaultOpenIds`.
 - Empty `items` render nothing, and keys do nothing, so the focus position is kept for when sections arrive.

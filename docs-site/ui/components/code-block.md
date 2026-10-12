@@ -4,7 +4,7 @@ outline: [2, 3]
 
 # CodeBlock
 
-`CodeBlock` shows a block of code with one row per line of code, an optional line number gutter, and optional highlighted lines. The code is plain text: `language` is a label above the block, and no syntax colors are applied. The block is display only, takes no keyboard input, and has no height limit. To show a change between two versions of text, use [DiffView](/ui/components/diff-view). To render a Markdown document, use [Markdown](/ui/components/markdown).
+`CodeBlock` shows a block of code with one row per line of code, an optional line number gutter, and optional highlighted lines. Use it to show a snippet of code, such as an example or a config file. The code is plain text: `language` is a label above the block, and no syntax colors are applied. The block is display only, takes no keyboard input, and has no height limit. To show a change between two versions of text, use [DiffView](/ui/components/diff-view). To render a Markdown document, use [Markdown](/ui/components/markdown).
 
 `CodeBlock` is exported from `@nemesis-oss/termina-ui`. `@nemesis-oss/termina-ui` is a workspace package in this repository and is not published to npm yet, so import it from another workspace package. For the full component list, read the [UI Kit overview](/ui/overview).
 
@@ -70,10 +70,11 @@ The component reads the `CodeBlock` entry of the theme. To change a key, pass a 
 
 - An empty `code` string renders one row, numbered `1`, with no code.
 - A trailing newline adds an empty last row with its own number, so `'a\n'` renders two rows.
-- The gutter is as wide as the largest line number. Numbers are right-aligned, so the gutter widens at line 10.
+- The gutter is as wide as the largest line number, so every number in the block takes the same width. In a block of 10 lines, the number on line 1 is padded to two digits.
 - `highlightLines` values that match no row, such as `0` or a number past the last line, have no effect.
 - A line longer than the code column wraps inside it. Its number appears on the first row only, and the vertical rule continues down the wrapped rows.
 - Each tab is drawn as two spaces.
 - An empty `language` string shows no label line.
 - With `showLineNumbers` set to false, the gutter and rule are not drawn, and `highlightLines` still applies to the code.
 - With `showLineNumbers` set to false, a blank line still takes a row.
+- An empty line is drawn as one space, so a highlighted empty line shows a one-cell highlight.

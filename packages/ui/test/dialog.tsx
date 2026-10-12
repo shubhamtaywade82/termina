@@ -7,6 +7,7 @@ import stripAnsi from 'strip-ansi';
 import {Box, Text, useInput} from '@nemesis-oss/termina-core';
 import {render} from './helpers/render.js';
 import {Dialog} from '../source/components/dialog/index.js';
+import {ThemeProvider, defaultTheme, extendTheme} from '../source/theme.js';
 
 const escape = '\u001B';
 // The core input parser holds a lone ESC for 40 ms to see whether it starts a sequence, so waiting for 20 ms would miss it.
@@ -88,6 +89,24 @@ test('applies the default theme: blue border, bold title, dim footer', (t: TestC
 	t.assert.ok(frame.includes(chalk.blue(`╭${'─'.repeat(28)}╮`)));
 	t.assert.ok(frame.includes(chalk.bold('Confirm')));
 	t.assert.ok(frame.includes(chalk.dim('Esc to close')));
+});
+
+test('a style key replaced through ThemeProvider changes the output', (t: TestContext) => {
+	const theme = extendTheme(defaultTheme, {
+		components: {
+			Dialog: {
+				styles: {
+					title: () => ({underline: true}),
+				},
+			},
+		},
+	});
+	const {lastFrame} = render(
+		<ThemeProvider theme={theme}>{confirmDialog(() => {}, 30)}</ThemeProvider>,
+	);
+
+	const frame = lastFrame() ?? '';
+	t.assert.ok(frame.includes(chalk.underline('Confirm')));
 });
 
 test('hides the footer when onClose is omitted', (t: TestContext) => {
@@ -211,10 +230,14 @@ test('does not trap focus: other input handlers still receive Escape and other k
 
 test('fills the terminal width at the root and the width of a column parent when width is omitted', (t: TestContext) => {
 	const atRoot = render(confirmDialog());
-	const inColumn = render(<Box flexDirection="column">{confirmDialog()}</Box>);
+	const inColumn = render(
+		<Box flexDirection="column" width={40}>
+			{confirmDialog()}
+		</Box>,
+	);
 
 	t.assert.deepStrictEqual(uniqueLineWidths(atRoot.lastFrame()), [100]);
-	t.assert.deepStrictEqual(uniqueLineWidths(inColumn.lastFrame()), [100]);
+	t.assert.deepStrictEqual(uniqueLineWidths(inColumn.lastFrame()), [40]);
 });
 
 test('is only as wide as its content inside a row parent', (t: TestContext) => {

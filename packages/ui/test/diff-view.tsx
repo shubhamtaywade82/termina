@@ -99,6 +99,13 @@ test('the no-newline marker is styled as context', (t: TestContext) => {
 	);
 });
 
+test('a line that begins with an ANSI color code is treated as context', (t: TestContext) => {
+	const coloredPatch = [chalk.green('+added'), chalk.red('-removed')].join('\n');
+	const {lastFrame} = render(<DiffView patch={coloredPatch} />);
+
+	t.assert.strictEqual(lastFrame(), coloredPatch);
+});
+
 test('a line wider than the terminal wraps onto the next row', (t: TestContext) => {
 	const {lastFrame} = render(<DiffView patch={`+${'x'.repeat(119)}END`} />);
 
@@ -108,6 +115,19 @@ test('a line wider than the terminal wraps onto the next row', (t: TestContext) 
 			chalk.green(`+${'x'.repeat(99)}`),
 			chalk.green(`${'x'.repeat(20)}END`),
 		].join('\n'),
+	);
+});
+
+test('a line wider than its container wraps at the container width', (t: TestContext) => {
+	const {lastFrame} = render(
+		<Box width={20}>
+			<DiffView patch={`+${'y'.repeat(30)}`} />
+		</Box>,
+	);
+
+	t.assert.strictEqual(
+		lastFrame(),
+		[chalk.green(`+${'y'.repeat(19)}`), chalk.green('y'.repeat(11))].join('\n'),
 	);
 });
 

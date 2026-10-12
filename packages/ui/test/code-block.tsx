@@ -124,6 +124,19 @@ test('keeps a blank line as a row when line numbers are off', (t: TestContext) =
 	t.assert.strictEqual(stripAnsi(frame), 'a\n\nb');
 });
 
+test('shows a highlighted blank line as a one-cell band', (t: TestContext) => {
+	const frame = renderFrame(<CodeBlock code={'a\n\nb'} highlightLines={[2]} />);
+
+	t.assert.strictEqual(
+		frame,
+		[
+			`${chalk.dim('1')} ${chalk.dim('│')} a`,
+			`${chalk.bold('2')} ${chalk.dim('│')} ${chalk.bgGray(' ')}`,
+			`${chalk.dim('3')} ${chalk.dim('│')} b`,
+		].join('\n'),
+	);
+});
+
 test('shows empty code as one numbered row', (t: TestContext) => {
 	t.assert.strictEqual(stripAnsi(renderFrame(<CodeBlock code="" />)), '1 │');
 });

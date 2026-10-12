@@ -55,14 +55,14 @@ test('hides after durationMs and calls onDismiss once', async (t: TestContext) =
 		</Toast>,
 	);
 
-	await delay(40);
+	await delay(60);
 	t.assert.strictEqual(lastFrame(), ` ${chalk.blue(figures.info)} Saved`);
 
-	await delay(260);
+	await delay(180);
 	t.assert.strictEqual(lastFrame(), '');
 	t.assert.strictEqual(onDismiss.mock.callCount(), 1);
 
-	await delay(150);
+	await delay(100);
 	t.assert.strictEqual(onDismiss.mock.callCount(), 1);
 	unmount();
 });
@@ -135,22 +135,22 @@ test('re-rendering does not restart the countdown and calls the latest onDismiss
 test('changing key restarts the countdown', async (t: TestContext) => {
 	const onDismiss = t.mock.fn();
 	const {lastFrame, rerender, unmount} = render(
-		<Toast key="first" durationMs={300} onDismiss={onDismiss}>
+		<Toast key="first" durationMs={240} onDismiss={onDismiss}>
 			Saved
 		</Toast>,
 	);
 
-	await delay(225);
+	await delay(180);
 	rerender(
-		<Toast key="second" durationMs={300} onDismiss={onDismiss}>
+		<Toast key="second" durationMs={240} onDismiss={onDismiss}>
 			Saved
 		</Toast>,
 	);
-	await delay(185);
-	// The first countdown would have hidden the toast at 300 ms.
+	await delay(150);
+	// The first countdown would have hidden the toast at 240 ms.
 	t.assert.strictEqual(lastFrame(), ` ${chalk.blue(figures.info)} Saved`);
 
-	await delay(250);
+	await delay(190);
 	t.assert.strictEqual(lastFrame(), '');
 	t.assert.strictEqual(onDismiss.mock.callCount(), 1);
 	unmount();

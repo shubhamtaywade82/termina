@@ -53,7 +53,7 @@ render(<Review />);
 
 | Prop | Type | Default | Description |
 | --- | --- | --- | --- |
-| `patch` | `string` | Required | Unified diff, as `git diff` prints it. Each line is printed as written, except that tabs expand to spaces. An empty string renders nothing. |
+| `patch` | `string` | Required | Unified diff, as `git diff` prints it. Each patch line starts a new row, and tabs expand to spaces. An empty string renders nothing. |
 
 ## Theme keys
 
@@ -64,8 +64,8 @@ The component reads the `DiffView` entry of the theme. To change a key, pass a t
 | `styles.container` | none | Box props: `flexDirection: 'column'`, so each line is a row. |
 | `styles.header` | none | Text props: `bold: true`. Applies to lines that start with `diff`, `index`, `---` or `+++`. |
 | `styles.hunk` | none | Text props: `color: 'cyan'`. Applies to lines that start with `@@`. |
-| `styles.added` | none | Text props: `color: 'green'`. Applies to lines that start with `+`. |
-| `styles.removed` | none | Text props: `color: 'red'`. Applies to lines that start with `-`. |
+| `styles.added` | none | Text props: `color: 'green'`. Applies to lines that start with `+`, except `+++` file headers. |
+| `styles.removed` | none | Text props: `color: 'red'`. Applies to lines that start with `-`, except `---` file headers. |
 | `styles.context` | none | Text props: `{}`, so no color is set. Applies to every other line. |
 
 `DiffView` has no config keys.
@@ -77,6 +77,7 @@ The component reads the `DiffView` entry of the theme. To change a key, pass a t
 - An empty line keeps its row, so it still separates the lines around it.
 - A removed line whose text begins with `--`, such as a SQL comment, starts with `---`, so it is styled as a file header. An added line whose text begins with `++` is styled the same way.
 - A `\ No newline at end of file` line is styled as context.
-- A line wider than the terminal wraps onto the following rows, so no text is cut off.
+- A line that begins with an ANSI color code, as `git diff --color=always` prints colored lines, matches no marker and is styled as context. Its own color codes are printed unchanged, so the theme colors do not apply to it.
+- A line wider than its container wraps onto the following rows, so no text is cut off. The container is the terminal width, or the width of a narrower parent `Box`.
 - Changing `patch` after mount re-renders the lines.
 - `DiffView` reads no input, so it renders when stdin is piped.

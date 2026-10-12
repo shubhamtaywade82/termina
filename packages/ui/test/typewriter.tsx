@@ -1,13 +1,31 @@
-import React from 'react';
+import React, {act} from 'react';
 import test, {type TestContext} from 'node:test';
 import chalk from 'chalk';
-import delay from 'delay';
 import {render} from './helpers/render.js';
 import {Typewriter} from '../source/components/typewriter/index.js';
 
 const cursor = chalk.blue('▋');
 const FAST_SPEED = 50;
 const STEP_MS = 20;
+
+// act() drains the renders and effects that a tick schedules before it resolves. A delay cannot promise that under load.
+const runInAct = async (callback: () => void) => {
+	const environment = globalThis as Record<string, unknown>;
+	environment['IS_REACT_ACT_ENVIRONMENT'] = true;
+	try {
+		await act(async () => {
+			callback();
+		});
+	} finally {
+		environment['IS_REACT_ACT_ENVIRONMENT'] = false;
+	}
+};
+
+const advance = async (t: TestContext, ms: number) => {
+	await runInAct(() => {
+		t.mock.timers.tick(ms);
+	});
+};
 
 test('shows only the cursor before the first character', (t: TestContext) => {
 	t.mock.timers.enable({apis: ['setInterval']});
@@ -21,10 +39,8 @@ test('reveals one character per interval and hides the cursor when done', async 
 	t.mock.timers.enable({apis: ['setInterval']});
 	const {frames, unmount} = render(<Typewriter text="ab" speed={FAST_SPEED} />);
 
-	t.mock.timers.tick(STEP_MS);
-	await delay(20);
-	t.mock.timers.tick(STEP_MS);
-	await delay(20);
+	await advance(t, STEP_MS);
+	await advance(t, STEP_MS);
 
 	t.assert.deepStrictEqual([...new Set(frames)], [cursor, `a${cursor}`, 'ab']);
 	unmount();
@@ -35,11 +51,28 @@ test('reveals 30 characters per second by default', async (t: TestContext) => {
 	const text = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMN';
 	const {lastFrame, unmount} = render(<Typewriter text={text} />);
 
-	t.mock.timers.tick(1010);
-	await delay(20);
+	await advance(t, 1010);
 
 	t.assert.strictEqual(lastFrame(), `${text.slice(0, 30)}${cursor}`);
 	unmount();
+});
+
+test('starts no timer when speed is not a positive number', async (t: TestContext) => {
+	t.mock.timers.enable({apis: ['setInterval']});
+	const setIntervalMock = t.mock.method(globalThis, 'setInterval');
+	const onComplete = t.mock.fn();
+
+	for (const speed of [0, -5, Number.NaN]) {
+		const {lastFrame, unmount} = render(
+			<Typewriter text="ab" speed={speed} onComplete={onComplete} />,
+		);
+		await advance(t, 60000);
+		t.assert.strictEqual(lastFrame(), cursor);
+		unmount();
+	}
+
+	t.assert.strictEqual(setIntervalMock.mock.callCount(), 0);
+	t.assert.strictEqual(onComplete.mock.callCount(), 0);
 });
 
 test('reveals text by code point so an emoji is never split', async (t: TestContext) => {
@@ -47,8 +80,7 @@ test('reveals text by code point so an emoji is never split', async (t: TestCont
 	const {frames, unmount} = render(<Typewriter text="😀👍🏽" speed={FAST_SPEED} />);
 
 	for (let step = 0; step < 3; step++) {
-		t.mock.timers.tick(STEP_MS);
-		await delay(20);
+		await advance(t, STEP_MS);
 	}
 
 	t.assert.deepStrictEqual(
@@ -62,17 +94,32 @@ test('restarts the reveal when text changes', async (t: TestContext) => {
 	t.mock.timers.enable({apis: ['setInterval']});
 	const {lastFrame, rerender, unmount} = render(<Typewriter text="ab" speed={FAST_SPEED} />);
 
-	t.mock.timers.tick(STEP_MS * 2);
-	await delay(20);
+	await advance(t, STEP_MS * 2);
 	t.assert.strictEqual(lastFrame(), 'ab');
 
-	rerender(<Typewriter text="xy" speed={FAST_SPEED} />);
-	await delay(20);
+	await runInAct(() => {
+		rerender(<Typewriter text="xy" speed={FAST_SPEED} />);
+	});
 	t.assert.strictEqual(lastFrame(), cursor);
 
-	t.mock.timers.tick(STEP_MS);
-	await delay(20);
+	await advance(t, STEP_MS);
 	t.assert.strictEqual(lastFrame(), `x${cursor}`);
+	unmount();
+});
+
+test('applies a new speed from the next character without restarting the reveal', async (t: TestContext) => {
+	t.mock.timers.enable({apis: ['setInterval']});
+	const {lastFrame, rerender, unmount} = render(<Typewriter text="abc" speed={FAST_SPEED} />);
+
+	await advance(t, STEP_MS);
+	await runInAct(() => {
+		rerender(<Typewriter text="abc" speed={1} />);
+	});
+	await advance(t, STEP_MS * 5);
+	t.assert.strictEqual(lastFrame(), `a${cursor}`);
+
+	await advance(t, 900);
+	t.assert.strictEqual(lastFrame(), `ab${cursor}`);
 	unmount();
 });
 
@@ -83,19 +130,19 @@ test('calls onComplete once for each text', async (t: TestContext) => {
 		<Typewriter text="ab" speed={FAST_SPEED} onComplete={onComplete} />,
 	);
 
-	t.mock.timers.tick(STEP_MS * 2);
-	await delay(20);
-	t.mock.timers.tick(STEP_MS * 5);
-	await delay(20);
+	await advance(t, STEP_MS * 2);
+	await advance(t, STEP_MS * 5);
 	t.assert.strictEqual(onComplete.mock.callCount(), 1);
 
-	rerender(<Typewriter text="xy" speed={FAST_SPEED} onComplete={onComplete} />);
-	t.mock.timers.tick(STEP_MS * 2);
-	await delay(20);
+	await runInAct(() => {
+		rerender(<Typewriter text="xy" speed={FAST_SPEED} onComplete={onComplete} />);
+	});
+	await advance(t, STEP_MS * 2);
 	t.assert.strictEqual(onComplete.mock.callCount(), 2);
 
-	rerender(<Typewriter text="" speed={FAST_SPEED} onComplete={onComplete} />);
-	await delay(20);
+	await runInAct(() => {
+		rerender(<Typewriter text="" speed={FAST_SPEED} onComplete={onComplete} />);
+	});
 	t.assert.strictEqual(onComplete.mock.callCount(), 3);
 	unmount();
 });
@@ -109,16 +156,17 @@ test('keeps the reveal going when re-rendered with the same text and calls the l
 		<Typewriter text="ab" speed={FAST_SPEED} onComplete={firstOnComplete} />,
 	);
 
-	t.mock.timers.tick(STEP_MS);
-	await delay(20);
-	rerender(<Typewriter text="ab" speed={FAST_SPEED} onComplete={latestOnComplete} />);
-	t.mock.timers.tick(STEP_MS);
-	await delay(20);
+	await advance(t, STEP_MS);
+	await runInAct(() => {
+		rerender(<Typewriter text="ab" speed={FAST_SPEED} onComplete={latestOnComplete} />);
+	});
+	await advance(t, STEP_MS);
 	t.assert.strictEqual(lastFrame(), 'ab');
 
-	rerender(<Typewriter text="ab" speed={FAST_SPEED} onComplete={newestOnComplete} />);
-	t.mock.timers.tick(STEP_MS * 5);
-	await delay(20);
+	await runInAct(() => {
+		rerender(<Typewriter text="ab" speed={FAST_SPEED} onComplete={newestOnComplete} />);
+	});
+	await advance(t, STEP_MS * 5);
 	t.assert.strictEqual(firstOnComplete.mock.callCount(), 0);
 	t.assert.strictEqual(latestOnComplete.mock.callCount(), 1);
 	t.assert.strictEqual(newestOnComplete.mock.callCount(), 0);
@@ -130,7 +178,6 @@ test('treats empty text as complete at once', async (t: TestContext) => {
 	const onComplete = t.mock.fn();
 	const {lastFrame, unmount} = render(<Typewriter text="" onComplete={onComplete} />);
 
-	await delay(20);
 	t.assert.strictEqual(onComplete.mock.callCount(), 1);
 	t.assert.strictEqual(lastFrame(), '');
 	unmount();
@@ -142,16 +189,14 @@ test('hides the cursor when cursor is false', async (t: TestContext) => {
 		<Typewriter text="ab" cursor={false} speed={FAST_SPEED} />,
 	);
 
-	t.mock.timers.tick(STEP_MS);
-	await delay(20);
-	t.mock.timers.tick(STEP_MS);
-	await delay(20);
+	await advance(t, STEP_MS);
+	await advance(t, STEP_MS);
 
 	t.assert.deepStrictEqual([...new Set(frames)], ['', 'a', 'ab']);
 	unmount();
 });
 
-test('calls onComplete after the full text is rendered', async (t: TestContext) => {
+test('calls onComplete after the last character is rendered', async (t: TestContext) => {
 	t.mock.timers.enable({apis: ['setInterval']});
 	let frameAtComplete: string | undefined;
 	const view = render(
@@ -164,8 +209,7 @@ test('calls onComplete after the full text is rendered', async (t: TestContext) 
 		/>,
 	);
 
-	t.mock.timers.tick(STEP_MS * 2);
-	await delay(20);
+	await advance(t, STEP_MS * 2);
 
 	t.assert.strictEqual(frameAtComplete, 'ab');
 	view.unmount();
@@ -178,11 +222,9 @@ test('does not call onComplete when unmounted before the text is shown', async (
 		<Typewriter text="ab" speed={FAST_SPEED} onComplete={onComplete} />,
 	);
 
-	t.mock.timers.tick(STEP_MS);
-	await delay(20);
+	await advance(t, STEP_MS);
 	unmount();
-	t.mock.timers.tick(STEP_MS * 5);
-	await delay(20);
+	await advance(t, STEP_MS * 5);
 
 	t.assert.strictEqual(onComplete.mock.callCount(), 0);
 });
@@ -193,8 +235,9 @@ test('clears its timer on unmount', async (t: TestContext) => {
 	const clearIntervalMock = t.mock.method(globalThis, 'clearInterval');
 	const {unmount} = render(<Typewriter text="abc" speed={FAST_SPEED} />);
 
-	await delay(20);
-	unmount();
+	await runInAct(() => {
+		unmount();
+	});
 
 	const typewriterTimers = setIntervalMock.mock.calls
 		.filter(call => call.arguments[1] === 1000 / FAST_SPEED)

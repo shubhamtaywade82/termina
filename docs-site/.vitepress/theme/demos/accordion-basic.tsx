@@ -6,12 +6,7 @@ const sections = [
   {
     id: 'database',
     title: 'Database',
-    content: (
-      <>
-        <Text>host: localhost:5432</Text>
-        <Text>pool size: 10</Text>
-      </>
-    ),
+    content: <Text>host: localhost:5432</Text>,
   },
   {
     id: 'api',
