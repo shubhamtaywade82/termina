@@ -227,3 +227,11 @@ test('theme keys return the documented props and there are no config keys', (t: 
 	t.assert.deepStrictEqual(theme.styles.block(), {color: 'magenta'});
 	t.assert.deepStrictEqual(Object.keys(theme), ['styles']);
 });
+
+test('draws nothing for an infinite or NaN width, without throwing', (t: TestContext) => {
+	for (const width of [Infinity, Number.NaN]) {
+		const {lastFrame, unmount} = render(<LoadingBar width={width} isActive={false} />);
+		t.assert.strictEqual(lastFrame() ?? '', '');
+		unmount();
+	}
+});

@@ -57,7 +57,7 @@ The bar animates until the app exits; set `isActive` to `false` to hold the bloc
 
 | Prop | Type | Default | Description |
 | --- | --- | --- | --- |
-| `width` | `number` | `20` | Width of the track, in cells. Fractions are rounded down. Zero and negative values draw an empty track. |
+| `width` | `number` | `20` | Width of the track, in cells. Fractions are rounded down. Zero, negative and non-finite values draw an empty track. |
 | `isActive` | `boolean` | `true` | When false, the animation stops and the block stays at the start of the track. |
 | `interval` | `number` | `80` | Milliseconds between frames. |
 
@@ -78,7 +78,7 @@ The cell glyphs are set in the component, so the theme controls only their style
 ## Edge cases
 
 - A track of one to three cells is filled by the block, and the block does not move.
-- A zero or negative `width` draws nothing. The component does not throw.
+- A zero, negative, `NaN` or infinite `width` draws nothing. The component does not throw.
 - A fractional `width` is rounded down, so `width={10.9}` draws ten cells.
 - Changing `width` after mount redraws the track at the new width and keeps the animation running. The block's position is calculated from the frame count, so it can jump to a different cell.
 - Setting `isActive` back to `true` starts the sweep again from the start of the track.
