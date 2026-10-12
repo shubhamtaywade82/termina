@@ -6,7 +6,7 @@ outline: [2, 3]
 
 `Markdown` renders a string of Markdown source in the terminal. It supports headings, paragraphs, bullet and numbered lists, nested lists, fenced code, block quotes, bold, italic, inline code and links. Use it when the text is Markdown already, such as a release note or a README excerpt. It is display only and takes no keyboard input. It has no height limit, so put it in a [ScrollBox](/ui/components/scroll-box) when the document is taller than the screen. To show one block of code with line numbers and highlighted lines, use [CodeBlock](/ui/components/code-block). To build a list from React elements, use [UnorderedList](/ui/components/unordered-list) or [OrderedList](/ui/components/ordered-list).
 
-`Markdown` is exported from `@nemesis-oss/termina-ui`. `@nemesis-oss/termina-ui` is a workspace package in this repository and is not published to npm yet, so import it from another workspace package. For the full component list, read the [UI Kit overview](/ui/overview).
+`Markdown` is exported from `@nemesis-oss/termina-ui`. Install it with `npm install @nemesis-oss/termina-ui @nemesis-oss/termina-core react`. For the full component list, read the [UI Kit overview](/ui/overview).
 
 ## Live preview
 

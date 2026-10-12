@@ -6,7 +6,7 @@ outline: [2, 3]
 
 `Gauge` shows one percentage as a row: an optional label, a bar of filled and empty cells, and the percent. Use it for a value with a known good and bad range, such as CPU or memory use. The filled cells turn yellow from 70 percent and red from 90 percent. For a bar that fills the width of its parent as work completes, use [ProgressBar](/ui/components/progress-bar) instead. `ProgressBar` draws no label, no number and no color bands, and its width comes from its parent, not from a prop.
 
-`Gauge` is exported from `@nemesis-oss/termina-ui`. `@nemesis-oss/termina-ui` is a workspace package in this repository and is not published to npm yet, so import it from another workspace package. For the full component list, read the [UI Kit overview](/ui/overview).
+`Gauge` is exported from `@nemesis-oss/termina-ui`. Install it with `npm install @nemesis-oss/termina-ui @nemesis-oss/termina-core react`. For the full component list, read the [UI Kit overview](/ui/overview).
 
 ## Live preview
 

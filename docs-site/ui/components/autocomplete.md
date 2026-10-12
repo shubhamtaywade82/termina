@@ -6,7 +6,7 @@ outline: [2, 3]
 
 `Autocomplete` is a single-line input with a list of suggestions below it. The list shows the options that contain the typed text, ignoring case, and the user moves through the rows with Up and Down and takes one with Enter. Use it when the user types part of a value and picks the rest from a known set, such as a package name. [TextInput](/ui/components/text-input) completes the value inline from its start and shows no list. [Select](/ui/components/select) shows a list but cannot filter it by typing.
 
-`Autocomplete` is exported from `@nemesis-oss/termina-ui`. `@nemesis-oss/termina-ui` is a workspace package in this repository and is not published to npm yet, so import it from another workspace package. For the full component list, read the [UI Kit overview](/ui/overview).
+`Autocomplete` is exported from `@nemesis-oss/termina-ui`. Install it with `npm install @nemesis-oss/termina-ui @nemesis-oss/termina-core react`. For the full component list, read the [UI Kit overview](/ui/overview).
 
 ## Live preview
 

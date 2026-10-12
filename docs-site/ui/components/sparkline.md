@@ -6,7 +6,7 @@ outline: [2, 3]
 
 `Sparkline` draws a list of numbers as one row of block characters, one character per value, so a short trend fits on one line. Use it for a series over time, such as requests per second or latency over the last few minutes. For one value against a fixed 0 to 100 range, use [Gauge](/ui/components/gauge) instead. `Gauge` draws a percent, while `Sparkline` has no fixed range: it scales the values it draws to their own smallest and largest value, so it shows how a series moves, not how close its latest value is to a limit.
 
-`Sparkline` is exported from `@nemesis-oss/termina-ui`. `@nemesis-oss/termina-ui` is a workspace package in this repository and is not published to npm yet, so import it from another workspace package. For the full component list, read the [UI Kit overview](/ui/overview).
+`Sparkline` is exported from `@nemesis-oss/termina-ui`. Install it with `npm install @nemesis-oss/termina-ui @nemesis-oss/termina-core react`. For the full component list, read the [UI Kit overview](/ui/overview).
 
 ## Live preview
 

@@ -6,7 +6,7 @@ outline: [2, 3]
 
 `Tabs` shows one panel at a time. A tab bar on the first line lists the tabs, and Left and Right switch between them. Use it when several views share one area of the screen and the user looks at one at a time. It differs from [Select](/ui/components/select), which picks one value from a list and shows no content: `Tabs` renders the active tab's content below the bar.
 
-`Tabs` is exported from `@nemesis-oss/termina-ui`. `@nemesis-oss/termina-ui` is a workspace package in this repository and is not published to npm yet, so import it from another workspace package. For the full component list, read the [UI Kit overview](/ui/overview).
+`Tabs` is exported from `@nemesis-oss/termina-ui`. Install it with `npm install @nemesis-oss/termina-ui @nemesis-oss/termina-core react`. For the full component list, read the [UI Kit overview](/ui/overview).
 
 ## Live preview
 

@@ -6,7 +6,7 @@ outline: [2, 3]
 
 `Accordion` is a vertical list of section titles. Each title opens to show its content below it, and the user moves between titles with the keyboard. Use it to hide details that are needed only sometimes, such as optional settings. [Select](/ui/components/select) and [MultiSelect](/ui/components/multi-select) report the values the user picks, while `Accordion` reports which sections are open. [ScrollBox](/ui/components/scroll-box) scrolls one long block of content in a fixed viewport, while `Accordion` shows many titled sections, each opened or closed on its own.
 
-`Accordion` is exported from `@nemesis-oss/termina-ui`. `@nemesis-oss/termina-ui` is a workspace package in this repository and is not published to npm yet, so import it from another workspace package. For the full component list, read the [UI Kit overview](/ui/overview).
+`Accordion` is exported from `@nemesis-oss/termina-ui`. Install it with `npm install @nemesis-oss/termina-ui @nemesis-oss/termina-core react`. For the full component list, read the [UI Kit overview](/ui/overview).
 
 ## Live preview
 

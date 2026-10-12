@@ -4,7 +4,7 @@ outline: [2, 3]
 
 # @nemesis-oss/termina-ui API Reference
 
-This page lists every export of `packages/ui/source/index.ts`, the entry point of `@nemesis-oss/termina-ui`. Signatures are taken from the source and its emitted declarations. Prop tables are on each component page, and the component table links to them. For the component list, read the [UI Kit Overview](/ui/overview). For the theme shape, read [Theming](/ui/theming). `@nemesis-oss/termina-ui` is a workspace package and is not published to npm. Its compiled entry is `build/index.js`, with declarations in `build/index.d.ts`.
+This page lists every export of `packages/ui/source/index.ts`, the entry point of `@nemesis-oss/termina-ui`. Signatures are taken from the source and its emitted declarations. Prop tables are on each component page, and the component table links to them. For the component list, read the [UI Kit Overview](/ui/overview). For the theme shape, read [Theming](/ui/theming). `@nemesis-oss/termina-ui` is published to npm from `packages/ui`. Its compiled entry is `build/index.js`, with declarations in `build/index.d.ts`.
 
 The entry re-exports nothing from `@nemesis-oss/termina-core`. Import `render`, `Box`, `Text`, and the other core names from `@nemesis-oss/termina-core`.
 

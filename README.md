@@ -6,14 +6,23 @@ components.
 
 - `packages/core` (`@nemesis-oss/termina-core`): the engine. Upstream Ink plus reflow-aware resize
   erase, mouse tracking, OSC 8 hyperlinks, OSC 52 clipboard, and a capability probe.
-- `packages/ui` (`@nemesis-oss/termina-ui`): the component kit. Upstream ink-ui plus grapheme-correct
-  text editing, `ScrollBox`, and `LogStream`.
+- `packages/ui` (`@nemesis-oss/termina-ui`): the component kit. Upstream ink-ui plus 22 new
+  components, grapheme-correct text editing, `ScrollBox`, and `LogStream`.
 - `examples/turnstream`: a three-column agentic-loop dashboard built on both packages.
 
 Provenance and every local change: [`FORK.md`](FORK.md). The verified architecture
 of upstream and the measurements behind the design: [`docs/research/ink-architecture.md`](docs/research/ink-architecture.md).
 
-## Requirements
+## Install
+
+```sh
+npm install @nemesis-oss/termina-core @nemesis-oss/termina-ui react
+```
+
+Node 22 or newer and React 19.3 or newer. Documentation with live previews:
+https://shubhamtaywade82.github.io/termina/
+
+## Develop
 
 Node 22 or newer, pnpm 10.
 

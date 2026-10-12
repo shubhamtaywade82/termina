@@ -1,7 +1,7 @@
 {
   "name": "@nemesis-oss/termina-core",
   "version": "0.1.0",
-  "private": true,
+  "private": false,
   "description": "Fork of vadimdemedes/ink@8.0.0 (React reconciler + Yoga renderer for terminal UIs).",
   "keywords": [
     "react",

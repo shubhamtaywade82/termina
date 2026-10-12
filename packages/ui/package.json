@@ -1,7 +1,7 @@
 {
   "name": "@nemesis-oss/termina-ui",
   "version": "0.1.0",
-  "private": true,
+  "private": false,
   "description": "Fork of vadimdemedes/ink-ui@2.0.0 (component kit) ported onto @nemesis-oss/termina-core.",
   "keywords": [
     "react",

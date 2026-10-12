@@ -6,7 +6,7 @@ outline: [2, 3]
 
 `DiffView` displays a unified diff, the text that `git diff` prints, with each line styled by its first characters: file headers in bold, hunk headers in cyan, additions in green, and removals in red. Use it to show a patch or a proposed change in a terminal UI. It is display only. It has no keyboard input, no line numbers, and no scrolling, and it does not compute a diff, so pass it the patch text. [CodeBlock](/ui/components/code-block) shows code as plain text, with optional line numbers. It does not color lines by their diff markers.
 
-`DiffView` is exported from `@nemesis-oss/termina-ui`. `@nemesis-oss/termina-ui` is a workspace package in this repository and is not published to npm yet, so import it from another workspace package. For the full component list, read the [UI Kit overview](/ui/overview).
+`DiffView` is exported from `@nemesis-oss/termina-ui`. Install it with `npm install @nemesis-oss/termina-ui @nemesis-oss/termina-core react`. For the full component list, read the [UI Kit overview](/ui/overview).
 
 ## Live preview
 

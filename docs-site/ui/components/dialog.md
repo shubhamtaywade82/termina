@@ -6,7 +6,7 @@ outline: [2, 3]
 
 `Dialog` is a bordered box with a bold title, content, and an optional footer that reads `Esc to close`. Use it to group content, such as a message or an input, under a title inside the normal layout. It is not a modal in the usual sense: it does not overlay other content and does not trap focus, so the rest of the app keeps receiving keys while it is open. [Alert](/ui/components/alert) is the closest component. It is also a bordered box, but it shows one text message with an icon for its variant and handles no keys. [ConfirmInput](/ui/components/confirm-input) asks a yes-or-no question and has no border.
 
-`Dialog` is exported from `@nemesis-oss/termina-ui`. `@nemesis-oss/termina-ui` is a workspace package in this repository and is not published to npm yet, so import it from another workspace package. For the full component list, read the [UI Kit overview](/ui/overview).
+`Dialog` is exported from `@nemesis-oss/termina-ui`. Install it with `npm install @nemesis-oss/termina-ui @nemesis-oss/termina-core react`. For the full component list, read the [UI Kit overview](/ui/overview).
 
 ## Live preview
 

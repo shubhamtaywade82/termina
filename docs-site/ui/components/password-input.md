@@ -6,7 +6,7 @@ outline: [2, 3]
 
 `PasswordInput` is a single-line field for a secret, such as a password or an API key. Each character is shown as `*`, one asterisk per grapheme cluster. The callbacks receive the raw value, not the mask. Use it when the typed text must not be visible on screen. For other text, use [TextInput](/ui/components/text-input).
 
-`PasswordInput` is exported from `@nemesis-oss/termina-ui`. `@nemesis-oss/termina-ui` is a workspace package in this repository and is not published to npm yet, so import it from another workspace package. For the full component list, read the [UI Kit overview](/ui/overview).
+`PasswordInput` is exported from `@nemesis-oss/termina-ui`. Install it with `npm install @nemesis-oss/termina-ui @nemesis-oss/termina-core react`. For the full component list, read the [UI Kit overview](/ui/overview).
 
 ## Live preview
 

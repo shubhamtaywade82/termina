@@ -6,7 +6,7 @@ outline: [2, 3]
 
 `JSONViewer` prints a JavaScript value as pretty JSON, with two-space indentation. Keys, strings, numbers, booleans and null each have their own color. Use it to show a parsed API response or a configuration object in a terminal. It is display only and takes no keyboard input. The closest component is [CodeBlock](/ui/components/code-block), which shows text that is already a string, with no syntax colors. `JSONViewer` takes the value itself, formats it, and colors it by type.
 
-`JSONViewer` is exported from `@nemesis-oss/termina-ui`. `@nemesis-oss/termina-ui` is a workspace package in this repository and is not published to npm yet, so import it from another workspace package. For the full component list, read the [UI Kit overview](/ui/overview).
+`JSONViewer` is exported from `@nemesis-oss/termina-ui`. Install it with `npm install @nemesis-oss/termina-ui @nemesis-oss/termina-core react`. For the full component list, read the [UI Kit overview](/ui/overview).
 
 ## Live preview
 

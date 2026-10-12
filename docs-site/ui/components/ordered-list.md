@@ -6,7 +6,7 @@ outline: [2, 3]
 
 `OrderedList` renders its items with numbered markers: `1.`, `2.`, and so on. A nested `OrderedList` inside an item uses the parent number in its markers, such as `2.1.`. Use it for steps, ranked items, or any list where the position matters. For a list without numbers, read the [UnorderedList](/ui/components/unordered-list) page.
 
-`OrderedList` is exported from `@nemesis-oss/termina-ui`. Its items are `OrderedList.Item`. `@nemesis-oss/termina-ui` is a workspace package in this repository and is not published to npm yet, so import it from another workspace package. For the full component list, read the [UI Kit overview](/ui/overview).
+`OrderedList` is exported from `@nemesis-oss/termina-ui`. Its items are `OrderedList.Item`. Install it with `npm install @nemesis-oss/termina-ui @nemesis-oss/termina-core react`. For the full component list, read the [UI Kit overview](/ui/overview).
 
 ## Live preview
 

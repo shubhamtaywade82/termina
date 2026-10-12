@@ -6,7 +6,7 @@ outline: [2, 3]
 
 `Header` is a title bar for the top of a CLI screen. The title is bold, and an optional subtitle follows it on the same line, dimmed. It is one row high unless the title and subtitle are too wide for the row. Use it to name the app and show its current context, such as the target environment. It is display only and draws no rule underneath. For a horizontal rule that separates sections, use [Divider](/ui/components/divider), which draws a rule with an optional title.
 
-`Header` is exported from `@nemesis-oss/termina-ui`. `@nemesis-oss/termina-ui` is a workspace package in this repository and is not published to npm yet, so import it from another workspace package. For the full component list, read the [UI Kit overview](/ui/overview).
+`Header` is exported from `@nemesis-oss/termina-ui`. Install it with `npm install @nemesis-oss/termina-ui @nemesis-oss/termina-core react`. For the full component list, read the [UI Kit overview](/ui/overview).
 
 ## Live preview
 

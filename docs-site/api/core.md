@@ -6,7 +6,7 @@ outline: [2, 3]
 
 `@nemesis-oss/termina-core` is the terminal renderer. It is a fork of Ink 8.0.0: a React reconciler (react-reconciler 0.34) with a Yoga layout engine and a terminal output layer. Use it to render a React tree to a terminal, read keys and mouse reports, manage focus, measure layout, and control the terminal. For the component kit built on top of it, see [@nemesis-oss/termina-ui](/api/ui).
 
-`@nemesis-oss/termina-core` is a workspace package in this repository (`packages/core`). It is not published to npm yet. Other packages in this repository import it through the workspace.
+`@nemesis-oss/termina-core` is published to npm from `packages/core`. Install it with `npm install @nemesis-oss/termina-core react`.
 
 This page lists every export of the package entry (`packages/core/src/index.ts`), grouped by area. Each entry gives its TypeScript signature, a one-line description, and the guide page that explains it. Signatures and defaults come from the source. The upstream Ink readme describes upstream behavior. Where it differs from the fork, this page follows the source.
 

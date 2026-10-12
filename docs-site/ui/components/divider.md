@@ -6,7 +6,7 @@ outline: [2, 3]
 
 `Divider` is a horizontal rule that fills the width of its parent. Use it to separate sections of output, and add a title when a section needs a label. Unlike [Header](/ui/components/header), which is the title bar at the top of an application, a divider only separates content. In a column, it is one row high unless a title wraps.
 
-`Divider` is exported from `@nemesis-oss/termina-ui`. `@nemesis-oss/termina-ui` is a workspace package in this repository and is not published to npm yet, so import it from another workspace package. For the full component list, read the [UI Kit overview](/ui/overview).
+`Divider` is exported from `@nemesis-oss/termina-ui`. Install it with `npm install @nemesis-oss/termina-ui @nemesis-oss/termina-core react`. For the full component list, read the [UI Kit overview](/ui/overview).
 
 ## Live preview
 

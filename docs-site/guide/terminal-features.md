@@ -6,7 +6,7 @@ outline: [2, 3]
 
 These exports report what the terminal can do and produce escape sequences for hyperlinks and the clipboard. The kitty keyboard protocol is turned on with a render option. Use this page when output depends on the terminal: choosing whether to color text, linking text, copying to the clipboard, or enabling the enhanced keyboard protocol.
 
-All exports on this page come from `@nemesis-oss/termina-core`. The package is a workspace package in this repository and is not published to npm.
+All exports on this page come from `@nemesis-oss/termina-core`.
 
 ## Preview
 

@@ -15,7 +15,7 @@ The record for this page is `FORK.md` at the repository root. Each file path and
 | `packages/core` | `@nemesis-oss/termina-core` | `@nemesis-oss/termina-core` | vadimdemedes/ink 8.0.0 | 0.1.0 |
 | `packages/ui` | `@nemesis-oss/termina-ui` | `@nemesis-oss/termina-ui` | vadimdemedes/ink-ui 2.0.0 | 0.1.0 |
 
-Both manifests set `"private": true`. The packages are workspace packages in this repository and are not published to npm. Consume them through the workspace, not from a registry.
+Both manifests set `"private": false`, and both packages are published to npm. The publish workflow (`.github/workflows/publish.yml`) releases them when a `v*` tag is pushed.
 
 `FORK.md` says the packages were developed as `@fork/core` and `@fork/ui` and publish as `@nemesis-oss/termina-core` and `@nemesis-oss/termina-ui`. The import specifiers in `examples/turnstream` use the `@nemesis-oss` names. This documentation site uses `@nemesis-oss/termina-core` and `@nemesis-oss/termina-ui` for the same packages. The manifests and the example show what a workspace import resolves to.
 

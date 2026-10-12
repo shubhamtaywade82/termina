@@ -6,7 +6,7 @@ outline: [2, 3]
 
 `ProgressBar` draws one horizontal bar that fills in proportion to `value`, a number from 0 to 100. Use it when the total amount of work is known, such as bytes received out of a known size. When the total is not known, use [Spinner](/ui/components/spinner) instead.
 
-`ProgressBar` is exported from `@nemesis-oss/termina-ui`. `@nemesis-oss/termina-ui` is a workspace package in this repository and is not published to npm yet, so import it from another workspace package. For the full component list, read the [UI Kit overview](/ui/overview).
+`ProgressBar` is exported from `@nemesis-oss/termina-ui`. Install it with `npm install @nemesis-oss/termina-ui @nemesis-oss/termina-core react`. For the full component list, read the [UI Kit overview](/ui/overview).
 
 ## Live preview
 

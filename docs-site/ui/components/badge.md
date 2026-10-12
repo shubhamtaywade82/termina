@@ -6,7 +6,7 @@ outline: [2, 3]
 
 `Badge` shows a short label on a colored background, such as a status tag next to an item. It renders a `Text` element, so it sits inline with other text and can be placed in a `Box` row.
 
-`Badge` is exported from `@nemesis-oss/termina-ui`. `@nemesis-oss/termina-ui` is a workspace package in this repository and is not published to npm yet, so import it from another workspace package. For the full component list, read the [UI Kit overview](/ui/overview).
+`Badge` is exported from `@nemesis-oss/termina-ui`. Install it with `npm install @nemesis-oss/termina-ui @nemesis-oss/termina-core react`. For the full component list, read the [UI Kit overview](/ui/overview).
 
 ## Live preview
 

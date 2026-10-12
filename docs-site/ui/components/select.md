@@ -6,7 +6,7 @@ outline: [2, 3]
 
 `Select` is a vertical list in which the user moves focus with Up and Down and selects the focused option with Enter. Use it when the answer is one value from a short list. For a set of values, use [MultiSelect](/ui/components/multi-select). The list shows a fixed number of rows and scrolls when focus moves past them.
 
-`Select` is exported from `@nemesis-oss/termina-ui`. `@nemesis-oss/termina-ui` is a workspace package in this repository and is not published to npm yet, so import it from another workspace package. For the full component list, read the [UI Kit overview](/ui/overview).
+`Select` is exported from `@nemesis-oss/termina-ui`. Install it with `npm install @nemesis-oss/termina-ui @nemesis-oss/termina-core react`. For the full component list, read the [UI Kit overview](/ui/overview).
 
 ## Live preview
 

@@ -6,7 +6,7 @@ outline: [2, 3]
 
 `StatusMessage` shows one message with an icon and a color that name its kind: `success`, `error`, `warning`, or `info`. Use it for the result of an action, such as a saved file or a failed request. For a bordered message that needs attention, use [Alert](/ui/components/alert).
 
-`StatusMessage` is exported from `@nemesis-oss/termina-ui`. `@nemesis-oss/termina-ui` is a workspace package in this repository and is not published to npm yet, so import it from another workspace package. For the full component list, read the [UI Kit overview](/ui/overview).
+`StatusMessage` is exported from `@nemesis-oss/termina-ui`. Install it with `npm install @nemesis-oss/termina-ui @nemesis-oss/termina-core react`. For the full component list, read the [UI Kit overview](/ui/overview).
 
 ## Live preview
 

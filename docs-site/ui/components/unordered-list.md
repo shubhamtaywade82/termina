@@ -6,7 +6,7 @@ outline: [2, 3]
 
 `UnorderedList` renders items, each preceded by a marker. Lists nest: a list inside an item is indented under that item, and each depth can use its own marker. Use it for items that have no order. For numbered items, use [OrderedList](/ui/components/ordered-list).
 
-`UnorderedList` is exported from `@nemesis-oss/termina-ui`. `@nemesis-oss/termina-ui` is a workspace package in this repository and is not published to npm yet, so import it from another workspace package. For the full component list, read the [UI Kit overview](/ui/overview).
+`UnorderedList` is exported from `@nemesis-oss/termina-ui`. Install it with `npm install @nemesis-oss/termina-ui @nemesis-oss/termina-core react`. For the full component list, read the [UI Kit overview](/ui/overview).
 
 ## Live preview
 

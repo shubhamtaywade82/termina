@@ -6,7 +6,7 @@ outline: [2, 3]
 
 `MultiSelect` is a vertical list in which the user toggles any number of options with Space and submits the selection with Enter. Use it when the answer is a set of values, such as features to enable. The list shows a fixed number of rows and scrolls when focus moves past the visible rows.
 
-`MultiSelect` is exported from `@nemesis-oss/termina-ui`. `@nemesis-oss/termina-ui` is a workspace package in this repository and is not published to npm yet, so import it from another workspace package. For the full component list, read the [UI Kit overview](/ui/overview).
+`MultiSelect` is exported from `@nemesis-oss/termina-ui`. Install it with `npm install @nemesis-oss/termina-ui @nemesis-oss/termina-core react`. For the full component list, read the [UI Kit overview](/ui/overview).
 
 ## Live preview
 

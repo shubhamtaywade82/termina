@@ -6,7 +6,7 @@ outline: [2, 3]
 
 `ConfirmInput` shows a `Y/n` or `y/N` hint and calls `onConfirm` or `onCancel` when the user answers. Use it to ask one yes-or-no question before an operation. The component does not record the answer or hide itself. The parent decides what to render after a callback runs.
 
-`ConfirmInput` is exported from `@nemesis-oss/termina-ui`. `@nemesis-oss/termina-ui` is a workspace package in this repository and is not published to npm yet, so import it from another workspace package. For the full component list, read the [UI Kit overview](/ui/overview).
+`ConfirmInput` is exported from `@nemesis-oss/termina-ui`. Install it with `npm install @nemesis-oss/termina-ui @nemesis-oss/termina-core react`. For the full component list, read the [UI Kit overview](/ui/overview).
 
 ## Live preview
 

@@ -6,7 +6,7 @@ outline: [2, 3]
 
 `TreeView` draws nested data as an indented outline. Right and Left expand and collapse branches, and Enter selects any node and reports its path from the root. Use it for data that nests, such as a file tree, a dependency tree, or a settings schema. For a flat list where the user picks one value, use [Select](/ui/components/select). For a flat list of titled sections that each show content, use [Accordion](/ui/components/accordion).
 
-`TreeView` is exported from `@nemesis-oss/termina-ui`. `@nemesis-oss/termina-ui` is a workspace package in this repository and is not published to npm yet, so import it from another workspace package. For the full component list, read the [UI Kit overview](/ui/overview).
+`TreeView` is exported from `@nemesis-oss/termina-ui`. Install it with `npm install @nemesis-oss/termina-ui @nemesis-oss/termina-core react`. For the full component list, read the [UI Kit overview](/ui/overview).
 
 ## Live preview
 

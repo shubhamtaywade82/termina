@@ -8,7 +8,7 @@ Keyboard input reaches component code through `useInput`, pasted text through `u
 
 Mouse input is covered on [Mouse](/guide/mouse). The kitty keyboard protocol is a render option and is covered on [Terminal Features](/guide/terminal-features).
 
-All hooks on this page are exported from `@nemesis-oss/termina-core`. The package is a workspace package in this repository and is not published to npm.
+All hooks on this page are exported from `@nemesis-oss/termina-core`.
 
 ## Preview
 

@@ -6,7 +6,7 @@ outline: [2, 3]
 
 `Stepper` lists the steps of an ordered flow, each on its own row, and marks each step as done, current or pending. Use it to show where a multi-step process stands, such as an installer or a deploy. It only displays state: it has no keyboard input and no callbacks, and the parent decides which step is current. For a single value that fills toward a total, use [ProgressBar](/ui/components/progress-bar) instead. For a numbered list with no per-item state, use [OrderedList](/ui/components/ordered-list) instead.
 
-`Stepper` is exported from `@nemesis-oss/termina-ui`. `@nemesis-oss/termina-ui` is a workspace package in this repository and is not published to npm yet, so import it from another workspace package. For the full component list, read the [UI Kit overview](/ui/overview).
+`Stepper` is exported from `@nemesis-oss/termina-ui`. Install it with `npm install @nemesis-oss/termina-ui @nemesis-oss/termina-core react`. For the full component list, read the [UI Kit overview](/ui/overview).
 
 ## Live preview
 

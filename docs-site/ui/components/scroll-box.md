@@ -6,7 +6,7 @@ outline: [2, 3]
 
 `ScrollBox` is a fixed-height viewport over content that is taller than the viewport. It clips the content to the viewport, moves it by rows with the arrow keys, PageUp, PageDown, Home, End, and the mouse wheel, and draws a one-column scrollbar at its right edge. Use it for a list, a report, or any view with more rows than fit on screen. For output that grows over time and stays pinned to its newest entry, use [LogStream](/ui/components/log-stream), which is built on `ScrollBox`.
 
-`ScrollBox` and `ScrollBoxProps` are exported from `@nemesis-oss/termina-ui`, the `packages/ui` workspace package in this repository. The package is not published to npm yet, so import it from another workspace package. For the full component list, read the [UI Kit overview](/ui/overview).
+`ScrollBox` and `ScrollBoxProps` are exported from `@nemesis-oss/termina-ui`. Install it with `npm install @nemesis-oss/termina-ui @nemesis-oss/termina-core react`. For the full component list, read the [UI Kit overview](/ui/overview).
 
 ## Live preview
 

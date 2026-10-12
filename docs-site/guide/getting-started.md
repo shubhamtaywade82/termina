@@ -4,15 +4,25 @@ outline: [2, 3]
 
 # Getting Started
 
-`@nemesis-oss/termina-core` is the renderer. It mounts a React tree on a terminal output stream, lays it out with Yoga, and writes each frame. `@nemesis-oss/termina-ui` is the component kit built on it. Both packages are workspace packages in this repository and are not published to npm, so you use them from another package in the same workspace. This page covers the workspace setup, a first app, how the app exits, and how output behaves when stdout is not a terminal. For every `render()` option, read [Rendering](/guide/rendering). For the layout and text components, read [Layout and Text](/guide/layout-and-text).
+`@nemesis-oss/termina-core` is the renderer. It mounts a React tree on a terminal output stream, lays it out with Yoga, and writes each frame. `@nemesis-oss/termina-ui` is the component kit built on it. Both packages are published to npm. This page covers installation, a first app, how the app exits, and how output behaves when stdout is not a terminal. For every `render()` option, read [Rendering](/guide/rendering). For the layout and text components, read [Layout and Text](/guide/layout-and-text).
 
 ## Requirements
 
 - Node.js 22 or newer. Both packages declare `"engines": {"node": ">=22"}`.
-- pnpm 10. The root `package.json` sets `"packageManager": "pnpm@10.28.0"`.
+- pnpm 10, only to develop in this repository. The root `package.json` sets `"packageManager": "pnpm@10.28.0"`.
 - React 19.3 or newer. `@nemesis-oss/termina-core` declares `react` as a peer dependency with the range `>=19.3.0`.
 
-## Workspace setup
+## Install
+
+```sh
+npm install @nemesis-oss/termina-core react
+npm install @nemesis-oss/termina-ui
+```
+
+The second line is only needed for the component kit.
+
+## Develop in this repository
+
 
 The workspace in `pnpm-workspace.yaml` includes `packages/*` and `examples/*`. From the repository root, run:
 

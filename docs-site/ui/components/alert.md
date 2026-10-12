@@ -6,7 +6,7 @@ outline: [2, 3]
 
 `Alert` is a bordered box that shows one message with an icon for its variant. Use it for a message the user must notice, such as a deprecated command or a completed step that needs a follow-up. The variant sets the border color and the icon. The optional `title` is a bold line above the message.
 
-`Alert` is exported from `@nemesis-oss/termina-ui`. `@nemesis-oss/termina-ui` is a workspace package in this repository and is not published to npm yet, so import it from another workspace package. For the full component list, read the [UI Kit overview](/ui/overview).
+`Alert` is exported from `@nemesis-oss/termina-ui`. Install it with `npm install @nemesis-oss/termina-ui @nemesis-oss/termina-core react`. For the full component list, read the [UI Kit overview](/ui/overview).
 
 ## Live preview
 

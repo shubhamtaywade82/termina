@@ -6,7 +6,7 @@ outline: [2, 3]
 
 `CodeBlock` shows a block of code with one row per line of code, an optional line number gutter, and optional highlighted lines. Use it to show a snippet of code, such as an example or a config file. The code is plain text: `language` is a label above the block, and no syntax colors are applied. The block is display only, takes no keyboard input, and has no height limit. To show a change between two versions of text, use [DiffView](/ui/components/diff-view). To render a Markdown document, use [Markdown](/ui/components/markdown).
 
-`CodeBlock` is exported from `@nemesis-oss/termina-ui`. `@nemesis-oss/termina-ui` is a workspace package in this repository and is not published to npm yet, so import it from another workspace package. For the full component list, read the [UI Kit overview](/ui/overview).
+`CodeBlock` is exported from `@nemesis-oss/termina-ui`. Install it with `npm install @nemesis-oss/termina-ui @nemesis-oss/termina-core react`. For the full component list, read the [UI Kit overview](/ui/overview).
 
 ## Live preview
 

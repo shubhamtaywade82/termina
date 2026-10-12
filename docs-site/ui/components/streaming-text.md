@@ -6,7 +6,7 @@ outline: [2, 3]
 
 `StreamingText` shows a block of text that is still arriving, such as a reply from a language model, with a cursor after its last character while the stream is open. It runs no timer and fetches nothing: the parent appends each chunk to its own state and passes the whole string as `text`. The text wraps to the width of its parent. Use it for one growing block of text. For a complete string that should appear one character at a time, use [Typewriter](/ui/components/typewriter) instead. `Typewriter` runs its own timer over that string, while `StreamingText` runs none.
 
-`StreamingText` is exported from `@nemesis-oss/termina-ui`. `@nemesis-oss/termina-ui` is a workspace package in this repository and is not published to npm yet, so import it from another workspace package. For the full component list, read the [UI Kit overview](/ui/overview).
+`StreamingText` is exported from `@nemesis-oss/termina-ui`. Install it with `npm install @nemesis-oss/termina-ui @nemesis-oss/termina-core react`. For the full component list, read the [UI Kit overview](/ui/overview).
 
 ## Live preview
 

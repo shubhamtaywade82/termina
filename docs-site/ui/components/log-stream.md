@@ -6,7 +6,7 @@ outline: [2, 3]
 
 `LogStream` is a viewer for a list of log entries that grows while the app runs. It shows the newest entry at the bottom and keeps it there as entries arrive. When the user scrolls up, it stops following and holds the view. Scrolling back to the bottom resumes following. Use it for output such as build logs or service logs. For a list that does not grow, use [ScrollBox](/ui/components/scroll-box).
 
-`LogStream` and `LogStreamProps` are exported from `@nemesis-oss/termina-ui`, the `packages/ui` workspace package in this repository. The package is not published to npm yet, so import it from another workspace package. For the full component list, read the [UI Kit overview](/ui/overview).
+`LogStream` and `LogStreamProps` are exported from `@nemesis-oss/termina-ui`. Install it with `npm install @nemesis-oss/termina-ui @nemesis-oss/termina-core react`. For the full component list, read the [UI Kit overview](/ui/overview).
 
 ## Live preview
 

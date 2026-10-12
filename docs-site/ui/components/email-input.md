@@ -6,7 +6,7 @@ outline: [2, 3]
 
 `EmailInput` is a single-line field for an email address. After an `@`, it suggests a domain from a list of common providers, and Enter accepts the suggestion. It does not check the address format. Use it when the input is an email address and the suggestion saves typing. For free text, use [TextInput](/ui/components/text-input). For a secret, use [PasswordInput](/ui/components/password-input).
 
-`EmailInput` is exported from `@nemesis-oss/termina-ui`. `@nemesis-oss/termina-ui` is a workspace package in this repository and is not published to npm yet, so import it from another workspace package. For the full component list, read the [UI Kit overview](/ui/overview).
+`EmailInput` is exported from `@nemesis-oss/termina-ui`. Install it with `npm install @nemesis-oss/termina-ui @nemesis-oss/termina-core react`. For the full component list, read the [UI Kit overview](/ui/overview).
 
 ## Live preview
 

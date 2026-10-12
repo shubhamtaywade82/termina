@@ -6,7 +6,7 @@ outline: [2, 3]
 
 `DataTable` is a table with a focus. The user moves the highlight through the rows with Up and Down, moves the focused column with Left and Right, sorts by the focused column with `s`, and chooses the focused row with Enter. Use it when the user must pick a row from data with several fields, or sort that data before picking. For the same data shown without focus, use [Table](/ui/components/table), which is display only. To choose one value from a short list, use [Select](/ui/components/select). Rows past the visible window are reached by scrolling, as in Select.
 
-`DataTable` is exported from `@nemesis-oss/termina-ui`. `@nemesis-oss/termina-ui` is a workspace package in this repository and is not published to npm yet, so import it from another workspace package. For the full component list, read the [UI Kit overview](/ui/overview).
+`DataTable` is exported from `@nemesis-oss/termina-ui`. Install it with `npm install @nemesis-oss/termina-ui @nemesis-oss/termina-core react`. For the full component list, read the [UI Kit overview](/ui/overview).
 
 ## Live preview
 

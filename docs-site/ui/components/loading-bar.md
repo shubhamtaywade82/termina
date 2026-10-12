@@ -6,7 +6,7 @@ outline: [2, 3]
 
 `LoadingBar` is an indeterminate progress bar. A four-cell block moves back and forth across a track, which shows that work is running when its total is not known. Use it for a wait such as a network request. When the total is known, use [ProgressBar](/ui/components/progress-bar), which fills in proportion to a value. When one animated glyph and a label are enough, use [Spinner](/ui/components/spinner).
 
-`LoadingBar` is exported from `@nemesis-oss/termina-ui`. `@nemesis-oss/termina-ui` is a workspace package in this repository and is not published to npm yet, so import it from another workspace package. For the full component list, read the [UI Kit overview](/ui/overview).
+`LoadingBar` is exported from `@nemesis-oss/termina-ui`. Install it with `npm install @nemesis-oss/termina-ui @nemesis-oss/termina-core react`. For the full component list, read the [UI Kit overview](/ui/overview).
 
 ## Live preview
 

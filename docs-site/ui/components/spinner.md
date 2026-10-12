@@ -6,7 +6,7 @@ outline: [2, 3]
 
 `Spinner` shows one frame of an animation and an optional label. Use it while work runs and the time it needs is not known. When the progress is known, use [ProgressBar](/ui/components/progress-bar).
 
-`Spinner` is exported from `@nemesis-oss/termina-ui`. `@nemesis-oss/termina-ui` is a workspace package in this repository and is not published to npm yet, so import it from another workspace package. For the full component list, read the [UI Kit overview](/ui/overview).
+`Spinner` is exported from `@nemesis-oss/termina-ui`. Install it with `npm install @nemesis-oss/termina-ui @nemesis-oss/termina-core react`. For the full component list, read the [UI Kit overview](/ui/overview).
 
 ## Live preview
 

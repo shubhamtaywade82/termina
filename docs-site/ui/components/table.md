@@ -6,7 +6,7 @@ outline: [2, 3]
 
 `Table` shows rows of values in aligned columns. Use it to show data you already have, such as a list of processes or the rows of a query result. It is display only: it has no focus and reads no keys, so the user cannot pick a row. To let the user choose one value from a list, use [Select](/ui/components/select). To let the user move through rows and pick one, use [DataTable](/ui/components/data-table). Each column is as wide as its widest cell, header included, and cells in a row are separated by two spaces. A table wider than its container is not truncated; it overflows.
 
-`Table` is exported from `@nemesis-oss/termina-ui`. `@nemesis-oss/termina-ui` is a workspace package in this repository and is not published to npm yet, so import it from another workspace package. For the full component list, read the [UI Kit overview](/ui/overview).
+`Table` is exported from `@nemesis-oss/termina-ui`. Install it with `npm install @nemesis-oss/termina-ui @nemesis-oss/termina-core react`. For the full component list, read the [UI Kit overview](/ui/overview).
 
 ## Live preview
 

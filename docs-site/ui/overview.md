@@ -17,24 +17,15 @@ they would in a real terminal. This one is a composite of `Badge`,
 
 <TerminalDemo demo="overview-hero" title="termina — install" />
 
-## Install in this workspace
+## Install
 
-`@nemesis-oss/termina-ui` is a workspace package in this repository. It is not published to npm. Another package in the workspace uses it by declaring it as a workspace dependency:
-
-```json
-{
-  "type": "module",
-  "dependencies": {
-    "@nemesis-oss/termina-core": "workspace:*",
-    "@nemesis-oss/termina-ui": "workspace:*",
-    "react": ">=19.3.0"
-  }
-}
+```sh
+npm install @nemesis-oss/termina-ui @nemesis-oss/termina-core react
 ```
 
-`@nemesis-oss/termina-ui` depends on `@nemesis-oss/termina-core` through the workspace and declares `react` (`>=19.3.0`) as a peer dependency. Its `engines` field requires Node.js 22 or newer. The package entry is `build/index.js`, so run `pnpm build` from the repository root before another package imports it. The root `build` script runs each package's build in dependency order, so `@nemesis-oss/termina-core` builds before `@nemesis-oss/termina-ui`.
+`@nemesis-oss/termina-ui` depends on `@nemesis-oss/termina-core` and declares `react` (`>=19.3.0`) as a peer dependency. Its `engines` field requires Node.js 22 or newer.
 
-`examples/turnstream` is a workspace consumer. It imports `LogStream`, `ScrollBox`, and `TextInput` from `@nemesis-oss/termina-ui`.
+Inside this repository, a workspace package uses it as a `workspace:*` dependency instead. Run `pnpm build` from the repository root first, because the package entry is `build/index.js`. `examples/turnstream` is such a consumer. It imports `LogStream`, `ScrollBox`, and `TextInput`.
 
 ## Import
 

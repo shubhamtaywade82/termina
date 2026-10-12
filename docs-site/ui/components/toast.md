@@ -6,7 +6,7 @@ outline: [2, 3]
 
 `Toast` shows one message for a few seconds, then hides itself and calls `onDismiss`. Use it to confirm an action that needs no reply, such as a finished deploy. It is a [StatusMessage](/ui/components/status-message) with a countdown: the icon and colors are the same, and the message hides once the countdown ends. For a bordered message that stays until the parent removes it, use [Alert](/ui/components/alert).
 
-`Toast` is exported from `@nemesis-oss/termina-ui`. `@nemesis-oss/termina-ui` is a workspace package in this repository and is not published to npm yet, so import it from another workspace package. For the full component list, read the [UI Kit overview](/ui/overview).
+`Toast` is exported from `@nemesis-oss/termina-ui`. Install it with `npm install @nemesis-oss/termina-ui @nemesis-oss/termina-core react`. For the full component list, read the [UI Kit overview](/ui/overview).
 
 ## Live preview
 

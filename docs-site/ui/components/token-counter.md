@@ -6,7 +6,7 @@ outline: [2, 3]
 
 `TokenCounter` shows how many tokens a prompt, response or session has used, with thousands separators. Give it a `limit` to show the count against a budget and the percent used. The count is green below 80 percent, yellow from 80 percent up to 100, and red from 100 percent up. Use it for a count of tokens. For a percentage drawn as a bar, use [Gauge](/ui/components/gauge) instead. Gauge has a bar and a percent, but it shows no count and changes color at 70 and 90 percent. `TokenCounter` draws no bar.
 
-`TokenCounter` is exported from `@nemesis-oss/termina-ui`. `@nemesis-oss/termina-ui` is a workspace package in this repository and is not published to npm yet, so import it from another workspace package. For the full component list, read the [UI Kit overview](/ui/overview).
+`TokenCounter` is exported from `@nemesis-oss/termina-ui`. Install it with `npm install @nemesis-oss/termina-ui @nemesis-oss/termina-core react`. For the full component list, read the [UI Kit overview](/ui/overview).
 
 ## Live preview
 

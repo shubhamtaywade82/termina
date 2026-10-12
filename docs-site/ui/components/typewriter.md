@@ -6,7 +6,7 @@ outline: [2, 3]
 
 `Typewriter` reveals a string one character at a time, as if it were being typed, and shows a block cursor after the revealed text while it types. Use it for a short message that is known in full before it is shown, such as a greeting or onboarding text. For text that arrives in pieces from a stream, use [StreamingText](/ui/components/streaming-text) instead. `StreamingText` shows the text its parent passes, as it arrives, and it has no timer. `Typewriter` runs its own timer over a complete string, and its cursor disappears once the reveal ends.
 
-`Typewriter` is exported from `@nemesis-oss/termina-ui`. `@nemesis-oss/termina-ui` is a workspace package in this repository and is not published to npm yet, so import it from another workspace package. For the full component list, read the [UI Kit overview](/ui/overview).
+`Typewriter` is exported from `@nemesis-oss/termina-ui`. Install it with `npm install @nemesis-oss/termina-ui @nemesis-oss/termina-core react`. For the full component list, read the [UI Kit overview](/ui/overview).
 
 ## Live preview
 

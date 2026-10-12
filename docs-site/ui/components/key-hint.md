@@ -6,7 +6,7 @@ outline: [2, 3]
 
 `KeyHint` shows one keyboard shortcut: the key label in inverse text, then what the key does in dim text. Use it in a footer or help line that lists the keys a screen responds to. It does not handle keys itself. To respond to keys, use a component such as [Select](/ui/components/select) or [MultiSelect](/ui/components/multi-select), or call `useInput` from `@nemesis-oss/termina-core`. Unlike [Badge](/ui/components/badge), which fills its label with a background color, `KeyHint` uses inverse video for the key and dim text for the action.
 
-`KeyHint` is exported from `@nemesis-oss/termina-ui`. `@nemesis-oss/termina-ui` is a workspace package in this repository and is not published to npm yet, so import it from another workspace package. For the full component list, read the [UI Kit overview](/ui/overview).
+`KeyHint` is exported from `@nemesis-oss/termina-ui`. Install it with `npm install @nemesis-oss/termina-ui @nemesis-oss/termina-core react`. For the full component list, read the [UI Kit overview](/ui/overview).
 
 ## Live preview
 

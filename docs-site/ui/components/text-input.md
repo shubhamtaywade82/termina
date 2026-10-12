@@ -6,7 +6,7 @@ outline: [2, 3]
 
 `TextInput` is a single-line editor. It shows the value with a cursor, an optional placeholder, and an optional completion taken from `suggestions`. Use it for one line of text, such as a name, a path, or a search query. The cursor, Backspace, and Delete work on grapheme clusters, so an emoji or a letter with a combining mark is moved over and deleted as one unit.
 
-`TextInput` is exported from `@nemesis-oss/termina-ui`. `@nemesis-oss/termina-ui` is a workspace package in this repository and is not published to npm yet, so import it from another workspace package. For the full component list, read the [UI Kit overview](/ui/overview).
+`TextInput` is exported from `@nemesis-oss/termina-ui`. Install it with `npm install @nemesis-oss/termina-ui @nemesis-oss/termina-core react`. For the full component list, read the [UI Kit overview](/ui/overview).
 
 ## Live preview
 
