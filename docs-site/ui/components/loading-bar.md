@@ -77,7 +77,7 @@ The cell glyphs are set in the component, so the theme controls only their style
 
 ## Edge cases
 
-- A track narrower than the block, which is fewer than four cells, is filled by the block, and the block does not move.
+- A track of one to three cells is filled by the block, and the block does not move.
 - A zero or negative `width` draws nothing. The component does not throw.
 - A fractional `width` is rounded down, so `width={10.9}` draws ten cells.
 - Changing `width` after mount redraws the track at the new width and keeps the animation running. The block's position is calculated from the frame count, so it can jump to a different cell.

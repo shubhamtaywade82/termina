@@ -5,6 +5,7 @@ import delay from 'delay';
 import {Box, Text} from '@nemesis-oss/termina-core';
 import {render} from './helpers/render.js';
 import {KeyHint} from '../source/components/key-hint/index.js';
+import {ThemeProvider, defaultTheme, extendTheme} from '../source/theme.js';
 
 const shortcuts = [
 	{keys: '↑↓', label: 'navigate'},
@@ -115,4 +116,23 @@ test('renders the demo layout as a list above a row of hints', (t: TestContext) 
 			hintRow,
 		].join('\n'),
 	);
+});
+
+test('reads the key style from the KeyHint entry of a theme override', (t: TestContext) => {
+	const theme = extendTheme(defaultTheme, {
+		components: {
+			KeyHint: {
+				styles: {
+					key: () => ({bold: true}),
+				},
+			},
+		},
+	});
+	const {lastFrame} = render(
+		<ThemeProvider theme={theme}>
+			<KeyHint keys="Ctrl+C" label="quit" />
+		</ThemeProvider>,
+	);
+
+	t.assert.strictEqual(lastFrame(), `${chalk.bold(' Ctrl+C ')} ${chalk.dim('quit')}`);
 });

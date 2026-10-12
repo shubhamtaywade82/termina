@@ -65,7 +65,7 @@ The block glyphs (`▁▂▃▄▅▆▇█`) are set in the component, so the t
 - A `width` of 0 or less draws nothing.
 - A `width` larger than the length of `data` draws every value.
 - The scale covers only the values drawn. With `width={2}`, the data `100, 0, 7` draws `▁█`: `100` is not drawn, so the scale runs from 0 to 7.
-- The smallest drawn value draws `▁` and the largest draws `█`. A value in between is rounded to the nearest of the eight blocks, so a value halfway between them draws `▅`.
+- When the drawn values are not all equal, the smallest draws `▁` and the largest draws `█`. A value in between is rounded to the nearest of the eight blocks, so a value halfway between them draws `▅`.
 - When every drawn value is equal, every cell draws `▁`. A single value draws `▁`.
 - `NaN`, `Infinity` and `-Infinity` count as 0 on the scale. So `[20, NaN, 70]` draws `▃▁█`.
 - New `data` or `width` values take effect on the next render.

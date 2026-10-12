@@ -34,7 +34,7 @@ Run \`npm install\` to upgrade.`;
 render(<Markdown>{source}</Markdown>);
 ```
 
-Pass the source as `children`. The component keeps no state, so a new string shows new content on the next render.
+Pass the source as `children`; the component keeps no state, so a new string shows new content on the next render.
 
 ## Props
 
@@ -53,7 +53,7 @@ The component reads the `Markdown` entry of the theme. To change a key, pass a t
 | `styles.container` | none | Box props: `flexDirection: 'column'` and `gap: 1`. One blank row separates the blocks. |
 | `styles.heading` | `{level}` | Text props. Level 1 is bold, underlined and cyan. Level 2 is bold and cyan. Level 3 is bold. |
 | `styles.paragraph` | none | Text props: none. Applied to paragraph text, list item text and block quote text. |
-| `styles.listBullet` | none | Text props: `dimColor: true`. Applied to the bullet or number, and to the space after it. |
+| `styles.listBullet` | none | Text props: `dimColor: true`. Applied to the indent before a nested marker, the bullet or number, and the space after it. |
 | `styles.code` | none | Text props: `color: 'yellow'`. Applied to inline code and to fenced code. |
 | `styles.codeBlock` | none | Box props: `paddingLeft: 2`. Indents each fenced code block. |
 | `styles.blockquote` | none | Box props: a dimmed left border, with `paddingLeft: 1`. There is no top, right or bottom border. |
@@ -61,7 +61,7 @@ The component reads the `Markdown` entry of the theme. To change a key, pass a t
 | `styles.italic` | none | Text props: `italic: true`. |
 | `styles.link` | none | Text props: `color: 'blue'` and `underline: true`. Applied to the link text. |
 
-No theme key covers four things, so they are fixed in the component: the bullet glyph (`figures.bullet`, which is `●`), the two-space indent for each nested list level, the dim on block quote text, and the dim on link URLs.
+No theme key covers four things, so they are fixed in the component: the bullet glyph (`figures.bullet`, which is `●`), the two-space indent for each nested list level, the dim on block quote text, and the dim on link URLs, which are never bold.
 
 ## Edge cases
 
@@ -70,6 +70,7 @@ No theme key covers four things, so they are fixed in the component: the bullet 
 - Consecutive blank lines make one blank row between blocks.
 - Only one to three `#` marks start a heading. `####`, and `#tag` with no space after the hash, print as plain text with the hash marks.
 - Nesting depth is the leading spaces divided by two, rounded down. Three spaces make one level.
+- An indented line under a list item that has no marker starts a new paragraph, which splits the list.
 - A line that starts with `**` is not a list item. A marker that never closes, such as `**open`, prints as typed.
 - An underscore inside a word and a `*` followed by a space do not start italics, so `snake_case_name` and `2 * 3 * 4` print as typed.
 - Fenced code is not highlighted. Its spacing and blank lines are kept, and the language after the opening fence is ignored.
@@ -78,5 +79,5 @@ No theme key covers four things, so they are fixed in the component: the bullet 
 - Every wrapped line of a block quote keeps the bar.
 - A link shows its URL in dim parentheses after the link text. Underscores in the URL are not emphasis.
 - Spans do not nest. Code inside bold prints its backticks, and link text prints its markers as typed, so ``[**a**](u)`` keeps its asterisks.
-- In a heading, text after a link is not bold.
+- In a heading, a link's URL is dim but not bold, so the text after the link stays bold.
 - Images, tables and HTML are not supported. Their lines print as written, one row per line, and inline markers such as `**` still apply.

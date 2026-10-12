@@ -6,10 +6,12 @@ import delay from 'delay';
 import {renderToString} from '@nemesis-oss/termina-core';
 import {render} from './helpers/render.js';
 import {LoadingBar} from '../source/components/loading-bar/index.js';
+import theme from '../source/components/loading-bar/theme.js';
+import {ThemeProvider, defaultTheme, extendTheme} from '../source/theme.js';
 
 const BLOCK_CELLS = 4;
 
-const drawTrack =(width: number, start: number): string => {
+const drawTrack = (width: number, start: number): string => {
 	const blockCells = Math.min(BLOCK_CELLS, width);
 	const trailingCells = width - start - blockCells;
 
@@ -101,7 +103,7 @@ test('starts the sweep from the start when isActive turns true again', async (t:
 	unmount();
 });
 
-test('clears its timer when isActive turns false and on unmount', async (t: TestContext) => {
+test('clears its timer when isActive turns false', async (t: TestContext) => {
 	t.mock.timers.enable({apis: ['setInterval']});
 	const setIntervalMock = t.mock.method(globalThis, 'setInterval');
 	const clearIntervalMock = t.mock.method(globalThis, 'clearInterval');
@@ -109,7 +111,22 @@ test('clears its timer when isActive turns false and on unmount', async (t: Test
 	await delay(20);
 	rerender(<LoadingBar interval={1234} isActive={false} />);
 	await delay(20);
-	rerender(<LoadingBar interval={1234} />);
+
+	const loadingBarTimers = setIntervalMock.mock.calls
+		.filter(call => call.arguments[1] === 1234)
+		.map(call => call.result);
+	const clearedTimers = clearIntervalMock.mock.calls.map(call => call.arguments[0]);
+
+	t.assert.strictEqual(loadingBarTimers.length, 1);
+	t.assert.ok(clearedTimers.includes(loadingBarTimers[0]));
+	unmount();
+});
+
+test('clears its timer on unmount', async (t: TestContext) => {
+	t.mock.timers.enable({apis: ['setInterval']});
+	const setIntervalMock = t.mock.method(globalThis, 'setInterval');
+	const clearIntervalMock = t.mock.method(globalThis, 'clearInterval');
+	const {unmount} = render(<LoadingBar interval={1234} />);
 	await delay(20);
 	unmount();
 	await delay(20);
@@ -119,11 +136,8 @@ test('clears its timer when isActive turns false and on unmount', async (t: Test
 		.map(call => call.result);
 	const clearedTimers = clearIntervalMock.mock.calls.map(call => call.arguments[0]);
 
-	t.assert.strictEqual(loadingBarTimers.length, 2);
-	t.assert.deepStrictEqual(
-		loadingBarTimers.filter(timer => clearedTimers.includes(timer)),
-		loadingBarTimers,
-	);
+	t.assert.strictEqual(loadingBarTimers.length, 1);
+	t.assert.ok(clearedTimers.includes(loadingBarTimers[0]));
 });
 
 test('redraws the track at a new width and keeps the animation running', async (t: TestContext) => {
@@ -132,6 +146,8 @@ test('redraws the track at a new width and keeps the animation running', async (
 
 	t.mock.timers.tick(36);
 	await delay(20);
+	t.assert.strictEqual(lastFrame(), drawTrack(10, 3));
+
 	rerender(<LoadingBar width={6} interval={12} />);
 	await delay(20);
 	t.assert.strictEqual(lastFrame(), drawTrack(6, 1));
@@ -144,11 +160,16 @@ test('redraws the track at a new width and keeps the animation running', async (
 
 test('fills a track narrower than the block without moving it', async (t: TestContext) => {
 	t.mock.timers.enable({apis: ['setInterval']});
-	const {lastFrame, unmount} = render(<LoadingBar width={3} interval={12} />);
+	const {lastFrame, rerender, unmount} = render(<LoadingBar width={3} interval={12} />);
 
 	t.mock.timers.tick(48);
 	await delay(20);
 	t.assert.strictEqual(lastFrame(), chalk.magenta('███'));
+
+	rerender(<LoadingBar width={1} interval={12} />);
+	t.mock.timers.tick(48);
+	await delay(20);
+	t.assert.strictEqual(lastFrame(), chalk.magenta('█'));
 	unmount();
 });
 
@@ -158,11 +179,16 @@ test('draws nothing for a zero or negative width without throwing', (t: TestCont
 	t.assert.strictEqual(renderToString(<LoadingBar width={-5} />), '');
 });
 
-test('rounds a fractional width down to whole cells', (t: TestContext) => {
+test('rounds a fractional width down to whole cells', async (t: TestContext) => {
 	t.mock.timers.enable({apis: ['setInterval']});
-	const {lastFrame, unmount} = render(<LoadingBar width={10.9} />);
+	const {lastFrame, rerender, unmount} = render(<LoadingBar width={10.9} interval={12} />);
 
 	t.assert.strictEqual(lastFrame(), drawTrack(10, 0));
+
+	rerender(<LoadingBar width={5.9} interval={12} />);
+	t.mock.timers.tick(24);
+	await delay(20);
+	t.assert.strictEqual(lastFrame(), drawTrack(5, 0));
 	unmount();
 });
 
@@ -172,4 +198,32 @@ test('renders when stdin is piped', (t: TestContext) => {
 
 	t.assert.strictEqual(lastFrame(), drawTrack(10, 0));
 	unmount();
+});
+
+test('takes its block colour from a ThemeProvider override', (t: TestContext) => {
+	t.mock.timers.enable({apis: ['setInterval']});
+	const overriddenTheme = extendTheme(defaultTheme, {
+		components: {
+			LoadingBar: {
+				styles: {
+					block: () => ({color: 'cyan'}),
+				},
+			},
+		},
+	});
+	const {lastFrame, unmount} = render(
+		<ThemeProvider theme={overriddenTheme}>
+			<LoadingBar width={10} />
+		</ThemeProvider>,
+	);
+
+	t.assert.strictEqual(lastFrame(), chalk.cyan('████') + chalk.dim('░'.repeat(6)));
+	unmount();
+});
+
+test('theme keys return the documented props and there are no config keys', (t: TestContext) => {
+	t.assert.deepStrictEqual(theme.styles.container(), {flexDirection: 'row'});
+	t.assert.deepStrictEqual(theme.styles.track(), {dimColor: true});
+	t.assert.deepStrictEqual(theme.styles.block(), {color: 'magenta'});
+	t.assert.deepStrictEqual(Object.keys(theme), ['styles']);
 });

@@ -6,7 +6,7 @@ import {type StepperStatus, type Theme} from './theme.js';
 
 export type StepperProps = {
 	/**
-	 * Step labels, in order. Each step takes one row.
+	 * Step labels, in order. Each step is drawn on its own row.
 	 */
 	readonly steps: string[];
 

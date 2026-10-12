@@ -44,8 +44,12 @@ type TableLineProps = {
 	readonly textStyle?: TextProps;
 };
 
-const getCellText = (row: TableRow, key: string): string =>
-	String(row[key] ?? '');
+const getCellText = (row: TableRow, key: string): string => {
+	// Own keys only, so "constructor" is not read from Object.prototype.
+	const value = Object.hasOwn(row, key) ? row[key] : undefined;
+
+	return String(value ?? '');
+};
 
 const getColumnWidth = (column: TableColumn, rows: TableRow[]): number => {
 	let widest = stringWidth(column.header);

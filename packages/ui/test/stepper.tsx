@@ -6,6 +6,7 @@ import chalk from 'chalk';
 import delay from 'delay';
 import figures from 'figures';
 import {Stepper} from '../source/components/stepper/index.js';
+import {ThemeProvider, defaultTheme, extendTheme} from '../source/theme.js';
 
 const steps = [
 	'Install dependencies',
@@ -18,6 +19,9 @@ const doneRow = (label: string) => `${chalk.green(figures.tick)} ${label}`;
 const currentRow = (label: string) =>
 	`${chalk.blue(figures.circleFilled)} ${chalk.bold(label)}`;
 const pendingRow = (label: string) => `${chalk.dim(figures.circle)} ${label}`;
+
+const arrowDown = '\u001B[B';
+const enter = '\r';
 
 test('render one row per step with its state', (t: TestContext) => {
 	const {lastFrame} = render(
@@ -118,6 +122,50 @@ test('wrap a label wider than the terminal onto more rows', (t: TestContext) => 
 	const {lastFrame} = render(<Stepper steps={['x'.repeat(120)]} />);
 
 	t.assert.strictEqual(lastFrame()?.split('\n').length, 2);
+});
+
+test('ignore key presses and never advance on their own', async (t: TestContext) => {
+	const {lastFrame, stdin} = render(<Stepper steps={steps} current={1} />);
+	const before = lastFrame();
+
+	stdin.write(arrowDown);
+	stdin.write(enter);
+	// Longer than a spinner frame, so a step that advanced on a timer would show up.
+	await delay(100);
+
+	t.assert.strictEqual(lastFrame(), before);
+});
+
+test('a style key replaced through ThemeProvider receives the step status', (t: TestContext) => {
+	const iconColors = {done: 'magenta', current: 'yellow', pending: 'cyan'} as const;
+	const theme = extendTheme(defaultTheme, {
+		components: {
+			Stepper: {
+				styles: {
+					icon: ({status}: {status: keyof typeof iconColors}) => ({
+						color: iconColors[status],
+					}),
+					label: ({status}: {status: keyof typeof iconColors}) => ({
+						underline: status === 'done',
+					}),
+				},
+			},
+		},
+	});
+	const {lastFrame} = render(
+		<ThemeProvider theme={theme}>
+			<Stepper steps={steps.slice(0, 3)} current={1} />
+		</ThemeProvider>,
+	);
+
+	t.assert.strictEqual(
+		lastFrame(),
+		[
+			`${chalk.magenta(figures.tick)} ${chalk.underline('Install dependencies')}`,
+			`${chalk.yellow(figures.circleFilled)} Configure API keys`,
+			`${chalk.cyan(figures.circle)} Deploy to production`,
+		].join('\n'),
+	);
 });
 
 test('render with piped stdin', (t: TestContext) => {

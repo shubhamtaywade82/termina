@@ -33,7 +33,7 @@ const tabs = [
 render(<Tabs tabs={tabs} defaultTabId="logs" />);
 ```
 
-`Tabs` keeps the active tab in its own state. Pass `onChange` only when the parent needs to know which tab is active.
+`Tabs` keeps the active tab in its own state, so pass `onChange` only when the parent needs to know which tab is active.
 
 ## Props
 
@@ -74,6 +74,8 @@ The component reads the `Tabs` entry of the theme. To change a key, pass a theme
 - `defaultTabId` is read at mount. Later changes to it have no effect.
 - `onChange` runs only when Left or Right changes the tab. It does not run on mount or on re-render, including when `tabs` changes.
 - Removing the active tab from `tabs` makes the first tab active, without calling `onChange`.
+- Reordering `tabs` keeps the same tab active, because the active tab is tracked by `id`.
 - Only the active tab's content is mounted. Leaving a tab discards the state of its content, even when two tabs hold the same component.
 - Content with several elements stacks them vertically.
 - With an empty `tabs` array, nothing renders, and keys have no effect.
+- Left and Right presses that arrive together, such as when input is buffered, each move the tab and each call `onChange`.

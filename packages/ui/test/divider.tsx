@@ -103,17 +103,26 @@ test('squeezes a sibling in the same row and adds an empty row below', (t: TestC
 	t.assert.strictEqual(lastFrame(), `lef${titledRule('Results', 17)}\n`);
 });
 
-test('takes only the leftover width when wrapped in a flexGrow box', (t: TestContext) => {
-	const {lastFrame} = render(
+test('takes only the leftover width when wrapped in a flexGrow and flexBasis box', (t: TestContext) => {
+	const plainFrame = render(
 		<Box width={20}>
 			<Text>left</Text>
-			<Box flexGrow={1}>
+			<Box flexGrow={1} flexBasis={0}>
+				<Divider />
+			</Box>
+		</Box>,
+	).lastFrame();
+	const titledFrame = render(
+		<Box width={20}>
+			<Text>left</Text>
+			<Box flexGrow={1} flexBasis={0}>
 				<Divider title="Results" />
 			</Box>
 		</Box>,
-	);
+	).lastFrame();
 
-	t.assert.strictEqual(lastFrame(), `left${titledRule('Results', 16)}`);
+	t.assert.strictEqual(plainFrame, `left${rule(16)}`);
+	t.assert.strictEqual(titledFrame, `left${titledRule('Results', 16)}`);
 });
 
 test('draws sections of a report in a column', (t: TestContext) => {

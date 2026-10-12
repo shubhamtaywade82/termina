@@ -15,9 +15,6 @@ export type KeyHintProps = {
 	readonly label: string;
 };
 
-/**
- * Renders a key label in inverse text, then its action label in dim text.
- */
 export function KeyHint({keys, label}: KeyHintProps) {
 	const {styles} = useComponentTheme<Theme>('KeyHint');
 

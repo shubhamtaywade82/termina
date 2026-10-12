@@ -37,7 +37,7 @@ function Footer() {
 render(<Footer />);
 ```
 
-Each `KeyHint` is a row on its own, so place several in a row `Box` to lay them out side by side, as above.
+Place several `KeyHint` components in a row `Box` to lay them out side by side, as above.
 
 ## Props
 
@@ -64,7 +64,7 @@ The one space of padding on each side of the key label is part of the text, not 
 
 ## Edge cases
 
-- `keys` and `label` are shown as given. The component does not change case or split the key name, so `ctrl+c` renders as `ctrl+c`.
-- An empty `label` renders no label text, but the space after the key block is still there, so content placed after the hint starts one column further right.
+- `keys` and `label` are shown as given. The component does not change case, so `ctrl+c` renders as `ctrl+c`.
+- An empty `label` renders no label text, but the gap after the key block is still there, so one blank column separates the key block from content placed after the hint.
 - An empty `keys` renders a two-space inverse block, followed by the label.
 - Changing `keys` or `label` after mount updates the row. The component keeps no state.

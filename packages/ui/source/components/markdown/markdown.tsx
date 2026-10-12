@@ -5,8 +5,8 @@ import {useComponentTheme} from '../../theme.js';
 import {
 	NESTED_INDENT_WIDTH,
 	parseMarkdown,
-	type InlineSpan,
-	type ListItem,
+	type MarkdownInlineSpan,
+	type MarkdownListItem,
 	type MarkdownBlock,
 } from './parse-markdown.js';
 import {type Theme} from './theme.js';
@@ -20,7 +20,7 @@ export type MarkdownProps = {
 
 type Styles = Theme['styles'];
 
-const spanStyle = (span: InlineSpan, styles: Styles): TextProps => {
+const spanStyle = (span: MarkdownInlineSpan, styles: Styles): TextProps => {
 	if (span.kind === 'bold') {
 		return styles.bold();
 	}
@@ -36,11 +36,11 @@ const spanStyle = (span: InlineSpan, styles: Styles): TextProps => {
 	return {};
 };
 
-// Every leaf carries the whole block style, not just its own. SGR 22 clears bold and
-// dim together, so an outer style would lose its bold after a nested link or bold span.
-// Bold is never dimmed, because the output drops the dim on the text after a bold.
+// Each leaf carries its block's whole style, since an outer style would lose its bold after a
+// nested span. SGR 22 clears bold and dim together and the output does not restore the one left
+// on, so no leaf carries both: bold is never dimmed, and a link's dim URL is never bold.
 const renderSpan = (
-	span: InlineSpan,
+	span: MarkdownInlineSpan,
 	index: number,
 	styles: Styles,
 	base: TextProps,
@@ -51,7 +51,7 @@ const renderSpan = (
 				<Text {...base} {...styles.link()}>
 					{span.value}
 				</Text>
-				<Text {...base} dimColor>{` (${span.url ?? ''})`}</Text>
+				<Text {...base} bold={false} dimColor>{` (${span.url ?? ''})`}</Text>
 			</Fragment>
 		);
 	}
@@ -66,14 +66,14 @@ const renderSpan = (
 };
 
 const renderSpans = (
-	spans: InlineSpan[],
+	spans: MarkdownInlineSpan[],
 	styles: Styles,
 	base: TextProps,
 ): ReactNode[] =>
 	spans.map((span, index) => renderSpan(span, index, styles, base));
 
 const renderListItem = (
-	item: ListItem,
+	item: MarkdownListItem,
 	index: number,
 	styles: Styles,
 ): ReactNode => {
@@ -91,7 +91,7 @@ const renderListItem = (
 };
 
 const renderList = (
-	items: ListItem[],
+	items: MarkdownListItem[],
 	index: number,
 	styles: Styles,
 ): ReactNode => (
@@ -101,7 +101,7 @@ const renderList = (
 );
 
 const renderQuote = (
-	spans: InlineSpan[],
+	spans: MarkdownInlineSpan[],
 	index: number,
 	styles: Styles,
 ): ReactNode => (

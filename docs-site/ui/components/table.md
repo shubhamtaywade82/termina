@@ -69,8 +69,9 @@ The rule's `─` glyph is set in the component, so the theme controls only its s
 - An empty `rows` array renders the header and the rule only.
 - A row with no value for a column's `key` renders an empty cell in that column.
 - A row with no values at all renders as a blank line, so the table still has one line per row.
+- With an empty `columns` array, the header and each row render as blank lines, and no rule is drawn.
 - Values are shown with `String(value)`, so `0` shows as `0` and `1.50` shows as `1.5`.
-- CJK characters and emoji count as two cells each, so they stay aligned with the rest of the column.
+- CJK characters and most emoji count as two cells each, as `string-width` measures them, so they stay aligned with the rest of the column.
 - The header of a right-aligned column is right-aligned too.
 - A table wider than its container is not truncated or wrapped. Its lines overflow the container.
 - Widths are recomputed on every render, so changing `rows` after mount reflows the table.

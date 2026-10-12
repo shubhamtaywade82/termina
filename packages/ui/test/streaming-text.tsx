@@ -118,6 +118,25 @@ test('a style key replaced through ThemeProvider changes the output', (t: TestCo
 	t.assert.strictEqual(lastFrame(), `Hello${chalk.green('▋')}`);
 });
 
+test('a text style key replaced through ThemeProvider colors the text', (t: TestContext) => {
+	const theme = extendTheme(defaultTheme, {
+		components: {
+			StreamingText: {
+				styles: {
+					text: () => ({color: 'green'}),
+				},
+			},
+		},
+	});
+	const {lastFrame} = render(
+		<ThemeProvider theme={theme}>
+			<StreamingText text="Hello" isStreaming={false} />
+		</ThemeProvider>,
+	);
+
+	t.assert.strictEqual(lastFrame(), chalk.green('Hello'));
+});
+
 test('renders the demo content in 80 columns', (t: TestContext) => {
 	const {lastFrame} = render(
 		<Box width={80} flexDirection="column" gap={1}>

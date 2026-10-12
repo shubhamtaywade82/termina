@@ -67,4 +67,4 @@ The two-column line before the title is set in the component. The theme controls
 - An empty `title` draws the plain rule, the same as leaving `title` out.
 - A title that does not fit in the row after the two-column line and the two gaps wraps onto more rows. The trailing line is not drawn once the title fills the row.
 - In a parent four columns or narrower, the two-column line and the gaps leave no room for the title. The title keeps its full width and runs past the parent's edge.
-- In a row that holds other content, the rule is sized to the whole row, which squeezes that content. The row can also gain an empty line below the rule. To give the rule only the width that is left, wrap it in a `Box` with `flexGrow={1}`.
+- In a row that holds other content, the rule is sized to the whole row. Content that can shrink, such as text, is squeezed, and the row can then gain an empty line below the rule. To give the rule only the width that is left, wrap it in a `Box` with `flexGrow={1}` and `flexBasis={0}`.

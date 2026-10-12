@@ -50,8 +50,9 @@ test('right arrow activates the next tab and shows its content', async (t: TestC
 	);
 });
 
-test('left arrow activates the previous tab', async (t: TestContext) => {
-	const {lastFrame, stdin} = render(<Tabs tabs={tabs} />);
+test('left arrow activates the previous tab and reports each change to onChange', async (t: TestContext) => {
+	const {changes, onChange} = recordChanges();
+	const {lastFrame, stdin} = render(<Tabs tabs={tabs} onChange={onChange} />);
 	await delay(20);
 	stdin.write(right);
 	await delay(20);
@@ -64,6 +65,7 @@ test('left arrow activates the previous tab', async (t: TestContext) => {
 		lastFrame(),
 		[`Files  ${active('Logs')}  Config`, 'No errors in the last hour'].join('\n'),
 	);
+	t.assert.deepStrictEqual(changes, ['logs', 'config', 'logs']);
 });
 
 test('left arrow on the first tab changes nothing and does not wrap', async (t: TestContext) => {
@@ -98,18 +100,18 @@ test('right arrow on the last tab changes nothing and does not wrap', async (t: 
 	t.assert.deepStrictEqual(changes, ['logs', 'config']);
 });
 
-test('onChange receives the id of each newly active tab', async (t: TestContext) => {
+test('two key presses in one input chunk each move the tab', async (t: TestContext) => {
 	const {changes, onChange} = recordChanges();
-	const {stdin} = render(<Tabs tabs={tabs} onChange={onChange} />);
+	const {lastFrame, stdin} = render(<Tabs tabs={tabs} onChange={onChange} />);
 	await delay(20);
-	stdin.write(right);
-	await delay(20);
-	stdin.write(right);
-	await delay(20);
-	stdin.write(left);
+	stdin.write(right + right);
 	await delay(20);
 
-	t.assert.deepStrictEqual(changes, ['logs', 'config', 'logs']);
+	t.assert.strictEqual(
+		lastFrame(),
+		[`Files  Logs  ${active('Config')}`, 'theme: dark'].join('\n'),
+	);
+	t.assert.deepStrictEqual(changes, ['logs', 'config']);
 });
 
 test('defaultTabId selects the tab active at mount', (t: TestContext) => {
@@ -170,18 +172,20 @@ test('keys other than Left and Right are ignored', async (t: TestContext) => {
 	t.assert.deepStrictEqual(changes, []);
 });
 
-test('isActive false ignores keys and still renders the active content', async (t: TestContext) => {
+test('isActive false ignores Left and Right and still renders the active content', async (t: TestContext) => {
 	const {changes, onChange} = recordChanges();
 	const {lastFrame, stdin} = render(
-		<Tabs tabs={tabs} isActive={false} onChange={onChange} />,
+		<Tabs tabs={tabs} defaultTabId="logs" isActive={false} onChange={onChange} />,
 	);
 	await delay(20);
 	stdin.write(right);
 	await delay(20);
+	stdin.write(left);
+	await delay(20);
 
 	t.assert.strictEqual(
 		lastFrame(),
-		[`${active('Files')}  Logs  Config`, 'src/index.ts'].join('\n'),
+		[`Files  ${active('Logs')}  Config`, 'No errors in the last hour'].join('\n'),
 	);
 	t.assert.deepStrictEqual(changes, []);
 });
@@ -265,6 +269,20 @@ test('removing the active tab shows the first tab and does not call onChange', a
 		[`${active('Files')}  Config`, 'src/index.ts'].join('\n'),
 	);
 	t.assert.deepStrictEqual(changes, []);
+});
+
+test('reordering tabs keeps the same tab active', async (t: TestContext) => {
+	const {lastFrame, stdin, rerender} = render(<Tabs tabs={tabs} />);
+	await delay(20);
+	stdin.write(right);
+	await delay(20);
+	rerender(<Tabs tabs={[...tabs].reverse()} />);
+	await delay(20);
+
+	t.assert.strictEqual(
+		lastFrame(),
+		[`Config  ${active('Logs')}  Files`, 'No errors in the last hour'].join('\n'),
+	);
 });
 
 test('renders the active content when stdin is piped', async (t: TestContext) => {

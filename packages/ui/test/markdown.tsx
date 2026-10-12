@@ -79,12 +79,16 @@ test('ordered list items print their numbers as written', (t: TestContext) => {
 	);
 });
 
-test('nested list items indent two spaces per level', (t: TestContext) => {
+test('nested list items indent two spaces per level, and the indent takes the bullet style', (t: TestContext) => {
 	const {lastFrame} = render(<Markdown>{'- a\n  - b\n    - c'}</Markdown>);
 
 	t.assert.strictEqual(
-		stripAnsi(lastFrame()),
-		[`${figures.bullet} a`, `  ${figures.bullet} b`, `    ${figures.bullet} c`].join('\n'),
+		lastFrame(),
+		[
+			`${chalk.dim(`${figures.bullet} `)}a`,
+			`${chalk.dim(`  ${figures.bullet} `)}b`,
+			`${chalk.dim(`    ${figures.bullet} `)}c`,
+		].join('\n'),
 	);
 });
 
@@ -94,6 +98,15 @@ test('three spaces of indentation count as one nested level', (t: TestContext) =
 	t.assert.strictEqual(
 		stripAnsi(lastFrame()),
 		[`${figures.bullet} a`, `  ${figures.bullet} b`].join('\n'),
+	);
+});
+
+test('an indented line under a list item starts a paragraph and splits the list', (t: TestContext) => {
+	const {lastFrame} = render(<Markdown>{'- first item\n  continues here\n- second'}</Markdown>);
+
+	t.assert.strictEqual(
+		stripAnsi(lastFrame()),
+		[`${figures.bullet} first item`, '', '  continues here', '', `${figures.bullet} second`].join('\n'),
 	);
 });
 
@@ -326,12 +339,12 @@ test('bold and link text do not nest other spans', (t: TestContext) => {
 	);
 });
 
-test('text after a link in a heading is not bold', (t: TestContext) => {
+test('a link URL in a heading is dim and not bold, so the text after it stays bold', (t: TestContext) => {
 	const {lastFrame} = render(<Markdown>{'## See [docs](u) now'}</Markdown>);
 
 	t.assert.strictEqual(
 		lastFrame(),
-		'\u001B[1m\u001B[36mSee \u001B[4m\u001B[34mdocs\u001B[24m\u001B[36m\u001B[2m (u)\u001B[22m now\u001B[39m',
+		'\u001B[1m\u001B[36mSee \u001B[4m\u001B[34mdocs\u001B[24m\u001B[22m\u001B[36m\u001B[2m (u)\u001B[22m\u001B[1m now\u001B[22m\u001B[39m',
 	);
 });
 

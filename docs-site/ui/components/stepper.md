@@ -4,7 +4,7 @@ outline: [2, 3]
 
 # Stepper
 
-`Stepper` lists the steps of an ordered flow, one row per step, and marks each step as done, current or pending. Use it to show where a multi-step process stands, such as an installer or a deploy. It only displays state: it has no keyboard input and no callbacks, and the parent decides which step is current. For a single value that fills toward a total, use [ProgressBar](/ui/components/progress-bar) instead. For choosing one value from a list, use [Select](/ui/components/select).
+`Stepper` lists the steps of an ordered flow, each on its own row, and marks each step as done, current or pending. Use it to show where a multi-step process stands, such as an installer or a deploy. It only displays state: it has no keyboard input and no callbacks, and the parent decides which step is current. For a single value that fills toward a total, use [ProgressBar](/ui/components/progress-bar) instead. For a numbered list with no per-item state, use [OrderedList](/ui/components/ordered-list) instead.
 
 `Stepper` is exported from `@nemesis-oss/termina-ui`. `@nemesis-oss/termina-ui` is a workspace package in this repository and is not published to npm yet, so import it from another workspace package. For the full component list, read the [UI Kit overview](/ui/overview).
 
@@ -59,7 +59,7 @@ The component reads the `Stepper` entry of the theme. To change a key, pass a th
 | `styles.icon` | `{status}` | Text props: `color: 'green'` when `status` is `'done'`, `color: 'blue'` when it is `'current'`, and `dimColor: true` when it is `'pending'`. |
 | `styles.label` | `{status}` | Text props: `bold: true` when `status` is `'current'`, otherwise `bold: false`. |
 
-`status` is `'done'`, `'current'` or `'pending'`. Only the icon of a pending step is dimmed; done and pending labels have no style. The step glyphs are set in the component, so the theme controls only their style: `figures.tick` (`✔`) marks a done step, `figures.circleFilled` (`◉`) marks the current step, and `figures.circle` (`◯`) marks a pending step. In a terminal without Unicode support, `figures` substitutes its fallback characters.
+`status` is `'done'`, `'current'` or `'pending'`. Only the icon of a pending step is dimmed; done and pending labels are not bold. The step glyphs are set in the component, so the theme controls only their style: `figures.tick` (`✔`) marks a done step, `figures.circleFilled` (`◉`) marks the current step, and `figures.circle` (`◯`) marks a pending step. In a terminal without Unicode support, `figures` substitutes its fallback characters.
 
 `Stepper` has no config keys.
 

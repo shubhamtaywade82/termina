@@ -1,21 +1,21 @@
-export type InlineSpan = {
+export type MarkdownInlineSpan = {
 	readonly kind: 'bold' | 'code' | 'italic' | 'link' | 'text';
 	readonly value: string;
 	readonly url?: string;
 };
 
-export type ListItem = {
+export type MarkdownListItem = {
 	readonly depth: number;
 	readonly ordinal?: string;
-	readonly spans: InlineSpan[];
+	readonly spans: MarkdownInlineSpan[];
 };
 
 export type MarkdownBlock =
 	| {readonly kind: 'code'; readonly text: string}
-	| {readonly kind: 'heading'; readonly level: number; readonly spans: InlineSpan[]}
-	| {readonly kind: 'list'; readonly items: ListItem[]}
-	| {readonly kind: 'paragraph'; readonly spans: InlineSpan[]}
-	| {readonly kind: 'quote'; readonly spans: InlineSpan[]};
+	| {readonly kind: 'heading'; readonly level: number; readonly spans: MarkdownInlineSpan[]}
+	| {readonly kind: 'list'; readonly items: MarkdownListItem[]}
+	| {readonly kind: 'paragraph'; readonly spans: MarkdownInlineSpan[]}
+	| {readonly kind: 'quote'; readonly spans: MarkdownInlineSpan[]};
 
 type ReadResult = {
 	readonly block?: MarkdownBlock;
@@ -30,7 +30,9 @@ const quotePattern = /^>/;
 const fenceOpenPattern = /^\s*```/;
 const fenceClosePattern = /^\s*```\s*$/;
 
-// Emphasis markers must not touch whitespace, and `_` must not sit inside a word, so `2 * 3 * 4` and `snake_case_name` stay literal. Each alternative consumes its whole span, so code and link URLs are never scanned again for emphasis.
+// Emphasis markers must not touch whitespace, and `_` must not sit inside a word, so `2 * 3 * 4`
+// and `snake_case_name` stay literal. Each alternative consumes its whole span, so code and link
+// URLs are never scanned again for emphasis.
 const inlinePattern =
 	/`(?<code>[^`]+)`|\*\*(?!\s)(?<bold>[^*]*[^*\s])\*\*|(?<![\p{L}\p{N}])_(?!\s)(?<underscoreItalic>[^_]*[^_\s])_(?![\p{L}\p{N}])|\*(?!\s)(?<italic>[^*]*[^*\s])\*|(?<!!)\[(?<linkText>[^\]]+)\]\((?<url>[^)\s]+)\)/gu;
 
@@ -56,7 +58,7 @@ const endOfRun = (
 	return end;
 };
 
-const toInlineSpan = (groups: Record<string, string | undefined>): InlineSpan => {
+const toInlineSpan = (groups: Record<string, string | undefined>): MarkdownInlineSpan => {
 	const {code, bold, italic, underscoreItalic, linkText, url} = groups;
 
 	if (code !== undefined) {
@@ -76,8 +78,8 @@ const toInlineSpan = (groups: Record<string, string | undefined>): InlineSpan =>
 	return {kind: 'link', value: linkText ?? '', url: url ?? ''};
 };
 
-const parseInline = (text: string): InlineSpan[] => {
-	const spans: InlineSpan[] = [];
+const parseInline = (text: string): MarkdownInlineSpan[] => {
+	const spans: MarkdownInlineSpan[] = [];
 	let cursor = 0;
 
 	for (const match of text.matchAll(inlinePattern)) {
@@ -98,7 +100,7 @@ const parseInline = (text: string): InlineSpan[] => {
 	return spans;
 };
 
-const parseListItem = (line: string): ListItem => {
+const parseListItem = (line: string): MarkdownListItem => {
 	const [, indent = '', marker = '', text = ''] = listPattern.exec(line) ?? [];
 
 	return {

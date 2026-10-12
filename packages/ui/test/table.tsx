@@ -121,6 +121,17 @@ test('shows an empty cell when a row has no value for a column', (t: TestContext
 	);
 });
 
+test('shows an empty cell for a key that only Object.prototype defines', (t: TestContext) => {
+	const {lastFrame} = render(
+		<Table columns={[{key: 'constructor', header: 'Note'}]} rows={[{}]} />,
+	);
+
+	t.assert.strictEqual(
+		lastFrame(),
+		[chalk.bold('Note'), chalk.dim('────'), ''].join('\n'),
+	);
+});
+
 test('renders numbers as text, so 0 shows and 1.50 shows as 1.5', (t: TestContext) => {
 	const {lastFrame} = render(
 		<Table
@@ -207,9 +218,9 @@ test('recomputes widths when rows change', async (t: TestContext) => {
 });
 
 test('renders blank lines and no rule when there are no columns', (t: TestContext) => {
-	const {lastFrame} = render(<Table columns={[]} rows={[{}]} />);
+	const {lastFrame} = render(<Table columns={[]} rows={[{}, {}]} />);
 
-	t.assert.strictEqual(lastFrame(), '\n');
+	t.assert.strictEqual(lastFrame(), ['', '', ''].join('\n'));
 });
 
 test('a style key replaced through ThemeProvider changes the output', (t: TestContext) => {
@@ -231,6 +242,27 @@ test('a style key replaced through ThemeProvider changes the output', (t: TestCo
 	t.assert.strictEqual(
 		lastFrame(),
 		[chalk.bold('Name'), chalk.blue('────'), 'api'].join('\n'),
+	);
+});
+
+test('sizes the rule from the gap of a replaced row style', (t: TestContext) => {
+	const theme = extendTheme(defaultTheme, {
+		components: {
+			Table: {
+				styles: {row: () => ({flexDirection: 'row', gap: 4, minHeight: 1})},
+			},
+		},
+	});
+	const columns = [{key: 'a', header: 'A'}, {key: 'b', header: 'Bb'}];
+	const {lastFrame} = render(
+		<ThemeProvider theme={theme}>
+			<Table columns={columns} rows={[{a: 'x', b: 'y'}]} />
+		</ThemeProvider>,
+	);
+
+	t.assert.strictEqual(
+		lastFrame(),
+		[`${chalk.bold('A')}    ${chalk.bold('Bb')}`, chalk.dim('─'.repeat(7)), 'x    y'].join('\n'),
 	);
 });
 

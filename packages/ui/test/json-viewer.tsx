@@ -6,6 +6,7 @@ import stripAnsi from 'strip-ansi';
 import {Box, Text} from '@nemesis-oss/termina-core';
 import {render} from './helpers/render.js';
 import {JSONViewer} from '../source/components/json-viewer/index.js';
+import {ThemeProvider, defaultTheme, extendTheme} from '../source/theme.js';
 
 const frameOf = (data: unknown, maxDepth?: number): string => {
 	const instance = render(<JSONViewer data={data} maxDepth={maxDepth} />);
@@ -164,7 +165,9 @@ test('replaces objects deeper than the default maxDepth of 8 with ...', (t: Test
 	const frame = frameOf(nested);
 
 	t.assert.ok(frame.includes('"next": ...'));
-	t.assert.ok(!frame.includes('leaf'));
+	t.assert.strictEqual(frame, frameOf(nested, 8));
+	t.assert.notStrictEqual(frame, frameOf(nested, 7));
+	t.assert.notStrictEqual(frame, frameOf(nested, 9));
 });
 
 test('replaces objects nested deeper than maxDepth with ...', (t: TestContext) => {
@@ -223,6 +226,28 @@ test('prints only own enumerable string keys, so Date, Map and Set print as {}',
 		frameOf({[Symbol('hidden')]: 1, shown: 2}),
 		'{\n  "shown": 2\n}',
 	);
+});
+
+test('reads colors from a JSONViewer theme override, and undefined uses the null style', (t: TestContext) => {
+	const theme = extendTheme(defaultTheme, {
+		components: {JSONViewer: {styles: {null: () => ({bold: true})}}},
+	});
+	const {lastFrame, unmount} = render(
+		<ThemeProvider theme={theme}>
+			<JSONViewer data={{a: null, b: undefined}} />
+		</ThemeProvider>,
+	);
+
+	t.assert.strictEqual(
+		lastFrame(),
+		[
+			chalk.dim('{'),
+			`  ${key('a')}${colon}${chalk.bold('null')}${comma}`,
+			`  ${key('b')}${colon}${chalk.bold('undefined')}`,
+			chalk.dim('}'),
+		].join('\n'),
+	);
+	unmount();
 });
 
 test('renders with piped stdin because it reads no keyboard input', (t: TestContext) => {
