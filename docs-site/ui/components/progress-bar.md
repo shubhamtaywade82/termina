@@ -8,6 +8,20 @@ outline: [2, 3]
 
 `ProgressBar` is exported from `@nemesis-oss/termina-ui`. `@nemesis-oss/termina-ui` is a workspace package in this repository and is not published to npm yet, so import it from another workspace package. For the full component list, read the [UI Kit overview](/ui/overview).
 
+## Preview
+
+The first frame is a ProgressBar at 0, so every cell is drawn as remaining.
+
+<TerminalPreview id="progress-bar-empty" />
+
+The second frame is a ProgressBar at 50, so half of its 40 columns are completed.
+
+<TerminalPreview id="progress-bar-half" />
+
+The third frame is a ProgressBar at 100, so every cell is completed.
+
+<TerminalPreview id="progress-bar-full" />
+
 ## Usage
 
 ```tsx

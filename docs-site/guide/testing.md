@@ -8,6 +8,12 @@ The tests for `@nemesis-oss/termina-core` check three things: the output that `r
 
 The helpers are not exported from `@nemesis-oss/termina-core`. `src/index.ts` exports the public API only, and the package's `files` list publishes only `build`. `@nemesis-oss/termina-ui` uses the same test runner. Read this page when you add a test to `packages/core` or `packages/ui` in this repository.
 
+## Preview
+
+The frame that the `render box with border` test captures from `renderToString`, a single-bordered box around one line of text.
+
+<TerminalPreview id="testing-bordered-box" />
+
 ## Running the tests
 
 - `pnpm test` at the repository root builds the packages, then runs the test script of each package in `packages/`.

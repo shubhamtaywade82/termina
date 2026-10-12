@@ -6,6 +6,16 @@ outline: [2, 3]
 
 `render()` mounts a React element on an output stream and keeps the output in step with React state. `renderToString()` renders an element to a string and does not write to a stream. This page covers the `render()` options and their defaults, the interactive and non-interactive output modes, frame throttling, the alternate screen, `<Static>` output, and `renderToString()`. For the layout and text components, read [Layout and Text](/guide/layout-and-text).
 
+## Preview
+
+A `<Static>` header of two completed steps sits above a live line for the step that is still running.
+
+<TerminalPreview id="rendering-static-live-region" />
+
+Six rows show the `justifyContent` values that a `Box` row can take, from `flex-start` to `space-evenly`.
+
+<TerminalPreview id="rendering-flex-justify" />
+
 ## render()
 
 ```ts

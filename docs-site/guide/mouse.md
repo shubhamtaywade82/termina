@@ -8,6 +8,12 @@ Mouse input is off by default. Turn it on with the `mouse` render option to get 
 
 Keyboard handling is covered on [Keyboard and Focus](/guide/keyboard-and-focus). Capability detection, which reports whether mouse input is available, is covered on [Terminal Features](/guide/terminal-features).
 
+## Preview
+
+The frame shows the click counter from Enabling mouse before any click, a round-bordered button that reads Clicked 0 times.
+
+<TerminalPreview id="mouse-button-default" />
+
 ## Enabling mouse
 
 Pass `mouse: true` to `render()`:

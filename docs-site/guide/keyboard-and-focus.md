@@ -10,6 +10,12 @@ Mouse input is covered on [Mouse](/guide/mouse). The kitty keyboard protocol is 
 
 All hooks on this page are exported from `@nemesis-oss/termina-core`. The package is a workspace package in this repository and is not published to npm.
 
+## Preview
+
+The frame shows two field labels, Name in the inverse style that the Field example in the Focus section gives a focused field and Email in the plain style it gives an unfocused one.
+
+<TerminalPreview id="keyboard-and-focus-focused-field" />
+
 ## Reading keys with useInput
 
 `useInput` calls a handler for each key event. While the hook is active, it turns raw mode on for the input stream, and it turns it off on unmount.

@@ -6,6 +6,20 @@ outline: [2, 3]
 
 `Box` is the flex container and the element that carries layout and styling props. `Text` holds strings and styles them. `Newline`, `Spacer`, and `Transform` complete the set of text and spacing elements. `measureElement()` and `useBoxMetrics()` read the layout of a `Box` after it has been laid out. Layout is computed by Yoga, the flexbox engine that `@nemesis-oss/termina-core` uses. Use this page for the props of these components and their rules. For how frames reach the terminal, read [Rendering](/guide/rendering).
 
+## Preview
+
+A row with a border and padding holds a text at each end, with a `Spacer` between them.
+
+<TerminalPreview id="layout-and-text-status-bar" />
+
+A column with a fixed height has a one-row header and footer, and a body that takes the remaining rows.
+
+<TerminalPreview id="layout-and-text-column-screen" />
+
+A column holds a `Newline` that splits one `Text` into two rows, and a line with `wrap="truncate"` that is cut to one row.
+
+<TerminalPreview id="layout-and-text-newline-truncate" />
+
 ## Box
 
 `Box` accepts the style props of the renderer, except `textWrap`, which belongs to `Text`. It also accepts accessibility props, mouse handlers, and a `ref`. The tables below list every prop. For the props that `Box` sets itself, the default column shows that value. For the other props, it shows the layout engine's default, or `unset` when there is no default to show.

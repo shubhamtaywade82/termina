@@ -8,6 +8,16 @@ outline: [2, 3]
 
 `StatusMessage` is exported from `@nemesis-oss/termina-ui`. `@nemesis-oss/termina-ui` is a workspace package in this repository and is not published to npm yet, so import it from another workspace package. For the full component list, read the [UI Kit overview](/ui/overview).
 
+## Preview
+
+The first frame shows one StatusMessage for each variant, with the success, info, warning, and error icons in their colors.
+
+<TerminalPreview id="status-message-variants" />
+
+The second frame is an error StatusMessage in a 26-column box, where the message wraps and the second line starts under the message text.
+
+<TerminalPreview id="status-message-wrap" />
+
 ## Usage
 
 ```tsx

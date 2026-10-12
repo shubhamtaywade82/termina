@@ -8,6 +8,16 @@ outline: [2, 3]
 
 `OrderedList` is exported from `@nemesis-oss/termina-ui`. Its items are `OrderedList.Item`. `@nemesis-oss/termina-ui` is a workspace package in this repository and is not published to npm yet, so import it from another workspace package. For the full component list, read the [UI Kit overview](/ui/overview).
 
+## Preview
+
+This frame shows a plan whose middle step has two nested items, numbered `2.1.` and `2.2.`.
+
+<TerminalPreview id="ordered-list-nested-steps" />
+
+This frame shows ten items, where the markers `1.` through `9.` are padded so the item text lines up with `10.`.
+
+<TerminalPreview id="ordered-list-ten-items" />
+
 ## Usage
 
 ```tsx

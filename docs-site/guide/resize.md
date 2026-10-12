@@ -8,6 +8,16 @@ When the width changes, or the height decreases while a `useCursor()` position i
 
 For how frames are written in general, see [Rendering](/guide/rendering). For the alternate screen, see [Alternate Screen and Suspend](/guide/alternate-screen-and-suspend).
 
+## Preview
+
+The same frame at 60 columns, where the paragraph wraps to three rows and the frame is seven rows tall.
+
+<TerminalPreview id="resize-wide" />
+
+The same frame at 34 columns, where the paragraph wraps to five rows and the frame is nine rows tall.
+
+<TerminalPreview id="resize-narrow" />
+
 ## Resize events
 
 Ink listens for `resize` on `stdout` only in interactive mode. In non-interactive mode the frame is written once, at unmount, and no resize handling is attached.
