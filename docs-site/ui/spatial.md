@@ -53,7 +53,7 @@ The function does not check whether a candidate is visible, focusable, clipped, 
 
 ### Cell aspect ratio
 
-The source declares `const cellAspectRatio = 2;` with the comment "A terminal cell is roughly twice as tall as it is wide." The constant is not exported and is not a parameter. Changing it means editing `packages/ui/source/lib/spatial.ts`.
+The source declares `const cellAspectRatio = 2;` with a comment that a terminal cell is roughly twice as tall as it is wide. The constant is not exported and is not a parameter. Changing it means editing `packages/ui/source/lib/spatial.ts`.
 
 The scaling changes the result when two candidates are at similar distances. With an origin of `{x: 0, y: 0, width: 2, height: 2}`, a candidate two rows straight below has distance 4. A candidate one row below and three columns over has distance about 3.6. For `down`, the function returns the second candidate.
 

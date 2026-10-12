@@ -40,7 +40,7 @@ To use the packages from another workspace package, declare them as workspace de
 }
 ```
 
-The examples on these pages use the React 19 automatic JSX runtime, so they do not import `React` for JSX. Set `"jsx": "react-jsx"` in the tsconfig of the package that contains them. `examples/turnstream` uses the classic runtime (`"jsx": "react"`) and imports `React` in each file.
+The examples on these pages use the React 19 automatic JSX runtime, so they do not import `React` for JSX. Set `"jsx": "react-jsx"` in the tsconfig of the package that contains them. `examples/turnstream` uses the classic runtime (`"jsx": "react"`) and imports `React` in each file that contains JSX, which is `src/index.tsx`.
 
 ## Your first app
 

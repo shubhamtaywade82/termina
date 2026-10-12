@@ -218,7 +218,7 @@ function ClippedList() {
 
 The child is six rows tall, but the parent shows only three. Clicks on the three clipped rows reach no handler.
 
-Offsets move the hit targets with the content. Take a three-row parent with `contentOffsetY={2}` that holds four one-row children. The first two children are scrolled off the top, so a click on the top visible row reaches the third child's `onClick`.
+Offsets move the hit targets with the content. Take a three-row parent (`height={3}`, `flexDirection="column"`, `contentOffsetY={2}`) that holds four one-row children, each with `flexShrink={0}`. Without `flexShrink={0}`, Box's default `flexShrink` of 1 shrinks the children to fit, and the top visible row reaches the fourth child. With the flexShrink set, the first two children are scrolled off the top, so a click on the top visible row reaches the third child's `onClick`.
 
 ### isElementAt
 
@@ -227,7 +227,7 @@ Offsets move the hit targets with the content. Take a three-row parent with `con
 ```ts
 import {isElementAt, type DOMElement} from '@nemesis-oss/termina-core';
 
-isElementAt(element: DOMElement, x: number, y: number): boolean;
+// isElementAt(element: DOMElement, x: number, y: number): boolean
 ```
 
 `x` and `y` are 1-based, as the terminal reports them. The result is `true` when the cell lands on `element` or one of its descendants. The test uses the same clip and offset rules as the dispatcher. Layout rectangles alone are not enough for this check: an element inside a clipping ancestor, an element moved out of view by `contentOffset`, and an element covered by something drawn over it, such as a modal, all return `false`.

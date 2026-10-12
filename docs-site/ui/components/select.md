@@ -91,6 +91,6 @@ The indicator glyphs are set in the component, so the theme controls only their 
 - A new array with the same contents does not reset the component.
 - If `defaultValue` matches no option, no row is marked as selected.
 - A change to `visibleOptionCount` after mount has no effect until `options` changes.
-- `onChange` runs from an effect that depends on the function. If the parent passes a new function on every render, `onChange` runs again with the current selection after that render. Wrap the callback in `useCallback` to avoid this.
+- `onChange` runs from an effect that depends on the function. If the parent passes a new function on every render, `onChange` runs again with the current selection after that render. Wrap the callback in `useCallback`, and keep `options` referentially stable (a module-level constant or `useMemo`), because the effect also depends on `options`.
 - An empty `options` array renders no output.
 - Each `value` is used as a React key and to find the focused option, so values must be unique.

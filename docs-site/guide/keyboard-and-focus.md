@@ -53,7 +53,7 @@ Behavior:
 
 ## The Key object
 
-`Key` is exported as a type. Every call sets each boolean field. Fields that come from the kitty protocol are `false` or `undefined` when the protocol is not active.
+`Key` is exported as a type. Every call sets each boolean field. `super`, `hyper`, `capsLock`, `numLock`, and `eventType` can be set by numbered CSI sequences even when the kitty protocol is not active. See their rows below.
 
 | Field | Type | Set when |
 |---|---|---|
@@ -73,11 +73,11 @@ Behavior:
 | `backspace` | `boolean` | DEL (`\x7F`), BS (`\x08`), or the kitty codepoint 127. |
 | `delete` | `boolean` | Delete (`ESC [ 3 ~` and its variants), or the kitty Delete key. |
 | `meta` | `boolean` | An ESC prefix before the key, or the Alt or Meta modifier in a CSI or kitty sequence. |
-| `super` | `boolean` | The kitty Super modifier. Always `false` without the kitty protocol. |
-| `hyper` | `boolean` | The kitty Hyper modifier. Always `false` without the kitty protocol. |
-| `capsLock` | `boolean` | The kitty Caps Lock state. Always `false` without the kitty protocol. |
-| `numLock` | `boolean` | The kitty Num Lock state. Always `false` without the kitty protocol. |
-| `eventType` | `'press' \| 'repeat' \| 'release'` (optional) | The kitty event type. `undefined` without the kitty protocol. |
+| `super` | `boolean` | The kitty Super modifier. Set from the modifier parameter of a numbered CSI sequence, so a sequence without the protocol can set it (for example `ESC [ 1 ; 9 A` gives `super` `true`). Do not rely on `false` without the protocol. |
+| `hyper` | `boolean` | The kitty Hyper modifier. Set from the modifier parameter of a numbered CSI sequence, so a sequence without the protocol can set it (for example `ESC [ 1 ; 17 A` gives `hyper` `true`). Do not rely on `false` without the protocol. |
+| `capsLock` | `boolean` | The kitty Caps Lock state. Set from the modifier parameter of a numbered CSI sequence, so a sequence without the protocol can set it (for example `ESC [ 1 ; 65 A` gives `capsLock` `true`). Do not rely on `false` without the protocol. |
+| `numLock` | `boolean` | The kitty Num Lock state. Set from the modifier parameter of a numbered CSI sequence, so a sequence without the protocol can set it (for example `ESC [ 1 ; 129 A` gives `numLock` `true`). Do not rely on `false` without the protocol. |
+| `eventType` | `'press' \| 'repeat' \| 'release'` (optional) | The kitty event type. `undefined` for keys parsed by the legacy path, such as plain arrows and F1 to F4. Numbered CSI sequences such as `ESC [ 3 ~` (Delete) and `ESC [ 1 ; 2 A` (Shift+Up) report `'press'` even when the protocol is not active. |
 
 ### Input values
 
@@ -122,7 +122,7 @@ Meta chords:
 
 - A meta chord arrives as an ESC byte followed by the key. `ESC x` gives `input` `'x'` with `key.meta` set.
 - Meta with Ctrl sets both `key.meta` and `key.ctrl`, for example `ESC` followed by Ctrl+B.
-- A double ESC gives `key.escape` and `key.meta`, with `input` `''`.
+- A double ESC gives `key.escape` and `key.meta`, and `input` is one ESC character (`'\u001B'`). A lone ESC gives `input` `''`.
 - Whether a terminal sends Alt or Option as an ESC prefix is up to the terminal's own setting.
 
 Shift:

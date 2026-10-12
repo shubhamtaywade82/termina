@@ -52,7 +52,7 @@ render(<Features />);
 
 | Prop | Type | Default | Description |
 | --- | --- | --- | --- |
-| `children` | `ReactNode` | Required | Item content. It is rendered inside a `Box`, so wrap text in `Text`. A bare string draws no text. |
+| `children` | `ReactNode` | Required | Item content. It is rendered inside a `Box`, so wrap text in `Text`. A bare string makes the render throw `Text string "..." must be rendered inside <Text> component`, so wrap every string in `Text`. |
 
 `UnorderedListItemProps` is not exported from `@nemesis-oss/termina-ui`.
 

@@ -29,7 +29,7 @@ function Report() {
 render(<Report />, {alternateScreen: true});
 ```
 
-The box owns its offset and starts at the top. It sets no width of its own, so it fills the width its parent gives it, less the one column of the scrollbar when the scrollbar is drawn.
+The box owns its offset and starts at the top. It sets no width of its own. In a column parent it stretches to the parent's width, less the scrollbar column when it is drawn. In a row parent it takes its content width and does not grow into the space left over. To give it a width, place it in a column Box with a width, for example `<Box flexDirection="column" width={40}>`.
 
 The example does not pass `mouse` to `render()`. The box turns on mouse tracking itself while it is mounted and active. [Mouse](/guide/mouse) describes what tracking changes in the terminal.
 
@@ -42,7 +42,7 @@ The example does not pass `mouse` to `render()`. The box turns on mouse tracking
 | `height` | `number` | Required | Viewport height in rows. PageUp and PageDown move by this many rows. |
 | `children` | `ReactNode` | `undefined` | Content. It is laid out in a column at its natural height, and the viewport clips it. |
 | `offset` | `number` | `undefined` | Controlled scroll offset, in rows from the top of the content. When omitted, the box keeps its own offset, which starts at `0`. The value is clamped to the scroll range on each render. |
-| `onScroll` | `(offset: number) => void` | `undefined` | Called with the new offset when a key or wheel step changes it. Not called when a step leaves the offset unchanged, and not called when the offset moves by clamping or by follow tail. |
+| `onScroll` | `(offset: number) => void` | `undefined` | Called with the new offset when a key or wheel step changes it. Not called when a step leaves the offset unchanged, when the offset changes only by render-time clamping (the content shrinks, or an out-of-range `offset` is clamped), or when follow tail moves it. A key or wheel step that is clamped to the scroll range still calls `onScroll`, with the clamped value. |
 | `wheelStep` | `number` | `3` | Rows moved by one wheel step. |
 | `isActive` | `boolean` | `true` | When `false`, keys and wheel steps are ignored. The box also does not enable raw mode or mouse tracking. |
 | `followTail` | `boolean` | `false` | Keeps the box at the bottom while content grows. See Follow tail below. |

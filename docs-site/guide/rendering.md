@@ -109,12 +109,14 @@ Debug mode writes every update, in interactive mode or not. See the Debug mode s
 On a TTY, a frame at least as tall as the terminal is treated as full height. Ink clears the viewport before it writes the frame in these cases:
 
 - The previous frame is taller than the terminal.
-- The new frame is taller than the terminal, and there was a previous frame.
+- The new frame is taller than the terminal, and the previous frame also filled the terminal.
 - The frame shrinks from full height to a shorter height.
 - The terminal height shrinks while a full-height frame is on screen.
 - The app unmounts while a full-height frame is on screen.
 
-On Windows consoles, Ink clears the viewport for every full-height frame. Clearing writes the whole frame, so incremental rendering does not apply to these frames.
+When a frame taller than the terminal follows a shorter frame, Ink erases only the previous frame's rows relative to the cursor and then writes the new frame, so output above it scrolls into scrollback. On the alternate screen the viewport is always cleared.
+
+On Windows consoles, every full-height frame takes the full-clear path and writes the whole frame, so incremental rendering does not apply to it. The viewport is erased absolutely only when the previous frame also filled the terminal; otherwise the previous frame's rows are erased relative to the cursor.
 
 ## Frame throttling
 
@@ -143,7 +145,7 @@ Use it to capture every frame, for example in a log or a test fixture.
 With `isScreenReaderEnabled: true`, Ink redraws the frame with these differences from the default:
 
 - Renders are not throttled.
-- Each update erases the previous frame and writes the new one in full, wrapped to the terminal width.
+- An update whose wrapped output equals the previous frame, with no new `<Static>` output, writes nothing. Any other update erases the previous frame and writes the new one in full, wrapped to the terminal width.
 - Each frame ends on a new row.
 
 Components also change what they render:
@@ -197,7 +199,7 @@ await app.waitUntilExit();
 | Prop | Type | Default | Description |
 | --- | --- | --- | --- |
 | `items` | `T[]` | Required | Items to render. |
-| `style` | `Styles` | `{position: 'absolute', flexDirection: 'column'}` | Style of the container. Accepts the same props as `Box`. A key you pass overrides the default for that key. |
+| `style` | `Styles` | `{position: 'absolute', flexDirection: 'column'}` | Style of the container. Accepts the style props of `Box`, plus `textWrap`. A key you pass overrides the default for that key, except `display`: when there is no new item, `display` is `none` whether or not you pass it. |
 | `children` | `(item: T, index: number) => ReactNode` | Required | Renders one item. `index` is the item's index in `items`. Give the root element of each item a `key`. |
 
 The behavior is as follows:

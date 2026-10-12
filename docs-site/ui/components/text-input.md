@@ -113,4 +113,4 @@ The cursor, placeholder, and completion styles (inverse and dim) are set in the 
 ## Edge cases
 
 - `defaultValue` is read once. Changing it later does not change the value.
-- Inserting a zero-width joiner (U+200D) between two graphemes merges them into one. The cursor can then sit inside the merged grapheme, and no cursor is drawn. Pressing Left moves the cursor to the start of the merged grapheme, and the cursor is drawn again.
+- Inserting a zero-width joiner between two pictographic characters, such as two emoji, merges them into one grapheme, and the cursor can then sit inside it with no cursor drawn. A ZWJ between other characters attaches to the preceding grapheme and does not merge the two. Pressing Left moves the cursor to the start of the merged grapheme, and the cursor is drawn again.

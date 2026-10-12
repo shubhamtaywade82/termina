@@ -17,7 +17,7 @@ The record for this page is `FORK.md` at the repository root. Each file path and
 
 Both manifests set `"private": true`. The packages are workspace packages in this repository and are not published to npm. Consume them through the workspace, not from a registry.
 
-The names are not yet consistent across the repository. `FORK.md` says the packages were developed as `@nemesis-oss/termina-core` and `@nemesis-oss/termina-ui` and publish as `@nemesis-oss/termina-core` and `@nemesis-oss/termina-ui`. The import specifiers in `examples/turnstream` use the `@nemesis-oss` names. This documentation site uses `@nemesis-oss/termina-core` and `@nemesis-oss/termina-ui` for the same packages. The manifests and the example show what a workspace import resolves to.
+`FORK.md` says the packages were developed as `@fork/core` and `@fork/ui` and publish as `@nemesis-oss/termina-core` and `@nemesis-oss/termina-ui`. The import specifiers in `examples/turnstream` use the `@nemesis-oss` names. This documentation site uses `@nemesis-oss/termina-core` and `@nemesis-oss/termina-ui` for the same packages. The manifests and the example show what a workspace import resolves to.
 
 ## Upstream sources
 
@@ -36,7 +36,7 @@ The import and the first local change are one commit. `edc640a` ("Fork ink 8.0.0
 
 ## Fork history
 
-Commits that change code, oldest first, with their subjects as `git log` records them. All are dated 2026-10-11.
+Commits that change code, oldest first, with their subjects as `git log` records them. The first eleven rows are dated 2026-10-11.
 
 | Commit | Subject |
 | --- | --- |
@@ -51,6 +51,7 @@ Commits that change code, oldest first, with their subjects as `git log` records
 | `017db6c` | Mask PasswordInput one asterisk per grapheme cluster |
 | `9d8b4c7` | Add cell, line and key accessors to the xterm fixture and cover exit and frame sync |
 | `0b8bf02` | Correct the architecture notes and commit the byte measurement script |
+| `d62e89a` | Rename packages to @nemesis-oss/termina-core and @nemesis-oss/termina-ui (2026-10-12) |
 
 ## Local changes in `@nemesis-oss/termina-core`
 
@@ -72,7 +73,7 @@ Files named in `FORK.md`:
 
 - `src/mouse.ts`: the SGR parser and the enable and disable sequences.
 - `src/hooks/use-mouse.ts`: `useMouse`.
-- `src/components/App.tsx`: reference-counted tracking, released on suspend, resume, and unmount.
+- `src/components/App.tsx`: reference-counted tracking, disabled on suspend, re-enabled on resume while the count is above zero, and released on unmount.
 - `src/components/StdinContext.ts`: `setMouseTracking`.
 
 Files that `FORK.md` does not name. Commits `2eee3bd` and `5214fbe` changed these:
@@ -140,7 +141,7 @@ See [LogStream](/ui/components/log-stream).
 ### Spatial focus geometry
 
 - File: `packages/ui/source/lib/spatial.ts`. Export: `nearestInDirection`, plus the `Direction`, `FocusCandidate`, and `Rect` types, all re-exported from `packages/ui/source/index.ts`.
-- This is a pure function. No code in `packages/core` or `packages/ui` calls it, so focus management is unchanged.
+- No runtime source in `packages/core` or `packages/ui` calls it. Its only caller is `packages/ui/test/spatial.tsx`, so focus management is unchanged.
 
 See [Spatial Focus Geometry](/ui/spatial).
 

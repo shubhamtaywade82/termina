@@ -73,5 +73,5 @@ The component reads the `Alert` entry of the theme. To change a key, pass a them
 - Without `title`, the message is the only line of text in the box.
 - With `title`, one blank row separates the title from the message. The row comes from the `gap` of the content column.
 - An empty `title` is the same as no title.
-- A `Box` passed as `children` renders no output. Use strings or `Text` elements.
+- A `Box` passed as `children` throws `<Box> can’t be nested inside <Text> component`. Use strings or `Text` elements.
 - A message longer than the box wraps inside the border. The message uses the default `wrap` of `Text`.

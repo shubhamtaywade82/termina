@@ -51,7 +51,7 @@ Each animation is a list of frames and an interval in milliseconds. The componen
 
 ## Hook
 
-`useSpinner` is exported from `@nemesis-oss/termina-ui`, and the component is built on it. The hook takes the same `type` option and returns the current frame as a string. `UseSpinnerProps` and `UseSpinnerResult` are also exported. Use the hook when the frame has to sit inside your own layout.
+`useSpinner` is exported from `@nemesis-oss/termina-ui`, and the component is built on it. The hook takes the same `type` option and returns an object of type `UseSpinnerResult` (`{ frame: string }`), where `frame` is the current frame. `UseSpinnerProps` and `UseSpinnerResult` are also exported. Use the hook when the frame has to sit inside your own layout.
 
 ```tsx
 import {Text, render} from '@nemesis-oss/termina-core';
@@ -84,5 +84,5 @@ The component reads the `Spinner` entry of the theme. To change a key, pass a th
 
 - The timer starts on mount and is cleared on unmount.
 - Changing `type` restarts the timer but keeps the current frame index. If that index is past the last frame of the new animation, the frame is empty, and the index keeps increasing, so no frame is drawn for the rest of the component's life. To avoid this, give the component a new `key` when `type` changes, so React mounts it again.
-- An unknown `type` name is not checked by the component. Nothing is drawn.
+- A `type` name that is not a key of `cli-spinners` makes the component throw a TypeError during render, so pass only `SpinnerName` values.
 - An empty `label` draws no label text.

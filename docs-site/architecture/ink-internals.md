@@ -147,7 +147,7 @@ The probe's source comment notes that unknown private modes are ignored by most 
 
 ## Layout and clipping
 
-- `Box` supports `overflow: hidden`, `contentOffsetX` and `contentOffsetY`, and `position: absolute`. `ScrollBox` uses overflow clipping on its viewport and `contentOffsetY` on its content (`packages/ui/source/components/scroll-box/scroll-box.tsx`, lines 181 and 182).
+- `Box` supports `overflow: hidden`, `contentOffsetX` and `contentOffsetY`, and `position: absolute`. `ScrollBox` sets `overflow="hidden"` and `contentOffsetY` on its viewport box (lines 181 and 182). The content box inside the viewport is the child that the offset shifts.
 - `measureElement` and `useBoxMetrics` together give a viewport's size and a content's size. A scroll offset is then clamped to `max(0, contentHeight - height)`. `ScrollBox` uses that bound.
 - Yoga lays out at the terminal's column count, and text wraps to the width of its box.
 
@@ -177,7 +177,7 @@ The following describes `resized` in `packages/core/src/ink.tsx`.
 4. If the width changed and `debug` is off, the frame is erased by the physical rows it now occupies:
    - On the primary screen, `log.clearReflowed(columns)` erases `rowsToErase(previousOutput, columns)` rows (`src/log-update.ts`, `src/reflow.ts`).
    - On the alternate screen, the handler writes `homeAndEraseDown` followed by the accumulated static output, and resets the writer.
-5. If the height decreased while a cursor position is set, the writer clears and the rendered frame is forgotten.
+5. Otherwise, if the height decreased while a cursor position is set, the writer clears and the rendered frame is forgotten.
 6. Layout is recalculated and the frame is rendered. Any throttled repaint is flushed so that it lands inside the synchronized update. Then ESU is written.
 
 Row counting in `src/reflow.ts`:

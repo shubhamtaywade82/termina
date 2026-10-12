@@ -4,7 +4,7 @@ outline: [2, 3]
 
 # Resize and Reflow
 
-When the terminal changes size, Ink erases the frame it drew and draws it again at the new size. This page covers which resizes Ink handles, how the previous frame is erased on the primary and alternate screens, how the erase counts rows after the terminal has reflowed them, and the one case where the erase is incomplete. Read it when a frame leaves copies of itself after a width change, or when a component reads the current size with `useWindowSize()`.
+When the width changes, or the height decreases while a `useCursor()` position is set, Ink erases the frame it drew and draws it again at the new size. Other resizes erase nothing in the resize handler, as the table below shows. This page covers which resizes Ink handles, how the previous frame is erased on the primary and alternate screens, how the erase counts rows after the terminal has reflowed them, and the one case where the erase is incomplete. Read it when a frame leaves copies of itself after a width change, or when a component reads the current size with `useWindowSize()`.
 
 For how frames are written in general, see [Rendering](/guide/rendering). For the alternate screen, see [Alternate Screen and Suspend](/guide/alternate-screen-and-suspend).
 
@@ -52,13 +52,13 @@ A height change on its own does not clear the screen. What Ink does depends on w
 
 - **The height decreases and a `useCursor()` position is set.** The terminal drops the rows below the cursor, or scrolls the top rows away. Ink erases what is left of the frame and draws it again. Lines above the frame are kept.
 - **The height decreases and no cursor position is set.** Ink does not erase on the resize. The render that the resize triggers follows the rules in the Frames that fill the terminal section of [Rendering](/guide/rendering). A frame that still fits is not written again.
-- **The height increases.** Ink does not clear the viewport. The frame is redrawn by the normal update path, which erases the previous frame by its line count and writes it again.
+- **The height increases.** Ink does not erase on the resize. The normal update path writes the frame only when its rendered text has changed. It then erases the previous frame by its line count and writes the new one. An unchanged frame is not written.
 
 ## Known limitation: `useCursor()` on the primary screen
 
 When the last frame was drawn with a `useCursor()` position, the reflow erase cannot count physical rows. `clearReflowed()` in `src/log-update.ts` falls back to erasing by logical line count, which is how Ink erased frames before the fork. Rows that wrapped at the new width and fall outside that count stay above the redrawn frame as a partial copy.
 
-Reproduced with the emulator helper that the test suite uses: a frame with a header line, a wrapped paragraph and a footer line, resized from 80 to 40 columns. With no cursor position, the header appears once on screen. With `useCursor()` set, the header appears twice.
+Reproduced with the emulator helper that the test suite uses: a frame with a header line, a wrapped paragraph and a footer line, resized from 80 to 40 columns. With no cursor position, the header appears once on screen. With the cursor on the header line (y 0) or the footer line (y 2), the header appears twice after the resize to 40 columns. With the cursor on the wrapped paragraph line (y 1), it appears once.
 
 The erase is exact when no line of the frame wraps, because the line count and the row count are then equal. The fallback does not apply on the alternate screen.
 

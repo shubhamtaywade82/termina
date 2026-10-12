@@ -79,4 +79,4 @@ The component reads the `OrderedList` entry of the theme. To change a key, pass 
 - Numbers are padded to the width of the largest number in the list. A list of ten items shows ` 1.` through `10.`, so the content lines up.
 - A nested list is indented to the column where the parent item's content starts. The indent is the width of the parent marker plus one column of gap.
 - A child that is not an `OrderedList.Item` is rendered as it is, and it still takes a number in the sequence. Text, a conditional `false`, a `null`, and a fragment all take a number. For example, `<Text>note</Text>` between two items makes the second item `3.`.
-- An item wrapped in a custom component, or placed inside a fragment, is not numbered. It renders with the default marker, `figures.line`.
+- An item wrapped in a custom component, or placed inside a fragment, is not numbered and gets no marker provider of its own. Outside any numbered item, it renders with the default marker, `figures.line`. Inside a numbered item, it renders that enclosing item's marker, such as `1.`.

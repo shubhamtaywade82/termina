@@ -56,7 +56,7 @@ The default `domains` list is `aol.com`, `gmail.com`, `yahoo.com`, `hotmail.com`
 | Text, including pasted text | Inserted at the cursor. A second `@` is rejected when the value already contains one. |
 | Enter | Accepts the suggestion, if one is shown, then calls `onSubmit`. |
 | Left, Right | Move the cursor by one UTF-16 code unit. Clamped at the start and the end. |
-| Backspace or Delete | Delete the UTF-16 code unit before the cursor. Both keys do the same thing. |
+| Backspace or Delete | Delete the UTF-16 code unit before the cursor. At the start of the value, where no unit precedes the cursor, the first code unit of the value is deleted instead. Both keys do the same thing. |
 | Up, Down, Tab, Shift+Tab | Ignored. |
 | Ctrl+C | Ignored. |
 | Keys with no text, such as Home, End, Escape, and function keys | No change. |
@@ -82,7 +82,7 @@ The cursor (inverse) and the suggestion (dimmed) are drawn with fixed styles in 
 ## Edge cases
 
 - If the cursor is before the end of the value and Enter accepts a suggestion, the suggestion is inserted at the cursor. `onSubmit` still receives the value with the suggestion appended to the end, so the two can differ. For example, with the value `test@a` and the cursor after `tes`, Enter changes the field to `tesol.comt@a`, and `onSubmit` receives `test@aol.com`. Move the cursor to the end before pressing Enter.
-- Editing works on UTF-16 code units, not on grapheme clusters. Left and Right move one code unit. A character outside the Basic Multilingual Plane, such as most emoji, takes two presses. Backspace removes one code unit, so it can leave half of a surrogate pair in the value. When the cursor sits between the two halves, no cursor is drawn. [PasswordInput](/ui/components/password-input) edits by grapheme cluster.
+- Editing works on UTF-16 code units, not on grapheme clusters. Left and Right move one code unit. A character outside the Basic Multilingual Plane, such as most emoji, takes two presses. Backspace removes one code unit, so it can leave half of a surrogate pair in the value. When the cursor sits between the two halves, the inverse cursor is drawn on the character after the emoji. No cursor is drawn only when the split pair is at the end of the value. [PasswordInput](/ui/components/password-input) edits by grapheme cluster.
 - Control characters are not filtered. A key that sends one inserts it. Ctrl+J sends a line feed, and it is inserted into the value.
 - A key with Ctrl and a letter inserts the letter. Ctrl+A inserts `a`.
 - The guard against a second `@` checks the current value. Pasting `a@b@c` into an empty field inserts the whole text, with two `@` characters.

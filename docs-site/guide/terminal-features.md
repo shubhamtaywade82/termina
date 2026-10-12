@@ -82,7 +82,7 @@ import {Text, detectTerminalCapabilities, hyperlink, useStdout} from '@nemesis-o
 
 function DocsLink() {
 	const {stdout} = useStdout();
-	const {hyperlinks} = detectTerminalCapabilities(process.env, stdout);
+	const {hyperlinks} = detectTerminalCapabilities(process.env, stdout as NodeJS.WriteStream);
 	const label = 'Documentation';
 
 	return <Text>{hyperlinks ? hyperlink('https://example.com/docs', label) : label}</Text>;

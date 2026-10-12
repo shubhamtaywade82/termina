@@ -314,7 +314,7 @@ type StaticProps<T> = {
 
 - `items` is the array to render. `children` is called only for items added since the previous commit, so each item is rendered once.
 - Give the element returned by `children` a `key`.
-- `style` accepts the same style props as `Box`, including `textWrap`. Ink applies `position: 'absolute'` and `flexDirection: 'column'` by default, and `style` can override both.
+- `style` accepts the `Styles` type: every style prop that `Box` accepts, plus `textWrap`. Ink applies `position: 'absolute'` and `flexDirection: 'column'` by default, and `style` can override both.
 
 ```tsx
 import {Static, Text, render} from '@nemesis-oss/termina-core';
@@ -1030,7 +1030,7 @@ Returns the layout metrics of a `Box`, given the `DOMElement` from its `ref`.
 
 - `x` and `y` are the element's position in the live layout region, found by adding up the offsets of its ancestors. They are layout coordinates, not terminal coordinates. They do not include `contentOffsetX` or `contentOffsetY`.
 - `clientWidth` and `clientHeight` exclude borders. They are the space the content can occupy. Padding is not excluded.
-- The function returns zeros during render, before layout is calculated. Call it from `useEffect`, `useLayoutEffect`, an input handler or a timer.
+- During render, `measureElement()` returns the layout from the most recent layout pass. A node that has never been laid out reports zeros. Read the values after commit (from `useEffect`, `useLayoutEffect`, an input handler or a timer) so they match the current render.
 
 See [Layout and Text](/guide/layout-and-text) (Measuring layout).
 
