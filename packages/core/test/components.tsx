@@ -18,6 +18,8 @@ import {
 	Transform,
 	useApp,
 	useInput,
+	useMouse,
+	usePaste,
 	useStdin,
 } from '../src/index.js';
 import createStdout from './helpers/create-stdout.js';
@@ -1432,6 +1434,27 @@ test('setRawMode() should throw if raw mode is not supported', (t: TestContext) 
 
 	t.assert.strictEqual(didCatchInMount.callCount, 1);
 	t.assert.strictEqual(didCatchInUnmount.callCount, 1);
+	t.assert.strictEqual(stdin.setRawMode.called, false);
+});
+
+test('input hooks stay idle instead of throwing when raw mode is not supported', (t: TestContext) => {
+	const stdout = createStdout();
+	const stdin = new EventEmitter() as NodeJS.ReadStream;
+	stdin.setEncoding = () => {};
+	stdin.setRawMode = spy();
+	stdin.isTTY = false;
+
+	function Test() {
+		useInput(() => {});
+		usePaste(() => {});
+		useMouse(() => {});
+		return <Text>Test</Text>;
+	}
+
+	const {unmount} = render(<Test />, {stdout, stdin, debug: true});
+	t.assert.strictEqual(stripAnsi(stdout.get()), 'Test');
+	unmount();
+
 	t.assert.strictEqual(stdin.setRawMode.called, false);
 });
 

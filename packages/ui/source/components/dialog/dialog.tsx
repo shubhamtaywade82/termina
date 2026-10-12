@@ -28,7 +28,6 @@ export type DialogProps = {
 };
 
 export function Dialog({title, children, onClose, width}: DialogProps) {
-
 	useInput(
 		(_input, key) => {
 			if (key.escape) {

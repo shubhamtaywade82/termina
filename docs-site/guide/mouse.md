@@ -160,7 +160,7 @@ Behavior:
 - The handler receives presses, releases, drags, moves, and wheel steps.
 - Box handlers receive presses, releases, and wheel steps only. Drags and moves reach `useMouse` handlers only.
 - Mouse reports are never passed to `useInput`.
-- `useMouse` also turns raw mode on, so the non-TTY rule from [Keyboard and Focus](/guide/keyboard-and-focus#non-tty-input) applies to it.
+- `useMouse` also turns raw mode on. Without raw mode support it stays idle, as described in [Keyboard and Focus](/guide/keyboard-and-focus#non-tty-input).
 
 ### MouseEvent
 

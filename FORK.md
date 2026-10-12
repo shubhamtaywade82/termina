@@ -31,6 +31,9 @@ history is not carried over. Re-syncing means diffing against the commits above.
   `<Box onClick onMouseDown onMouseUp onWheel>` are hit-tested by `src/mouse-dispatch.ts`
   when `render(..., {mouse: true, alternateScreen: true})` is set and stdin supports raw
   mode. `onClick` is left-button only.
+- **Input hooks idle without raw mode.** `useInput`, `usePaste` and `useMouse`
+  check `isRawModeSupported` and stay idle on piped stdin instead of throwing.
+  Upstream throws. A direct `setRawMode(true)` call still throws.
 - **OSC 8 hyperlinks.** `src/hyperlink.ts`. Rejects URLs containing control characters.
 - **OSC 52 clipboard.** `src/clipboard.ts`. Rejects payloads above 74,000 base64 characters.
 - **Capability probe.** `src/terminal-capabilities.ts`. Reads `TERM`, `COLORTERM`,

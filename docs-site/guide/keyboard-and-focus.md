@@ -255,29 +255,10 @@ Signature: `useFocusManager()` takes no arguments and returns the fields below.
 
 `useStdin()` returns `isRawModeSupported`. It is `false` when stdin cannot enter raw mode, such as a pipe.
 
-- `useFocus` checks `isRawModeSupported` and skips raw mode when it is `false`.
-- `useInput`, `usePaste`, and `useMouse` do not check it. They call `setRawMode(true)` whenever they are active, and on a stdin without raw mode that call throws.
+- `useFocus`, `useInput`, `usePaste`, and `useMouse` check it. When it is `false`, they skip raw mode and stay idle instead of throwing, so the app still renders under a pipe or in CI.
+- Calling `setRawMode(true)` from `useStdin()` directly still throws on a stdin without raw mode.
 
-Guard those hooks with `isActive`:
-
-```tsx
-import {useInput, useStdin} from '@nemesis-oss/termina-core';
-
-function Shortcuts({onQuit}: {readonly onQuit: () => void}) {
-	const {isRawModeSupported} = useStdin();
-
-	useInput(
-		(input) => {
-			if (input === 'q') {
-				onQuit();
-			}
-		},
-		{isActive: isRawModeSupported},
-	);
-
-	return null;
-}
-```
+Upstream Ink throws from `useInput` in this case. This fork does not, so a component no longer needs to pass `isActive: isRawModeSupported` itself.
 
 ## Terminal replies
 
