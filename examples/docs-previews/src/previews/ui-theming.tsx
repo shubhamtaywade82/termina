@@ -1,9 +1,5 @@
-import {Box} from '@nemesis-oss/termina-core';
 import {
-	Alert,
-	Badge,
 	ProgressBar,
-	Spinner,
 	ThemeProvider,
 	defaultTheme,
 	extendTheme,
@@ -22,23 +18,6 @@ const hashTheme = extendTheme(defaultTheme, {
 });
 
 export const previews: readonly Preview[] = [
-	{
-		id: 'overview-tour',
-		title: 'Four components, default states',
-		columns: 56,
-		caption:
-			'An info Alert with a title, a Badge whose label is uppercased to BETA on the default magenta background, a ProgressBar at 40 percent, and a Spinner labeled Deploying at its first animation frame.',
-		element: (
-			<Box flexDirection="column" gap={1}>
-				<Alert variant="info" title="Deploy">
-					Choose a target, then enter a tag.
-				</Alert>
-				<Badge>beta</Badge>
-				<ProgressBar value={40} />
-				<Spinner label="Deploying" />
-			</Box>
-		),
-	},
 	{
 		id: 'theming-default-progress-bar',
 		title: 'ProgressBar with defaultTheme',

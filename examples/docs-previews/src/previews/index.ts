@@ -9,10 +9,7 @@ import {previews as mouse} from './mouse.js';
 import {previews as terminalFeatures} from './terminal-features.js';
 import {previews as alternateScreenAndSuspend} from './alternate-screen-and-suspend.js';
 import {previews as testing} from './testing.js';
-import {previews as uiOverview} from './ui-overview.js';
-import {previews as uiComponentsA} from './ui-components-a.js';
-import {previews as uiComponentsB} from './ui-components-b.js';
-import {previews as uiScroll} from './ui-scroll.js';
+import {previews as uiTheming} from './ui-theming.js';
 import {previews as indexHome} from './index-home.js';
 
 export const previews: readonly Preview[] = [
@@ -25,9 +22,6 @@ export const previews: readonly Preview[] = [
 	...terminalFeatures,
 	...alternateScreenAndSuspend,
 	...testing,
-	...uiOverview,
-	...uiComponentsA,
-	...uiComponentsB,
-	...uiScroll,
+	...uiTheming,
 	...indexHome,
 ];
