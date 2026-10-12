@@ -3,7 +3,7 @@ export type ColorLevel = 'none' | 'ansi16' | 'ansi256' | 'truecolor';
 export type TerminalCapabilities = {
 	// Whether Ink should render interactively. Mirrors the default of `render()`.
 	readonly interactive: boolean;
-	// Matches the level chalk selects, so raw styling and chalk agree.
+	// Matches the level chalk selects, including FORCE_COLOR levels, so raw styling and chalk agree. Only NO_COLOR differs.
 	readonly colorLevel: ColorLevel;
 	// DEC 2026 synchronized output. Unknown private modes are ignored by most terminals, but the Linux console is excluded because it has no documented behavior for them.
 	readonly synchronizedOutput: boolean;
@@ -15,18 +15,29 @@ export type TerminalCapabilities = {
 
 type Environment = Readonly<Record<string, string | undefined>>;
 
-// Follows chalk's supports-color rules exactly, so raw styling and chalk always agree: an explicit FORCE_COLOR wins over NO_COLOR, TERM and the TTY check, an empty or "true" value means level 1, "false" means 0, and numbers are clamped to 0 to 3.
-const forcedColorLevel = (forced: string): ColorLevel => {
-	if (forced === 'false' || forced === '0') {
-		return 'none';
+const colorLevels: readonly ColorLevel[] = ['none', 'ansi16', 'ansi256', 'truecolor'];
+
+// Same parsing as chalk's supports-color: "true" or empty means basic color, "false" means none, and a number is capped at truecolor.
+const parseForcedLevel = (value: string | undefined): number | undefined => {
+	if (value === undefined) {
+		return undefined;
 	}
 
-	if (forced === '' || forced === 'true') {
-		return 'ansi16';
+	if (value === 'false') {
+		return 0;
 	}
 
-	const level = Math.min(Number.parseInt(forced, 10) || 1, 3);
-	return level >= 3 ? 'truecolor' : level === 2 ? 'ansi256' : 'ansi16';
+	const level = Number.parseInt(value, 10);
+	return Number.isNaN(level) ? 1 : Math.min(Math.max(level, 0), 3);
+};
+
+const detectColorLevel = (environment: Environment): number => {
+	const colorTerm = environment['COLORTERM'];
+	if (colorTerm === 'truecolor' || colorTerm === '24bit') {
+		return 3;
+	}
+
+	return (environment['TERM'] ?? '').includes('256color') ? 2 : 1;
 };
 
 const resolveColorLevel = (
@@ -34,30 +45,25 @@ const resolveColorLevel = (
 	isTty: boolean,
 	isDumb: boolean,
 ): ColorLevel => {
-	const forced = environment['FORCE_COLOR'];
-	if (forced !== undefined) {
-		return forcedColorLevel(forced);
-	}
-
-	// https://no-color.org: any non-empty value disables color.
+	// https://no-color.org: any non-empty value disables color. chalk ignores NO_COLOR; here it wins over FORCE_COLOR.
 	if (environment['NO_COLOR']) {
 		return 'none';
 	}
 
-	if (!isTty || isDumb) {
+	const forcedLevel = parseForcedLevel(environment['FORCE_COLOR']);
+	if (forcedLevel === 0) {
 		return 'none';
 	}
 
-	const colorTerm = environment['COLORTERM'];
-	if (colorTerm === 'truecolor' || colorTerm === '24bit') {
-		return 'truecolor';
+	if (isDumb) {
+		return colorLevels[forcedLevel ?? 0]!;
 	}
 
-	if ((environment['TERM'] ?? '').includes('256color')) {
-		return 'ansi256';
+	if (!isTty && forcedLevel === undefined) {
+		return 'none';
 	}
 
-	return 'ansi16';
+	return colorLevels[Math.max(forcedLevel ?? 0, detectColorLevel(environment))]!;
 };
 
 /**

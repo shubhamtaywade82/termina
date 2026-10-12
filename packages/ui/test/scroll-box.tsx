@@ -117,7 +117,7 @@ test('onScroll reports each new offset', async (t: TestContext) => {
 });
 
 test('the mouse wheel scrolls only the viewport the pointer is over', async (t: TestContext) => {
-	const instance = render(<Viewport />);
+	const instance = render(<Viewport />, {mouse: true});
 	await settle();
 
 	instance.stdin.write(wheelDown(60, 20));
@@ -130,6 +130,24 @@ test('the mouse wheel scrolls only the viewport the pointer is over', async (t: 
 	instance.unmount();
 });
 
+test('the mouse wheel is ignored unless the app enables mouse support', async (t: TestContext) => {
+	const instance = render(<Viewport />);
+	await settle();
+
+	instance.stdin.write(wheelDown(2, 2));
+	await settle();
+	t.assert.ok((instance.lastFrame() ?? '').includes('line 00'));
+	instance.unmount();
+});
+
+test('the viewport renders under piped stdin instead of throwing', async (t: TestContext) => {
+	const instance = render(<Viewport />, {mouse: true, isStdinPiped: true});
+	await settle();
+
+	t.assert.ok((instance.lastFrame() ?? '').includes('line 00'));
+	instance.unmount();
+});
+
 test('the wheel does nothing over a ScrollBox that is clipped out of view', async (t: TestContext) => {
 	const instance = render(
 		<Box flexDirection="column" height={2} overflow="hidden">
@@ -139,6 +157,7 @@ test('the wheel does nothing over a ScrollBox that is clipped out of view', asyn
 				))}
 			</ScrollBox>
 		</Box>,
+		{mouse: true},
 	);
 	await settle();
 

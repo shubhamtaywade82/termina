@@ -115,6 +115,30 @@ const cases: Case[] = [
 		isTty: false,
 		expected: {interactive: false, colorLevel: 'ansi16'},
 	},
+	{
+		name: 'a FORCE_COLOR level sets the color depth on a pipe',
+		environment: {FORCE_COLOR: '3'},
+		isTty: false,
+		expected: {colorLevel: 'truecolor'},
+	},
+	{
+		name: 'FORCE_COLOR raises a TTY above what TERM reports',
+		environment: {TERM: 'xterm', FORCE_COLOR: '2'},
+		isTty: true,
+		expected: {colorLevel: 'ansi256'},
+	},
+	{
+		name: 'FORCE_COLOR keeps color on a dumb terminal',
+		environment: {TERM: 'dumb', FORCE_COLOR: '1'},
+		isTty: true,
+		expected: {interactive: false, colorLevel: 'ansi16'},
+	},
+	{
+		name: 'FORCE_COLOR=false disables color',
+		environment: {TERM: 'xterm-256color', FORCE_COLOR: 'false'},
+		isTty: true,
+		expected: {colorLevel: 'none'},
+	},
 ];
 
 for (const testCase of cases) {
