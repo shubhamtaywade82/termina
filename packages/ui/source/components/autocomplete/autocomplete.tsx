@@ -1,5 +1,5 @@
 import React, {type Dispatch} from 'react';
-import {Box, Text, useInput} from '@nemesis-oss/termina-core';
+import {Box, Text, useInput, useStdin} from '@nemesis-oss/termina-core';
 import figures from 'figures';
 import {useComponentTheme} from '../../theme.js';
 import {useTextInput} from '../text-input/use-text-input.js';
@@ -98,7 +98,9 @@ const useAutocomplete = ({
 	onChange,
 	onSubmit,
 }: UseAutocompleteProps) => {
-	const isInteractive = !isDisabled;
+	// Piped stdin takes no keys, so the input is drawn without a cursor there, as when disabled.
+	const {isRawModeSupported} = useStdin();
+	const isInteractive = !isDisabled && isRawModeSupported;
 	const {state, dispatch} = useAutocompleteState({defaultValue, onChange});
 	const {rows, highlightIndex, showNoMatches} = getSuggestions(
 		state,
