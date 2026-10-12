@@ -35,12 +35,14 @@ export const LogStream = ({
 	maxLines = 1000,
 	isActive = true,
 }: LogStreamProps) => {
-	const visible = lines.length > maxLines ? lines.slice(-maxLines) : lines;
+	const firstIndex = Math.max(0, lines.length - maxLines);
+	const visible = lines.slice(firstIndex);
 
 	return (
 		<ScrollBox height={height} followTail isActive={isActive}>
+			{/* Keyed by position in the full log, so dropping the oldest entry does not shift every key and re-render every row. */}
 			{visible.map((line, index) => (
-				<Text key={index}>{line}</Text>
+				<Text key={firstIndex + index}>{line}</Text>
 			))}
 		</ScrollBox>
 	);
