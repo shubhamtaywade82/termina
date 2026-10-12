@@ -168,3 +168,79 @@ test('without the mouse option nothing enables tracking and nothing is dispatche
 	t.assert.deepStrictEqual(clicks, []);
 	instance.unmount();
 });
+
+test('onMouseDown fires on press and onMouseUp on release, before the click they complete', async (t: TestContext) => {
+	const log: string[] = [];
+	const {instance, stdin} = await mount(
+		<Box
+			width={10}
+			height={3}
+			onMouseDown={() => log.push('down')}
+			onMouseUp={() => log.push('up')}
+			onClick={() => log.push('click')}
+		>
+			<Text>button</Text>
+		</Box>,
+	);
+
+	await send(stdin, press(3, 2));
+	t.assert.deepStrictEqual(log, ['down']);
+
+	await send(stdin, release(3, 2));
+	t.assert.deepStrictEqual(log, ['down', 'up', 'click']);
+	instance.unmount();
+});
+
+test('a press without a release fires onMouseDown only, never onClick', async (t: TestContext) => {
+	const log: string[] = [];
+	const {instance, stdin} = await mount(
+		<Box
+			width={10}
+			height={3}
+			onMouseDown={() => log.push('down')}
+			onMouseUp={() => log.push('up')}
+			onClick={() => log.push('click')}
+		>
+			<Text>button</Text>
+		</Box>,
+	);
+
+	await send(stdin, press(3, 2));
+	t.assert.deepStrictEqual(log, ['down']);
+	instance.unmount();
+});
+
+test('a release with no earlier press over a clickable element is not a click', async (t: TestContext) => {
+	const clicks: string[] = [];
+	const {instance, stdin} = await mount(
+		<Box width={10} height={3} onClick={() => clicks.push('box')}>
+			<Text>button</Text>
+		</Box>,
+	);
+
+	await send(stdin, release(3, 2));
+	t.assert.deepStrictEqual(clicks, []);
+	instance.unmount();
+});
+
+test('a press on one clickable sibling released over another clicks neither', async (t: TestContext) => {
+	const clicks: string[] = [];
+	const {instance, stdin} = await mount(
+		<Box flexDirection="row">
+			<Box width={10} height={3} onClick={() => clicks.push('left')}>
+				<Text>left</Text>
+			</Box>
+			<Box width={10} height={3} onClick={() => clicks.push('right')}>
+				<Text>right</Text>
+			</Box>
+		</Box>,
+	);
+
+	await send(stdin, press(3, 2), release(14, 2));
+	t.assert.deepStrictEqual(clicks, []);
+
+	// The same pair of positions, pressed and released in place, still clicks: the rule is about matching targets, not dead boxes.
+	await send(stdin, press(3, 2), release(3, 2));
+	t.assert.deepStrictEqual(clicks, ['left']);
+	instance.unmount();
+});

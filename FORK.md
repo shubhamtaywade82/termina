@@ -44,7 +44,8 @@ history is not carried over. Re-syncing means diffing against the commits above.
 ## Deviations from the original plan
 
 - **Test runner.** Node's built-in `node:test` with `tsx`, not Jest. The inherited
-  core suite (1,600+ tests) and the ported ui suite both use it. Switching would
+  core suite (1,717 tests: 1,712 pass, 5 skipped, measured with
+  `pnpm --filter @fork/core run test`) and the ported ui suite both use it. Switching would
   add a transform layer for every test file.
 - **Node 22+** instead of Node 18 (Ink 8 requires it).
 - **Screen-reader output bytes changed.** A trailing newline is now written after
@@ -59,9 +60,9 @@ history is not carried over. Re-syncing means diffing against the commits above.
   rendering) is already in upstream.
 - **Not built yet:** multi-line text editor, DataTable, Modal with focus trap,
   Tabs and SplitPane, spatial focus wired to `useFocus`, OSC 8 and OSC 52 helpers
-  as Ink components, and a `VirtualTerminal` test API with `emitKey` and
-  `getFocusedId` (the xterm-backed helper in `packages/core/test/helpers` exists
-  and has no key API yet).
+  as Ink components. The xterm-backed fixture in `packages/core/test/helpers/xterm-terminal.ts`
+  has `getLine`, `cellAt`, `cells` and `emitKey`. It has no `getFocusedId`: tests read
+  focus with a probe component (see `packages/core/test/xterm-fixture.tsx`).
 
 ## Test dependencies added
 

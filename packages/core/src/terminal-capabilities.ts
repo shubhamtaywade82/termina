@@ -15,22 +15,36 @@ export type TerminalCapabilities = {
 
 type Environment = Readonly<Record<string, string | undefined>>;
 
+// Follows chalk's supports-color rules exactly, so raw styling and chalk always agree: an explicit FORCE_COLOR wins over NO_COLOR, TERM and the TTY check, an empty or "true" value means level 1, "false" means 0, and numbers are clamped to 0 to 3.
+const forcedColorLevel = (forced: string): ColorLevel => {
+	if (forced === 'false' || forced === '0') {
+		return 'none';
+	}
+
+	if (forced === '' || forced === 'true') {
+		return 'ansi16';
+	}
+
+	const level = Math.min(Number.parseInt(forced, 10) || 1, 3);
+	return level >= 3 ? 'truecolor' : level === 2 ? 'ansi256' : 'ansi16';
+};
+
 const resolveColorLevel = (
 	environment: Environment,
 	isTty: boolean,
 	isDumb: boolean,
 ): ColorLevel => {
+	const forced = environment['FORCE_COLOR'];
+	if (forced !== undefined) {
+		return forcedColorLevel(forced);
+	}
+
 	// https://no-color.org: any non-empty value disables color.
 	if (environment['NO_COLOR']) {
 		return 'none';
 	}
 
-	const forced = environment['FORCE_COLOR'];
-	if (forced === '0') {
-		return 'none';
-	}
-
-	if ((!isTty && forced === undefined) || isDumb) {
+	if (!isTty || isDumb) {
 		return 'none';
 	}
 

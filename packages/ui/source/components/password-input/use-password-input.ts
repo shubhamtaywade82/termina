@@ -1,7 +1,7 @@
 import {useMemo} from 'react';
 import {useInput} from '@fork/core';
 import chalk from 'chalk';
-import {splitFirstGrapheme} from '../../lib/grapheme.js';
+import {graphemes, splitFirstGrapheme} from '../../lib/grapheme.js';
 import {type PasswordInputState} from './use-password-input-state.js';
 
 export type UsePasswordInputProps = {
@@ -53,22 +53,20 @@ export const usePasswordInput = ({
 	}, [isDisabled, placeholder]);
 
 	const renderedValue = useMemo(() => {
-		const value = '*'.repeat(state.value.length);
+		// One asterisk per grapheme cluster, the same unit the cursor moves by. Counting UTF-16 units would show two asterisks for one emoji and split a combining sequence.
+		const clusters = graphemes(state.value);
 
 		if (isDisabled) {
-			return value;
+			return '*'.repeat(clusters.length);
 		}
 
-		let index = 0;
-		let result = value.length > 0 ? '' : cursor;
+		let result = clusters.length > 0 ? '' : cursor;
 
-		for (const char of value) {
-			result += index === state.cursorOffset ? chalk.inverse(char) : char;
-
-			index++;
+		for (const {index} of clusters) {
+			result += index === state.cursorOffset ? chalk.inverse('*') : '*';
 		}
 
-		if (value.length > 0 && state.cursorOffset === value.length) {
+		if (clusters.length > 0 && state.cursorOffset === state.value.length) {
 			result += cursor;
 		}
 

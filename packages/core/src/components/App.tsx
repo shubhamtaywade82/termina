@@ -13,6 +13,7 @@ import cliCursor from 'cli-cursor';
 import {type CursorPosition} from '../log-update.js';
 import {
 	createInputParser,
+	escapeFlushDelayMilliseconds,
 	isCompleteControlSequence,
 	type InputEvent,
 } from '../input-parser.js';
@@ -119,7 +120,7 @@ function App({
 	const isInputPausedRef = useRef(false);
 	// Count how many components enabled bracketed paste mode
 	const bracketedPasteModeEnabledCountRef = useRef(0);
-const mouseTrackingCountRef = useRef(0);
+		const mouseTrackingCountRef = useRef(0);
 	const eventEmitterRef = useRef(new EventEmitter());
 	// Each useInput hook adds a listener, so the count can legitimately exceed the default limit of 10.
 	eventEmitterRef.current.setMaxListeners(Infinity);
@@ -127,8 +128,6 @@ const mouseTrackingCountRef = useRef(0);
 	const readableListenerRef = useRef<(() => void) | undefined>(undefined);
 	const inputParserRef = useRef(createInputParser());
 	const pendingInputFlushRef = useRef<NodeJS.Timeout | undefined>(undefined);
-	// Small delay to let chunked escape sequences complete before flushing as literal input.
-	const pendingInputFlushDelayMilliseconds = 20;
 
 	const clearPendingInputFlush = useCallback((): void => {
 		if (!pendingInputFlushRef.current) {
@@ -322,7 +321,7 @@ const mouseTrackingCountRef = useRef(0);
 			}
 
 			emitInput(pendingEscape);
-		}, pendingInputFlushDelayMilliseconds);
+		}, escapeFlushDelayMilliseconds);
 	}, [clearPendingInputFlush, emitInput]);
 
 	const handleReadable = useCallback((): void => {

@@ -4,6 +4,7 @@ import FakeTimers from '@sinonjs/fake-timers';
 import {render, useInput, usePaste, Text} from '../src/index.js';
 import createStdout from './helpers/create-stdout.js';
 import {createStdin, emitReadable} from './helpers/create-stdin.js';
+import {escapeFlushDelayMilliseconds} from '../src/input-parser.js';
 
 test('rerender() keeps a pending Escape keypress', async (t: TestContext) => {
 	const clock = FakeTimers.install({
@@ -31,7 +32,8 @@ test('rerender() keeps a pending Escape keypress', async (t: TestContext) => {
 		});
 		emitReadable(stdin, '\u{1B}');
 		app.rerender(<Example label="b" />);
-		await clock.tickAsync(20);
+		// Advance exactly the flush window, so the test follows the constant rather than a copy of it.
+		await clock.tickAsync(escapeFlushDelayMilliseconds);
 		t.assert.deepStrictEqual(keys, ['escape']);
 	} finally {
 		clock.uninstall();

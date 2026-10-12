@@ -3,7 +3,7 @@ import {
 	Box,
 	type DOMElement,
 	Text,
-	measureElement,
+	isElementAt,
 	useBoxMetrics,
 	useInput,
 	useMouse,
@@ -74,7 +74,7 @@ const scrollbarRows = (
 /**
 A fixed-height viewport over taller content. Arrow keys scroll by a row, PageUp and PageDown by a viewport, Home and End jump to the edges, and the mouse wheel scrolls by `wheelStep` rows inside the viewport.
 
-Mouse hit-testing uses `measureElement`, whose coordinates are relative to the live region. In alternate-screen mode, with no `<Static>` output above the box, that region starts at the terminal's top-left, which is what the hit test assumes.
+The wheel is handled only over the viewport that is visible under the pointer. The check uses the same clip-aware hit test as `<Box onWheel>`, so a box that is scrolled or clipped out of view ignores the wheel. Hit-testing assumes the app starts at the terminal's top-left, which holds in alternate-screen mode with no `<Static>` output above the app.
 */
 export const ScrollBox = ({
 	height,
@@ -156,15 +156,7 @@ export const ScrollBox = ({
 				return;
 			}
 
-			const rect = measureElement(viewport);
-			const column = event.x - 1;
-			const row = event.y - 1;
-			const isInside =
-				column >= rect.x &&
-				column < rect.x + rect.width &&
-				row >= rect.y &&
-				row < rect.y + rect.height;
-			if (!isInside) {
+			if (!isElementAt(viewport, event.x, event.y)) {
 				return;
 			}
 
