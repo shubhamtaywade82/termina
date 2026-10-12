@@ -73,7 +73,7 @@ The component reads the `Tabs` entry of the theme. To change a key, pass a theme
 - An unknown `defaultTabId`, or no `defaultTabId`, makes the first tab active.
 - `defaultTabId` is read at mount. Later changes to it have no effect.
 - `onChange` runs only when Left or Right changes the tab. It does not run on mount or on re-render, including when `tabs` changes.
-- Removing the active tab from `tabs` makes the first tab active, without calling `onChange`.
+- Removing the active tab from `tabs` makes the first tab active, without calling `onChange`. The removed tab's id is remembered, so adding a tab with that id back makes it active again, unless Left or Right changed the tab in between.
 - Reordering `tabs` keeps the same tab active, because the active tab is tracked by `id`.
 - Only the active tab's content is mounted. Leaving a tab discards the state of its content, even when two tabs hold the same component.
 - Content with several elements stacks them vertically.

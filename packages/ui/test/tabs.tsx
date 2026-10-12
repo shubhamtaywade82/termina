@@ -250,7 +250,7 @@ test('with no tabs, nothing renders and keys have no effect', async (t: TestCont
 	t.assert.deepStrictEqual(changes, []);
 });
 
-test('removing the active tab shows the first tab and does not call onChange', async (t: TestContext) => {
+test('removing the active tab shows the first tab, and adding it back makes it active again', async (t: TestContext) => {
 	const {changes, onChange} = recordChanges();
 	const instance = render(
 		<Tabs tabs={tabs} defaultTabId="logs" onChange={onChange} />,
@@ -270,6 +270,10 @@ test('removing the active tab shows the first tab and does not call onChange', a
 		[`${active('Files')}  Config`, 'src/index.ts'].join('\n'),
 	);
 	t.assert.deepStrictEqual(changes, []);
+
+	instance.rerender(<Tabs tabs={tabs} defaultTabId="logs" onChange={onChange} />);
+	await delay(20);
+	t.assert.ok((instance.lastFrame() ?? '').includes(active('Logs')));
 });
 
 test('reordering tabs keeps the same tab active', async (t: TestContext) => {
