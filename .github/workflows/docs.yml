@@ -42,7 +42,7 @@ jobs:
       # npm for docs-site, whose lockfile and file: links it owns.
       - uses: pnpm/action-setup@v4
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v7
         with:
           node-version: '22'
           cache: npm
