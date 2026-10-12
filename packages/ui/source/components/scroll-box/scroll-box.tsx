@@ -2,11 +2,11 @@ import React, {useRef, useState, type ReactNode} from 'react';
 import {
 	Box,
 	type DOMElement,
+	type MouseEvent,
 	Text,
-	isElementAt,
 	useBoxMetrics,
 	useInput,
-	useMouse,
+	useStdin,
 } from '@nemesis-oss/termina-core';
 
 export type ScrollBoxProps = {
@@ -35,7 +35,7 @@ export type ScrollBoxProps = {
 	readonly wheelStep?: number;
 
 	/**
-	 * When false, keyboard and wheel input are ignored.
+	 * When false, keyboard and wheel input are ignored. Every active box reads the arrow keys, so with several on screen, activate only the focused one.
 	 *
 	 * @default true
 	 */
@@ -72,9 +72,9 @@ const scrollbarRows = (
 };
 
 /**
-A fixed-height viewport over taller content. Arrow keys scroll by a row, PageUp and PageDown by a viewport, Home and End jump to the edges, and the mouse wheel scrolls by `wheelStep` rows inside the viewport.
+A fixed-height viewport over taller content. Arrow keys scroll by a row, PageUp and PageDown by a viewport, and Home and End jump to the edges. With `render(..., {mouse: true})`, the mouse wheel scrolls by `wheelStep` rows inside the viewport.
 
-The wheel is handled only over the viewport that is visible under the pointer. The check uses the same clip-aware hit test as `<Box onWheel>`, so a box that is scrolled or clipped out of view ignores the wheel. Hit-testing assumes the app starts at the terminal's top-left, which holds in alternate-screen mode with no `<Static>` output above the app.
+Keys are read only when stdin supports raw mode, so the box also renders under piped stdin and in CI.
 */
 export const ScrollBox = ({
 	height,
@@ -86,12 +86,13 @@ export const ScrollBox = ({
 	followTail = false,
 	showScrollbar = true,
 }: ScrollBoxProps) => {
-	const viewportRef = useRef<DOMElement>(null);
 	const contentRef = useRef<DOMElement>(null);
 	const content = useBoxMetrics(contentRef);
+	const {isRawModeSupported} = useStdin();
 
 	const [ownOffset, setOwnOffset] = useState(0);
-	const [isFollowing, setIsFollowing] = useState(followTail);
+	// Tracks the user scrolling away from the tail rather than the pin itself, so turning `followTail` on later pins at once.
+	const [isTailReleased, setIsTailReleased] = useState(false);
 	// Input events can arrive faster than React renders. Each scroll therefore moves from the latest offset, not from the one captured by the last render.
 	const latestOffsetRef = useRef(0);
 
@@ -101,7 +102,7 @@ export const ScrollBox = ({
 	const contentHeight = content.height;
 	const maxOffset = Math.max(0, contentHeight - height);
 	const currentOffset =
-		followTail && isFollowing
+		followTail && !isTailReleased
 			? maxOffset
 			: clamp(requestedOffset, 0, maxOffset);
 
@@ -120,7 +121,7 @@ export const ScrollBox = ({
 		}
 
 		if (followTail) {
-			setIsFollowing(next >= maxOffset);
+			setIsTailReleased(next < maxOffset);
 		}
 
 		onScroll?.(next);
@@ -142,44 +143,28 @@ export const ScrollBox = ({
 				scrollTo(maxOffset);
 			}
 		},
-		{isActive},
+		{isActive: isActive && isRawModeSupported},
 	);
 
-	useMouse(
-		event => {
-			if (event.action !== 'wheel') {
-				return;
-			}
-
-			const viewport = viewportRef.current;
-			if (!viewport) {
-				return;
-			}
-
-			if (!isElementAt(viewport, event.x, event.y)) {
-				return;
-			}
-
-			if (event.button === 'wheelUp') {
-				scrollTo(latestOffsetRef.current - wheelStep);
-			} else if (event.button === 'wheelDown') {
-				scrollTo(latestOffsetRef.current + wheelStep);
-			}
-		},
-		{isActive},
-	);
+	const handleWheel = (event: MouseEvent): void => {
+		if (event.button === 'wheelUp') {
+			scrollTo(latestOffsetRef.current - wheelStep);
+		} else if (event.button === 'wheelDown') {
+			scrollTo(latestOffsetRef.current + wheelStep);
+		}
+	};
 
 	const showTrack = showScrollbar && maxOffset > 0;
 
 	return (
 		<Box flexDirection="row" height={height}>
 			<Box
-				ref={viewportRef}
 				flexDirection="column"
 				flexGrow={1}
 				height={height}
 				overflow="hidden"
 				contentOffsetY={currentOffset}
+				onWheel={isActive ? handleWheel : undefined}
 			>
 				<Box ref={contentRef} flexDirection="column" flexShrink={0}>
 					{children}

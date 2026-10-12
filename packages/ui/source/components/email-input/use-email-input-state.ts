@@ -10,6 +10,7 @@ type Action =
 	| MoveCursorLeftAction
 	| MoveCursorRightAction
 	| InsertAction
+	| AppendAction
 	| DeleteAction;
 
 type MoveCursorLeftAction = {
@@ -22,6 +23,12 @@ type MoveCursorRightAction = {
 
 type InsertAction = {
 	type: 'insert';
+	text: string;
+};
+
+// Accepting a suggestion completes the value, wherever the cursor is.
+type AppendAction = {
+	type: 'append';
 	text: string;
 };
 
@@ -58,6 +65,16 @@ const reducer: Reducer<State, Action> = (state, action) => {
 					action.text +
 					state.value.slice(state.cursorOffset),
 				cursorOffset: state.cursorOffset + action.text.length,
+			};
+		}
+
+		case 'append': {
+			const value = state.value + action.text;
+			return {
+				...state,
+				previousValue: state.value,
+				value,
+				cursorOffset: value.length,
 			};
 		}
 
@@ -193,13 +210,13 @@ export const useEmailInputState = ({
 
 	const submit = useCallback(() => {
 		if (suggestion) {
-			insert(suggestion);
+			dispatch({type: 'append', text: suggestion});
 			onSubmit?.(state.value + suggestion);
 			return;
 		}
 
 		onSubmit?.(state.value);
-	}, [state.value, suggestion, insert, onSubmit]);
+	}, [state.value, suggestion, onSubmit]);
 
 	useEffect(() => {
 		if (state.previousValue !== state.value) {

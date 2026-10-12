@@ -66,3 +66,25 @@ test('ctrl+letter does not insert the letter', async (t: TestContext) => {
 test('control characters in pasted text are not inserted', async (t: TestContext) => {
 	t.assert.strictEqual(await submitAfter(['x\ny']), 'xy');
 });
+
+test('accepting a suggestion with the cursor mid-value appends it to the end', async (t: TestContext) => {
+	const changes: string[] = [];
+	const instance = render(
+		<TextInput
+			defaultValue="ap"
+			suggestions={['apple']}
+			onChange={value => {
+				changes.push(value);
+			}}
+		/>,
+	);
+
+	await delay(20);
+	instance.stdin.write(left);
+	await delay(15);
+	instance.stdin.write(enter);
+	await delay(30);
+	instance.unmount();
+
+	t.assert.strictEqual(changes.at(-1), 'apple');
+});

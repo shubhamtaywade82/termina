@@ -21,6 +21,10 @@ test('wide characters count as two columns', (t: TestContext) => {
 	t.assert.strictEqual(rowsForLine('漢字', 4), 1);
 });
 
+test('a wide character that does not fit at the end of a row wraps whole', (t: TestContext) => {
+	t.assert.strictEqual(rowsForLine('aa漢aa漢aa漢', 3), 5);
+});
+
 test('an unknown width falls back to one row per line', (t: TestContext) => {
 	t.assert.strictEqual(rowsForLine('x'.repeat(200), 0), 1);
 	t.assert.strictEqual(rowsForLine('x'.repeat(200), Number.NaN), 1);
