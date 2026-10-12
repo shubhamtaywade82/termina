@@ -238,6 +238,9 @@ importers:
       figures:
         specifier: ^6.1.0
         version: 6.1.0
+      string-width:
+        specifier: ^8.3.0
+        version: 8.3.0
     devDependencies:
       '@sindresorhus/tsconfig':
         specifier: ^8.1.0

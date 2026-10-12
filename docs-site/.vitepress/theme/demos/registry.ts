@@ -24,6 +24,28 @@ import SpinnerBasic from './spinner-basic';
 import StatusMessageBasic from './status-message-basic';
 import TextInputBasic from './text-input-basic';
 import UnorderedListBasic from './unordered-list-basic';
+import AccordionBasic from './accordion-basic';
+import AutocompleteBasic from './autocomplete-basic';
+import CodeBlockBasic from './code-block-basic';
+import DataTableBasic from './data-table-basic';
+import DialogBasic from './dialog-basic';
+import DiffViewBasic from './diff-view-basic';
+import DividerBasic from './divider-basic';
+import GaugeBasic from './gauge-basic';
+import HeaderBasic from './header-basic';
+import JSONViewerBasic from './json-viewer-basic';
+import KeyHintBasic from './key-hint-basic';
+import LoadingBarBasic from './loading-bar-basic';
+import MarkdownBasic from './markdown-basic';
+import SparklineBasic from './sparkline-basic';
+import StepperBasic from './stepper-basic';
+import StreamingTextBasic from './streaming-text-basic';
+import TableBasic from './table-basic';
+import TabsBasic from './tabs-basic';
+import ToastBasic from './toast-basic';
+import TokenCounterBasic from './token-counter-basic';
+import TypewriterBasic from './typewriter-basic';
+import TreeViewBasic from './tree-view-basic';
 
 export type DemoDefinition = {
   component: ComponentType;
@@ -59,4 +81,26 @@ export const demos: Record<string, DemoDefinition> = {
   'status-message-basic': {component: StatusMessageBasic, rows: 9},
   'text-input-basic': {component: TextInputBasic, rows: 9},
   'unordered-list-basic': {component: UnorderedListBasic, rows: 10},
+  'accordion-basic': {component: AccordionBasic, rows: 12},
+  'autocomplete-basic': {component: AutocompleteBasic, rows: 12},
+  'code-block-basic': {component: CodeBlockBasic, rows: 12},
+  'data-table-basic': {component: DataTableBasic, rows: 12},
+  'dialog-basic': {component: DialogBasic, rows: 12},
+  'diff-view-basic': {component: DiffViewBasic, rows: 12},
+  'divider-basic': {component: DividerBasic, rows: 12},
+  'gauge-basic': {component: GaugeBasic, rows: 12},
+  'header-basic': {component: HeaderBasic, rows: 12},
+  'json-viewer-basic': {component: JSONViewerBasic, rows: 12},
+  'key-hint-basic': {component: KeyHintBasic, rows: 12},
+  'loading-bar-basic': {component: LoadingBarBasic, rows: 12},
+  'markdown-basic': {component: MarkdownBasic, rows: 12},
+  'sparkline-basic': {component: SparklineBasic, rows: 12},
+  'stepper-basic': {component: StepperBasic, rows: 12},
+  'streaming-text-basic': {component: StreamingTextBasic, rows: 12},
+  'table-basic': {component: TableBasic, rows: 12},
+  'tabs-basic': {component: TabsBasic, rows: 12},
+  'toast-basic': {component: ToastBasic, rows: 12},
+  'token-counter-basic': {component: TokenCounterBasic, rows: 12},
+  'typewriter-basic': {component: TypewriterBasic, rows: 12},
+  'tree-view-basic': {component: TreeViewBasic, rows: 12},
 };
