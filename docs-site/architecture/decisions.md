@@ -90,7 +90,7 @@ These questions are not closed by any source.
 - **Cell-level back and front buffer renderer.** Status: not built, and no decision to build or to reject it is recorded. The research document says: "A cell-level back/front buffer could go lower again, but this measurement shows the cheap win is already in upstream and off by default." The measured figures are 21,588 bytes per update in the default writer and 701 bytes with incremental rendering. The question is therefore open, and the sources do not settle it.
 - **Cursor position after a reflow.** Status: open. The research document says: "Cursor position after a reflow is not reliably defined across terminals." When a `useCursor()` position is active, the fork falls back to the line-count erase.
 - **Spatial focus wired into `useFocus`.** Status: not built. `nearestInDirection` is a pure function, and `FORK.md` says it "is not wired into focus management."
-- **Components not yet built.** Status: not built. These are a multi-line text editor, DataTable, Modal with a focus trap, Tabs and SplitPane, and the OSC 8 and OSC 52 helpers as Ink components.
+- **Components not yet built.** Status: not built. These are a multi-line text editor, a Modal with a focus trap, SplitPane, and the OSC 8 and OSC 52 helpers as Ink components. DataTable and Tabs were built later, and Dialog covers a modal's content without a focus trap.
 
 ## Recorded without a stated reason
 

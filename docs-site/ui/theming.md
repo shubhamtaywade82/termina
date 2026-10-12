@@ -38,7 +38,7 @@ type ComponentStyles = Record<string, unknown>;
 
 ## Default theme
 
-`defaultTheme` has entries for 13 components: `Alert`, `Badge`, `ConfirmInput`, `EmailInput`, `MultiSelect`, `OrderedList`, `PasswordInput`, `ProgressBar`, `Select`, `Spinner`, `StatusMessage`, `TextInput`, and `UnorderedList`. `LogStream` and `ScrollBox` do not read the theme. They set their props directly in the component.
+`defaultTheme` has entries for 35 components: `Accordion`, `Alert`, `Autocomplete`, `Badge`, `CodeBlock`, `ConfirmInput`, `DataTable`, `Dialog`, `DiffView`, `Divider`, `EmailInput`, `Gauge`, `Header`, `JSONViewer`, `KeyHint`, `LoadingBar`, `Markdown`, `MultiSelect`, `OrderedList`, `PasswordInput`, `ProgressBar`, `Select`, `Sparkline`, `Spinner`, `Stepper`, `StatusMessage`, `StreamingText`, `Table`, `Tabs`, `TextInput`, `Toast`, `TokenCounter`, `Typewriter`, `TreeView`, and `UnorderedList`. `LogStream` and `ScrollBox` do not read the theme. They set their props directly in the component.
 
 Each entry is defined in `packages/ui/source/components/<name>/theme.ts`, where `<name>` is the component's folder in kebab case, for example `progress-bar`. The table under "Where styles live" lists the keys in each file.
 
@@ -74,18 +74,40 @@ Each component's `theme.ts` declares its entry with `satisfies ComponentTheme`. 
 
 | Component | Style keys | Config keys |
 | --- | --- | --- |
+| `Accordion` | `container()`, `title({isFocused})`, `icon({isOpen})`, `content()` | none |
 | `Alert` | `container({variant})`, `iconContainer()`, `icon({variant})`, `content()`, `title()`, `message()` | `config({variant})`: `icon` |
+| `Autocomplete` | `container()`, `input()`, `option({isHighlighted})`, `noMatches()` | none |
 | `Badge` | `container({color})`, `label()` | none |
+| `CodeBlock` | `container()`, `label()`, `lineNumber({isHighlighted})`, `code({isHighlighted})`, `gutter()` | none |
 | `ConfirmInput` | `input({isFocused})` | none |
+| `DataTable` | `container()`, `headerCell({isFocused})`, `row({isFocused})`, `cell()`, `separator()`, `sortIndicator()` | none |
+| `Dialog` | `container()`, `title()`, `body()`, `footer()` | none |
+| `DiffView` | `container()`, `header()`, `hunk()`, `added()`, `removed()`, `context()` | none |
+| `Divider` | `container()`, `line()`, `title()` | none |
 | `EmailInput` | `value()` | none |
+| `Gauge` | `container()`, `label()`, `filled()`, `empty()`, `value()` | `config({value})`: `color` |
+| `Header` | `container()`, `title()`, `subtitle()` | none |
+| `JSONViewer` | `key()`, `string()`, `number()`, `boolean()`, `null()`, `punctuation()` | none |
+| `KeyHint` | `container()`, `key()`, `label()` | none |
+| `LoadingBar` | `container()`, `track()`, `block()` | none |
+| `Markdown` | `container()`, `heading({level})`, `paragraph()`, `listBullet()`, `code()`, `codeBlock()`, `blockquote()`, `bold()`, `italic()`, `link()` | none |
 | `MultiSelect` | `container()`, `option({isFocused})`, `selectedIndicator()`, `focusIndicator()`, `label({isFocused, isSelected})`, `highlightedText()` | none |
 | `OrderedList` | `list()`, `listItem()`, `marker()`, `content()` | none |
 | `PasswordInput` | `value()` | none |
 | `ProgressBar` | `container()`, `completed()`, `remaining()` | `config()`: `completedCharacter`, `remainingCharacter` |
 | `Select` | `container()`, `option({isFocused})`, `selectedIndicator()`, `focusIndicator()`, `label({isFocused, isSelected})`, `highlightedText()` | none |
+| `Sparkline` | `bars()` | none |
 | `Spinner` | `container()`, `frame()`, `label()` | none |
 | `StatusMessage` | `container()`, `iconContainer()`, `icon({variant})`, `message()` | `config({variant})`: `icon` |
+| `Stepper` | `container()`, `icon({status})`, `label({status})` | none |
+| `StreamingText` | `text()`, `cursor()` | none |
+| `Table` | `container()`, `header()`, `row()`, `cell({align})`, `separator()` | none |
+| `Tabs` | `tabBar()`, `tab({isActive})`, `panel()` | none |
 | `TextInput` | `value()` | none |
+| `Toast` | `container()` | none |
+| `TokenCounter` | `container()`, `count({status})`, `label()` | none |
+| `TreeView` | `container()`, `node({isFocused})`, `guide()`, `branch({isExpanded})`, `leaf()` | none |
+| `Typewriter` | `text()`, `cursor()` | none |
 | `UnorderedList` | `list()`, `listItem()`, `marker()`, `content()` | `config()`: `marker`, a `string` or a `string[]` indexed by depth |
 
 ## Worked example: a green ProgressBar with ASCII characters

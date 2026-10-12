@@ -4,7 +4,7 @@ outline: [2, 3]
 
 # UI Kit Overview
 
-`@nemesis-oss/termina-ui` is a kit of 15 components for terminal interfaces: text input, selection, status, progress, lists, and two scrolling viewers, `ScrollBox` and `LogStream`. The components render through `@nemesis-oss/termina-core`. Thirteen of them read their styles from a theme, so one `ThemeProvider` can restyle a whole screen. The two viewers do not use the theme. Use the kit when you need these standard parts in a terminal app built on `@nemesis-oss/termina-core`. It is a fork of `ink-ui` 2.0.0, ported onto `@nemesis-oss/termina-core`. If you have not set up a workspace app yet, start with [Getting Started](/guide/getting-started).
+`@nemesis-oss/termina-ui` is a kit of 37 components for terminal interfaces: text input and selection, status and progress, lists, tables and tabs, expandable sections, code and Markdown display, and two scrolling viewers, `ScrollBox` and `LogStream`. The components render through `@nemesis-oss/termina-core`. Thirty-five of them read their styles from a theme, so one `ThemeProvider` can restyle a whole screen. The two viewers do not use the theme. Use the kit when you need these standard parts in a terminal app built on `@nemesis-oss/termina-core`. It is a fork of `ink-ui` 2.0.0, ported onto `@nemesis-oss/termina-core`. If you have not set up a workspace app yet, start with [Getting Started](/guide/getting-started).
 
 ## Live preview
 
@@ -74,20 +74,42 @@ render(<App />);
 
 | Component | Purpose |
 | --- | --- |
+| [Accordion](/ui/components/accordion) | Expandable sections. Up and Down move focus, and Enter or Space opens or closes a section. `multiple` allows more than one open at a time. |
 | [Alert](/ui/components/alert) | Bordered message with a variant color, an icon, and an optional title. Variants: `info`, `success`, `error`, `warning`. |
+| [Autocomplete](/ui/components/autocomplete) | Text input with a suggestion list filtered from `options`. Up and Down move the highlight, and Enter accepts it. |
 | [Badge](/ui/components/badge) | Short inline label on a background color. Default color `magenta`. String children are uppercased. |
+| [CodeBlock](/ui/components/code-block) | Code with a line-number gutter and a rule. Plain text, with no syntax highlighting. `highlightLines` marks lines. |
 | [ConfirmInput](/ui/components/confirm-input) | `Y/n` or `y/N` prompt. `y` confirms and `n` cancels. Enter picks the default choice unless `submitOnEnter` is `false`. |
+| [DataTable](/ui/components/data-table) | Table with a focus. Moves through rows and columns, sorts by the focused column with `s`, and reports the chosen row through `onSelect`. |
+| [Dialog](/ui/components/dialog) | Bordered box with a title and content. Escape calls `onClose`. Renders in place, with no overlay and no focus trap. |
+| [DiffView](/ui/components/diff-view) | Renders a unified diff, styling added, removed and hunk lines differently. Display only. |
+| [Divider](/ui/components/divider) | Horizontal rule that fills its parent. An optional title sits in the rule. |
 | [EmailInput](/ui/components/email-input) | Single-line email entry. After `@`, it completes the domain from a list of common providers. |
+| [Gauge](/ui/components/gauge) | Percent bar with an optional label. Turns yellow from 70 percent and red from 90 percent. |
+| [Header](/ui/components/header) | Bold title with an optional dimmed subtitle on the same row. |
+| [JSONViewer](/ui/components/json-viewer) | Pretty-prints any value, with a color for each kind of value. `maxDepth` limits how deep it draws. |
+| [KeyHint](/ui/components/key-hint) | A key label and what the key does, for example in a footer. |
+| [LoadingBar](/ui/components/loading-bar) | Indeterminate bar that moves back and forth while work runs. |
 | [LogStream](/ui/components/log-stream) | Tail-following viewer for an array of strings. Keeps the newest `maxLines` entries. |
+| [Markdown](/ui/components/markdown) | Renders a subset of Markdown: headings, lists, block quotes, fenced code and inline emphasis. |
 | [MultiSelect](/ui/components/multi-select) | Scrollable list where Space toggles an option and Enter submits the selected values. |
 | [OrderedList](/ui/components/ordered-list) | Numbered list. A nested list prefixes the parent number, for example `2.1.`. |
 | [PasswordInput](/ui/components/password-input) | Single-line input that shows one `*` per grapheme cluster. |
 | [ProgressBar](/ui/components/progress-bar) | Horizontal bar. `value` is clamped to 0 through 100. The bar characters come from the theme config. |
 | [ScrollBox](/ui/components/scroll-box) | Fixed-height viewport over taller content, scrolled by keys and the mouse wheel. |
 | [Select](/ui/components/select) | Scrollable single-choice list. Up and Down move focus, and Enter selects. |
+| [Sparkline](/ui/components/sparkline) | Mini bar chart of a series of numbers, one block per value. |
 | [Spinner](/ui/components/spinner) | Animated frame with an optional label. `type` selects a cli-spinners animation, default `dots`. |
 | [StatusMessage](/ui/components/status-message) | Icon and text for a `success`, `error`, `warning`, or `info` status. |
+| [Stepper](/ui/components/stepper) | Vertical list of steps, marking each as done, current or pending. |
+| [StreamingText](/ui/components/streaming-text) | Text that is still arriving, with a cursor while `isStreaming` is set. Runs no timer. |
+| [Table](/ui/components/table) | Rows of values in aligned columns. Display only, with no focus. |
+| [Tabs](/ui/components/tabs) | Tab bar with one panel shown at a time. Left and Right switch tabs. |
 | [TextInput](/ui/components/text-input) | Single-line input with optional `suggestions`. Enter accepts the shown suggestion and submits the completed value. |
+| [Toast](/ui/components/toast) | One-line message with a variant icon. Dismisses itself after `durationMs`, or stays until it unmounts. |
+| [TokenCounter](/ui/components/token-counter) | Token count with thousands separators, and the percent of a limit, colored by usage. |
+| [TreeView](/ui/components/tree-view) | Hierarchical list with expand and collapse, tree guides and keyboard navigation. |
+| [Typewriter](/ui/components/typewriter) | Reveals a string one character at a time, at a set speed. |
 | [UnorderedList](/ui/components/unordered-list) | Bulleted list. The marker comes from the theme config and can vary by nesting depth. |
 
 The kit also exports these, which are not components:

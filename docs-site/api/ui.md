@@ -14,20 +14,42 @@ Each component has the form `(props: <Props>) => React.JSX.Element`.
 
 | Export | Props type | Page |
 | --- | --- | --- |
+| `Accordion` | `AccordionProps` | [Accordion](/ui/components/accordion) |
 | `Alert` | `AlertProps` | [Alert](/ui/components/alert) |
+| `Autocomplete` | `AutocompleteProps` | [Autocomplete](/ui/components/autocomplete) |
 | `Badge` | `BadgeProps` | [Badge](/ui/components/badge) |
+| `CodeBlock` | `CodeBlockProps` | [CodeBlock](/ui/components/code-block) |
 | `ConfirmInput` | `ConfirmInputProps` | [ConfirmInput](/ui/components/confirm-input) |
+| `DataTable` | `DataTableProps` | [DataTable](/ui/components/data-table) |
+| `Dialog` | `DialogProps` | [Dialog](/ui/components/dialog) |
+| `DiffView` | `DiffViewProps` | [DiffView](/ui/components/diff-view) |
+| `Divider` | `DividerProps` | [Divider](/ui/components/divider) |
 | `EmailInput` | `EmailInputProps` | [EmailInput](/ui/components/email-input) |
+| `Gauge` | `GaugeProps` | [Gauge](/ui/components/gauge) |
+| `Header` | `HeaderProps` | [Header](/ui/components/header) |
+| `JSONViewer` | `JSONViewerProps` | [JSONViewer](/ui/components/json-viewer) |
+| `KeyHint` | `KeyHintProps` | [KeyHint](/ui/components/key-hint) |
+| `LoadingBar` | `LoadingBarProps` | [LoadingBar](/ui/components/loading-bar) |
 | `LogStream` | `LogStreamProps` | [LogStream](/ui/components/log-stream) |
+| `Markdown` | `MarkdownProps` | [Markdown](/ui/components/markdown) |
 | `MultiSelect` | `MultiSelectProps` | [MultiSelect](/ui/components/multi-select) |
 | `OrderedList` | `OrderedListProps` | [OrderedList](/ui/components/ordered-list) |
 | `PasswordInput` | `PasswordInputProps` | [PasswordInput](/ui/components/password-input) |
 | `ProgressBar` | `ProgressBarProps` | [ProgressBar](/ui/components/progress-bar) |
 | `ScrollBox` | `ScrollBoxProps` | [ScrollBox](/ui/components/scroll-box) |
 | `Select` | `SelectProps` | [Select](/ui/components/select) |
+| `Sparkline` | `SparklineProps` | [Sparkline](/ui/components/sparkline) |
 | `Spinner` | `SpinnerProps` | [Spinner](/ui/components/spinner) |
 | `StatusMessage` | `StatusMessageProps` | [StatusMessage](/ui/components/status-message) |
+| `Stepper` | `StepperProps` | [Stepper](/ui/components/stepper) |
+| `StreamingText` | `StreamingTextProps` | [StreamingText](/ui/components/streaming-text) |
+| `Table` | `TableProps` | [Table](/ui/components/table) |
+| `Tabs` | `TabsProps` | [Tabs](/ui/components/tabs) |
 | `TextInput` | `TextInputProps` | [TextInput](/ui/components/text-input) |
+| `Toast` | `ToastProps` | [Toast](/ui/components/toast) |
+| `TokenCounter` | `TokenCounterProps` | [TokenCounter](/ui/components/token-counter) |
+| `TreeView` | `TreeViewProps` | [TreeView](/ui/components/tree-view) |
+| `Typewriter` | `TypewriterProps` | [Typewriter](/ui/components/typewriter) |
 | `UnorderedList` | `UnorderedListProps` | [UnorderedList](/ui/components/unordered-list) |
 
 ### Static members
@@ -87,6 +109,11 @@ const nearestInDirection: (
 | `Rect` | `{x: number; y: number; width: number; height: number}`, in cells |
 | `Direction` | The string literals `up`, `down`, `left`, and `right` |
 | `FocusCandidate` | `{id: string; rect: Rect}` |
+| `AccordionItem` | `{id: string; title: string; content: ReactNode}`. A string `content` is drawn as text |
+| `TabsItem` | `{id: string; label: string; content: ReactNode}`. A string `content` is drawn as text |
+| `TableColumn` | `{key: string; header: string; align?: 'left' \| 'right'}`, with `align` defaulting to `'left'` |
+| `TableRow` | `Record<string, string \| number>` |
+| `TreeViewNode` | `{label: string; children?: TreeViewNode[]}`. A node with children is a branch |
 
 The props types of the components are listed in the components table above. Each one is exported under the name shown.
 

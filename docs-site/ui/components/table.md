@@ -4,7 +4,7 @@ outline: [2, 3]
 
 # Table
 
-`Table` shows rows of values in aligned columns. Use it to show data you already have, such as a list of processes or the rows of a query result. It is display only: it has no focus and reads no keys, so the user cannot pick a row. To let the user choose one value from a list, use [Select](/ui/components/select). Each column is as wide as its widest cell, header included, and cells in a row are separated by two spaces. A table wider than its container is not truncated; it overflows.
+`Table` shows rows of values in aligned columns. Use it to show data you already have, such as a list of processes or the rows of a query result. It is display only: it has no focus and reads no keys, so the user cannot pick a row. To let the user choose one value from a list, use [Select](/ui/components/select). To let the user move through rows and pick one, use [DataTable](/ui/components/data-table). Each column is as wide as its widest cell, header included, and cells in a row are separated by two spaces. A table wider than its container is not truncated; it overflows.
 
 `Table` is exported from `@nemesis-oss/termina-ui`. `@nemesis-oss/termina-ui` is a workspace package in this repository and is not published to npm yet, so import it from another workspace package. For the full component list, read the [UI Kit overview](/ui/overview).
 
@@ -46,7 +46,7 @@ Each row is an object keyed by the column keys, and a value can be a string or a
 | Prop | Type | Default | Description |
 | --- | --- | --- | --- |
 | `columns` | `TableColumn[]` | Required | Columns, in display order. `key` names the row field, `header` is the header text, and `align` defaults to `'left'`. |
-| `rows` | `TableRow[]` | Required | Rows, one line each. A row with no value for a column's `key` shows an empty cell. |
+| `rows` | `TableRow[]` | Required | Rows, one line each unless a cell contains a line break, which splits its row onto more lines. A row with no value for a column's `key` shows an empty cell. |
 
 ## Theme keys
 

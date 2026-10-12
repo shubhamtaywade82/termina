@@ -56,7 +56,7 @@ export type DemoDefinition = {
 
 export const demos: Record<string, DemoDefinition> = {
   'overview-hero': {component: OverviewHero, rows: 13},
-  'alert-basic': {component: AlertBasic, rows: 13},
+  'alert-basic': {component: AlertBasic, rows: 24},
   'badge-basic': {component: BadgeBasic, rows: 10},
   'confirm-input-basic': {component: ConfirmInputBasic, rows: 7},
   'email-input-basic': {component: EmailInputBasic, rows: 8},
