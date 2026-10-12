@@ -24,7 +24,8 @@ export type ToastProps = {
 	readonly variant?: StatusMessageVariant;
 
 	/**
-	 * Milliseconds before the toast hides itself. `0` or a negative value keeps it until it unmounts.
+	 * Milliseconds before the toast hides itself. `0`, a negative value, or a value
+	 * above 2147483647 (including `Infinity`) keeps it until it unmounts.
 	 *
 	 * @default 3000
 	 */
@@ -41,8 +42,11 @@ type AutoDismissOptions = {
 	readonly onDismiss?: () => void;
 };
 
+// setTimeout fires at once for a negative delay or one above the maximum,
+// so those durations keep the toast like 0.
+const MAX_TIMER_DELAY_MS = 2 ** 31 - 1;
+
 // onDismiss goes through an effect event, so a new inline function on each render does not restart the countdown.
-// A negative delay would make setTimeout fire at once, so it is treated like 0.
 function useAutoDismiss({durationMs, onDismiss}: AutoDismissOptions): boolean {
 	const [isDismissed, setIsDismissed] = useState(false);
 	const notifyDismissed = useEffectEvent(() => {
@@ -50,7 +54,8 @@ function useAutoDismiss({durationMs, onDismiss}: AutoDismissOptions): boolean {
 	});
 
 	useEffect(() => {
-		if (isDismissed || durationMs <= 0) {
+		const hasCountdown = durationMs > 0 && durationMs <= MAX_TIMER_DELAY_MS;
+		if (isDismissed || !hasCountdown) {
 			return undefined;
 		}
 

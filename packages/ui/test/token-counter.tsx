@@ -98,6 +98,23 @@ test('shows zero in the ok color', (t: TestContext) => {
 	);
 });
 
+test('shows zero without a limit in the ok color', (t: TestContext) => {
+	const {lastFrame} = render(<TokenCounter count={0} />);
+
+	t.assert.strictEqual(lastFrame(), `${chalk.green('0')} tokens`);
+});
+
+test('draws no label when it is empty, leaving one space before the percent', (t: TestContext) => {
+	const {lastFrame} = render(
+		<TokenCounter count={1234} limit={4096} label="" />,
+	);
+
+	t.assert.strictEqual(
+		lastFrame(),
+		`${chalk.green('1,234 / 4,096')} ${chalk.green('(30%)')}`,
+	);
+});
+
 test('uses the label prop in place of tokens', (t: TestContext) => {
 	const {lastFrame} = render(
 		<TokenCounter count={1234} label="input tokens" />,

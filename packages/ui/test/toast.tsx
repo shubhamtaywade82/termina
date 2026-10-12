@@ -95,6 +95,27 @@ test('keeps the toast when durationMs is negative', async (t: TestContext) => {
 	unmount();
 });
 
+test('keeps the toast when durationMs is above the timer limit', async (t: TestContext) => {
+	const onDismiss = t.mock.fn();
+	const infinite = render(
+		<Toast durationMs={Infinity} onDismiss={onDismiss}>
+			Saved
+		</Toast>,
+	);
+	const oversized = render(
+		<Toast durationMs={2 ** 31} onDismiss={onDismiss}>
+			Saved
+		</Toast>,
+	);
+
+	await delay(20);
+	t.assert.strictEqual(infinite.lastFrame(), ` ${chalk.blue(figures.info)} Saved`);
+	t.assert.strictEqual(oversized.lastFrame(), ` ${chalk.blue(figures.info)} Saved`);
+	t.assert.strictEqual(onDismiss.mock.callCount(), 0);
+	infinite.unmount();
+	oversized.unmount();
+});
+
 test('unmounting before durationMs cancels the countdown and onDismiss', async (t: TestContext) => {
 	const onDismiss = t.mock.fn();
 	const {unmount} = render(

@@ -65,7 +65,7 @@ export function TokenCounter({
 	return (
 		<Box {...styles.container()}>
 			<Text {...styles.count({status})}>{formatUsage(count, limit)}</Text>
-			<Text {...styles.label()}>{label}</Text>
+			{label ? <Text {...styles.label()}>{label}</Text> : null}
 			{limit !== undefined && (
 				<Text {...styles.count({status})}>
 					({Math.round((count / limit) * 100)}%)

@@ -1,4 +1,4 @@
-import React, {act} from 'react';
+import React, {act, useLayoutEffect} from 'react';
 import test, {type TestContext} from 'node:test';
 import chalk from 'chalk';
 import {render} from './helpers/render.js';
@@ -26,6 +26,17 @@ const advance = async (t: TestContext, ms: number) => {
 		t.mock.timers.tick(ms);
 	});
 };
+
+// Ticks in the commit, before the Typewriter's effects run, which is where a timer from the old text can still fire.
+function TickOnCommit({isActive, tick}: {readonly isActive: boolean; readonly tick: () => void}) {
+	useLayoutEffect(() => {
+		if (isActive) {
+			tick();
+		}
+	}, [isActive, tick]);
+
+	return null;
+}
 
 test('shows only the cursor before the first character', (t: TestContext) => {
 	t.mock.timers.enable({apis: ['setInterval']});
@@ -75,6 +86,16 @@ test('starts no timer when speed is not a positive number', async (t: TestContex
 	t.assert.strictEqual(onComplete.mock.callCount(), 0);
 });
 
+test('caps a very slow speed at the longest delay Node accepts', (t: TestContext) => {
+	t.mock.timers.enable({apis: ['setInterval']});
+	const setIntervalMock = t.mock.method(globalThis, 'setInterval');
+	const {lastFrame, unmount} = render(<Typewriter text="ab" speed={1e-9} />);
+
+	t.assert.strictEqual(setIntervalMock.mock.calls[0]?.arguments[1], 2_147_483_647);
+	t.assert.strictEqual(lastFrame(), cursor);
+	unmount();
+});
+
 test('reveals text by code point so an emoji is never split', async (t: TestContext) => {
 	t.mock.timers.enable({apis: ['setInterval']});
 	const {frames, unmount} = render(<Typewriter text="😀👍🏽" speed={FAST_SPEED} />);
@@ -104,6 +125,31 @@ test('restarts the reveal when text changes', async (t: TestContext) => {
 
 	await advance(t, STEP_MS);
 	t.assert.strictEqual(lastFrame(), `x${cursor}`);
+	unmount();
+});
+
+test('ignores a tick from the previous text that fires before the new text takes effect', async (t: TestContext) => {
+	t.mock.timers.enable({apis: ['setInterval']});
+	const tickPreviousTimer = () => {
+		t.mock.timers.tick(STEP_MS);
+	};
+	const {lastFrame, rerender, unmount} = render(
+		<>
+			<Typewriter text="ab" speed={FAST_SPEED} />
+			<TickOnCommit isActive={false} tick={tickPreviousTimer} />
+		</>,
+	);
+
+	await runInAct(() => {
+		rerender(
+			<>
+				<Typewriter text="xy" speed={FAST_SPEED} />
+				<TickOnCommit isActive tick={tickPreviousTimer} />
+			</>,
+		);
+	});
+
+	t.assert.strictEqual(lastFrame(), cursor);
 	unmount();
 });
 

@@ -4,7 +4,7 @@ outline: [2, 3]
 
 # TreeView
 
-`TreeView` draws nested data as an indented outline. Right and Left expand and collapse branches, and Enter selects any node and reports its path from the root. Use it for data that nests, such as a file tree, a dependency graph, or a settings schema. For a flat list where the user picks one value, use [Select](/ui/components/select). For a flat list of titled sections that each show content, use [Accordion](/ui/components/accordion).
+`TreeView` draws nested data as an indented outline. Right and Left expand and collapse branches, and Enter selects any node and reports its path from the root. Use it for data that nests, such as a file tree, a dependency tree, or a settings schema. For a flat list where the user picks one value, use [Select](/ui/components/select). For a flat list of titled sections that each show content, use [Accordion](/ui/components/accordion).
 
 `TreeView` is exported from `@nemesis-oss/termina-ui`. `@nemesis-oss/termina-ui` is a workspace package in this repository and is not published to npm yet, so import it from another workspace package. For the full component list, read the [UI Kit overview](/ui/overview).
 
@@ -52,7 +52,7 @@ function Project() {
 render(<Project />);
 ```
 
-`onSelect` receives the label and the path of the node where Enter was pressed. This example prints that path and exits on the first Enter.
+`onSelect` receives the label and the path of the node where Enter was pressed, and this example prints that path and exits on the first Enter.
 
 ## Props
 
@@ -76,7 +76,7 @@ render(<Project />);
 | Enter | Calls `onSelect` with the focused node's label and path, and toggles the focused branch. On a leaf, calls `onSelect` only. |
 | Any other key | Ignored. |
 
-When `isActive` is false, no key has an effect and `onSelect` is not called. The tree still renders, and the focused row keeps its highlight. Keys are read only when stdin supports raw mode, so the tree also renders under piped stdin and ignores keys there.
+When `isActive` is false, no key has an effect and `onSelect` is not called. The tree still renders, and the focused row keeps its highlight.
 
 ## Theme keys
 
@@ -99,8 +99,9 @@ The glyphs are set in the component, so the theme controls only their colors. A 
 - Empty `nodes` renders nothing. Keys do nothing, and `onSelect` is not called.
 - A node with an empty `children` array is a leaf. It shows no triangle, and Right does nothing to it.
 - `defaultExpanded` is read once at mount. A later change has no effect, and branches the user has not toggled keep their state.
-- A branch added to `nodes` after mount starts with the `defaultExpanded` value from mount.
+- A branch whose label path was never toggled starts with the `defaultExpanded` value from mount. This includes a branch added to `nodes` after mount.
 - Expansion is kept by label path, so a rerender with the same paths keeps each branch expanded or collapsed.
-- If `nodes` shrinks past the focused row, focus moves to the last row.
+- If `nodes` shrinks past the focused row, the last row is shown focused.
 - Sibling nodes with the same label share one expansion state, so toggling one toggles the other.
 - `onSelect` is called once per Enter press, including the press that toggles a branch.
+- When stdin is piped and does not support raw mode, the tree renders and ignores keys.

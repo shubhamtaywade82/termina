@@ -31,6 +31,9 @@ export type TypewriterProps = {
 
 const CURSOR_GLYPH = '▋';
 
+// Node runs any delay above this at 1 ms with a warning, so a slower speed is capped at this delay.
+const MAX_TIMER_DELAY_MS = 2_147_483_647;
+
 type Reveal = {
 	readonly text: string;
 	readonly revealedCount: number;
@@ -48,6 +51,15 @@ type CompletionOptions = {
 	readonly onComplete?: () => void;
 };
 
+// A tick from the previous text can land before its cleanup runs, so it only advances the text it was started for.
+function advanceReveal(current: Reveal, text: string): Reveal {
+	if (current.text !== text) {
+		return current;
+	}
+
+	return {...current, revealedCount: current.revealedCount + 1};
+}
+
 // The reset runs during render, so the frame for a new text never shows the previous reveal.
 function useRevealedCount({text, characterCount, speed}: RevealOptions): number {
 	const [reveal, setReveal] = useState<Reveal>({text, revealedCount: 0});
@@ -59,16 +71,18 @@ function useRevealedCount({text, characterCount, speed}: RevealOptions): number 
 	const isComplete = reveal.revealedCount >= characterCount;
 
 	useEffect(() => {
-		// Node warns on a zero, negative or NaN delay and then runs it at 1 ms, so such a speed starts no timer.
+		// Node runs a zero delay at 1 ms silently, and a negative or NaN one at 1 ms with a stderr warning,
+		// so such a speed starts no timer.
 		if (isComplete || !(speed > 0)) {
 			return undefined;
 		}
 
 		// Keyed on text so a new text waits a full interval before its first character.
-		// ponytail: setInterval truncates to whole milliseconds, so 60 per second runs at about 62. Exact pacing needs a clock-based scheduler.
+		// ponytail: the period truncates to whole milliseconds, so the rate rounds up (60 runs at 62.5, 300 at 333)
+		// and anything above 500 runs at 1000. Exact pacing needs a clock-based scheduler.
 		const timer = setInterval(() => {
-			setReveal(current => ({...current, revealedCount: current.revealedCount + 1}));
-		}, 1000 / speed);
+			setReveal(current => advanceReveal(current, text));
+		}, Math.min(1000 / speed, MAX_TIMER_DELAY_MS));
 
 		return () => {
 			clearInterval(timer);

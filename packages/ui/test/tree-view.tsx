@@ -212,6 +212,14 @@ test('Left on a leaf moves focus to its parent branch', async (t: TestContext) =
 	instance.unmount();
 });
 
+test('Left on a leaf moves focus to a parent further up the tree', async (t: TestContext) => {
+	const instance = render(<TreeView nodes={tree} />);
+	await press(instance, [down, down, down, down, left]);
+
+	t.assert.strictEqual(instance.lastFrame(), frame(fullTreeLines(0)));
+	instance.unmount();
+});
+
 test('Left on a top-level branch that is collapsed does nothing', async (t: TestContext) => {
 	const instance = render(<TreeView nodes={tree} defaultExpanded={false} />);
 	await press(instance, [left]);
@@ -242,6 +250,14 @@ test('Enter toggles a branch and reports it on every press', async (t: TestConte
 		['components', ['src', 'components']],
 		['components', ['src', 'components']],
 	]);
+	instance.unmount();
+});
+
+test('Enter toggles a branch when onSelect is not given', async (t: TestContext) => {
+	const instance = render(<TreeView nodes={tree} />);
+	await press(instance, [down, enter]);
+
+	t.assert.strictEqual(instance.lastFrame(), frame(componentsCollapsedLines));
 	instance.unmount();
 });
 
@@ -309,11 +325,17 @@ test('renders nothing for empty nodes, and keys do nothing', async (t: TestConte
 test('a branch with an empty children array renders as a leaf', async (t: TestContext) => {
 	const {selections, onSelect} = recordSelections();
 	const instance = render(
-		<TreeView nodes={[{label: 'notes', children: []}]} onSelect={onSelect} />,
+		<TreeView
+			nodes={[{label: 'notes', children: []}, {label: 'todo'}]}
+			onSelect={onSelect}
+		/>,
 	);
 	await press(instance, [right, enter]);
 
-	t.assert.strictEqual(instance.lastFrame(), frame([leafLine('', 'notes', true)]));
+	t.assert.strictEqual(
+		instance.lastFrame(),
+		frame([leafLine('', 'notes', true), leafLine('', 'todo')]),
+	);
 	t.assert.deepStrictEqual(selections, [['notes', ['notes']]]);
 	instance.unmount();
 });
@@ -328,19 +350,18 @@ test('defaultExpanded is read once, so a later change does not flip branches', a
 });
 
 test('a branch added after mount starts with the mount-time default', async (t: TestContext) => {
-	const instance = render(<TreeView nodes={tree} />);
+	const instance = render(<TreeView nodes={tree} defaultExpanded={false} />);
 	instance.rerender(
-		<TreeView nodes={[...tree, {label: 'extras', children: [{label: 'todo.md'}]}]} />,
+		<TreeView
+			nodes={[...tree, {label: 'extras', children: [{label: 'todo.md'}]}]}
+			defaultExpanded
+		/>,
 	);
 	await delay(20);
 
 	t.assert.strictEqual(
 		instance.lastFrame(),
-		frame([
-			...fullTreeLines(0),
-			branchLine('', 'extras', {isExpanded: true}),
-			leafLine('└ ', 'todo.md'),
-		]),
+		frame([...collapsedLines, branchLine('', 'extras', {isExpanded: false})]),
 	);
 	instance.unmount();
 });
@@ -392,7 +413,7 @@ test('sibling nodes with the same label expand and collapse together', async (t:
 	instance.unmount();
 });
 
-test('a leaf() style set through ThemeProvider colors unfocused leaf labels only', (t: TestContext) => {
+test('a leaf() style colors leaf labels, and the focus color wins on the focused leaf', async (t: TestContext) => {
 	const theme = extendTheme(defaultTheme, {
 		components: {TreeView: {styles: {leaf: () => ({color: 'green'})}}},
 	});
@@ -403,13 +424,14 @@ test('a leaf() style set through ThemeProvider colors unfocused leaf labels only
 			<TreeView nodes={tree} />
 		</ThemeProvider>,
 	);
+	await press(instance, [down, down]);
 
 	t.assert.strictEqual(
 		instance.lastFrame(),
 		frame([
-			branchLine('', 'src', {isExpanded: true, isFocused: true}),
+			branchLine('', 'src', {isExpanded: true}),
 			branchLine('├ ', 'components', {isExpanded: true}),
-			greenLeaf('│ ├ ', 'Button.tsx'),
+			leafLine('│ ├ ', 'Button.tsx', true),
 			greenLeaf('│ └ ', 'Input.tsx'),
 			greenLeaf('└ ', 'index.ts'),
 			branchLine('', 'docs', {isExpanded: true}),

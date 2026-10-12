@@ -36,7 +36,7 @@ function Prompt() {
 render(<Prompt />);
 ```
 
-`TokenCounter` displays the count you pass in. It does not count tokens or call a model.
+`TokenCounter` displays the count you pass in, and it does not count tokens or call a model.
 
 ## Props
 
@@ -67,4 +67,5 @@ The component reads the `TokenCounter` entry of the theme. To change a key, pass
 - A count just under the limit shows `(100%)` in yellow. Only a count at or above the limit is red.
 - A count above the limit shows a percent over 100 in red, for example `1,220 / 1,000 tokens (122%)`.
 - A count of `0` shows `0` in green, with `(0%)` when a limit is set.
+- An empty `label` draws nothing. With a limit, the count and the percent are then one space apart, as in `1,234 / 4,096 (30%)`.
 - Changing `count` or `limit` after mount updates the count, the color and the percent on the next render. The component keeps no state of its own.

@@ -48,7 +48,7 @@ type TreeViewRow = {
 	readonly isExpanded: boolean;
 };
 
-// Stores toggles rather than expansion, so a branch that appears later starts with the default.
+// Stores toggles rather than expansion, so a branch that was never toggled takes the mount-time default when it appears.
 type TreeViewState = {focusedIndex: number; toggledKeys: ReadonlySet<string>};
 
 const initialState: TreeViewState = {focusedIndex: 0, toggledKeys: new Set()};
@@ -192,7 +192,6 @@ type TreeViewSource = {
 	readonly onSelect: TreeViewProps['onSelect'];
 };
 
-// Enter reports the node that was focused before the key was applied.
 const handleKeyPress = (
 	current: TreeViewState,
 	key: Key,
