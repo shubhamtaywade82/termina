@@ -1,6 +1,6 @@
 import { defineConfig } from 'vitepress';
 
-// termina documentation site. It covers the two workspace packages: @fork/core (the renderer, a fork of Ink 8) and @fork/ui (the component kit, a fork of ink-ui 2).
+// termina documentation site. It covers the two workspace packages: @nemesis-oss/termina-core (the renderer, a fork of Ink 8) and @nemesis-oss/termina-ui (the component kit, a fork of ink-ui 2).
 export default defineConfig({
   title: 'termina',
   description: 'React terminal UI: a forked Ink renderer and a component kit',
@@ -83,8 +83,8 @@ export default defineConfig({
         text: 'API Reference',
         collapsed: false,
         items: [
-          { text: '@fork/core', link: '/api/core' },
-          { text: '@fork/ui', link: '/api/ui' },
+          { text: '@nemesis-oss/termina-core', link: '/api/core' },
+          { text: '@nemesis-oss/termina-ui', link: '/api/ui' },
         ],
       },
       {

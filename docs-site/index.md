@@ -4,7 +4,7 @@ layout: home
 hero:
   name: termina
   text: A React terminal UI, built from forks you can read
-  tagline: "@fork/core is a fork of Ink 8 (React reconciler and Yoga layout). @fork/ui is a fork of ink-ui 2 (component kit), ported onto it."
+  tagline: "@nemesis-oss/termina-core is a fork of Ink 8 (React reconciler and Yoga layout). @nemesis-oss/termina-ui is a fork of ink-ui 2 (component kit), ported onto it."
   actions:
     - theme: brand
       text: Getting Started

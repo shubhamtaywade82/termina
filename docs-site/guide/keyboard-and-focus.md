@@ -8,7 +8,7 @@ Keyboard input reaches component code through `useInput`, pasted text through `u
 
 Mouse input is covered on [Mouse](/guide/mouse). The kitty keyboard protocol is a render option and is covered on [Terminal Features](/guide/terminal-features).
 
-All hooks on this page are exported from `@fork/core`. The package is a workspace package in this repository and is not published to npm.
+All hooks on this page are exported from `@nemesis-oss/termina-core`. The package is a workspace package in this repository and is not published to npm.
 
 ## Reading keys with useInput
 
@@ -16,7 +16,7 @@ All hooks on this page are exported from `@fork/core`. The package is a workspac
 
 ```tsx
 import {useState} from 'react';
-import {Text, render, useApp, useInput} from '@fork/core';
+import {Text, render, useApp, useInput} from '@nemesis-oss/termina-core';
 
 function Counter() {
 	const [count, setCount] = useState(0);
@@ -97,7 +97,7 @@ Behavior:
 | Backspace, Delete | `''` | `backspace` or `delete` |
 | Arrow, Home, End, Page Up, Page Down, Insert, Clear, function keys | `''` | the matching flag, or none for keys without a field |
 
-A key with no `Key` field, such as F1 or Insert, still calls the handler. Its `input` is `''` and every flag is `false`.
+A key with no `Key` field, such as F1 or Insert, still calls the handler. Its `input` is `''` and every boolean flag is `false`.
 
 ## Escape key timing
 
@@ -105,7 +105,7 @@ A lone ESC byte is held for 40 ms before it is delivered. The hold exists becaus
 
 - If nothing follows the ESC within the window, it is delivered as the Escape key: `key.escape` is `true` and `input` is `''`.
 - If bytes arrive within the window, they are parsed together. An ESC followed by `[A` within the window is Up Arrow, and no Escape is delivered.
-- Each chunk that arrives while an ESC is pending restarts the window. A second ESC inside the window restarts it as well, so the first ESC is not delivered early.
+- Each chunk that arrives while an ESC is pending restarts the window. A second ESC that arrives inside the window joins the pending one, and the pair is delivered once as a double ESC.
 - If the window closes while an incomplete sequence is pending, the ESC is dropped and the remaining characters are delivered as `input`. For example, ESC followed by `[` is delivered as `input` `'['`.
 - Bytes that arrive after the window are delivered after the Escape key, as separate input.
 
@@ -113,7 +113,7 @@ A lone ESC byte is held for 40 ms before it is delivered. The hold exists becaus
 
 Ctrl chords:
 
-- Ctrl+A through Ctrl+Z give the lowercase letter as `input` and set `key.ctrl`.
+- Ctrl+A through Ctrl+Z give the lowercase letter as `input` and set `key.ctrl`, except Ctrl+H, Ctrl+I, Ctrl+J, and Ctrl+M, which the next bullet describes.
 - Ctrl+Space sends NUL, which gives `input` `' '` and sets `key.ctrl`.
 - Bytes 0x1C through 0x1F give the punctuation named by the byte with `key.ctrl` set. For example, 0x1F gives `_`.
 - Some control bytes are reported as named keys before the Ctrl rule applies. Ctrl+H is Backspace (0x08), Ctrl+I is Tab (0x09), Ctrl+J is a bare line feed (0x0A), Ctrl+M is Return (0x0D), and Ctrl+[ is Escape (0x1B). None of them sets `key.ctrl`.
@@ -147,7 +147,7 @@ The flags are computed from the whole text event. A chunk such as `'ab\r'` is de
 
 ```tsx
 import {useState} from 'react';
-import {Text, render, usePaste} from '@fork/core';
+import {Text, render, usePaste} from '@nemesis-oss/termina-core';
 
 function PasteCount() {
 	const [characters, setCharacters] = useState(0);
@@ -181,7 +181,7 @@ Behavior:
 Focus in this engine is a single active component ID, reported as `activeId`. It is separate from terminal focus. The engine keeps one ordered list of focusable components, and Tab and Shift+Tab move through that list.
 
 ```tsx
-import {Box, Text, render, useFocus, useFocusManager} from '@fork/core';
+import {Box, Text, render, useFocus, useFocusManager} from '@nemesis-oss/termina-core';
 
 function Field({id, label}: {readonly id: string; readonly label: string}) {
 	const {isFocused} = useFocus({id, autoFocus: id === 'name'});
@@ -235,7 +235,7 @@ Signature: `useFocusManager()` takes no arguments and returns the fields below.
 ### Focus rules
 
 - **Order.** The list is in registration order, which is the order in which components mount. Reordering keyed children leaves their positions unchanged. A component that unmounts and mounts again is appended to the end.
-- **No document order and no spatial navigation.** Tab does not follow layout or screen position, and arrow keys do not move focus. The engine has no spatial navigation wired to focus.
+- **No document order and no spatial navigation.** Tab does not follow layout or screen position, and arrow keys do not move focus. The focus engine does not use spatial navigation at all.
 - **Tab.** With nothing focused, Tab moves to the first active component. Otherwise it moves to the next active component after the focused one and wraps from last to first.
 - **Shift+Tab.** With nothing focused, Shift+Tab moves to the last active component. Otherwise it moves to the previous active component and wraps from first to last.
 - **Inactive components.** A component with `isActive: false` stays in the list and is skipped by Tab and Shift+Tab. If it was focused, it loses focus.
@@ -255,7 +255,7 @@ Signature: `useFocusManager()` takes no arguments and returns the fields below.
 Guard those hooks with `isActive`:
 
 ```tsx
-import {useInput, useStdin} from '@fork/core';
+import {useInput, useStdin} from '@nemesis-oss/termina-core';
 
 function Shortcuts({onQuit}: {readonly onQuit: () => void}) {
 	const {isRawModeSupported} = useStdin();
@@ -283,7 +283,7 @@ A kitty keyboard query reply (`ESC [ ? digits u`) is consumed by the app and doe
 
 - [Mouse](/guide/mouse) for `Box` click handlers, wheel events, and `useMouse`.
 - [Terminal Features](/guide/terminal-features) for the `kittyKeyboard` render option and terminal capability detection.
-- [Rendering](/guide/rendering) for how input updates reach the screen.
-- [Testing](/guide/testing) for driving input in tests.
-- [TextInput](/ui/components/text-input), [Select](/ui/components/select), and [ConfirmInput](/ui/components/confirm-input) for components in the UI kit that read keys through `useInput`.
-- [API: @fork/core](/api/core) for the full export list.
+- [Rendering](/guide/rendering) for the rendering model.
+- [Testing](/guide/testing) for testing components.
+- UI kit components that read keys through `useInput`: [TextInput](/ui/components/text-input), [Select](/ui/components/select), [MultiSelect](/ui/components/multi-select), [ConfirmInput](/ui/components/confirm-input), [EmailInput](/ui/components/email-input), [PasswordInput](/ui/components/password-input), and [ScrollBox](/ui/components/scroll-box).
+- [API: @nemesis-oss/termina-core](/api/core) for the full export list.

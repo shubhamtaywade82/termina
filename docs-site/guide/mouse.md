@@ -6,7 +6,7 @@ outline: [2, 3]
 
 Mouse input is off by default. Turn it on with the `mouse` render option to get `onClick`, `onMouseDown`, `onMouseUp`, and `onWheel` on `Box`. Call `useMouse` to receive every raw mouse report instead. Use this page when a component needs clicks, wheel steps, or hit testing against the rendered layout.
 
-Keyboard handling is covered on [Keyboard and Focus](/guide/keyboard-and-focus). The terminal states that decide whether mouse input is available are covered on [Terminal Features](/guide/terminal-features).
+Keyboard handling is covered on [Keyboard and Focus](/guide/keyboard-and-focus). Capability detection, which reports whether mouse input is available, is covered on [Terminal Features](/guide/terminal-features).
 
 ## Enabling mouse
 
@@ -14,7 +14,7 @@ Pass `mouse: true` to `render()`:
 
 ```tsx
 import {useState} from 'react';
-import {Box, Text, render, useApp, useInput} from '@fork/core';
+import {Box, Text, render, useApp, useInput} from '@nemesis-oss/termina-core';
 
 function ClickCounter() {
 	const [clicks, setClicks] = useState(0);
@@ -38,6 +38,8 @@ function ClickCounter() {
 
 render(<ClickCounter />, {mouse: true, alternateScreen: true});
 ```
+
+This table lists the mouse option of `render()`. The other render options are listed in [API: @nemesis-oss/termina-core](/api/core).
 
 | Option | Type | Default | Description |
 |---|---|---|---|
@@ -81,7 +83,7 @@ Each handler name bubbles on its own. The dispatcher walks from the element unde
 
 ```tsx
 import {useState} from 'react';
-import {Box, Text} from '@fork/core';
+import {Box, Text} from '@nemesis-oss/termina-core';
 
 function Row() {
 	const [selected, setSelected] = useState(false);
@@ -100,11 +102,11 @@ A click on the inner `Box` toggles the state once, because the inner `Box` has n
 
 ### Wheel
 
-`onWheel` receives wheel steps. `event.button` is one of `'wheelUp'`, `'wheelDown'`, `'wheelLeft'`, or `'wheelRight'`. Only the element under the pointer receives the step.
+`onWheel` receives wheel steps. `event.button` is one of `'wheelUp'`, `'wheelDown'`, `'wheelLeft'`, or `'wheelRight'`. A step goes to the closest element under the pointer that defines `onWheel`, following the same bubbling rule as the other handlers.
 
 ```tsx
 import {useState} from 'react';
-import {Box, Text, render, type MouseEvent} from '@fork/core';
+import {Box, Text, render, type MouseEvent} from '@nemesis-oss/termina-core';
 
 function WheelCounter() {
 	const [steps, setSteps] = useState(0);
@@ -132,7 +134,7 @@ render(<WheelCounter />, {mouse: true, alternateScreen: true});
 `useMouse` calls a handler with every report the app receives.
 
 ```tsx
-import {useMouse, type MouseEvent} from '@fork/core';
+import {useMouse, type MouseEvent} from '@nemesis-oss/termina-core';
 
 useMouse((event: MouseEvent) => {
 	if (event.action === 'press' && event.button === 'left') {
@@ -178,7 +180,7 @@ Notes on the reports:
 `parseMouseEvent` is exported for decoding a single complete SGR report:
 
 ```ts
-import {parseMouseEvent} from '@fork/core';
+import {parseMouseEvent} from '@nemesis-oss/termina-core';
 
 parseMouseEvent('\u001B[<0;24;12M');
 // {action: 'press', button: 'left', x: 24, y: 12, shift: false, meta: false, ctrl: false}
@@ -199,7 +201,7 @@ Clipping decides what can be clicked, not only what is drawn:
 
 ```tsx
 import {useState} from 'react';
-import {Box, Text} from '@fork/core';
+import {Box, Text} from '@nemesis-oss/termina-core';
 
 function ClippedList() {
 	const [clicks, setClicks] = useState(0);
@@ -214,7 +216,7 @@ function ClippedList() {
 }
 ```
 
-The child is six rows tall, but the parent shows only three. Clicks on the three clipped rows reach nothing.
+The child is six rows tall, but the parent shows only three. Clicks on the three clipped rows reach no handler.
 
 Offsets move the hit targets with the content. Take a three-row parent with `contentOffsetY={2}` that holds four one-row children. The first two children are scrolled off the top, so a click on the top visible row reaches the third child's `onClick`.
 
@@ -223,7 +225,7 @@ Offsets move the hit targets with the content. Take a three-row parent with `con
 `isElementAt` answers whether a cell lands on an element, using the same test the dispatcher uses:
 
 ```ts
-import {isElementAt, type DOMElement} from '@fork/core';
+import {isElementAt, type DOMElement} from '@nemesis-oss/termina-core';
 
 isElementAt(element: DOMElement, x: number, y: number): boolean;
 ```
@@ -234,7 +236,7 @@ Get the element from a `ref` on `Box`. Use `useMouse` to see clicks that land ou
 
 ```tsx
 import {useRef, useState} from 'react';
-import {Box, Text, isElementAt, render, useMouse, type DOMElement} from '@fork/core';
+import {Box, Text, isElementAt, render, useMouse, type DOMElement} from '@nemesis-oss/termina-core';
 
 function Dialog({onClose}: {readonly onClose: () => void}) {
 	const ref = useRef<DOMElement>(null);
@@ -285,4 +287,4 @@ On the primary screen the live region moves down as output accumulates above it.
 - [Layout and Text](/guide/layout-and-text) for the layout that hit testing reads.
 - [Alternate Screen and Suspend](/guide/alternate-screen-and-suspend) for how tracking behaves across `suspendTerminal()`.
 - [Terminal Features](/guide/terminal-features) for capability detection.
-- [API: @fork/core](/api/core) for the full export list.
+- [API: @nemesis-oss/termina-core](/api/core) for the full export list.

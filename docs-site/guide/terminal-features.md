@@ -6,14 +6,14 @@ outline: [2, 3]
 
 These exports report what the terminal can do and produce escape sequences for hyperlinks and the clipboard. The kitty keyboard protocol is turned on with a render option. Use this page when output depends on the terminal: choosing whether to color text, linking text, copying to the clipboard, or enabling the enhanced keyboard protocol.
 
-All exports on this page come from `@fork/core`. The package is a workspace package in this repository and is not published to npm.
+All exports on this page come from `@nemesis-oss/termina-core`. The package is a workspace package in this repository and is not published to npm.
 
 ## detectTerminalCapabilities
 
 `detectTerminalCapabilities` reads the environment and a stream once, and returns the features the stream supports.
 
 ```ts
-import {detectTerminalCapabilities} from '@fork/core';
+import {detectTerminalCapabilities} from '@nemesis-oss/termina-core';
 
 const capabilities = detectTerminalCapabilities(process.env, process.stdout);
 
@@ -71,14 +71,14 @@ The level is chosen by the first rule that applies:
 | `'3'` or higher | `'truecolor'` |
 | Any other value, including text and negative numbers | `'ansi16'` |
 
-`FORCE_COLOR` forces color on a stream that is not a TTY, and it does not make the app interactive. The level matches the level chalk selects for these values.
+`FORCE_COLOR` forces color on a stream that is not a TTY, and it does not make the app interactive. The test suite asserts that this mapping matches the level chalk selects for `''`, `'0'`, `'false'`, `'true'`, `'1'`, `'2'`, `'3'`, and `'9'`.
 
 ## hyperlink
 
 `hyperlink` wraps a label in an OSC 8 hyperlink. Terminals that support OSC 8 show the label as a clickable link.
 
 ```tsx
-import {Text, detectTerminalCapabilities, hyperlink, useStdout} from '@fork/core';
+import {Text, detectTerminalCapabilities, hyperlink, useStdout} from '@nemesis-oss/termina-core';
 
 function DocsLink() {
 	const {stdout} = useStdout();
@@ -103,7 +103,7 @@ Signature: `hyperlink(url: string, label: string): string`
 
 ```tsx
 import {useState} from 'react';
-import {Text, copyToClipboard, render, useInput} from '@fork/core';
+import {Text, copyToClipboard, render, useInput} from '@nemesis-oss/termina-core';
 
 const message = 'Press y to copy this line';
 
@@ -140,7 +140,7 @@ Behavior:
 The `kittyKeyboard` render option turns on the kitty keyboard protocol. With the protocol active, `Key` reports the Super, Hyper, Caps Lock, and Num Lock modifiers and the event type. See [The Key object](/guide/keyboard-and-focus#the-key-object).
 
 ```tsx
-import {Text, render} from '@fork/core';
+import {Text, render} from '@nemesis-oss/termina-core';
 
 const App = () => <Text>Keyboard protocol enabled when the terminal supports it.</Text>;
 
@@ -187,6 +187,6 @@ The bit values are exported as `kittyFlags` and `kittyModifiers`. The protocol i
 
 - [Keyboard and Focus](/guide/keyboard-and-focus) for `useInput`, the `Key` fields, and paste.
 - [Mouse](/guide/mouse) for mouse capability and tracking.
-- [Rendering](/guide/rendering) for how output reaches the terminal.
+- [Rendering](/guide/rendering) for the rendering model.
 - [Alternate Screen and Suspend](/guide/alternate-screen-and-suspend) for the alternate screen and suspension.
-- [API: @fork/core](/api/core) for the full export list.
+- [API: @nemesis-oss/termina-core](/api/core) for the full export list.
