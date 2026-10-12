@@ -1,6 +1,47 @@
 import { defineConfig } from 'vitepress';
+import { fileURLToPath } from 'node:url';
 
 // termina documentation site. It covers the two workspace packages: @nemesis-oss/termina-core (the renderer, a fork of Ink 8) and @nemesis-oss/termina-ui (the component kit, a fork of ink-ui 2).
+
+// Browser replacements for the Node built-ins that the termina renderer (a
+// Node package) pulls in. The live previews in the UI kit pages bundle the
+// real renderer and run it against an xterm.js terminal, so its `node:`
+// imports are redirected to small inert shims and `terminal-size` (which
+// shells out to `resize`) is stubbed. VitePress itself is unaffected: the
+// aliases only apply to code that reaches these specifiers, which is only
+// the preview bundle.
+const shim = (name: string) =>
+  fileURLToPath(new URL(`./theme/shims/${name}.ts`, import.meta.url));
+
+const nodeAliases: Record<string, string> = {
+  'node:process': shim('process'),
+  'node:events': shim('events'),
+  'node:stream': shim('stream'),
+  'node:util': shim('util'),
+  'node:fs': shim('fs'),
+  'node:url': shim('url'),
+  'node:path': shim('path'),
+  'terminal-size': shim('terminal-size'),
+  // One React for everyone. The workspace packages are installed as file:
+  // symlinks and each resolves `react` through its own pnpm node_modules,
+  // which gives the browser bundle several React copies — the demo components
+  // then run their hooks against a copy whose dispatcher the termina
+  // reconciler never installs ("Invalid hook call", empty frames). Pointing
+  // the specifier at this project's copy makes every importer share it.
+  // resolve.dedupe alone does not survive the npm-symlink → pnpm-store hop.
+  // The `$` suffixes make the aliases exact: without them `react` also
+  // rewrites `react/jsx-runtime` into `…/index.js/jsx-runtime`.
+  'react$': fileURLToPath(
+    new URL('../node_modules/react/index.js', import.meta.url),
+  ),
+  'react/jsx-runtime$': fileURLToPath(
+    new URL('../node_modules/react/jsx-runtime.js', import.meta.url),
+  ),
+  'react/jsx-dev-runtime$': fileURLToPath(
+    new URL('../node_modules/react/jsx-dev-runtime.js', import.meta.url),
+  ),
+};
+
 export default defineConfig({
   title: 'termina',
   description: 'React terminal UI: a forked Ink renderer and a component kit',
@@ -10,6 +51,21 @@ export default defineConfig({
 
   // GitHub Pages serves the site at https://shubhamtaywade82.github.io/termina/
   base: '/termina/',
+
+  vite: {
+    resolve: {
+      // The workspace packages are installed as file: symlinks; without
+      // dedupe, their own node_modules would give the preview a second copy
+      // of React and hooks would crash with "Invalid hook call".
+      dedupe: ['react', 'react/jsx-runtime'],
+      alias: nodeAliases,
+    },
+    build: {
+      // yoga-layout (the layout engine termina uses) is an ES module with
+      // top-level await; ES2022 is the first target that allows it.
+      target: 'es2022',
+    },
+  },
 
   head: [
     ['meta', { name: 'theme-color', content: '#f59e0b' }],

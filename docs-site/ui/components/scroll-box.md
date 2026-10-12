@@ -8,11 +8,15 @@ outline: [2, 3]
 
 `ScrollBox` and `ScrollBoxProps` are exported from `@nemesis-oss/termina-ui`, the `packages/ui` workspace package in this repository. The package is not published to npm yet, so import it from another workspace package. For the full component list, read the [UI Kit overview](/ui/overview).
 
-## Preview
+## Live preview
 
-This frame shows the Usage example at its first render, with rows 0 to 9 filling the 10-row viewport and no scrollbar yet.
+This is the real component, running on the termina renderer inside a
+terminal emulator in the page — not a screenshot. Click the preview to
+focus it; your keystrokes go to the app.
 
-<TerminalPreview id="scroll-box-first-render" />
+Scroll with the mouse wheel, arrow keys, PageUp and PageDown, Home and End.
+
+<TerminalDemo demo="scroll-box-basic" title="ScrollBox — 100 rows" />
 
 ## Usage
 
