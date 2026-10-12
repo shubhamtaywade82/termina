@@ -36,31 +36,30 @@ const spanStyle = (span: InlineSpan, styles: Styles): TextProps => {
 	return {};
 };
 
-// Bold is never dimmed. SGR 22 clears bold and dim together, and the output then
-// drops the dim on the text after it, so only the other leaves carry the dim.
+// Every leaf carries the whole block style, not just its own. SGR 22 clears bold and
+// dim together, so an outer style would lose its bold after a nested link or bold span.
+// Bold is never dimmed, because the output drops the dim on the text after a bold.
 const renderSpan = (
 	span: InlineSpan,
 	index: number,
 	styles: Styles,
-	isDimmed: boolean,
+	base: TextProps,
 ): ReactNode => {
 	if (span.kind === 'link') {
 		return (
 			<Fragment key={index}>
-				<Text dimColor={isDimmed} {...styles.link()}>
+				<Text {...base} {...styles.link()}>
 					{span.value}
 				</Text>
-				<Text dimColor>{` (${span.url ?? ''})`}</Text>
+				<Text {...base} dimColor>{` (${span.url ?? ''})`}</Text>
 			</Fragment>
 		);
 	}
 
+	const leafBase = span.kind === 'bold' ? {...base, dimColor: false} : base;
+
 	return (
-		<Text
-			key={index}
-			dimColor={isDimmed && span.kind !== 'bold'}
-			{...spanStyle(span, styles)}
-		>
+		<Text key={index} {...leafBase} {...spanStyle(span, styles)}>
 			{span.value}
 		</Text>
 	);
@@ -69,9 +68,9 @@ const renderSpan = (
 const renderSpans = (
 	spans: InlineSpan[],
 	styles: Styles,
-	isDimmed = false,
+	base: TextProps,
 ): ReactNode[] =>
-	spans.map((span, index) => renderSpan(span, index, styles, isDimmed));
+	spans.map((span, index) => renderSpan(span, index, styles, base));
 
 const renderListItem = (
 	item: ListItem,
@@ -85,7 +84,7 @@ const renderListItem = (
 		<Box key={index}>
 			<Text {...styles.listBullet()}>{marker}</Text>
 			<Box flexGrow={1}>
-				<Text {...styles.paragraph()}>{renderSpans(item.spans, styles)}</Text>
+				<Text>{renderSpans(item.spans, styles, styles.paragraph())}</Text>
 			</Box>
 		</Box>
 	);
@@ -107,7 +106,9 @@ const renderQuote = (
 	styles: Styles,
 ): ReactNode => (
 	<Box key={index} {...styles.blockquote()}>
-		<Text {...styles.paragraph()}>{renderSpans(spans, styles, true)}</Text>
+		<Text>
+			{renderSpans(spans, styles, {...styles.paragraph(), dimColor: true})}
+		</Text>
 	</Box>
 );
 
@@ -136,14 +137,14 @@ const renderBlock = (
 
 	if (block.kind === 'heading') {
 		return (
-			<Text key={index} {...styles.heading({level: block.level})}>
-				{renderSpans(block.spans, styles)}
+			<Text key={index}>
+				{renderSpans(block.spans, styles, styles.heading({level: block.level}))}
 			</Text>
 		);
 	}
 
 	return (
-		<Text key={index} {...styles.paragraph()}>{renderSpans(block.spans, styles)}</Text>
+		<Text key={index}>{renderSpans(block.spans, styles, styles.paragraph())}</Text>
 	);
 };
 

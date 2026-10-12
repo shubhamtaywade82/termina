@@ -77,4 +77,6 @@ No theme key covers four things, so they are fixed in the component: the bullet 
 - Bold text in a block quote is not dimmed. The text after it stays dimmed.
 - Every wrapped line of a block quote keeps the bar.
 - A link shows its URL in dim parentheses after the link text. Underscores in the URL are not emphasis.
+- Spans do not nest. Code inside bold prints its backticks, and link text prints its markers as typed, so ``[**a**](u)`` keeps its asterisks.
+- In a heading, text after a link is not bold.
 - Images, tables and HTML are not supported. Their lines print as written, one row per line, and inline markers such as `**` still apply.

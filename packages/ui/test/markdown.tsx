@@ -1,10 +1,12 @@
 import React from 'react';
 import test, {type TestContext} from 'node:test';
 import chalk from 'chalk';
+import delay from 'delay';
 import figures from 'figures';
 import {Box} from '@nemesis-oss/termina-core';
 import {render} from './helpers/render.js';
 import {Markdown} from '../source/components/markdown/index.js';
+import {ThemeProvider, defaultTheme, extendTheme} from '../source/theme.js';
 
 const stripAnsi = (text: string | undefined): string =>
 	(text ?? '').replace(/\u001B\[[0-9;]*m/g, '');
@@ -257,6 +259,79 @@ test('a README excerpt renders each block in order', (t: TestContext) => {
 			'',
 			'  render(<App />);',
 		].join('\n'),
+	);
+});
+
+test('takes no keyboard input, so it renders with piped stdin and ignores keys', async (t: TestContext) => {
+	const {lastFrame, stdin} = render(<Markdown>{'- one'}</Markdown>, {
+		isStdinPiped: true,
+	});
+
+	await delay(20);
+	stdin.write('\u001B[B');
+	await delay(20);
+
+	t.assert.strictEqual(stripAnsi(lastFrame()), `${figures.bullet} one`);
+});
+
+test('a new source replaces the output on rerender', (t: TestContext) => {
+	const {lastFrame, rerender} = render(<Markdown>{'first'}</Markdown>);
+
+	rerender(<Markdown>{'second'}</Markdown>);
+
+	t.assert.strictEqual(lastFrame(), 'second');
+});
+
+test('a long source is not clipped to the terminal height', (t: TestContext) => {
+	const source = Array.from({length: 40}, (_, index) => `line ${index + 1}`).join('\n\n');
+	const {lastFrame} = render(<Markdown>{source}</Markdown>);
+
+	t.assert.strictEqual(lastFrame()?.split('\n').at(-1), 'line 40');
+});
+
+test('a theme paragraph color applies to paragraphs, list items and block quotes', (t: TestContext) => {
+	const theme = extendTheme(defaultTheme, {
+		components: {
+			Markdown: {
+				styles: {
+					paragraph: () => ({color: 'red'}),
+				},
+			},
+		},
+	});
+	const {lastFrame} = render(
+		<ThemeProvider theme={theme}>
+			<Markdown>{'plain\n\n- item\n\n> quote'}</Markdown>
+		</ThemeProvider>,
+	);
+
+	t.assert.strictEqual(
+		lastFrame(),
+		[
+			chalk.red('plain'),
+			'',
+			`${chalk.dim(`${figures.bullet} `)}${chalk.red('item')}`,
+			'',
+			`${chalk.dim('│')} ${chalk.red(chalk.dim('quote'))}`,
+		].join('\n'),
+	);
+});
+
+test('bold and link text do not nest other spans', (t: TestContext) => {
+	const {lastFrame} = render(<Markdown>{'**Run `x`** and [**a**](u)'}</Markdown>);
+
+	t.assert.strictEqual(
+		lastFrame(),
+		`${chalk.bold('Run `x`')} and ${chalk.underline(chalk.blue('**a**'))}${chalk.dim(' (u)')}`,
+	);
+});
+
+test('text after a link in a heading is not bold', (t: TestContext) => {
+	const {lastFrame} = render(<Markdown>{'## See [docs](u) now'}</Markdown>);
+
+	t.assert.strictEqual(
+		lastFrame(),
+		'\u001B[1m\u001B[36mSee \u001B[4m\u001B[34mdocs\u001B[24m\u001B[36m\u001B[2m (u)\u001B[22m now\u001B[39m',
 	);
 });
 
