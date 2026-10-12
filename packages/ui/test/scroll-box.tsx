@@ -2,7 +2,7 @@ import React from 'react';
 import test, {type TestContext} from 'node:test';
 import delay from 'delay';
 import stripAnsi from 'strip-ansi';
-import {Box, Text} from '@fork/core';
+import {Box, Text} from '@nemesis-oss/termina-core';
 import {render} from './helpers/render.js';
 import {ScrollBox} from '../source/index.js';
 

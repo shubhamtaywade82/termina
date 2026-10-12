@@ -1,4 +1,4 @@
-import {type TextProps} from '@fork/core';
+import {type TextProps} from '@nemesis-oss/termina-core';
 import {type ComponentTheme} from '../../theme.js';
 
 const theme = {

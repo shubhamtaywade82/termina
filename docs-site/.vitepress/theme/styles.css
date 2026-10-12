@@ -1,0 +1,19 @@
+/* termina docs: amber accent on the default VitePress theme. */
+:root {
+  --vp-c-brand-1: #d97706;
+  --vp-c-brand-2: #b45309;
+  --vp-c-brand-3: #f59e0b;
+  --vp-c-brand: #b45309;
+  --vp-c-brand-light: #f59e0b;
+  --vp-c-brand-lighter: #fcd34d;
+  --vp-c-brand-dark: #b45309;
+  --vp-c-brand-darker: #92400e;
+  --vp-home-hero-name-color: transparent;
+  --vp-home-hero-name-background: linear-gradient(120deg, #f59e0b 30%, #d97706);
+}
+
+:root:not([data-theme='light']) {
+  --vp-c-brand-1: #fbbf24;
+  --vp-c-brand-2: #f59e0b;
+  --vp-c-brand-3: #fcd34d;
+}

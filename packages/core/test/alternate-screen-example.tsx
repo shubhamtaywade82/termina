@@ -61,10 +61,11 @@ test('snake ends with a win when it fills the board', async (t: TestContext) => 
 	const result = await new Promise<
 		{timedOut: true} | {timedOut: false; exitCode: number}
 	>((resolve, reject) => {
+		// The budget covers tsx compilation and loading the renderer, which takes over a second on this host. It only guards against a real hang, so it is generous.
 		const timeout = setTimeout(() => {
 			childProcess.kill();
 			resolve({timedOut: true});
-		}, 1000);
+		}, 10_000);
 
 		childProcess.on('error', error => {
 			clearTimeout(timeout);

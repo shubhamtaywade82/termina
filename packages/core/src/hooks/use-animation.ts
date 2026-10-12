@@ -48,7 +48,7 @@ A React hook that drives animations. Returns a frame counter, elapsed time, fram
 
 @example
 ```
-import {Text, useAnimation} from '@fork/core';
+import {Text, useAnimation} from '@nemesis-oss/termina-core';
 
 const Spinner = () => {
 	const {frame} = useAnimation({interval: 80});

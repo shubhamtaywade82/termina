@@ -7,7 +7,7 @@ import {
 	useBoxMetrics,
 	useInput,
 	useMouse,
-} from '@fork/core';
+} from '@nemesis-oss/termina-core';
 
 export type ScrollBoxProps = {
 	/**

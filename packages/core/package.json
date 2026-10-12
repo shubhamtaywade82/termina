@@ -1,9 +1,29 @@
 {
-  "name": "@fork/core",
+  "name": "@nemesis-oss/termina-core",
   "version": "0.1.0",
   "private": true,
   "description": "Fork of vadimdemedes/ink@8.0.0 (React reconciler + Yoga renderer for terminal UIs).",
+  "keywords": [
+    "react",
+    "terminal",
+    "tui",
+    "cli",
+    "ink",
+    "yoga",
+    "reconciler",
+    "renderer"
+  ],
+  "author": "Shubham Taywade <shubhamtaywade82@gmail.com>",
   "license": "MIT",
+  "homepage": "https://github.com/shubhamtaywade82/termina/tree/main/packages/core#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/shubhamtaywade82/termina.git",
+    "directory": "packages/core"
+  },
+  "bugs": {
+    "url": "https://github.com/shubhamtaywade82/termina/issues"
+  },
   "type": "module",
   "main": "./build/index.js",
   "types": "./build/index.d.ts",
@@ -16,6 +36,10 @@
   ],
   "engines": {
     "node": ">=22"
+  },
+  "publishConfig": {
+    "access": "public",
+    "provenance": true
   },
   "scripts": {
     "build": "tsc",

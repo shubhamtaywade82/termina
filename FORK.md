@@ -1,17 +1,23 @@
 # Fork provenance and local changes
 
+## Package names
+
+The packages were developed as `@fork/core` and `@fork/ui`. They publish as
+`@nemesis-oss/termina-core` and `@nemesis-oss/termina-ui`. The names in this file
+use the published names, and the rename left the code unchanged apart from import specifiers.
+
 ## Upstream
 
 | Fork path | Upstream | Commit | License |
 | --- | --- | --- | --- |
-| `packages/core` (`@fork/core`) | https://github.com/vadimdemedes/ink | `26d2c3f83008142061c22267482489588cc3823c` (8.0.0) | MIT, `packages/core/license` |
-| `packages/ui` (`@fork/ui`) | https://github.com/vadimdemedes/ink-ui | `14b1145da0123a48cfc2f0ec9ff33dff0633f464` (2.0.0) | MIT, `packages/ui/license` |
+| `packages/core` (`@nemesis-oss/termina-core`) | https://github.com/vadimdemedes/ink | `26d2c3f83008142061c22267482489588cc3823c` (8.0.0) | MIT, `packages/core/LICENSE` |
+| `packages/ui` (`@nemesis-oss/termina-ui`) | https://github.com/vadimdemedes/ink-ui | `14b1145da0123a48cfc2f0ec9ff33dff0633f464` (2.0.0) | MIT, `packages/ui/LICENSE` |
 
 The upstream repositories were shallow-cloned and their `src/`, `source/`, `test/`,
 and `examples/` (the subset the engine tests import) were copied in. Upstream
 history is not carried over. Re-syncing means diffing against the commits above.
 
-## Local changes to `@fork/core`
+## Local changes to `@nemesis-oss/termina-core`
 
 - **Reflow-aware resize erase.** `src/reflow.ts` (new), `src/log-update.ts`
   (`clearReflowed`), `src/ink.tsx` (`resized`, `eraseReflowedFrame`,
@@ -27,7 +33,7 @@ history is not carried over. Re-syncing means diffing against the commits above.
   `NO_COLOR`, `FORCE_COLOR`, `CI`, and TTY state. `render()` now also defaults to
   non-interactive when `TERM=dumb`.
 
-## Local changes to `@fork/ui`
+## Local changes to `@nemesis-oss/termina-ui`
 
 - **TextInput and PasswordInput editing.** Grapheme-aware cursor and deletion,
   forward Delete, no-op Backspace at 0, Ctrl/Alt chords ignored, pasted control
@@ -45,7 +51,7 @@ history is not carried over. Re-syncing means diffing against the commits above.
 
 - **Test runner.** Node's built-in `node:test` with `tsx`, not Jest. The inherited
   core suite (1,717 tests: 1,712 pass, 5 skipped, measured with
-  `pnpm --filter @fork/core run test`) and the ported ui suite both use it. Switching would
+  `pnpm --filter @nemesis-oss/termina-core run test`) and the ported ui suite both use it. Switching would
   add a transform layer for every test file.
 - **Node 22+** instead of Node 18 (Ink 8 requires it).
 - **Screen-reader output bytes changed.** A trailing newline is now written after

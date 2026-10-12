@@ -1,5 +1,5 @@
 {
-  "name": "@fork/example-turnstream",
+  "name": "termina-example-turnstream",
   "version": "0.1.0",
   "private": true,
   "type": "module",
@@ -8,8 +8,8 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@fork/core": "workspace:*",
-    "@fork/ui": "workspace:*",
+    "@nemesis-oss/termina-core": "workspace:*",
+    "@nemesis-oss/termina-ui": "workspace:*",
     "chalk": "^5.3.0",
     "react": ">=19.3.0"
   },

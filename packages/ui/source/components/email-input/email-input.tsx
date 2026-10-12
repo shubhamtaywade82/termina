@@ -1,5 +1,5 @@
 import React from 'react';
-import {Text} from '@fork/core';
+import {Text} from '@nemesis-oss/termina-core';
 import {useComponentTheme} from '../../theme.js';
 import {useEmailInputState} from './use-email-input-state.js';
 import {useEmailInput} from './use-email-input.js';

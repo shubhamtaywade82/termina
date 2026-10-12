@@ -36,7 +36,7 @@ export type Props = {
 	@example
 	```jsx
 	import {useEffect} from 'react';
-	import {useApp} from '@fork/core';
+	import {useApp} from '@nemesis-oss/termina-core';
 
 	const Example = () => {
 		const {waitUntilRenderFlush} = useApp();
@@ -63,7 +63,7 @@ export type Props = {
 
 	@example
 	```jsx
-	import {useApp} from '@fork/core';
+	import {useApp} from '@nemesis-oss/termina-core';
 
 	const {suspendTerminal} = useApp();
 

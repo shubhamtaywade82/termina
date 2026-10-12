@@ -1,4 +1,4 @@
-import {Box} from '@fork/core';
+import {Box} from '@nemesis-oss/termina-core';
 import React, {type ReactNode, useContext, isValidElement} from 'react';
 import {useComponentTheme} from '../../theme.js';
 import {OrderedListItem} from './ordered-list-item.js';

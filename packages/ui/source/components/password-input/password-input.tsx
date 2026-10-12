@@ -1,5 +1,5 @@
 import React from 'react';
-import {Text} from '@fork/core';
+import {Text} from '@nemesis-oss/termina-core';
 import {useComponentTheme} from '../../theme.js';
 import {usePasswordInputState} from './use-password-input-state.js';
 import {usePasswordInput} from './use-password-input.js';

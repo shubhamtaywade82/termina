@@ -1,4 +1,4 @@
-import {useInput} from '@fork/core';
+import {useInput} from '@nemesis-oss/termina-core';
 import {type SelectState} from './use-select-state.js';
 
 export type UseSelectProps = {

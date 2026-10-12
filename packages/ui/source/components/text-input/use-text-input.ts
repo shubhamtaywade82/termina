@@ -1,5 +1,5 @@
 import {useMemo} from 'react';
-import {useInput} from '@fork/core';
+import {useInput} from '@nemesis-oss/termina-core';
 import chalk from 'chalk';
 import {type TextInputState} from './use-text-input-state.js';
 import {graphemes, splitFirstGrapheme} from '../../lib/grapheme.js';

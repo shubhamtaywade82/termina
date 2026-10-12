@@ -32,7 +32,7 @@ type Output = {
 
 	@example
 	```tsx
-	import {Text, useFocusManager} from '@fork/core';
+	import {Text, useFocusManager} from '@nemesis-oss/termina-core';
 
 	const Example = () => {
 		const {activeId} = useFocusManager();

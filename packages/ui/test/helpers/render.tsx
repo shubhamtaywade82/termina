@@ -1,7 +1,7 @@
 import {EventEmitter} from 'node:events';
 import {PassThrough} from 'node:stream';
 import {type ReactNode} from 'react';
-import {render as renderInk} from '@fork/core';
+import {render as renderInk} from '@nemesis-oss/termina-core';
 
 // Mirrors the surface of ink-testing-library, on top of the forked core. `debug` writes each frame in full, so `lastFrame()` is the frame on screen and `frames` is every frame in order.
 export const render = (node: ReactNode) => {

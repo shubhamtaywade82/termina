@@ -1,6 +1,6 @@
 import React from 'react';
 import test, {type TestContext} from 'node:test';
-import {Text} from '@fork/core';
+import {Text} from '@nemesis-oss/termina-core';
 import {render} from './helpers/render.js';
 import chalk from 'chalk';
 import {

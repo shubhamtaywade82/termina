@@ -1,5 +1,5 @@
 import React from 'react';
-import {Box, Text} from '@fork/core';
+import {Box, Text} from '@nemesis-oss/termina-core';
 import {useComponentTheme} from '../../theme.js';
 import {useSpinner, type UseSpinnerProps} from './use-spinner.js';
 import {type Theme} from './theme.js';

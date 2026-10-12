@@ -3,7 +3,7 @@
 ## Decision
 
 Do not build a second engine from a bare frame buffer. The proposal would replace
-the reconciler, layout, output, and input layers that `@fork/core` already has, and
+the reconciler, layout, output, and input layers that `@nemesis-oss/termina-core` already has, and
 it would give up measured properties that matter for a streaming dashboard:
 incremental output, the reflow-aware resize erase, and the input and terminal
 lifecycle tests. Instead, this branch implements the parts of the proposal that
@@ -77,7 +77,7 @@ fill real gaps in the fork, and records what was checked. See the last section.
 ## What to adopt from the proposal next
 
 - The braille (U+2800 to U+28FF) and partial-block (U+2588 to U+258F) glyphs as
-  sparkline and meter components in `@fork/ui`. These are real cell glyphs and
+  sparkline and meter components in `@nemesis-oss/termina-ui`. These are real cell glyphs and
   need no engine change.
 - Geometric title glyphs and borderless padded layouts, as a theme choice.
 - The press-and-release click rule, which this branch already uses.

@@ -18,7 +18,7 @@ A React hook that calls `handler` for every mouse report: presses, releases, dra
 Mouse tracking (`?1000h`, `?1002h`, `?1006h`) is enabled while at least one active `useMouse` is mounted, and it is released when the last one unmounts or the terminal is suspended. Mouse reports are never forwarded to `useInput`.
 
 ```
-import {useMouse} from '@fork/core';
+import {useMouse} from '@nemesis-oss/termina-core';
 
 const Clickable = () => {
 	useMouse(event => {

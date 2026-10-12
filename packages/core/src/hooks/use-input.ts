@@ -139,7 +139,7 @@ A React hook that returns `void` and handles user input.
 It's a more convenient alternative to using `StdinContext` and listening for `data` events. The callback you pass to `useInput` is called for each character when the user enters any input. However, if the user pastes text and it's more than one character, the callback will be called only once, and the whole string will be passed as `input`.
 
 ```
-import {useInput} from '@fork/core';
+import {useInput} from '@nemesis-oss/termina-core';
 
 const UserInput = () => {
   useInput((input, key) => {

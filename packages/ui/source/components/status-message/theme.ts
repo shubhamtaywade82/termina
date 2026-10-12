@@ -1,4 +1,4 @@
-import {type BoxProps, type TextProps} from '@fork/core';
+import {type BoxProps, type TextProps} from '@nemesis-oss/termina-core';
 import figures from 'figures';
 import {type ComponentTheme} from '../../theme.js';
 import {type StatusMessageVariant} from './types.js';
