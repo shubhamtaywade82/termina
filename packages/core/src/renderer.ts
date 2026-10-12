@@ -3,7 +3,7 @@ import renderNodeToOutput, {
 	renderNodeToScreenReaderOutput,
 } from './render-node-to-output.js';
 import Output from './output.js';
-import {type DOMElement} from './dom.js';
+import {type DOMElement, type DOMNode} from './dom.js';
 
 type Result = {
 	output: string;
@@ -24,9 +24,39 @@ const getVisibleStaticNode = (
 	return node;
 };
 
+// A <Static> child is pending until its output is written. Children hidden with display: none are never written, so they stay pending.
+const isPendingStaticChild = (child: DOMNode): boolean => {
+	const element = child as DOMElement;
+	return (
+		!element.staticOutputWritten &&
+		element.yogaNode !== undefined &&
+		element.yogaNode.getDisplay() !== Yoga.DISPLAY_NONE
+	);
+};
+
+// Returns the visible <Static> node only when it has output that has not been written yet. Its Yoga height still covers written children, so the height alone cannot tell.
+const getPendingStaticNode = (node: DOMElement): DOMElement | undefined => {
+	const staticNode = getVisibleStaticNode(node.staticNode);
+
+	return staticNode?.childNodes.some((child) => isPendingStaticChild(child))
+		? staticNode
+		: undefined;
+};
+
+// Call after a render whose staticOutput was written. The written children stay attached until <Static> re-renders, so mark them to keep later renders from writing them again.
+export const markStaticOutputWritten = (node: DOMElement): void => {
+	const staticNode = getVisibleStaticNode(node.staticNode);
+
+	for (const child of staticNode?.childNodes ?? []) {
+		if (isPendingStaticChild(child)) {
+			(child as DOMElement).staticOutputWritten = true;
+		}
+	}
+};
+
 const renderer = (node: DOMElement, isScreenReaderEnabled: boolean): Result => {
 	if (node.yogaNode) {
-		const staticNode = getVisibleStaticNode(node.staticNode);
+		const staticNode = getPendingStaticNode(node);
 
 		if (isScreenReaderEnabled) {
 			const output = renderNodeToScreenReaderOutput(node, {

@@ -65,6 +65,8 @@ export type DOMElement = {
 	isHidden?: boolean;
 	isStaticDirty?: boolean;
 	staticNode?: DOMElement;
+	// Set on a <Static> child once its output has been written. The child stays attached until <Static> drops it after its own re-render, so renders in between must skip it.
+	staticOutputWritten?: boolean;
 	// Tracks the previous commit's `staticNode` so the reconciler can detect identity changes (mount, unmount, key-driven remount) and reset the accumulated static output.
 	previousStaticNode?: DOMElement;
 	onComputeLayout?: () => void;

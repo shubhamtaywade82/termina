@@ -42,6 +42,7 @@ export const renderNodeToScreenReaderOutput = (
 ): string => {
 	if (
 		Boolean(options.skipStaticElements && node.internal_static) ||
+		Boolean(node.staticOutputWritten) ||
 		node.yogaNode?.getDisplay() === Yoga.DISPLAY_NONE
 	) {
 		return '';
@@ -117,7 +118,11 @@ const renderNodeToOutput = (
 		skipStaticElements,
 	} = options;
 
-	if (skipStaticElements && node.internal_static) {
+	// A <Static> child whose output was already written must not be written again.
+	if (
+		Boolean(skipStaticElements && node.internal_static) ||
+		Boolean(node.staticOutputWritten)
+	) {
 		return;
 	}
 

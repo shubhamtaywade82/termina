@@ -12,7 +12,7 @@ import Yoga from 'yoga-layout';
 import wrapAnsi from 'wrap-ansi';
 import {getWindowSize} from './utils.js';
 import reconciler from './reconciler.js';
-import render from './renderer.js';
+import render, {markStaticOutputWritten} from './renderer.js';
 import * as dom from './dom.js';
 import {hideCursorEscape, showCursorEscape} from './cursor-helpers.js';
 import logUpdate, {type LogUpdate, type CursorPosition} from './log-update.js';
@@ -426,6 +426,11 @@ export default class Ink {
 		);
 
 		const renderTime = performance.now() - startTime;
+		if (staticOutput !== '') {
+			// Mark before writing: a synchronous write callback can re-enter onRender.
+			markStaticOutputWritten(this.rootNode);
+		}
+
 		this.renderFrame(output, outputHeight, staticOutput);
 		this.options.onRender?.({renderTime});
 	};
