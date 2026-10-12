@@ -40,7 +40,7 @@ jobs:
 
       # pnpm for the workspace (version pinned by the packageManager field);
       # npm for docs-site, whose lockfile and file: links it owns.
-      - uses: pnpm/action-setup@v4
+      - uses: pnpm/action-setup@v6
 
       - uses: actions/setup-node@v4
         with:
