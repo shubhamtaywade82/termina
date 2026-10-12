@@ -4,7 +4,6 @@ import {
 	type Key,
 	Text,
 	useInput,
-	useStdin,
 } from '@nemesis-oss/termina-core';
 import figures from 'figures';
 import {useComponentTheme} from '../../theme.js';
@@ -150,7 +149,6 @@ type UseAccordionStateProps = {
 };
 
 const useAccordionState = ({items, defaultOpenIds, multiple, isActive, onChange}: UseAccordionStateProps): AccordionState => {
-	const {isRawModeSupported} = useStdin();
 	const [state, setState] = useState<AccordionState>({openIds: defaultOpenIds, focusedIndex: 0});
 	// Key events can outpace renders, so each one reads the newest state, not the one from the last render.
 	const latestStateRef = useRef(state);
@@ -166,7 +164,7 @@ const useAccordionState = ({items, defaultOpenIds, multiple, isActive, onChange}
 				onChange?.(next.openIds);
 			}
 		},
-		{isActive: isActive && isRawModeSupported},
+		{isActive},
 	);
 
 	return {

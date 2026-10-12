@@ -6,7 +6,6 @@ import {
 	Text,
 	useBoxMetrics,
 	useInput,
-	useStdin,
 } from '@nemesis-oss/termina-core';
 
 export type ScrollBoxProps = {
@@ -88,7 +87,6 @@ export const ScrollBox = ({
 }: ScrollBoxProps) => {
 	const contentRef = useRef<DOMElement>(null);
 	const content = useBoxMetrics(contentRef);
-	const {isRawModeSupported} = useStdin();
 
 	const [ownOffset, setOwnOffset] = useState(0);
 	// Tracks the user scrolling away from the tail rather than the pin itself, so turning `followTail` on later pins at once.
@@ -143,7 +141,7 @@ export const ScrollBox = ({
 				scrollTo(maxOffset);
 			}
 		},
-		{isActive: isActive && isRawModeSupported},
+		{isActive},
 	);
 
 	const handleWheel = (event: MouseEvent): void => {

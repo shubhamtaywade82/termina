@@ -1,5 +1,5 @@
 import React, {type ReactNode, useRef, useState} from 'react';
-import {Box, Text, useInput, useStdin} from '@nemesis-oss/termina-core';
+import {Box, Text, useInput} from '@nemesis-oss/termina-core';
 import {useComponentTheme} from '../../theme.js';
 import {type Theme} from './theme.js';
 
@@ -59,7 +59,6 @@ function findActiveIndex(tabs: TabsItem[], activeId: string | undefined): number
 
 // Keeps the id, not an index: removing the active tab then falls back to the first tab instead of pointing past the end.
 function useActiveTabIndex({tabs, defaultTabId, onChange, isActive}: ActiveTabOptions): number {
-	const {isRawModeSupported} = useStdin();
 	const [activeId, setActiveId] = useState(defaultTabId);
 	// A ref, not the rendered id: one input chunk can hold two key presses, and both run before React re-renders.
 	const activeIdRef = useRef(defaultTabId);
@@ -83,7 +82,7 @@ function useActiveTabIndex({tabs, defaultTabId, onChange, isActive}: ActiveTabOp
 				moveActiveTab(1);
 			}
 		},
-		{isActive: isActive && isRawModeSupported},
+		{isActive},
 	);
 
 	return findActiveIndex(tabs, activeId);

@@ -4,7 +4,6 @@ import {
 	type Key,
 	Text,
 	useInput,
-	useStdin,
 } from '@nemesis-oss/termina-core';
 import figures from 'figures';
 import {useComponentTheme} from '../../theme.js';
@@ -187,7 +186,6 @@ const applyKey = (
 };
 
 const useTreeViewState = (nodes: TreeViewNode[], defaultExpanded: boolean, onSelect: TreeViewProps['onSelect'], isActive: boolean) => {
-	const {isRawModeSupported} = useStdin();
 	// Read once, so a later change does not flip branches the user has not toggled.
 	const [startsExpanded] = useState(defaultExpanded);
 	const [state, setState] = useState(initialState);
@@ -206,7 +204,7 @@ const useTreeViewState = (nodes: TreeViewNode[], defaultExpanded: boolean, onSel
 			latestStateRef.current = applyKey(current, key, keyRows);
 			setState(latestStateRef.current);
 		},
-		{isActive: isActive && isRawModeSupported},
+		{isActive},
 	);
 
 	const rows = collectRows(nodes, {toggledKeys: state.toggledKeys, startsExpanded});

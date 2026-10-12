@@ -1,5 +1,5 @@
 import {useRef, useState} from 'react';
-import {useInput, useStdin, type Key} from '@nemesis-oss/termina-core';
+import {useInput, type Key} from '@nemesis-oss/termina-core';
 import {type TableColumn, type TableRow} from '../table/index.js';
 
 export type DataTableSortDirection = 'ascending' | 'descending';
@@ -212,7 +212,6 @@ export type UseDataTableStateProps = {
 };
 
 export function useDataTableState({columns, rows, visibleRowCount, isActive, onSelect}: UseDataTableStateProps): DataTableState {
-	const {isRawModeSupported} = useStdin();
 	const [state, setState] = useState(INITIAL_STATE);
 	// Key events can outpace renders, so each one reads the newest state, not the one from the last render.
 	const latestStateRef = useRef(state);
@@ -231,7 +230,7 @@ export function useDataTableState({columns, rows, visibleRowCount, isActive, onS
 			latestStateRef.current = next;
 			setState(next);
 		},
-		{isActive: isActive && isRawModeSupported},
+		{isActive},
 	);
 
 	return clampState(state, layout);

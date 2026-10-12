@@ -36,10 +36,11 @@ const useMouse = (
 	options: Options = {},
 ): void => {
 	// eslint-disable-next-line @typescript-eslint/naming-convention
-	const {setRawMode, setMouseTracking, internal_eventEmitter} = useStdinContext();
+	const {setRawMode, isRawModeSupported, setMouseTracking, internal_eventEmitter} = useStdinContext();
 
 	useEffect(() => {
-		if (options.isActive === false) {
+		// Piped stdin cannot enter raw mode, so the hook stays idle there instead of throwing.
+		if (options.isActive === false || !isRawModeSupported) {
 			return;
 		}
 
@@ -51,7 +52,7 @@ const useMouse = (
 			setMouseTracking(false);
 			setRawMode(false);
 		};
-	}, [options.isActive, setRawMode, setMouseTracking]);
+	}, [options.isActive, isRawModeSupported, setRawMode, setMouseTracking]);
 
 	const handleMouse = useEffectEvent((event: MouseEvent) => {
 		// Same priority as useInput and usePaste, so a click is handled in the same batch as the state it changes.

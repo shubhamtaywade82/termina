@@ -1,5 +1,5 @@
 import React, {type ReactNode} from 'react';
-import {Box, Text, useInput, useStdin} from '@nemesis-oss/termina-core';
+import {Box, Text, useInput} from '@nemesis-oss/termina-core';
 import {useComponentTheme} from '../../theme.js';
 import {type Theme} from './theme.js';
 
@@ -28,7 +28,6 @@ export type DialogProps = {
 };
 
 export function Dialog({title, children, onClose, width}: DialogProps) {
-	const {isRawModeSupported} = useStdin();
 
 	useInput(
 		(_input, key) => {
@@ -36,7 +35,7 @@ export function Dialog({title, children, onClose, width}: DialogProps) {
 				onClose?.();
 			}
 		},
-		{isActive: onClose !== undefined && isRawModeSupported},
+		{isActive: onClose !== undefined},
 	);
 
 	const {styles} = useComponentTheme<Theme>('Dialog');

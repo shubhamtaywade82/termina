@@ -158,11 +158,12 @@ const UserInput = () => {
 */
 const useInput = (inputHandler: Handler, options: Options = {}) => {
 	// eslint-disable-next-line @typescript-eslint/naming-convention
-	const {setRawMode, internal_exitOnCtrlC, internal_eventEmitter} =
+	const {setRawMode, isRawModeSupported, internal_exitOnCtrlC, internal_eventEmitter} =
 		useStdinContext();
 
 	useEffect(() => {
-		if (options.isActive === false) {
+		// Piped stdin cannot enter raw mode, so the hook stays idle there instead of throwing.
+		if (options.isActive === false || !isRawModeSupported) {
 			return;
 		}
 
@@ -171,7 +172,7 @@ const useInput = (inputHandler: Handler, options: Options = {}) => {
 		return () => {
 			setRawMode(false);
 		};
-	}, [options.isActive, setRawMode]);
+	}, [options.isActive, isRawModeSupported, setRawMode]);
 
 	const handleData = useEffectEvent((data: string) => {
 		const keypress = parseKeypress(data);

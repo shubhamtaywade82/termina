@@ -1,5 +1,5 @@
 import React, {type Dispatch} from 'react';
-import {Box, Text, useInput, useStdin} from '@nemesis-oss/termina-core';
+import {Box, Text, useInput} from '@nemesis-oss/termina-core';
 import figures from 'figures';
 import {useComponentTheme} from '../../theme.js';
 import {useTextInput} from '../text-input/use-text-input.js';
@@ -89,7 +89,6 @@ const useHighlightKeys = ({
 	);
 };
 
-// Raw mode throws when stdin is piped, so every input hook stays inactive unless raw mode is supported.
 const useAutocomplete = ({
 	defaultValue,
 	options,
@@ -99,8 +98,7 @@ const useAutocomplete = ({
 	onChange,
 	onSubmit,
 }: UseAutocompleteProps) => {
-	const {isRawModeSupported} = useStdin();
-	const isInteractive = !isDisabled && isRawModeSupported;
+	const isInteractive = !isDisabled;
 	const {state, dispatch} = useAutocompleteState({defaultValue, onChange});
 	const {rows, highlightIndex, showNoMatches} = getSuggestions(
 		state,
