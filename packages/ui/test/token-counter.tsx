@@ -2,6 +2,7 @@ import React from 'react';
 import test, {type TestContext} from 'node:test';
 import chalk from 'chalk';
 import delay from 'delay';
+import stripAnsi from 'strip-ansi';
 import {render} from './helpers/render.js';
 import {TokenCounter} from '../source/components/token-counter/index.js';
 
@@ -136,4 +137,11 @@ test('updates the count, limit, color and percent after a rerender', async (t: T
 		lastFrame(),
 		`${chalk.yellow('1,800 / 2,000')} tokens ${chalk.yellow('(90%)')}`,
 	);
+});
+
+test('shows a negative count as given, in the ok color', (t: TestContext) => {
+	const {lastFrame} = render(<TokenCounter count={-5} limit={100} />);
+
+	t.assert.ok((lastFrame() ?? '').includes(chalk.green('-5 / 100')));
+	t.assert.ok(stripAnsi(lastFrame() ?? '').startsWith('-5 / 100 tokens (-5%)'));
 });

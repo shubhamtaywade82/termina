@@ -44,7 +44,7 @@ render(<Prompt />);
 
 | Prop | Type | Default | Description |
 | --- | --- | --- | --- |
-| `count` | `number` | Required | Tokens used. Shown with thousands separators, in en-US format. |
+| `count` | `number` | Required | Tokens used. Shown with thousands separators, in en-US format. Use 0 or more. |
 | `limit` | `number` | `undefined` | Token budget. When set, the counter shows `count / limit` and the percent used, rounded to a whole number. Use a value greater than 0. |
 | `label` | `string` | `'tokens'` | Unit name shown after the count. |
 
@@ -67,5 +67,6 @@ The component reads the `TokenCounter` entry of the theme. To change a key, pass
 - A count just under the limit shows `(100%)` in yellow. Only a count at or above the limit is red.
 - A count above the limit shows a percent over 100 in red, for example `1,220 / 1,000 tokens (122%)`.
 - A count of `0` shows `0` in green, with `(0%)` when a limit is set.
+- A negative count is not checked. It is shown as given, in green, for example `-5 / 100 tokens (-5%)`.
 - An empty `label` draws nothing. With a limit, the count and the percent are then one space apart, as in `1,234 / 4,096 (30%)`.
 - Changing `count` or `limit` after mount updates the count, the color and the percent on the next render. The component keeps no state of its own.
