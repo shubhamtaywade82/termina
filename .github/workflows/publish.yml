@@ -40,6 +40,9 @@ jobs:
       - name: Verify tag matches package versions and visibility
         run: node scripts/check-release.mjs "$GITHUB_REF_NAME"
 
+      - name: Build
+        run: pnpm build
+
       - name: Typecheck
         run: pnpm typecheck
 
