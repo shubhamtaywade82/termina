@@ -72,4 +72,6 @@ The bar is drawn with `figures.square` (`█`) for filled cells and `figures.squ
 - The shown percent is rounded to a whole number, but the bar and the color use the exact value. So `89.6` draws 18 cells in yellow and shows `90%`.
 - A value of exactly 70 is yellow, and a value of exactly 90 is red.
 - An empty `label` draws nothing, so the bar starts at the left edge of the row.
+- A negative `width` throws a `RangeError` when the component renders. The component does not guard against it.
+- A `width` of `0` draws no bar, so the row starts with the space before the percent.
 - Changing `value` takes effect on the next render.

@@ -2,7 +2,8 @@ import React from 'react';
 import test, {type TestContext} from 'node:test';
 import chalk from 'chalk';
 import delay from 'delay';
-import {Box, Text} from '@nemesis-oss/termina-core';
+import {Box, Text, renderToString} from '@nemesis-oss/termina-core';
+import stripAnsi from 'strip-ansi';
 import {render} from './helpers/render.js';
 import {Gauge} from '../source/components/gauge/index.js';
 import {ThemeProvider, defaultTheme, extendTheme} from '../source/theme.js';
@@ -158,4 +159,15 @@ test('passes config() the clamped value, not the raw one', (t: TestContext) => {
 	);
 
 	t.assert.strictEqual(lastFrame(), `${bar(20, 'red')} 100%`);
+});
+
+test('throws a RangeError when the width is negative', (t: TestContext) => {
+	t.assert.throws(
+		() => renderToString(<Gauge value={50} width={-1} />),
+		RangeError,
+	);
+});
+
+test('a width of 0 draws no bar, so the row starts with the gap before the percent', (t: TestContext) => {
+	t.assert.strictEqual(stripAnsi(renderToString(<Gauge value={50} width={0} />)), ' 50%');
 });

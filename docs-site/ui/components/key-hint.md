@@ -65,6 +65,7 @@ The one space of padding on each side of the key label is part of the text, not 
 ## Edge cases
 
 - `keys` and `label` are shown as given. The component does not change case, so `ctrl+c` renders as `ctrl+c`.
+- A label that does not fit beside the key block wraps onto more rows. The row then shrinks to fit, so the spaces inside the key block and the gap before the label are lost, and the label starts right after the key label. Give the row enough width to keep both.
 - An empty `label` renders no label text, but the gap after the key block is still there, so one blank column separates the key block from content placed after the hint.
 - An empty `keys` renders a two-space inverse block, followed by the label.
 - Changing `keys` or `label` after mount updates the row. The component keeps no state.

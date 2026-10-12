@@ -6,6 +6,7 @@
 		"jsx": "react"
 	},
 	"include": [
-		"source"
+		"source",
+		"test"
 	]
 }

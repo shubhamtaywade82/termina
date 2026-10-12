@@ -4,6 +4,7 @@ import test, {type TestContext} from 'node:test';
 import {render} from './helpers/render.js';
 import chalk from 'chalk';
 import delay from 'delay';
+import stripAnsi from 'strip-ansi';
 import {PasswordInput} from '../source/index.js';
 
 const cursor = (character = ' ') => chalk.inverse(character);
@@ -392,5 +393,19 @@ test('the submitted value keeps the emoji intact while the display stays masked'
 	await typeText(stdin, '😀', enter);
 	t.assert.strictEqual(submitted, '😀');
 	t.assert.strictEqual(lastFrame(), `*${cursor()}`);
+	unmount();
+});
+
+test('shows the placeholder without an error when stdin is piped', async (t: TestContext) => {
+	const {lastFrame, unmount} = render(
+		<PasswordInput placeholder="enter a password" />,
+		{isStdinPiped: true},
+	);
+
+	await delay(20);
+
+	const frame = stripAnsi(lastFrame() ?? '');
+	t.assert.ok(frame.includes('enter a password'));
+	t.assert.ok(!frame.includes('Raw mode'));
 	unmount();
 });

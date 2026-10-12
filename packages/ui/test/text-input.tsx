@@ -362,3 +362,20 @@ test('submit on enter', async (t: TestContext) => {
 
 	t.assert.strictEqual(submittedValue, 'Test');
 });
+
+test('shows the value and ignores keys when stdin is piped', async (t: TestContext) => {
+	const submitted: string[] = [];
+	const {lastFrame, stdin, unmount} = render(
+		<TextInput defaultValue="deploy" onSubmit={value => submitted.push(value)} />,
+		{isStdinPiped: true},
+	);
+
+	await delay(20);
+	stdin.write('\r');
+	await delay(20);
+
+	t.assert.ok((lastFrame() ?? '').includes('deploy'));
+	t.assert.ok(!(lastFrame() ?? '').includes('Raw mode'));
+	t.assert.deepStrictEqual(submitted, []);
+	unmount();
+});

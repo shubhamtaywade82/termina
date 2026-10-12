@@ -1,5 +1,5 @@
 import {useMemo} from 'react';
-import {useInput} from '@nemesis-oss/termina-core';
+import {useInput, useStdin} from '@nemesis-oss/termina-core';
 import chalk from 'chalk';
 import {graphemes, splitFirstGrapheme} from '../../lib/grapheme.js';
 import {type PasswordInputState} from './use-password-input-state.js';
@@ -73,6 +73,8 @@ export const usePasswordInput = ({
 		return result;
 	}, [isDisabled, state.value, state.cursorOffset]);
 
+	// Raw mode throws when stdin is piped, so the input stays inactive there.
+	const {isRawModeSupported} = useStdin();
 	useInput(
 		(input, key) => {
 			if (
@@ -105,7 +107,7 @@ export const usePasswordInput = ({
 				state.insert(input);
 			}
 		},
-		{isActive: !isDisabled},
+		{isActive: !isDisabled && isRawModeSupported},
 	);
 
 	return {

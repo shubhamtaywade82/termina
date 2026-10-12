@@ -2,6 +2,7 @@ import React from 'react';
 import test, {type TestContext} from 'node:test';
 import chalk from 'chalk';
 import delay from 'delay';
+import stripAnsi from 'strip-ansi';
 import {Box, Text} from '@nemesis-oss/termina-core';
 import {render} from './helpers/render.js';
 import {KeyHint} from '../source/components/key-hint/index.js';
@@ -135,4 +136,17 @@ test('reads the key style from the KeyHint entry of a theme override', (t: TestC
 	);
 
 	t.assert.strictEqual(lastFrame(), `${chalk.bold(' Ctrl+C ')} ${chalk.dim('quit')}`);
+});
+
+test('wraps a label that does not fit beside the key block, and drops the gap', (t: TestContext) => {
+	const {lastFrame} = render(
+		<Box width={16}>
+			<KeyHint keys="Ctrl+C" label="quit the application now" />
+		</Box>,
+	);
+
+	t.assert.strictEqual(
+		stripAnsi(lastFrame() ?? ''),
+		'      quit the a\nCtrl+Cpplication\n       now',
+	);
 });

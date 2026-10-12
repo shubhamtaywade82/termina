@@ -2,6 +2,7 @@ import React from 'react';
 import test, {type TestContext} from 'node:test';
 import chalk from 'chalk';
 import delay from 'delay';
+import stripAnsi from 'strip-ansi';
 import {Box, Text} from '@nemesis-oss/termina-core';
 import {render} from './helpers/render.js';
 import {Header} from '../source/components/header/index.js';
@@ -93,5 +94,18 @@ test('should draw the demo layout with the header above a status list', (t: Test
 			chalk.green('worker: done'),
 			chalk.yellow('web: running'),
 		].join('\n'),
+	);
+});
+
+test('should break a title mid-word when the row is narrower than the title', (t: TestContext) => {
+	const {lastFrame} = render(
+		<Box width={24}>
+			<Header title="Deployer" subtitle="Targeting: production" />
+		</Box>,
+	);
+
+	t.assert.strictEqual(
+		stripAnsi(lastFrame() ?? ''),
+		'Deploye Targeting: \nr       production',
 	);
 });

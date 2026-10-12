@@ -1,5 +1,5 @@
 import {useMemo} from 'react';
-import {useInput} from '@nemesis-oss/termina-core';
+import {useInput, useStdin} from '@nemesis-oss/termina-core';
 import chalk from 'chalk';
 import {type EmailInputState} from './use-email-input-state.js';
 
@@ -81,6 +81,8 @@ export const useEmailInput = ({
 		return result;
 	}, [isDisabled, state.value, state.cursorOffset, state.suggestion]);
 
+	// Raw mode throws when stdin is piped, so the input stays inactive there.
+	const {isRawModeSupported} = useStdin();
 	useInput(
 		(input, key) => {
 			if (
@@ -108,7 +110,7 @@ export const useEmailInput = ({
 				state.insert(input);
 			}
 		},
-		{isActive: !isDisabled},
+		{isActive: !isDisabled && isRawModeSupported},
 	);
 
 	return {

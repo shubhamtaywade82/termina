@@ -387,3 +387,16 @@ test('submit on enter', async (t: TestContext) => {
 
 	t.assert.strictEqual(submittedValue, 'test');
 });
+
+test('shows the value without an error when stdin is piped', async (t: TestContext) => {
+	const {lastFrame, unmount} = render(
+		<EmailInput defaultValue="ada@example.com" />,
+		{isStdinPiped: true},
+	);
+
+	await delay(20);
+
+	t.assert.ok((lastFrame() ?? '').includes('ada@example.com'));
+	t.assert.ok(!(lastFrame() ?? '').includes('Raw mode'));
+	unmount();
+});

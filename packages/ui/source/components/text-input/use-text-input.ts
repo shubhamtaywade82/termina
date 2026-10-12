@@ -1,5 +1,5 @@
 import {useMemo} from 'react';
-import {useInput} from '@nemesis-oss/termina-core';
+import {useInput, useStdin} from '@nemesis-oss/termina-core';
 import chalk from 'chalk';
 import {type TextInputState} from './use-text-input-state.js';
 import {graphemes, splitFirstGrapheme} from '../../lib/grapheme.js';
@@ -78,6 +78,8 @@ export const useTextInput = ({
 		return result;
 	}, [isDisabled, state.value, state.cursorOffset, state.suggestion]);
 
+	// Raw mode throws when stdin is piped, so the input stays inactive there.
+	const {isRawModeSupported} = useStdin();
 	useInput(
 		(input, key) => {
 			if (
@@ -110,7 +112,7 @@ export const useTextInput = ({
 				state.insert(input);
 			}
 		},
-		{isActive: !isDisabled},
+		{isActive: !isDisabled && isRawModeSupported},
 	);
 
 	return {

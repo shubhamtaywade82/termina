@@ -41,7 +41,7 @@
     "provenance": true
   },
   "scripts": {
-    "build": "tsc",
+    "build": "tsc -p tsconfig.build.json",
     "typecheck": "tsc --noEmit",
     "test": "env -u CI -u CONTINUOUS_INTEGRATION TERM=xterm NO_COLOR= FORCE_COLOR=true node --import=tsx --test --test-concurrency=1 \"test/*.{ts,tsx}\""
   },
