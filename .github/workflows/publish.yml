@@ -1,0 +1,56 @@
+name: Publish
+
+# Publishes the workspace packages to npm when a semver tag is pushed. The job refuses to run unless every package is public and its version matches the tag.
+on:
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: publish-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    name: Publish packages
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: .node-version
+          cache: pnpm
+          registry-url: https://registry.npmjs.org
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Verify tag matches package versions and visibility
+        run: node scripts/check-release.mjs "$GITHUB_REF_NAME"
+
+      - name: Build
+        run: pnpm build
+
+      - name: Typecheck
+        run: pnpm typecheck
+
+      - name: Test
+        run: pnpm test
+
+      # Prerelease tags such as v1.0.0-beta.1 go to the `next` dist-tag, so `latest` only moves on stable releases.
+      - name: Publish workspace packages
+        run: pnpm -r --filter './packages/*' publish --access public --no-git-checks --tag ${{ contains(github.ref_name, '-') && 'next' || 'latest' }}
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}

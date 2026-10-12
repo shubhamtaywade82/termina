@@ -26,3 +26,21 @@ pnpm --filter @nemesis-oss/termina-core test
 pnpm --filter @nemesis-oss/termina-ui test
 pnpm --filter termina-example-turnstream start   # press / to edit the prompt, q to quit
 ```
+
+## CI and release
+
+Workflows live in `.github/workflows/`. The Node version comes from `.node-version`, and pnpm comes from the `packageManager` field.
+
+| Workflow | Runs on | Gates |
+| --- | --- | --- |
+| `ci.yml` | pushes to `main`, pull requests | typecheck and build; `pnpm test` (both suites with the pseudo-terminal and emulator fixtures); docs site build and a check that `previews.json` is current; production dependency audit at high severity; CodeQL; dependency review on pull requests |
+| `docs.yml` | pushes to `main` that touch `docs-site/` | builds and deploys the docs site to GitHub Pages |
+| `publish.yml` | semver tags `v*` | the release gate `scripts/check-release.mjs` (public packages, versions equal the tag), then typecheck, test, and `pnpm publish` |
+
+The same gates run locally with `pnpm ci`, which stops at the first failure.
+
+Not gated yet:
+
+- **Lint.** `pnpm --filter @nemesis-oss/termina-core run lint` (`xo`) reports about a thousand problems on the current tree, mostly formatting and unsafe-call typing. Gating on it would fail every pull request. It should become a gate once that backlog is cleared.
+- **Coverage thresholds.** The suites run on `node:test`, which supports `--test-coverage-*` thresholds. Nothing enforces them yet.
+- **Full audit.** The high advisory in `xo`'s devDependencies (`braces`, GHSA-vfj7-8cjw-p6xm) has no patched version. The gate covers production dependencies only.
