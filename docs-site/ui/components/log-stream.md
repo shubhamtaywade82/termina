@@ -8,15 +8,15 @@ outline: [2, 3]
 
 `LogStream` and `LogStreamProps` are exported from `@nemesis-oss/termina-ui`, the `packages/ui` workspace package in this repository. The package is not published to npm yet, so import it from another workspace package. For the full component list, read the [UI Kit overview](/ui/overview).
 
-## Preview
+## Live preview
 
-This frame shows three entries in a 6-row viewport, where a newline and a long entry each take a second row.
+This is the real component, running on the termina renderer inside a
+terminal emulator in the page — not a screenshot. Click the preview to
+focus it; your keystrokes go to the app.
 
-<TerminalPreview id="log-stream-entries-wrap" />
+Scroll with the mouse wheel or Up and Down; End jumps back to the newest entry.
 
-This frame shows a LogStream with `maxLines` set to 3, so only the newest three of fourteen entries are rendered.
-
-<TerminalPreview id="log-stream-max-lines" />
+<TerminalDemo demo="log-stream-basic" title="LogStream — tail-following logs" />
 
 ## Usage
 

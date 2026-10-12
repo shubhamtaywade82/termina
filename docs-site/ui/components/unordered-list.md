@@ -8,15 +8,13 @@ outline: [2, 3]
 
 `UnorderedList` is exported from `@nemesis-oss/termina-ui`. `@nemesis-oss/termina-ui` is a workspace package in this repository and is not published to npm yet, so import it from another workspace package. For the full component list, read the [UI Kit overview](/ui/overview).
 
-## Preview
+## Live preview
 
-The first frame is a two-level list with the default marker, where Arrow keys and Enter to submit are nested under Keyboard input.
+This is the real component, running on the termina renderer inside a
+terminal emulator in the page — not a screenshot. Click the preview to
+focus it; your keystrokes go to the app.
 
-<TerminalPreview id="unordered-list-nested" />
-
-The second frame is a three-level list under a theme whose marker is the array `■` and `–`, so depth 0 draws `■` and depths 1 and 2 draw `–`.
-
-<TerminalPreview id="unordered-list-depth-markers" />
+<TerminalDemo demo="unordered-list-basic" title="UnorderedList — nested features" />
 
 ## Usage
 

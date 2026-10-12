@@ -8,15 +8,15 @@ outline: [2, 3]
 
 `MultiSelect` is exported from `@nemesis-oss/termina-ui`. `@nemesis-oss/termina-ui` is a workspace package in this repository and is not published to npm yet, so import it from another workspace package. For the full component list, read the [UI Kit overview](/ui/overview).
 
-## Preview
+## Live preview
 
-This frame shows Cheese and Olives selected through `defaultValue`, with the pointer on Cheese.
+This is the real component, running on the termina renderer inside a
+terminal emulator in the page — not a screenshot. Click the preview to
+focus it; your keystrokes go to the app.
 
-<TerminalPreview id="multi-select-default-selection" />
+Space toggles an option, Enter submits the selection.
 
-This frame shows `highlightText` set to `e`, which makes the first `e` in each label that contains one bold.
-
-<TerminalPreview id="multi-select-highlight-text" />
+<TerminalDemo demo="multi-select-basic" title="MultiSelect — toppings" />
 
 ## Usage
 

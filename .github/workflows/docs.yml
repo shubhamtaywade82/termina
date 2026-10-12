@@ -1,7 +1,13 @@
 # Build and deploy the VitePress documentation site to GitHub Pages.
 #
-# Runs on pushes to main that touch docs-site/ or this workflow, and on demand.
-# The site is served at https://shubhamtaywade82.github.io/termina/
+# Runs on pushes to main that touch the site, the workspace packages it
+# renders live previews from, or this workflow, and on demand. The site is
+# served at https://shubhamtaywade82.github.io/termina/
+#
+# The site installs @nemesis-oss/termina-core and @nemesis-oss/termina-ui as
+# file: dependencies, so their build output and node_modules must exist
+# before npm ci links them: pnpm installs the workspace and builds the
+# packages first, then npm installs the site itself.
 #
 # One-time setup: Settings -> Pages -> Build and deployment -> Source: GitHub Actions.
 
@@ -12,6 +18,8 @@ on:
     branches: [main]
     paths:
       - 'docs-site/**'
+      - 'packages/**'
+      - 'pnpm-lock.yaml'
       - '.github/workflows/docs.yml'
   workflow_dispatch:
 
@@ -30,11 +38,23 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      # pnpm for the workspace (version pinned by the packageManager field);
+      # npm for docs-site, whose lockfile and file: links it owns.
+      - uses: pnpm/action-setup@v4
+
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
           cache: npm
           cache-dependency-path: docs-site/package-lock.json
+
+      - name: Install workspace dependencies
+        # --ignore-scripts skips the node-pty native build (a test dependency);
+        # building the docs only needs the TypeScript outputs and JS deps.
+        run: pnpm install --frozen-lockfile --ignore-scripts
+
+      - name: Build workspace packages
+        run: pnpm run build
 
       - name: Install docs-site dependencies
         run: cd docs-site && npm ci

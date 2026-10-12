@@ -8,15 +8,15 @@ outline: [2, 3]
 
 `EmailInput` is exported from `@nemesis-oss/termina-ui`. `@nemesis-oss/termina-ui` is a workspace package in this repository and is not published to npm yet, so import it from another workspace package. For the full component list, read the [UI Kit overview](/ui/overview).
 
-## Preview
+## Live preview
 
-This frame shows an empty field with the placeholder `name@example.com`.
+This is the real component, running on the termina renderer inside a
+terminal emulator in the page — not a screenshot. Click the preview to
+focus it; your keystrokes go to the app.
 
-<TerminalPreview id="email-input-placeholder" />
+Type a name, then `@` to cycle through the offered domains.
 
-This frame shows a field holding `jane@gm`, followed by the dimmed suggestion `ail.com`, which completes `gmail.com`.
-
-<TerminalPreview id="email-input-domain-suggestion" />
+<TerminalDemo demo="email-input-basic" title="EmailInput — domain completion" />
 
 ## Usage
 

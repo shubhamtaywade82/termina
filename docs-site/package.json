@@ -7,7 +7,15 @@
     "build": "vitepress build",
     "preview": "vitepress preview"
   },
+  "dependencies": {
+    "@nemesis-oss/termina-core": "file:../packages/core",
+    "@nemesis-oss/termina-ui": "file:../packages/ui",
+    "@xterm/addon-fit": "^0.10.0",
+    "@xterm/xterm": "^5.5.0",
+    "react": "^19.3.0"
+  },
   "devDependencies": {
+    "@types/react": "^19.3.0",
     "vitepress": "1.6.4"
   }
 }

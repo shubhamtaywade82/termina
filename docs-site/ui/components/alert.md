@@ -8,15 +8,13 @@ outline: [2, 3]
 
 `Alert` is exported from `@nemesis-oss/termina-ui`. `@nemesis-oss/termina-ui` is a workspace package in this repository and is not published to npm yet, so import it from another workspace package. For the full component list, read the [UI Kit overview](/ui/overview).
 
-## Preview
+## Live preview
 
-This frame shows a warning alert with a title, in a 60-column box, the same as the usage example below.
+This is the real component, running on the termina renderer inside a
+terminal emulator in the page — not a screenshot. Click the preview to
+focus it; your keystrokes go to the app.
 
-<TerminalPreview id="alert-warning-title" />
-
-This frame shows an error alert with no title, where the message wraps inside the border in a 40-column box.
-
-<TerminalPreview id="alert-error-no-title" />
+<TerminalDemo demo="alert-basic" title="Alert — four variants" />
 
 ## Usage
 

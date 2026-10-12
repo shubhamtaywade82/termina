@@ -8,19 +8,16 @@ outline: [2, 3]
 
 `TextInput` is exported from `@nemesis-oss/termina-ui`. `@nemesis-oss/termina-ui` is a workspace package in this repository and is not published to npm yet, so import it from another workspace package. For the full component list, read the [UI Kit overview](/ui/overview).
 
-## Preview
+## Live preview
 
-The first frame is an empty TextInput with the placeholder `type a command`, which shows the first letter with the cursor on it and the rest dimmed.
+This is the real component, running on the termina renderer inside a
+terminal emulator in the page — not a screenshot. Click the preview to
+focus it; your keystrokes go to the app.
 
-<TerminalPreview id="text-input-placeholder" />
+Type `de` to see the completion, then press Enter to accept it.
 
-The second frame is a TextInput with the value `deploy`, and the cursor sits after the last letter.
+<TerminalDemo demo="text-input-basic" title="TextInput — suggestions" />
 
-<TerminalPreview id="text-input-value" />
-
-The third frame is a TextInput with the value `de` and the suggestions `deploy`, `destroy`, and `status`, which shows the completion `ploy` after the value.
-
-<TerminalPreview id="text-input-completion" />
 
 ## Usage
 

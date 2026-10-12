@@ -8,15 +8,15 @@ outline: [2, 3]
 
 `PasswordInput` is exported from `@nemesis-oss/termina-ui`. `@nemesis-oss/termina-ui` is a workspace package in this repository and is not published to npm yet, so import it from another workspace package. For the full component list, read the [UI Kit overview](/ui/overview).
 
-## Preview
+## Live preview
 
-This frame shows an empty field with the placeholder `Paste your key`, which is not masked.
+This is the real component, running on the termina renderer inside a
+terminal emulator in the page — not a screenshot. Click the preview to
+focus it; your keystrokes go to the app.
 
-<TerminalPreview id="password-input-placeholder" />
+Type any key and press Enter to submit it.
 
-This frame shows a disabled field with the same placeholder, dimmed and with no cursor.
-
-<TerminalPreview id="password-input-disabled-placeholder" />
+<TerminalDemo demo="password-input-basic" title="PasswordInput — masked entry" />
 
 ## Usage
 

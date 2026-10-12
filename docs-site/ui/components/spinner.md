@@ -8,6 +8,14 @@ outline: [2, 3]
 
 `Spinner` is exported from `@nemesis-oss/termina-ui`. `@nemesis-oss/termina-ui` is a workspace package in this repository and is not published to npm yet, so import it from another workspace package. For the full component list, read the [UI Kit overview](/ui/overview).
 
+## Live preview
+
+This is the real component, running on the termina renderer inside a
+terminal emulator in the page — not a screenshot. Click the preview to
+focus it; your keystrokes go to the app.
+
+<TerminalDemo demo="spinner-basic" title="Spinner — three styles" />
+
 ## Usage
 
 ```tsx
