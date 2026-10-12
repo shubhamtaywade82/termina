@@ -46,7 +46,7 @@
     "dev": "tsc --watch",
     "typecheck": "tsc --noEmit",
     "lint": "xo",
-    "test": "TERM=xterm NO_COLOR= FORCE_COLOR=true node --import=tsx --test --test-concurrency=1 \"test/*.{ts,tsx}\"",
+    "test": "env -u CI -u CONTINUOUS_INTEGRATION TERM=xterm NO_COLOR= FORCE_COLOR=true node --import=tsx --test --test-concurrency=1 \"test/*.{ts,tsx}\"",
     "pretest": "tsc"
   },
   "dependencies": {
