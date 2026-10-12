@@ -75,7 +75,7 @@ Use `hasMeasured` to detect when the currently tracked element has been measured
 @example
 ```tsx
 import {useRef} from 'react';
-import {Box, Text, useBoxMetrics} from '@fork/core';
+import {Box, Text, useBoxMetrics} from '@nemesis-oss/termina-core';
 
 const Example = () => {
 	const ref = useRef(null);

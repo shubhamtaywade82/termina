@@ -36,7 +36,7 @@ React tree ──► react-reconciler (src/reconciler.ts, host config)
 ### Measured cost of the default writer
 
 Same 200-row frame, 120 columns, one counter changed per update
-(`docs/research/measure-output-bytes.mjs`, run after `pnpm --filter @fork/core run build`):
+(`docs/research/measure-output-bytes.mjs`, run after `pnpm --filter @nemesis-oss/termina-core run build`):
 
 | Mode | Bytes per one-counter update |
 | --- | --- |
@@ -81,7 +81,7 @@ this fork now gates.
 ## 5. Layout and clipping
 
 - `Box` supports `overflow: hidden` (`render-node-to-output.ts:168`), `contentOffsetX/Y` (shifts children, `:204`), and `position: absolute`.
-- `measureElement` returns layout-tree coordinates and `clientWidth/clientHeight`; `useBoxMetrics` tracks the same over time. Together they are enough to build a scroll viewport with a clamped offset and a hit test. `ScrollBox` in `@fork/ui` is built this way.
+- `measureElement` returns layout-tree coordinates and `clientWidth/clientHeight`; `useBoxMetrics` tracks the same over time. Together they are enough to build a scroll viewport with a clamped offset and a hit test. `ScrollBox` in `@nemesis-oss/termina-ui` is built this way.
 - Yoga lays out at the terminal's column count. Text wraps to the box's width. A frame taller than the viewport is treated as fullscreen (`ink.tsx`, `isFullscreen`).
 
 ## 6. Resize behavior

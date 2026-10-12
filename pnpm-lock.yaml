@@ -10,10 +10,10 @@ importers:
 
   examples/turnstream:
     dependencies:
-      '@fork/core':
+      '@nemesis-oss/termina-core':
         specifier: workspace:*
         version: link:../../packages/core
-      '@fork/ui':
+      '@nemesis-oss/termina-ui':
         specifier: workspace:*
         version: link:../../packages/ui
       chalk:
@@ -198,7 +198,7 @@ importers:
 
   packages/ui:
     dependencies:
-      '@fork/core':
+      '@nemesis-oss/termina-core':
         specifier: workspace:*
         version: link:../core
       chalk:

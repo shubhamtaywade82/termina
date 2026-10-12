@@ -1,5 +1,5 @@
 import React, {type ReactNode} from 'react';
-import {Box, Text} from '@fork/core';
+import {Box, Text} from '@nemesis-oss/termina-core';
 import figures from 'figures';
 import {useComponentTheme} from '../../theme.js';
 import {type Theme} from './theme.js';

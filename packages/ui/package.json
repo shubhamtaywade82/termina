@@ -1,9 +1,28 @@
 {
-  "name": "@fork/ui",
+  "name": "@nemesis-oss/termina-ui",
   "version": "0.1.0",
   "private": true,
-  "description": "Fork of vadimdemedes/ink-ui@2.0.0 (component kit) ported onto @fork/core.",
+  "description": "Fork of vadimdemedes/ink-ui@2.0.0 (component kit) ported onto @nemesis-oss/termina-core.",
+  "keywords": [
+    "react",
+    "terminal",
+    "tui",
+    "cli",
+    "components",
+    "ink",
+    "ink-ui"
+  ],
+  "author": "Shubham Taywade <shubhamtaywade82@gmail.com>",
   "license": "MIT",
+  "homepage": "https://github.com/shubhamtaywade82/termina/tree/main/packages/ui#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/shubhamtaywade82/termina.git",
+    "directory": "packages/ui"
+  },
+  "bugs": {
+    "url": "https://github.com/shubhamtaywade82/termina/issues"
+  },
   "type": "module",
   "main": "./build/index.js",
   "types": "./build/index.d.ts",
@@ -17,13 +36,17 @@
   "engines": {
     "node": ">=22"
   },
+  "publishConfig": {
+    "access": "public",
+    "provenance": true
+  },
   "scripts": {
     "build": "tsc",
     "typecheck": "tsc --noEmit",
     "test": "FORCE_COLOR=true node --import=tsx --test --test-concurrency=1 \"test/*.{ts,tsx}\""
   },
   "dependencies": {
-    "@fork/core": "workspace:*",
+    "@nemesis-oss/termina-core": "workspace:*",
     "chalk": "^5.3.0",
     "cli-spinners": "^3.0.0",
     "deepmerge": "^4.3.1",

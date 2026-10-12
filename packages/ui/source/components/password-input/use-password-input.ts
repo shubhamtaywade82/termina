@@ -1,5 +1,5 @@
 import {useMemo} from 'react';
-import {useInput} from '@fork/core';
+import {useInput} from '@nemesis-oss/termina-core';
 import chalk from 'chalk';
 import {graphemes, splitFirstGrapheme} from '../../lib/grapheme.js';
 import {type PasswordInputState} from './use-password-input-state.js';

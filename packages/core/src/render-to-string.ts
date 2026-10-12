@@ -32,7 +32,7 @@ Useful for generating documentation, writing output to files, testing, or any sc
 
 @example
 ```
-import {renderToString, Text, Box} from '@fork/core';
+import {renderToString, Text, Box} from '@nemesis-oss/termina-core';
 
 const output = renderToString(
 	<Box padding={1}>

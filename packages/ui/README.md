@@ -367,7 +367,7 @@ This component theme hints that `Spinner` has 3 parts: container, frame and a la
 To customize the default theme, use `extendTheme` function and make that custom theme available to children components via `ThemeProvider`.
 
 ```tsx
-import {render, type TextProps} from '@fork/core';
+import {render, type TextProps} from '@nemesis-oss/termina-core';
 import {Spinner, ThemeProvider, extendTheme, defaultTheme} from '@inkjs/ui';
 
 const customTheme = extendTheme(defaultTheme, {
@@ -441,7 +441,7 @@ Changing `marker` to `'+'` would render this:
 Components shipped in Ink UI automatically read the necessary styles and configuration from a theme. However, if you're adding a new custom component and a theme for it, use `useComponentTheme` hook to access it.
 
 ```tsx
-import React, {render, Text, type TextProps} from '@fork/core';
+import React, {render, Text, type TextProps} from '@nemesis-oss/termina-core';
 import {
 	ThemeProvider,
 	defaultTheme,

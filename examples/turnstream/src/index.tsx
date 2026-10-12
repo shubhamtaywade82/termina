@@ -1,7 +1,7 @@
 import React, {useEffect, useReducer, useState} from 'react';
 import chalk from 'chalk';
-import {Box, Text, render, useApp, useInput, useWindowSize} from '@fork/core';
-import {LogStream, ScrollBox, TextInput} from '@fork/ui';
+import {Box, Text, render, useApp, useInput, useWindowSize} from '@nemesis-oss/termina-core';
+import {LogStream, ScrollBox, TextInput} from '@nemesis-oss/termina-ui';
 import {
 	type Block,
 	type BlockKind,

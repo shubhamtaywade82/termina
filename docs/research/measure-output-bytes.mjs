@@ -1,6 +1,6 @@
 // Measures bytes written per one-counter update in the default writer and in incremental rendering.
 // Run from the repository root after building the core package:
-//   pnpm --filter @fork/core run build
+//   pnpm --filter @nemesis-oss/termina-core run build
 //   node docs/research/measure-output-bytes.mjs
 import {EventEmitter} from 'node:events';
 import {PassThrough} from 'node:stream';

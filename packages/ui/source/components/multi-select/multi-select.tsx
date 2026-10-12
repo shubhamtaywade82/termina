@@ -1,5 +1,5 @@
 import React, {type ReactNode} from 'react';
-import {Box, Text} from '@fork/core';
+import {Box, Text} from '@nemesis-oss/termina-core';
 import {useComponentTheme} from '../../theme.js';
 import {type Option} from '../../types.js';
 import {MultiSelectOption} from './multi-select-option.js';

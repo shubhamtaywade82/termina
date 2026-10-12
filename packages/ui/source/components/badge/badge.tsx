@@ -1,4 +1,4 @@
-import {Text, type TextProps} from '@fork/core';
+import {Text, type TextProps} from '@nemesis-oss/termina-core';
 import React, {type ReactNode} from 'react';
 import {useComponentTheme} from '../../theme.js';
 import {type Theme} from './theme.js';

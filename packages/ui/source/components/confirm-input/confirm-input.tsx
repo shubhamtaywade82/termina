@@ -1,5 +1,5 @@
 import React from 'react';
-import {Text, useInput} from '@fork/core';
+import {Text, useInput} from '@nemesis-oss/termina-core';
 import {useComponentTheme} from '../../theme.js';
 import {type Theme} from './theme.js';
 

@@ -1,5 +1,5 @@
 import React from 'react';
-import {Text} from '@fork/core';
+import {Text} from '@nemesis-oss/termina-core';
 import {ScrollBox} from '../scroll-box/scroll-box.js';
 
 export type LogStreamProps = {

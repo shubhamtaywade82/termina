@@ -1,5 +1,5 @@
 import React, {useState} from 'react';
-import {Box, type DOMElement, Text, measureElement} from '@fork/core';
+import {Box, type DOMElement, Text, measureElement} from '@nemesis-oss/termina-core';
 import {useComponentTheme} from '../../theme.js';
 import {type Theme} from './theme.js';
 

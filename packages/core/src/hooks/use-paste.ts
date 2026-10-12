@@ -17,7 +17,7 @@ A React hook that calls `handler` whenever the user pastes text in the terminal.
 `usePaste` and `useInput` can be used together in the same component. They operate on separate event channels, so paste content is never forwarded to `useInput` handlers when `usePaste` is active.
 
 ```
-import {useInput, usePaste} from '@fork/core';
+import {useInput, usePaste} from '@nemesis-oss/termina-core';
 
 const MyInput = () => {
 	useInput((input, key) => {

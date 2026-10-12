@@ -1,7 +1,7 @@
 import React from 'react';
 import test, {type TestContext} from 'node:test';
 import {render} from './helpers/render.js';
-import {Box} from '@fork/core';
+import {Box} from '@nemesis-oss/termina-core';
 import chalk from 'chalk';
 import figures from 'figures';
 import boxen from 'boxen';

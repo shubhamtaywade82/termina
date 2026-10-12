@@ -1,5 +1,5 @@
 import {useMemo} from 'react';
-import {useInput} from '@fork/core';
+import {useInput} from '@nemesis-oss/termina-core';
 import chalk from 'chalk';
 import {type EmailInputState} from './use-email-input-state.js';
 
