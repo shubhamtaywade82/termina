@@ -108,29 +108,22 @@ test('non-interactive unmount in the commit that appends static items writes onl
 });
 
 test('non-interactive unmount with a queued throttled render writes static items once', async (t: TestContext) => {
-	function App() {
-		const {exit} = useApp();
-		const [live, setLive] = useState(0);
-		const [items, setItems] = useState<string[]>([]);
+	// Live state lives in a sibling of <Static>. Setting it re-renders only that sibling, so the commit is
+	// not static-dirty and the render goes through the throttle instead of rendering immediately.
+	let updateLive: (value: number) => void = () => {};
 
-		useEffect(() => {
-			// The first two live updates leave a trailing throttled render queued. The static commit
-			// then renders immediately, and the queued render still runs during unmount.
-			const firstLive = setTimeout(() => {
-				setLive(1);
-			}, 1);
-			const secondLive = setTimeout(() => {
-				setLive(2);
-			}, 2);
-			const staticItems = setTimeout(() => {
-				setItems(['A', 'B']);
-			}, 3);
-			return () => {
-				clearTimeout(firstLive);
-				clearTimeout(secondLive);
-				clearTimeout(staticItems);
-			};
+	function Live() {
+		const [live, setLive] = useState(0);
+
+		useLayoutEffect(() => {
+			updateLive = setLive;
 		}, []);
+
+		return <Text>{`live ${live}`}</Text>;
+	}
+
+	function App({items}: {readonly items: string[]}) {
+		const {exit} = useApp();
 
 		useLayoutEffect(() => {
 			if (items.length > 0) {
@@ -141,14 +134,36 @@ test('non-interactive unmount with a queued throttled render writes static items
 		return (
 			<Box flexDirection="column">
 				{renderStatic(items)}
-				<Text>{`live ${live}`}</Text>
+				<Live />
 			</Box>
 		);
 	}
 
-	const output = await renderNonInteractive(<App />, {maxFps: 5});
+	const stdout = createStdout(80, false);
+	const instance = render(<App items={[]} />, {
+		stdout,
+		stderr: stdout,
+		interactive: false,
+		patchConsole: false,
+		maxFps: 5,
+	});
 
-	t.assert.strictEqual(output, 'A\nB\nlive 2\n');
+	// Updates made outside React events commit on a microtask, so yield after each one. The first commit
+	// renders on the leading edge. The second is queued as the trailing throttled render.
+	updateLive(1);
+	await new Promise((resolve) => {
+		setImmediate(resolve);
+	});
+	updateLive(2);
+	await new Promise((resolve) => {
+		setImmediate(resolve);
+	});
+
+	// The static commit writes A and B, then exit() unmounts while the trailing render is still queued.
+	instance.rerender(<App items={['A', 'B']} />);
+	await instance.waitUntilExit();
+
+	t.assert.strictEqual(stdout.getWrites().join(''), 'A\nB\nlive 2\n');
 });
 
 test('non-interactive unmount without exit still writes static items once', async (t: TestContext) => {
