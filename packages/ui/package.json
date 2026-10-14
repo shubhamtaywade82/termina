@@ -66,6 +66,7 @@
     "cat-names": "^4.0.0",
     "delay": "^7.0.0",
     "eslint-config-xo-react": "^0.32.0",
+    "node-pty": "^1.2.0-beta.12",
     "prettier": "^3.9.9",
     "react": "^19.3.0",
     "sinon": "^22.1.0",
