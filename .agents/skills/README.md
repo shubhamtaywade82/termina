@@ -14,6 +14,8 @@ These repository-local skills are focused instruction sets for agents working on
 | [termina-tui-validation](termina-tui-validation/SKILL.md) | Acceptance tests for layout, terminal modes, keyboard/mouse interaction, reflow, async behavior and docs previews |
 | [termina-skill-evaluation](termina-skill-evaluation/SKILL.md) | Evaluate skill routing and actual agent outputs with repeatable tasks, hard gates, and evidence-based scoring |
 
+The evaluation skill has a runnable fixture suite in [`.agents/evals/`](../evals/README.md). Run `pnpm evals:check` to validate the task manifests; this verifies fixture integrity, not agent output quality.
+
 ## Recommended routing order
 
 For a substantial new terminal application or feature, think in this order:
