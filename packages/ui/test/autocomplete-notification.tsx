@@ -33,7 +33,6 @@ const burst = async (instance: Instance, keys: string) => {
 	await delay(20);
 };
 
-// The input parser splits a read at Backspace and Ctrl+C, but not at Enter: a text run that ends in a carriage return stays one text event, and the carriage return is stripped as pasted text. So a burst that ends in Enter puts a Backspace before it, which makes the Enter its own event.
 test('a burst of keys in one read reports each event in order', async (t: TestContext) => {
 	const changes: string[] = [];
 	const instance = render(
@@ -73,6 +72,25 @@ test('enter in the same read as a burst submits the latest value when no row mat
 
 	t.assert.deepStrictEqual(submitted, ['ab']);
 	t.assert.deepStrictEqual(changes, ['abx', 'ab']);
+	instance.unmount();
+});
+
+// Enter is its own key event even when text comes before it in the same read, so a read can end in text followed by Enter.
+test('enter that follows text in the same read submits that text', async (t: TestContext) => {
+	const submitted: string[] = [];
+	const changes: string[] = [];
+	const instance = render(
+		<Autocomplete
+			options={['vue']}
+			onChange={collect(changes)}
+			onSubmit={collect(submitted)}
+		/>,
+	);
+
+	await burst(instance, 'abx' + enter);
+
+	t.assert.deepStrictEqual(submitted, ['abx']);
+	t.assert.deepStrictEqual(changes, ['abx']);
 	instance.unmount();
 });
 
