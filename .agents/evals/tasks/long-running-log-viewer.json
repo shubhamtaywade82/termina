@@ -1,0 +1,77 @@
+{
+  "schema_version": 1,
+  "id": "long-running-log-viewer",
+  "title": "Long-running log viewer",
+  "kind": "implementation",
+  "user_prompt": "Build a terminal log viewer that receives new log entries over time. It should follow the newest entries while the reader is at the tail, but stop jumping when the reader scrolls upward to inspect older entries. Provide an obvious way to return to the latest entries, and ensure subscriptions and timers stop when the view unmounts.",
+  "expected_skills": [
+    "termina-tui-design",
+    "termina-tui-app-architecture",
+    "termina-ui",
+    "termina-tui-validation"
+  ],
+  "adjacent_skills_not_required": [
+    "termina-core",
+    "termina-agentic-ui-patterns"
+  ],
+  "environment": {
+    "terminal_sizes": [
+      {
+        "columns": 40,
+        "rows": 12
+      },
+      {
+        "columns": 80,
+        "rows": 24
+      }
+    ],
+    "execution_modes": [
+      "interactive"
+    ]
+  },
+  "acceptance_checks": [
+    {
+      "id": "tail-follow",
+      "verification": "test",
+      "assertion": "New entries move the viewport only when tail-follow is enabled.",
+      "evidence_required": "Test appending entries while at the tail."
+    },
+    {
+      "id": "manual-scroll",
+      "verification": "test",
+      "assertion": "After the reader scrolls away from the tail, new entries do not yank the viewport to the bottom.",
+      "evidence_required": "Test scrolling up, appending, and checking the visible window."
+    },
+    {
+      "id": "return-to-tail",
+      "verification": "test",
+      "assertion": "A documented key or action returns to latest entries and reenables tail-follow.",
+      "evidence_required": "Test for return-to-tail and subsequent appended entry."
+    },
+    {
+      "id": "bounded-lifecycle",
+      "verification": "test",
+      "assertion": "Unmounting stops event subscriptions/timers and does not continue state updates from the old view.",
+      "evidence_required": "Cleanup test or measurable subscription/timer teardown."
+    }
+  ],
+  "hard_gates": [
+    {
+      "id": "unbounded-hidden-work",
+      "failure_condition": "Unmounted views continue consuming events or scheduled work."
+    },
+    {
+      "id": "false-tail-follow",
+      "failure_condition": "The UI claims to be showing latest entries when the viewport is pinned to older content."
+    }
+  ],
+  "score_dimensions": [
+    "api-grounding",
+    "ux-hierarchy",
+    "terminal-resilience",
+    "interaction",
+    "async-integrity",
+    "tests",
+    "engineering-discipline"
+  ]
+}
