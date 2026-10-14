@@ -2,6 +2,7 @@ packages:
   - 'packages/*'
   - 'examples/*'
 allowBuilds:
-  esbuild: set this to true or false
-  node-pty: set this to true or false
-  unrs-resolver: set this to true or false
+  '@openuidev/lang-core': false
+  esbuild: false
+  node-pty: true
+  unrs-resolver: false
