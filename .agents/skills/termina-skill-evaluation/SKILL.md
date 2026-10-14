@@ -104,3 +104,10 @@ A hard-gate failure means the task fails regardless of its numeric score.
 - Use `termina-agentic-ui-patterns` for AI/tool lifecycle acceptance checks.
 - Use `termina-ui` and `termina-core` to identify the relevant implementation/test surface.
 - Use `termina-tui-validation` to implement repeatable technical checks.
+
+## Repository evaluation fixtures
+
+- Reusable task prompts and evaluator-only metadata live in `.agents/evals/tasks/*.json`.
+- The baseline/treatment run protocol and evidence expectations are in [the evaluation suite guide](../../evals/README.md); use [the report template](../../evals/report-template.json) to record comparable runs.
+- Run `pnpm evals:check` to validate task metadata, skill names, acceptance checks, evidence requirements, and hard-gate definitions.
+- This validator checks fixture integrity only. It does not run an agent or claim an implementation passed its acceptance checks; those need recorded evidence from actual task runs.
