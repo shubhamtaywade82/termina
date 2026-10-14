@@ -86,7 +86,7 @@ function ModalLayer({onClose, title, width, children}: LayerProps) {
 }
 
 /**
-A dialog layered over the content of the container it is rendered in. While it is open, the keys, paste and mouse input for the content behind it are not delivered, and Tab moves only between the focusable components inside it.
+A dialog layered over the content of the container it is rendered in. While it is open, the keys, paste and `useMouse` reports for the content behind it are not delivered, and Tab moves only between the focusable components inside it. `Box` mouse handlers such as `onClick` are found by hit testing and are not gated, so a handler on a covered element does not run only because the modal is above it.
 
 Render it as the last child of the container it covers. It is an absolute overlay sized to that container, so later siblings draw over it.
 
