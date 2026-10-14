@@ -26,7 +26,7 @@ function nonEmpty(value) {
 }
 
 function hasPlaceholder(value) {
-  return typeof value === 'string' && /\b(?:REPLACE(?:_WITH)?|TODO|TBD|CHANGEME)\b/i.test(value);
+  return typeof value === 'string' && /(?:REPLACE(?:_WITH)?_|TODO|TBD|CHANGEME)/i.test(value);
 }
 
 function uniqueStrings(value) {
