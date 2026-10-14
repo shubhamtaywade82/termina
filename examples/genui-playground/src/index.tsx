@@ -32,6 +32,7 @@ function App() {
 	const [actionMessage, setActionMessage] = useState<string>('');
 	const [streamTree, setStreamTree] = useState<GenUIElementNode | null>(null);
 	const [streamIndex, setStreamIndex] = useState(0);
+	const [streamVersion, setStreamVersion] = useState(0);
 
 	const registry = useMemo(() => createDefaultRegistry(), []);
 	const adapter = useMemo(() => createLanguageAdapter(registry), [registry]);
@@ -47,8 +48,21 @@ function App() {
 					setActionMessage(`Dispatched applyConfig (env=${values.envName}, region=${values.region})`);
 				},
 			},
+			{
+				name: 'deployHotfix',
+				schema: z.any(),
+				handler: () => {
+					setActionMessage('Dispatched deployHotfix: Hotfix applied to production cluster!');
+				},
+			},
 		]);
 	}, [runtime]);
+
+	const replayStream = () => {
+		setStreamTree(null);
+		setStreamIndex(0);
+		setStreamVersion(v => v + 1);
+	};
 
 	// Simulate incremental model streaming tokens chunk-by-chunk
 	useEffect(() => {
@@ -68,13 +82,13 @@ function App() {
 				coordinator.complete();
 				clearInterval(interval);
 			}
-		}, 300);
+		}, 200);
 
 		return () => {
 			clearInterval(interval);
 			unsubscribe();
 		};
-	}, [tab, adapter]);
+	}, [tab, adapter, streamVersion]);
 
 	useInput((input, key) => {
 		if (input === 'q' || key.escape) exit();
@@ -82,7 +96,10 @@ function App() {
 		if (input === '2') setTab('form');
 		if (input === '3') {
 			setTab('streaming');
-			setStreamIndex(0);
+			replayStream();
+		}
+		if (input === 'r' && tab === 'streaming') {
+			replayStream();
 		}
 		if (input === 'a' && tab === 'form') {
 			dispatcher.dispatch('applyConfig', { target: 'cluster' });
@@ -101,11 +118,12 @@ function App() {
 				tab={tab}
 				onTabChange={nextTab => {
 					setTab(nextTab);
-					if (nextTab === 'streaming') setStreamIndex(0);
+					if (nextTab === 'streaming') replayStream();
 				}}
+				onReplay={replayStream}
 				onQuit={exit}
 			/>
-			<Box borderStyle="single" borderColor="gray" padding={1} flexGrow={1}>
+			<Box paddingY={1} flexGrow={1}>
 				<GenUIRenderer
 					node={activeTree}
 					registry={registry}
@@ -126,10 +144,12 @@ function App() {
 function Header({
 	tab,
 	onTabChange,
+	onReplay,
 	onQuit,
 }: {
 	readonly tab: Tab;
 	readonly onTabChange?: (t: Tab) => void;
+	readonly onReplay?: () => void;
 	readonly onQuit?: () => void;
 }) {
 	return (
@@ -165,6 +185,15 @@ function Header({
 						[3] Live Streaming
 					</Text>
 				</Box>
+				{tab === 'streaming' && (
+					<Box
+						onClick={() => onReplay?.()}
+						backgroundColor="cyan"
+						paddingX={1}
+					>
+						<Text color="black" bold>⟳ Replay</Text>
+					</Box>
+				)}
 				<Box
 					onClick={() => onQuit?.()}
 					paddingX={1}
@@ -189,7 +218,7 @@ function Footer({
 		<Box flexDirection="column">
 			{tab === 'streaming' && (
 				<Text dimColor>
-					Streaming chunk {streamIndex} of {STREAMING_CHUNKS.length}...
+					Streaming chunk {streamIndex} of {STREAMING_CHUNKS.length}... (Click ⟳ Replay or press [r] to restart)
 				</Text>
 			)}
 			{tab === 'form' && (
@@ -201,7 +230,7 @@ function Footer({
 				</Text>
 			)}
 			<Text dimColor>
-				Click any tab button above or press 1, 2, 3, q
+				Click any tab button above or press 1, 2, 3, r, q
 			</Text>
 		</Box>
 	);
