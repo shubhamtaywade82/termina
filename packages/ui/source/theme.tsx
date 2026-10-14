@@ -27,6 +27,7 @@ import jsonviewerTheme from './components/json-viewer/theme.js';
 import keyhintTheme from './components/key-hint/theme.js';
 import loadingbarTheme from './components/loading-bar/theme.js';
 import markdownTheme from './components/markdown/theme.js';
+import modalTheme from './components/modal/theme.js';
 import sparklineTheme from './components/sparkline/theme.js';
 import stepperTheme from './components/stepper/theme.js';
 import streamingtextTheme from './components/streaming-text/theme.js';
@@ -77,6 +78,7 @@ export const defaultTheme: Theme = {
 		KeyHint: keyhintTheme,
 		LoadingBar: loadingbarTheme,
 		Markdown: markdownTheme,
+		Modal: modalTheme,
 		Sparkline: sparklineTheme,
 		Stepper: stepperTheme,
 		StreamingText: streamingtextTheme,

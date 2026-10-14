@@ -29,6 +29,7 @@ export * from './components/json-viewer/index.js';
 export * from './components/key-hint/index.js';
 export * from './components/loading-bar/index.js';
 export * from './components/markdown/index.js';
+export * from './components/modal/index.js';
 export * from './components/sparkline/index.js';
 export * from './components/stepper/index.js';
 export * from './components/streaming-text/index.js';
