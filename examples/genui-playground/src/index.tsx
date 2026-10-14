@@ -104,27 +104,34 @@ function App() {
 	);
 }
 
-function Header({ tab }: { readonly tab: Tab }) {
+function Header({ tab, onTabChange }: { readonly tab: Tab; readonly onTabChange: (t: Tab) => void }) {
 	return (
 		<Box flexDirection="column" gap={0}>
 			<Text bold color="cyan">
 				TERMINA GENERATIVE UI PLAYGROUND
 			</Text>
 			<Box gap={2}>
-				<Text color={tab === 'dashboard' ? 'cyan' : 'gray'} bold={tab === 'dashboard'}>
-					[1] Dashboard
-				</Text>
-				<Text color={tab === 'form' ? 'green' : 'gray'} bold={tab === 'form'}>
-					[2] Form & Runtime
-				</Text>
-				<Text color={tab === 'streaming' ? 'yellow' : 'gray'} bold={tab === 'streaming'}>
-					[3] Live Streaming
-				</Text>
+				<Box onClick={() => onTabChange('dashboard')}>
+					<Text color={tab === 'dashboard' ? 'cyan' : 'gray'} bold={tab === 'dashboard'}>
+						[1] Dashboard
+					</Text>
+				</Box>
+				<Box onClick={() => onTabChange('form')}>
+					<Text color={tab === 'form' ? 'green' : 'gray'} bold={tab === 'form'}>
+						[2] Form & Runtime
+					</Text>
+				</Box>
+				<Box onClick={() => onTabChange('streaming')}>
+					<Text color={tab === 'streaming' ? 'yellow' : 'gray'} bold={tab === 'streaming'}>
+						[3] Live Streaming
+					</Text>
+				</Box>
 				<Text color="gray">[q] Quit</Text>
 			</Box>
 		</Box>
 	);
 }
+
 
 function Footer({
 	tab,
@@ -154,4 +161,5 @@ function Footer({
 	);
 }
 
-render(<App />);
+render(<App />, { mouse: true, alternateScreen: true });
+
