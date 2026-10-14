@@ -9,7 +9,7 @@ const taskDirectory = path.join(repositoryRoot, '.agents', 'evals', 'tasks');
 const args = process.argv.slice(2);
 
 function usage() {
-  console.error('Usage: pnpm evals:prompt <task-id> | pnpm evals:prompt --list | pnpm evals:prompt --check');
+  console.error('Usage: pnpm evals:prompt -- <task-id> | pnpm evals:prompt -- --list | pnpm evals:prompt -- --check');
 }
 
 function listTasks() {
