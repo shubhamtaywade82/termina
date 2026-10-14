@@ -39,6 +39,8 @@ export {default as useStdout} from './hooks/use-stdout.js';
 export {default as useStderr} from './hooks/use-stderr.js';
 export {default as useFocus} from './hooks/use-focus.js';
 export {default as useFocusManager} from './hooks/use-focus-manager.js';
+export type {Props as KeyboardCaptureProps} from './keyboard-capture.js';
+export {default as KeyboardCapture} from './keyboard-capture.js';
 export {default as useIsScreenReaderEnabled} from './hooks/use-is-screen-reader-enabled.js';
 export {default as useCursor} from './hooks/use-cursor.js';
 export type {CursorShape} from './cursor-shape.js';

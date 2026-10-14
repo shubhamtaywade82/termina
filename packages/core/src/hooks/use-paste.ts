@@ -1,4 +1,5 @@
-import {useEffect, useEffectEvent} from 'react';
+import {use, useEffect, useEffectEvent} from 'react';
+import KeyboardCaptureContext from '../components/KeyboardCaptureContext.js';
 import reconciler from '../reconciler.js';
 import {useStdinContext} from './use-stdin.js';
 
@@ -41,8 +42,9 @@ const usePaste = (
 	options: Options = {},
 ): void => {
 	// eslint-disable-next-line @typescript-eslint/naming-convention
-	const {setRawMode, isRawModeSupported, setBracketedPasteMode, internal_eventEmitter} =
+	const {setRawMode, isRawModeSupported, setBracketedPasteMode, internal_eventEmitter, canReceive} =
 		useStdinContext();
+	const keyboardCapture = use(KeyboardCaptureContext);
 
 	useEffect(() => {
 		// Piped stdin cannot enter raw mode, so the hook stays idle there instead of throwing.
@@ -60,6 +62,11 @@ const usePaste = (
 	}, [options.isActive, isRawModeSupported, setRawMode, setBracketedPasteMode]);
 
 	const handlePaste = useEffectEvent((text: string) => {
+		// Paste inside a capture reaches only the top capture's listeners. Paste outside every capture waits until no capture is active.
+		if (!canReceive(keyboardCapture?.owner)) {
+			return;
+		}
+
 		// Use discreteUpdates to assign DiscreteEventPriority to state
 		// updates triggered by paste, matching the priority of useInput.
 		// @ts-expect-error Types require 5 arguments (fn, a, b, c, d) but only fn is needed at runtime.

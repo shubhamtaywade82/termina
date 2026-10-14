@@ -71,6 +71,11 @@ type Focusable = {
 	readonly isActive: boolean;
 };
 
+type KeyboardCaptureEntry = {
+	readonly owner: symbol;
+	readonly depth: number;
+};
+
 // Components sharing a custom ID are indistinguishable to focus, so navigation treats each ID as one slot at its first registration.
 const uniqueFocusables = (focusables: Focusable[]): Focusable[] => {
 	const seenIds = new Set<string>();
@@ -113,6 +118,8 @@ function App({
 	);
 	// The registry is not rendered. Keep it current without nesting state updates, so focus changes are queued in call order.
 	const focusablesRef = useRef<Focusable[]>([]);
+	// Keyboard captures in push order. While the stack is not empty, only the top entry's owner receives input.
+	const keyboardCaptureStackRef = useRef<KeyboardCaptureEntry[]>([]);
 	const animationSubscribersRef = useRef(
 		new Map<(currentTime: number) => void, AnimationSubscriber>(),
 	);
@@ -278,11 +285,48 @@ function App({
 		[isRawModeSupported, disableRawMode, onExit],
 	);
 
+	// The entry with the greatest depth is the top, so the innermost capture wins. Among captures at the same depth, the one pushed last wins. Layout effects run child first, so push order alone would let an outer capture win over an inner one.
+	const registerCapture = useCallback(
+		(owner: symbol, depth: number): (() => void) => {
+			const entry: KeyboardCaptureEntry = {owner, depth};
+			keyboardCaptureStackRef.current = [
+				...keyboardCaptureStackRef.current,
+				entry,
+			];
+
+			return () => {
+				keyboardCaptureStackRef.current =
+					keyboardCaptureStackRef.current.filter(
+						(candidate) => candidate !== entry,
+					);
+			};
+		},
+		[],
+	);
+
+	// An empty stack accepts everything. Otherwise only the top capture's owner does, and app-level input (no owner) waits until no capture is active.
+	const canReceive = useCallback((owner: symbol | undefined): boolean => {
+		const stack = keyboardCaptureStackRef.current;
+
+		if (stack.length === 0) {
+			return true;
+		}
+
+		let top = stack[0];
+		for (const entry of stack) {
+			if (top === undefined || entry.depth >= top.depth) {
+				top = entry;
+			}
+		}
+
+		return top?.owner === owner;
+	}, []);
+
 	const handleInput = useCallback(
 		(input: string): void => {
 			const key = parseKeypress(input);
 
-			// Exit on Ctrl+C
+			// Exit on Ctrl+C. This runs before any capture check, so a capture cannot block it.
 			if (
 				exitOnCtrlC &&
 				key.ctrl &&
@@ -293,9 +337,10 @@ function App({
 				return;
 			}
 
-			// Reset focus when there's an active focused component on Esc
+			// Reset focus when there's an active focused component on Esc. While a capture is active, Escape belongs to the capture, so focus stays put.
 			if (
 				isFocusEnabledRef.current &&
+				canReceive(undefined) &&
 				key.name === 'escape' &&
 				key.eventType !== 'release' &&
 				!key.shift &&
@@ -307,7 +352,7 @@ function App({
 				setActiveFocusId(undefined);
 			}
 		},
-		[exitOnCtrlC, handleExit],
+		[exitOnCtrlC, handleExit, canReceive],
 	);
 
 	const emitInput = useCallback(
@@ -822,6 +867,8 @@ function App({
 			internal_exitOnCtrlC: exitOnCtrlC,
 			// eslint-disable-next-line @typescript-eslint/naming-convention
 			internal_eventEmitter: eventEmitterRef.current,
+			registerCapture,
+			canReceive,
 		}),
 		[
 			stdin,
@@ -830,6 +877,8 @@ function App({
 			handleSetMouseTracking,
 			isRawModeSupported,
 			exitOnCtrlC,
+			registerCapture,
+			canReceive,
 		],
 	);
 
