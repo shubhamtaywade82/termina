@@ -258,6 +258,8 @@ if (files.length === 0) {
 
 const knownSkills = getKnownSkillNames();
 const taskIds = new Set();
+const expectedSkillCoverage = new Set();
+const adjacentSkillCoverage = new Set();
 
 for (const fileName of files) {
   const filePath = path.join(taskDirectory, fileName);
@@ -272,12 +274,40 @@ for (const fileName of files) {
 
   validateTask(task, fileName, knownSkills);
 
+  if (Array.isArray(task?.expected_skills)) {
+    for (const skill of task.expected_skills) {
+      expectedSkillCoverage.add(skill);
+    }
+  }
+
+  if (Array.isArray(task?.adjacent_skills_not_required)) {
+    for (const skill of task.adjacent_skills_not_required) {
+      adjacentSkillCoverage.add(skill);
+    }
+  }
+
   if (task && typeof task.id === 'string') {
     if (taskIds.has(task.id)) {
       fail(`.agents/evals/tasks/${fileName}`, `duplicate task id "${task.id}"`);
     }
 
     taskIds.add(task.id);
+  }
+}
+
+for (const name of knownSkills) {
+  // This suite evaluates application-building skills. The meta-evaluation skill
+  // is used to maintain the suite itself rather than being loaded for app tasks.
+  if (name === 'termina-skill-evaluation') {
+    continue;
+  }
+
+  if (!expectedSkillCoverage.has(name)) {
+    fail('.agents/evals/tasks', `no fixture exercises expected skill "${name}"`);
+  }
+
+  if (!adjacentSkillCoverage.has(name)) {
+    fail('.agents/evals/tasks', `no fixture marks skill "${name}" as adjacent and not required`);
   }
 }
 
