@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { z } from 'zod';
-import { Box, Text, render, useApp, useInput } from '@nemesis-oss/termina-core';
+import { Box, Text, render, useApp, useInput, useMouse } from '@nemesis-oss/termina-core';
 import {
 	GenUIRenderer,
 	createActionDispatcher,
@@ -24,6 +24,11 @@ function App() {
 	const [actionMessage, setActionMessage] = useState<string>('');
 	const [streamTree, setStreamTree] = useState<GenUIElementNode | null>(null);
 	const [streamIndex, setStreamIndex] = useState(0);
+	const [mouseInfo, setMouseInfo] = useState<string>('none');
+
+	useMouse(event => {
+		setMouseInfo(`${event.button} ${event.action} @ (${event.x}, ${event.y})`);
+	});
 
 	const registry = useMemo(() => createDefaultRegistry(), []);
 	const adapter = useMemo(() => createLanguageAdapter(registry), [registry]);
@@ -106,7 +111,12 @@ function App() {
 					isStreaming={tab === 'streaming'}
 				/>
 			</Box>
-			<Footer tab={tab} streamIndex={streamIndex} actionMessage={actionMessage} />
+			<Footer
+				tab={tab}
+				streamIndex={streamIndex}
+				actionMessage={actionMessage}
+				mouseInfo={mouseInfo}
+			/>
 		</Box>
 	);
 }
@@ -125,23 +135,43 @@ function Header({
 			<Text bold color="cyan">
 				TERMINA GENERATIVE UI PLAYGROUND
 			</Text>
-			<Box gap={2}>
-				<Box onClick={() => onTabChange?.('dashboard')}>
+			<Box gap={1}>
+				<Box
+					onClick={() => onTabChange?.('dashboard')}
+					borderStyle="round"
+					borderColor={tab === 'dashboard' ? 'cyan' : 'gray'}
+					paddingX={1}
+				>
 					<Text color={tab === 'dashboard' ? 'cyan' : 'gray'} bold={tab === 'dashboard'}>
 						[1] Dashboard
 					</Text>
 				</Box>
-				<Box onClick={() => onTabChange?.('form')}>
+				<Box
+					onClick={() => onTabChange?.('form')}
+					borderStyle="round"
+					borderColor={tab === 'form' ? 'green' : 'gray'}
+					paddingX={1}
+				>
 					<Text color={tab === 'form' ? 'green' : 'gray'} bold={tab === 'form'}>
 						[2] Form & Runtime
 					</Text>
 				</Box>
-				<Box onClick={() => onTabChange?.('streaming')}>
+				<Box
+					onClick={() => onTabChange?.('streaming')}
+					borderStyle="round"
+					borderColor={tab === 'streaming' ? 'yellow' : 'gray'}
+					paddingX={1}
+				>
 					<Text color={tab === 'streaming' ? 'yellow' : 'gray'} bold={tab === 'streaming'}>
 						[3] Live Streaming
 					</Text>
 				</Box>
-				<Box onClick={() => onQuit?.()}>
+				<Box
+					onClick={() => onQuit?.()}
+					borderStyle="round"
+					borderColor="gray"
+					paddingX={1}
+				>
 					<Text color="gray">[q] Quit</Text>
 				</Box>
 			</Box>
@@ -149,15 +179,16 @@ function Header({
 	);
 }
 
-
 function Footer({
 	tab,
 	streamIndex,
 	actionMessage,
+	mouseInfo,
 }: {
 	readonly tab: Tab;
 	readonly streamIndex: number;
 	readonly actionMessage: string;
+	readonly mouseInfo: string;
 }) {
 	return (
 		<Box flexDirection="column">
@@ -167,13 +198,16 @@ function Footer({
 				</Text>
 			)}
 			{tab === 'form' && (
-				<Text dimColor>Press [a] to trigger registered "applyConfig" action</Text>
+				<Text dimColor>Press [a] or click the button to trigger registered "applyConfig" action</Text>
 			)}
 			{actionMessage !== '' && (
 				<Text color="green" bold>
 					✓ {actionMessage}
 				</Text>
 			)}
+			<Text dimColor>
+				🖱️ Mouse tracking: {mouseInfo}
+			</Text>
 		</Box>
 	);
 }

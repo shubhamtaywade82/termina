@@ -38,8 +38,15 @@ function normalizeValue(value: unknown, depth: number, ctx: NormalizeContext): G
 		return value.map(item => normalizeValue(item, depth + 1, ctx));
 	}
 
-	if (value && typeof value === 'object' && (value as any).type === 'element') {
-		return normalizeElement(value, depth + 1, ctx);
+	if (value && typeof value === 'object') {
+		if ((value as any).type === 'element') {
+			return normalizeElement(value, depth + 1, ctx);
+		}
+		const record: Record<string, unknown> = {};
+		for (const [k, v] of Object.entries(value)) {
+			record[k] = normalizeValue(v, depth + 1, ctx);
+		}
+		return record as any;
 	}
 
 	return null;

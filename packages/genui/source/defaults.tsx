@@ -152,13 +152,15 @@ export function createDefaultComponents(): GenUIComponent<any>[] {
 			}),
 			render: (props: any) => {
 				const cols = (props.columns ?? []).map((col: string) => ({ key: col, header: col }));
-				const rows = (props.data ?? []).map((row: any) => {
-					const r: Record<string, string | number> = {};
-					for (const [k, v] of Object.entries(row)) {
-						r[k] = typeof v === 'number' ? v : String(v ?? '');
-					}
-					return r;
-				});
+				const rows = (props.data ?? [])
+					.filter((row: any) => row && typeof row === 'object')
+					.map((row: any) => {
+						const r: Record<string, string | number> = {};
+						for (const [k, v] of Object.entries(row)) {
+							r[k] = typeof v === 'number' ? v : String(v ?? '');
+						}
+						return r;
+					});
 				return <Table columns={cols} rows={rows} />;
 			},
 		},
