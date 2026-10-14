@@ -6,6 +6,7 @@ export * from './components/progress-bar/index.js';
 export * from './components/select/select.js';
 export * from './components/spinner/index.js';
 export * from './components/text-input/index.js';
+export * from './components/multiline-text-input/index.js';
 export * from './theme.js';
 export * from './components/ordered-list/index.js';
 export * from './components/password-input/index.js';

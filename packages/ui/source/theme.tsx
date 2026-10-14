@@ -13,6 +13,7 @@ import unorderedListTheme from './components/unordered-list/theme.js';
 import textInputTheme from './components/text-input/theme.js';
 import emailInputTheme from './components/email-input/theme.js';
 import passwordInputTheme from './components/password-input/theme.js';
+import multilineTextInputTheme from './components/multiline-text-input/theme.js';
 import accordionTheme from './components/accordion/theme.js';
 import autocompleteTheme from './components/autocomplete/theme.js';
 import codeblockTheme from './components/code-block/theme.js';
@@ -62,6 +63,7 @@ export const defaultTheme: Theme = {
 		TextInput: textInputTheme,
 		EmailInput: emailInputTheme,
 		PasswordInput: passwordInputTheme,
+		MultilineTextInput: multilineTextInputTheme,
 		Accordion: accordionTheme,
 		Autocomplete: autocompleteTheme,
 		CodeBlock: codeblockTheme,
