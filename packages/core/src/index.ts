@@ -41,6 +41,8 @@ export {default as useFocus} from './hooks/use-focus.js';
 export {default as useFocusManager} from './hooks/use-focus-manager.js';
 export {default as useIsScreenReaderEnabled} from './hooks/use-is-screen-reader-enabled.js';
 export {default as useCursor} from './hooks/use-cursor.js';
+export type {CursorShape} from './cursor-shape.js';
+export {default as useCursorShape} from './hooks/use-cursor-shape.js';
 export type {AnimationResult} from './hooks/use-animation.js';
 export {default as useAnimation} from './hooks/use-animation.js';
 export type {WindowSize} from './hooks/use-window-size.js';

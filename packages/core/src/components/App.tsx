@@ -11,6 +11,7 @@ import React, {
 } from 'react';
 import cliCursor from 'cli-cursor';
 import {type CursorPosition} from '../log-update.js';
+import {type CursorShape} from '../cursor-shape.js';
 import {
 	createInputParser,
 	escapeFlushDelayMilliseconds,
@@ -26,6 +27,7 @@ import StderrContext from './StderrContext.js';
 import FocusContext from './FocusContext.js';
 import AnimationContext from './AnimationContext.js';
 import CursorContext from './CursorContext.js';
+import CursorShapeContext from './CursorShapeContext.js';
 import ErrorBoundary from './ErrorBoundary.js';
 import {
 	mouseTrackingDisable,
@@ -58,6 +60,7 @@ type Props = {
 	) => void;
 	// Runs the input events of one stdin read as a batch. `commitEvent` must be called after each event.
 	readonly onBatchInput: (run: (commitEvent: () => void) => void) => void;
+	readonly onCursorShape: (id: string, shape: CursorShape | undefined) => void;
 	readonly setCursorPosition: (position: CursorPosition | undefined) => void;
 	readonly interactive: boolean;
 	readonly renderThrottleMs: number;
@@ -99,6 +102,7 @@ function App({
 	onKittyQueryResponse,
 	onRegisterInputControl,
 	onBatchInput,
+	onCursorShape,
 	setCursorPosition,
 	interactive,
 	renderThrottleMs,
@@ -852,6 +856,21 @@ function App({
 		[setCursorPosition],
 	);
 
+	// The context's `set` keeps one identity, so components never depend on the identity of the prop.
+	const setCursorShape = useCallback(
+		(id: string, shape: CursorShape | undefined): void => {
+			onCursorShape(id, shape);
+		},
+		[onCursorShape],
+	);
+
+	const cursorShapeContextValue = useMemo(
+		() => ({
+			set: setCursorShape,
+		}),
+		[setCursorShape],
+	);
+
 	const focusContextValue = useMemo(
 		() => ({
 			activeId: activeFocusId,
@@ -895,7 +914,11 @@ function App({
 						<FocusContext value={focusContextValue}>
 							<AnimationContext value={animationContextValue}>
 								<CursorContext value={cursorContextValue}>
-									<ErrorBoundary onError={handleExit}>{children}</ErrorBoundary>
+									<CursorShapeContext value={cursorShapeContextValue}>
+										<ErrorBoundary onError={handleExit}>
+											{children}
+										</ErrorBoundary>
+									</CursorShapeContext>
 								</CursorContext>
 							</AnimationContext>
 						</FocusContext>
