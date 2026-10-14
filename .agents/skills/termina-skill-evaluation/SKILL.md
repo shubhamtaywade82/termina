@@ -109,5 +109,7 @@ A hard-gate failure means the task fails regardless of its numeric score.
 
 - Reusable task prompts and evaluator-only metadata live in `.agents/evals/tasks/*.json`.
 - The baseline/treatment run protocol and evidence expectations are in [the evaluation suite guide](../../evals/README.md); use [the report template](../../evals/report-template.json) to record comparable runs.
-- Run `pnpm evals:check` to validate task metadata, skill names, acceptance checks, evidence requirements, and hard-gate definitions.
-- This validator checks fixture integrity only. It does not run an agent or claim an implementation passed its acceptance checks; those need recorded evidence from actual task runs.
+- Run `pnpm evals:check` to validate task metadata, skill names, acceptance checks, evidence requirements, hard-gate definitions, and the prompt/report tooling smoke tests.
+- Run `pnpm evals:prompt -- <task-id>` to export only the user-facing prompt; evaluator-only skill routing and rubric data are intentionally omitted.
+- Use `pnpm evals:report:check -- <report.json> --partial` for a paired pilot, or omit `--partial` for a complete report with every task and at least three repetitions per condition.
+- The scripts validate fixture/report integrity; they do not run an agent or certify generated application behavior. Only actual task-run evidence can support those claims.
