@@ -1,7 +1,7 @@
-import {useReducer, useCallback, useEffect, type Reducer, useMemo} from 'react';
+import {useCallback, useMemo, type Reducer} from 'react';
+import {useSyncedReducer} from '../../lib/use-synced-reducer.js';
 
 type State = {
-	previousValue: string;
 	value: string;
 	cursorOffset: number;
 };
@@ -59,7 +59,6 @@ const reducer: Reducer<State, Action> = (state, action) => {
 
 			return {
 				...state,
-				previousValue: state.value,
 				value:
 					state.value.slice(0, state.cursorOffset) +
 					action.text +
@@ -72,7 +71,6 @@ const reducer: Reducer<State, Action> = (state, action) => {
 			const value = state.value + action.text;
 			return {
 				...state,
-				previousValue: state.value,
 				value,
 				cursorOffset: value.length,
 			};
@@ -83,7 +81,6 @@ const reducer: Reducer<State, Action> = (state, action) => {
 
 			return {
 				...state,
-				previousValue: state.value,
 				value:
 					state.value.slice(0, newCursorOffset) +
 					state.value.slice(newCursorOffset + 1),
@@ -149,6 +146,23 @@ export type EmailInputState = State & {
 	submit: () => void;
 };
 
+// The domain completion for an address. Empty values and values without an `@` have none.
+const findDomainSuggestion = (
+	value: string,
+	domains: string[] | undefined,
+): string | undefined => {
+	if (value.length === 0 || !value.includes('@')) {
+		return;
+	}
+
+	const atIndex = value.indexOf('@');
+	const enteredDomain = value.slice(atIndex + 1);
+
+	return domains
+		?.find(domain => domain.startsWith(enteredDomain))
+		?.replace(enteredDomain, '');
+};
+
 export const useEmailInputState = ({
 	defaultValue = '',
 	domains = [
@@ -164,24 +178,19 @@ export const useEmailInputState = ({
 	onChange,
 	onSubmit,
 }: UseEmailInputStateProps) => {
-	const [state, dispatch] = useReducer(reducer, {
-		previousValue: defaultValue,
+	const {
+		state,
+		latest,
+		dispatch,
+	} = useSyncedReducer(reducer, () => ({
 		value: defaultValue,
 		cursorOffset: defaultValue.length,
-	});
+	}));
 
-	const suggestion = useMemo(() => {
-		if (state.value.length === 0 || !state.value.includes('@')) {
-			return;
-		}
-
-		const atIndex = state.value.indexOf('@');
-		const enteredDomain = state.value.slice(atIndex + 1);
-
-		return domains
-			?.find(domain => domain.startsWith(enteredDomain))
-			?.replace(enteredDomain, '');
-	}, [state.value, domains]);
+	const suggestion = useMemo(
+		() => findDomainSuggestion(state.value, domains),
+		[state.value, domains],
+	);
 
 	const moveCursorLeft = useCallback(() => {
 		dispatch({
@@ -195,34 +204,49 @@ export const useEmailInputState = ({
 		});
 	}, []);
 
-	const insert = useCallback((text: string) => {
-		dispatch({
-			type: 'insert',
-			text,
-		});
-	}, []);
+	// Notifies from the edit itself, not from an effect. Effects are keyed to the callback and to the last edit, which repeats calls on re-render and merges edits in one drain.
+	const commit = useCallback(
+		(action: Action): State => {
+			const {previous, next} = dispatch(action);
+
+			if (next.value !== previous.value) {
+				onChange?.(next.value);
+			}
+
+			return next;
+		},
+		[dispatch, onChange],
+	);
+
+	const insert = useCallback(
+		(text: string) => {
+			commit({
+				type: 'insert',
+				text,
+			});
+		},
+		[commit],
+	);
 
 	const deleteCharacter = useCallback(() => {
-		dispatch({
+		commit({
 			type: 'delete',
 		});
-	}, []);
+	}, [commit]);
 
 	const submit = useCallback(() => {
-		if (suggestion) {
-			dispatch({type: 'append', text: suggestion});
-			onSubmit?.(state.value + suggestion);
+		// Read the latest value, not the render's closure, so Enter after a burst submits what the burst produced.
+		const current = latest.current;
+		const completion = findDomainSuggestion(current.value, domains);
+
+		if (completion) {
+			const next = commit({type: 'append', text: completion});
+			onSubmit?.(next.value);
 			return;
 		}
 
-		onSubmit?.(state.value);
-	}, [state.value, suggestion, onSubmit]);
-
-	useEffect(() => {
-		if (state.previousValue !== state.value) {
-			onChange?.(state.value);
-		}
-	}, [state.previousValue, state.value, onChange]);
+		onSubmit?.(current.value);
+	}, [commit, domains, latest, onSubmit]);
 
 	return {
 		...state,

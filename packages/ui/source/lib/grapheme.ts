@@ -43,3 +43,21 @@ export const splitFirstGrapheme = (text: string): [string, string] => {
 
 export const graphemes = (text: string): Array<{index: number; segment: string}> =>
 	[...segmenter.segment(text)].map(({index, segment}) => ({index, segment}));
+
+// Snaps an offset that a value changed under onto the nearest boundary at or before it. An offset inside a cluster moves to the cluster's start, and an offset past the end moves to the end.
+export const clampToBoundary = (value: string, offset: number): number => {
+	if (offset >= value.length) {
+		return value.length;
+	}
+
+	let boundary = 0;
+	for (const {index} of segmenter.segment(value)) {
+		if (index > offset) {
+			break;
+		}
+
+		boundary = index;
+	}
+
+	return boundary;
+};

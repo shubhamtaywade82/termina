@@ -24,6 +24,11 @@ export type TextInputProps = {
 	readonly defaultValue?: string;
 
 	/**
+	 * Controlled input value. When set, the parent owns the value: each edit is reported through `onChange`, and the input shows this value until the parent changes it. `defaultValue` is ignored. An input with `value` and no `onChange` is read-only.
+	 */
+	readonly value?: string;
+
+	/**
 	 * Suggestions to autocomplete the input value.
 	 */
 	readonly suggestions?: string[];
@@ -42,6 +47,7 @@ export type TextInputProps = {
 export function TextInput({
 	isDisabled = false,
 	defaultValue,
+	value,
 	placeholder = '',
 	suggestions,
 	onChange,
@@ -49,6 +55,7 @@ export function TextInput({
 }: TextInputProps) {
 	const state = useTextInputState({
 		defaultValue,
+		value,
 		suggestions,
 		onChange,
 		onSubmit,

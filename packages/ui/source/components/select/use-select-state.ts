@@ -1,14 +1,13 @@
 import {isDeepStrictEqual} from 'node:util';
 import {
-	useReducer,
 	type Reducer,
 	useCallback,
 	useMemo,
 	useState,
-	useEffect,
 } from 'react';
 import {type Option} from '../../types.js';
 import OptionMap from '../../lib/option-map.js';
+import {useSyncedReducer} from '../../lib/use-synced-reducer.js';
 
 type State = {
 	/**
@@ -37,11 +36,6 @@ type State = {
 	visibleToIndex: number;
 
 	/**
-	 * Value of the previously selected option.
-	 */
-	previousValue: string | undefined;
-
-	/**
 	 * Value of the selected option.
 	 */
 	value: string | undefined;
@@ -50,8 +44,7 @@ type State = {
 type Action =
 	| FocusNextOptionAction
 	| FocusPreviousOptionAction
-	| SelectFocusedOptionAction
-	| ResetAction;
+	| SelectFocusedOptionAction;
 
 type FocusNextOptionAction = {
 	type: 'focus-next-option';
@@ -63,11 +56,6 @@ type FocusPreviousOptionAction = {
 
 type SelectFocusedOptionAction = {
 	type: 'select-focused-option';
-};
-
-type ResetAction = {
-	type: 'reset';
-	state: State;
 };
 
 const reducer: Reducer<State, Action> = (state, action) => {
@@ -158,13 +146,8 @@ const reducer: Reducer<State, Action> = (state, action) => {
 		case 'select-focused-option': {
 			return {
 				...state,
-				previousValue: state.value,
 				value: state.focusedValue,
 			};
-		}
-
-		case 'reset': {
-			return action.state;
 		}
 	}
 };
@@ -239,7 +222,6 @@ const createDefaultState = ({
 		focusedValue: optionMap.first?.value,
 		visibleFromIndex: 0,
 		visibleToIndex: visibleOptionCount,
-		previousValue: defaultValue,
 		value: defaultValue,
 	};
 };
@@ -250,19 +232,15 @@ export const useSelectState = ({
 	defaultValue,
 	onChange,
 }: UseSelectStateProps) => {
-	const [state, dispatch] = useReducer(
-		reducer,
-		{visibleOptionCount, defaultValue, options},
-		createDefaultState,
+	const {state, dispatch, replace} = useSyncedReducer(reducer, () =>
+		createDefaultState({visibleOptionCount, defaultValue, options}),
 	);
 
 	const [lastOptions, setLastOptions] = useState(options);
 
+	// A reset replaces the state without notifying, as documented: the value returns to defaultValue.
 	if (options !== lastOptions && !isDeepStrictEqual(options, lastOptions)) {
-		dispatch({
-			type: 'reset',
-			state: createDefaultState({visibleOptionCount, defaultValue, options}),
-		});
+		replace(createDefaultState({visibleOptionCount, defaultValue, options}));
 
 		setLastOptions(options);
 	}
@@ -279,11 +257,16 @@ export const useSelectState = ({
 		});
 	}, []);
 
+	// Notifies from the selection itself, not from an effect. Re-selecting the current option is not a change.
 	const selectFocusedOption = useCallback(() => {
-		dispatch({
+		const {previous, next} = dispatch({
 			type: 'select-focused-option',
 		});
-	}, []);
+
+		if (next.value && next.value !== previous.value) {
+			onChange?.(next.value);
+		}
+	}, [dispatch, onChange]);
 
 	const visibleOptions = useMemo(() => {
 		return options
@@ -293,12 +276,6 @@ export const useSelectState = ({
 			}))
 			.slice(state.visibleFromIndex, state.visibleToIndex);
 	}, [options, state.visibleFromIndex, state.visibleToIndex]);
-
-	useEffect(() => {
-		if (state.value && state.previousValue !== state.value) {
-			onChange?.(state.value);
-		}
-	}, [state.previousValue, state.value, options, onChange]);
 
 	return {
 		focusedValue: state.focusedValue,

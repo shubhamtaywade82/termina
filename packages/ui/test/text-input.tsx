@@ -1,5 +1,5 @@
 /* eslint-disable no-await-in-loop */
-import React from 'react';
+import React, {useState} from 'react';
 import test, {type TestContext} from 'node:test';
 import {render} from './helpers/render.js';
 import chalk from 'chalk';
@@ -378,4 +378,232 @@ test('shows the value and ignores keys when stdin is piped', async (t: TestConte
 	t.assert.ok(!(lastFrame() ?? '').includes('Raw mode'));
 	t.assert.deepStrictEqual(submitted, []);
 	unmount();
+});
+
+// A controlled `value` is owned by the parent. Edits are reported through onChange, and the display follows the prop, so an edit the parent ignores does not appear.
+
+test('a controlled value is displayed', (t: TestContext) => {
+	const {lastFrame} = render(<TextInput value="abc" />);
+
+	t.assert.strictEqual(lastFrame(), `abc${cursor()}`);
+});
+
+test('typing into a controlled value reports the next value and keeps the displayed value', async (t: TestContext) => {
+	const changes: string[] = [];
+	const instance = render(
+		<TextInput
+			value="abc"
+			onChange={value => {
+				changes.push(value);
+			}}
+		/>,
+	);
+
+	await delay(50);
+	instance.stdin.write('d');
+	await delay(50);
+	instance.unmount();
+
+	t.assert.deepStrictEqual(changes, ['abcd']);
+	t.assert.strictEqual(instance.lastFrame(), `abc${cursor()}`);
+});
+
+test('a parent that stores a controlled value shows each keystroke', async (t: TestContext) => {
+	function Form() {
+		const [value, setValue] = useState('');
+		return <TextInput value={value} onChange={setValue} />;
+	}
+
+	const instance = render(<Form />);
+
+	await delay(50);
+	instance.stdin.write('a');
+	await delay(30);
+	instance.stdin.write('b');
+	await delay(50);
+	instance.unmount();
+
+	t.assert.strictEqual(instance.lastFrame(), `ab${cursor()}`);
+});
+
+test('a burst into a controlled value reports one change per input event and shows the final value', async (t: TestContext) => {
+	const run = async (burst: boolean) => {
+		const changes: string[] = [];
+
+		function Form() {
+			const [value, setValue] = useState('');
+			return (
+				<TextInput
+					value={value}
+					onChange={next => {
+						changes.push(next);
+						setValue(next);
+					}}
+				/>
+			);
+		}
+
+		const instance = render(<Form />);
+
+		await delay(50);
+		if (burst) {
+			instance.stdin.write('ab' + del);
+		} else {
+			instance.stdin.write('a');
+			await delay(30);
+			instance.stdin.write('b');
+			await delay(30);
+			instance.stdin.write(del);
+		}
+
+		await delay(50);
+		instance.unmount();
+		return {changes, frame: instance.lastFrame()};
+	};
+
+	const sequential = await run(false);
+	const burst = await run(true);
+
+	t.assert.deepStrictEqual(sequential.changes, ['a', 'ab', 'a']);
+	t.assert.deepStrictEqual(burst.changes, ['ab', 'a']);
+	t.assert.strictEqual(burst.frame, sequential.frame);
+});
+
+test('an external shorter value keeps the caret inside the value', async (t: TestContext) => {
+	const changes: string[] = [];
+	const instance = render(
+		<TextInput
+			value="hello"
+			onChange={value => {
+				changes.push(value);
+			}}
+		/>,
+	);
+
+	await delay(50);
+	instance.rerender(
+		<TextInput
+			value="hi"
+			onChange={value => {
+				changes.push(value);
+			}}
+		/>,
+	);
+	await delay(50);
+	instance.stdin.write('X');
+	await delay(50);
+	instance.unmount();
+
+	t.assert.deepStrictEqual(changes, ['hiX']);
+});
+
+test('a caret inside a multi-code-unit character snaps to a character boundary after an external change', async (t: TestContext) => {
+	const changes: string[] = [];
+	const instance = render(
+		<TextInput
+			value="ab"
+			onChange={value => {
+				changes.push(value);
+			}}
+		/>,
+	);
+
+	await delay(50);
+	instance.stdin.write(arrowLeft);
+	await delay(30);
+	instance.rerender(
+		<TextInput
+			value="😀x"
+			onChange={value => {
+				changes.push(value);
+			}}
+		/>,
+	);
+	await delay(50);
+	instance.stdin.write('X');
+	await delay(50);
+	instance.unmount();
+
+	t.assert.deepStrictEqual(changes, ['X😀x']);
+});
+
+test('value takes precedence over defaultValue', (t: TestContext) => {
+	const {lastFrame} = render(<TextInput value="abc" defaultValue="zzz" />);
+
+	t.assert.strictEqual(lastFrame(), `abc${cursor()}`);
+});
+
+test('accepting a suggestion in a controlled value reports onChange before onSubmit', async (t: TestContext) => {
+	const events: string[] = [];
+	const instance = render(
+		<TextInput
+			value="app"
+			suggestions={['apple']}
+			onChange={value => {
+				events.push(`change:${value}`);
+			}}
+			onSubmit={value => {
+				events.push(`submit:${value}`);
+			}}
+		/>,
+	);
+
+	await delay(50);
+	instance.stdin.write(enter);
+	await delay(50);
+	instance.unmount();
+
+	t.assert.deepStrictEqual(events, ['change:apple', 'submit:apple']);
+});
+
+test('a disabled controlled value ignores keys', async (t: TestContext) => {
+	const changes: string[] = [];
+	const instance = render(
+		<TextInput
+			isDisabled
+			value="abc"
+			onChange={value => {
+				changes.push(value);
+			}}
+		/>,
+	);
+
+	await delay(50);
+	instance.stdin.write('d');
+	await delay(50);
+	instance.unmount();
+
+	t.assert.deepStrictEqual(changes, []);
+	t.assert.strictEqual(instance.lastFrame(), 'abc');
+});
+
+test('a controlled value without onChange is read-only', async (t: TestContext) => {
+	const instance = render(<TextInput value="abc" />);
+
+	await delay(50);
+	instance.stdin.write('d');
+	await delay(50);
+	instance.unmount();
+
+	t.assert.strictEqual(instance.lastFrame(), `abc${cursor()}`);
+});
+
+test('a parent can transform the value it stores', async (t: TestContext) => {
+	function Form() {
+		const [value, setValue] = useState('');
+		return (
+			<TextInput value={value} onChange={next => setValue(next.toUpperCase())} />
+		);
+	}
+
+	const instance = render(<Form />);
+
+	await delay(50);
+	instance.stdin.write('a');
+	await delay(30);
+	instance.stdin.write('b');
+	await delay(50);
+	instance.unmount();
+
+	t.assert.strictEqual(instance.lastFrame(), `AB${cursor()}`);
 });

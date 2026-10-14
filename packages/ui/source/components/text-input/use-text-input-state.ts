@@ -1,131 +1,22 @@
-import {useReducer, useCallback, useEffect, type Reducer, useMemo} from 'react';
+import {useCallback, useLayoutEffect, useMemo} from 'react';
+import {clampToBoundary} from '../../lib/grapheme.js';
 import {
-	nextBoundary,
-	previousBoundary,
-	sanitizeInsertedText,
-} from '../../lib/grapheme.js';
-
-type State = {
-	previousValue: string;
-	value: string;
-	// UTF-16 index into `value`, always on a grapheme boundary.
-	cursorOffset: number;
-};
-
-type Action =
-	| MoveCursorLeftAction
-	| MoveCursorRightAction
-	| InsertAction
-	| AppendAction
-	| DeleteAction
-	| DeleteForwardAction;
-
-type MoveCursorLeftAction = {
-	type: 'move-cursor-left';
-};
-
-type MoveCursorRightAction = {
-	type: 'move-cursor-right';
-};
-
-type InsertAction = {
-	type: 'insert';
-	text: string;
-};
-
-// Accepting a suggestion completes the value, wherever the cursor is.
-type AppendAction = {
-	type: 'append';
-	text: string;
-};
-
-type DeleteAction = {
-	type: 'delete';
-};
-
-type DeleteForwardAction = {
-	type: 'delete-forward';
-};
-
-const reducer: Reducer<State, Action> = (state, action) => {
-	switch (action.type) {
-		case 'move-cursor-left': {
-			return {
-				...state,
-				cursorOffset: previousBoundary(state.value, state.cursorOffset),
-			};
-		}
-
-		case 'move-cursor-right': {
-			return {
-				...state,
-				cursorOffset: nextBoundary(state.value, state.cursorOffset),
-			};
-		}
-
-		case 'insert': {
-			const text = sanitizeInsertedText(action.text);
-			if (text === '') {
-				return state;
-			}
-
-			return {
-				...state,
-				previousValue: state.value,
-				value:
-					state.value.slice(0, state.cursorOffset) +
-					text +
-					state.value.slice(state.cursorOffset),
-				cursorOffset: state.cursorOffset + text.length,
-			};
-		}
-
-		case 'append': {
-			const value = state.value + action.text;
-			return {
-				...state,
-				previousValue: state.value,
-				value,
-				cursorOffset: value.length,
-			};
-		}
-
-		case 'delete': {
-			const start = previousBoundary(state.value, state.cursorOffset);
-			if (start === state.cursorOffset) {
-				return state;
-			}
-
-			return {
-				...state,
-				previousValue: state.value,
-				value:
-					state.value.slice(0, start) + state.value.slice(state.cursorOffset),
-				cursorOffset: start,
-			};
-		}
-
-		case 'delete-forward': {
-			const end = nextBoundary(state.value, state.cursorOffset);
-			if (end === state.cursorOffset) {
-				return state;
-			}
-
-			return {
-				...state,
-				previousValue: state.value,
-				value:
-					state.value.slice(0, state.cursorOffset) + state.value.slice(end),
-			};
-		}
-	}
-};
+	reduceTextEdit,
+	type TextEditAction,
+	type TextEditState,
+} from '../../lib/text-edit-reducer.js';
+import {useSyncedReducer} from '../../lib/use-synced-reducer.js';
 
 export type UseTextInputStateProps = {
 	/**
 	 * Default input value.
 	 */
 	defaultValue?: string;
+
+	/**
+	 * Controlled input value. When set, the parent owns the value: edits are reported through `onChange`, and the input shows this value until the parent changes it.
+	 */
+	value?: string;
 
 	/**
 	 * Suggestions to autocomplete the input value.
@@ -143,7 +34,7 @@ export type UseTextInputStateProps = {
 	onSubmit?: (value: string) => void;
 };
 
-export type TextInputState = State & {
+export type TextInputState = TextEditState & {
 	/**
 	 * Suggested auto completion.
 	 */
@@ -180,74 +71,122 @@ export type TextInputState = State & {
 	submit: () => void;
 };
 
+// The first suggestion that extends the value, with the value itself removed. Empty values have no suggestion.
+const findSuggestion = (
+	value: string,
+	suggestions: string[] | undefined,
+): string | undefined => {
+	if (value.length === 0) {
+		return;
+	}
+
+	return suggestions
+		?.find(suggestion => suggestion.startsWith(value))
+		?.replace(value, '');
+};
+
 export const useTextInputState = ({
 	defaultValue = '',
+	value: controlledValue,
 	suggestions,
 	onChange,
 	onSubmit,
 }: UseTextInputStateProps) => {
-	const [state, dispatch] = useReducer(reducer, {
-		previousValue: defaultValue,
-		value: defaultValue,
-		cursorOffset: defaultValue.length,
+	const isControlled = controlledValue !== undefined;
+	const {
+		state: uncontrolled,
+		latest,
+		dispatch,
+	} = useSyncedReducer(reduceTextEdit, () => {
+		const initial = controlledValue ?? defaultValue;
+		return {value: initial, cursorOffset: initial.length};
 	});
 
-	const suggestion = useMemo(() => {
-		if (state.value.length === 0) {
-			return;
-		}
+	// A controlled value is the prop. The cursor stays in local state, clamped to wherever the value now ends.
+	const state: TextEditState =
+		controlledValue === undefined
+			? uncontrolled
+			: {
+					value: controlledValue,
+					cursorOffset: clampToBoundary(
+						controlledValue,
+						uncontrolled.cursorOffset,
+					),
+				};
 
-		return suggestions
-			?.find(suggestion => suggestion.startsWith(state.value))
-			?.replace(state.value, '');
-	}, [state.value, suggestions]);
+	// Runs after the reducer's own refresh, so a controlled input reads the prop, not the last uncontrolled edit.
+	useLayoutEffect(() => {
+		if (isControlled) {
+			latest.current = state;
+		}
+	});
+
+	// Notifies from the edit itself, not from an effect. Effects are keyed to the callback and to the last edit, which repeats calls on re-render and merges edits in one drain.
+	const commit = useCallback(
+		(action: TextEditAction): TextEditState => {
+			const {previous, next} = dispatch(action);
+
+			if (next.value !== previous.value) {
+				onChange?.(next.value);
+			}
+
+			return next;
+		},
+		[dispatch, onChange],
+	);
+
+	const suggestion = useMemo(
+		() => findSuggestion(state.value, suggestions),
+		[state.value, suggestions],
+	);
 
 	const moveCursorLeft = useCallback(() => {
 		dispatch({
 			type: 'move-cursor-left',
 		});
-	}, []);
+	}, [dispatch]);
 
 	const moveCursorRight = useCallback(() => {
 		dispatch({
 			type: 'move-cursor-right',
 		});
-	}, []);
+	}, [dispatch]);
 
-	const insert = useCallback((text: string) => {
-		dispatch({
-			type: 'insert',
-			text,
-		});
-	}, []);
+	const insert = useCallback(
+		(text: string) => {
+			commit({
+				type: 'insert',
+				text,
+			});
+		},
+		[commit],
+	);
 
 	const deleteCharacter = useCallback(() => {
-		dispatch({
+		commit({
 			type: 'delete',
 		});
-	}, []);
+	}, [commit]);
 
 	const deleteForward = useCallback(() => {
-		dispatch({
+		commit({
 			type: 'delete-forward',
 		});
-	}, []);
+	}, [commit]);
 
 	const submit = useCallback(() => {
-		if (suggestion) {
-			dispatch({type: 'append', text: suggestion});
-			onSubmit?.(state.value + suggestion);
+		// Read the latest value, not the render's closure, so Enter after a burst submits what the burst produced.
+		const current = latest.current;
+		const completion = findSuggestion(current.value, suggestions);
+
+		if (completion) {
+			const next = commit({type: 'append', text: completion});
+			onSubmit?.(next.value);
 			return;
 		}
 
-		onSubmit?.(state.value);
-	}, [state.value, suggestion, onSubmit]);
-
-	useEffect(() => {
-		if (state.value !== state.previousValue) {
-			onChange?.(state.value);
-		}
-	}, [state.previousValue, state.value, onChange]);
+		onSubmit?.(current.value);
+	}, [commit, latest, onSubmit, suggestions]);
 
 	return {
 		...state,

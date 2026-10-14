@@ -1,14 +1,13 @@
 import {isDeepStrictEqual} from 'node:util';
 import {
-	useReducer,
 	type Reducer,
 	useCallback,
 	useMemo,
 	useState,
-	useEffect,
 } from 'react';
 import OptionMap from '../../lib/option-map.js';
 import {type Option} from '../../types.js';
+import {useSyncedReducer} from '../../lib/use-synced-reducer.js';
 
 type State = {
 	/**
@@ -37,11 +36,6 @@ type State = {
 	visibleToIndex: number;
 
 	/**
-	 * Values of previously selected options.
-	 */
-	previousValue: string[];
-
-	/**
 	 * Indexes of selected options.
 	 */
 	value: string[];
@@ -50,8 +44,7 @@ type State = {
 type Action =
 	| FocusNextOptionAction
 	| FocusPreviousOptionAction
-	| ToggleFocusedOptionAction
-	| ResetAction;
+	| ToggleFocusedOptionAction;
 
 type FocusNextOptionAction = {
 	type: 'focus-next-option';
@@ -63,11 +56,6 @@ type FocusPreviousOptionAction = {
 
 type ToggleFocusedOptionAction = {
 	type: 'toggle-focused-option';
-};
-
-type ResetAction = {
-	type: 'reset';
-	state: State;
 };
 
 const reducer: Reducer<State, Action> = (state, action) => {
@@ -166,20 +154,14 @@ const reducer: Reducer<State, Action> = (state, action) => {
 
 				return {
 					...state,
-					previousValue: state.value,
 					value: [...newValue],
 				};
 			}
 
 			return {
 				...state,
-				previousValue: state.value,
 				value: [...state.value, state.focusedValue],
 			};
-		}
-
-		case 'reset': {
-			return action.state;
 		}
 	}
 };
@@ -266,7 +248,6 @@ const createDefaultState = ({
 		focusedValue: optionMap.first?.value,
 		visibleFromIndex: 0,
 		visibleToIndex: visibleOptionCount,
-		previousValue: value,
 		value,
 	};
 };
@@ -278,19 +259,15 @@ export const useMultiSelectState = ({
 	onChange,
 	onSubmit,
 }: UseMultiSelectStateProps) => {
-	const [state, dispatch] = useReducer(
-		reducer,
-		{visibleOptionCount, defaultValue, options},
-		createDefaultState,
+	const {state, latest, dispatch, replace} = useSyncedReducer(reducer, () =>
+		createDefaultState({visibleOptionCount, defaultValue, options}),
 	);
 
 	const [lastOptions, setLastOptions] = useState(options);
 
+	// A reset replaces the state without notifying, as documented: the selection returns to defaultValue.
 	if (options !== lastOptions && !isDeepStrictEqual(options, lastOptions)) {
-		dispatch({
-			type: 'reset',
-			state: createDefaultState({visibleOptionCount, defaultValue, options}),
-		});
+		replace(createDefaultState({visibleOptionCount, defaultValue, options}));
 
 		setLastOptions(options);
 	}
@@ -307,15 +284,21 @@ export const useMultiSelectState = ({
 		});
 	}, []);
 
+	// Notifies from the toggle itself, not from an effect. A toggle with nothing focused changes nothing.
 	const toggleFocusedOption = useCallback(() => {
-		dispatch({
+		const {previous, next} = dispatch({
 			type: 'toggle-focused-option',
 		});
-	}, []);
+
+		if (next !== previous) {
+			onChange?.(next.value);
+		}
+	}, [dispatch, onChange]);
 
 	const submit = useCallback(() => {
-		onSubmit?.(state.value);
-	}, [state.value, onSubmit]);
+		// Read the latest selection, not the render's closure, so Enter after a toggle in the same drain submits the new selection.
+		onSubmit?.(latest.current.value);
+	}, [latest, onSubmit]);
 
 	const visibleOptions = useMemo(() => {
 		return options
@@ -325,12 +308,6 @@ export const useMultiSelectState = ({
 			}))
 			.slice(state.visibleFromIndex, state.visibleToIndex);
 	}, [options, state.visibleFromIndex, state.visibleToIndex]);
-
-	useEffect(() => {
-		if (!isDeepStrictEqual(state.previousValue, state.value)) {
-			onChange?.(state.value);
-		}
-	}, [state.previousValue, state.value, options, onChange]);
 
 	return {
 		focusedValue: state.focusedValue,

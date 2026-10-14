@@ -46,14 +46,29 @@ render(<Login />);
 
 ## Props
 
-`PasswordInputProps` is exported from `@nemesis-oss/termina-ui`. The component has no `defaultValue` prop. The field always starts empty.
+`PasswordInputProps` is exported from `@nemesis-oss/termina-ui`. The component has no `defaultValue` prop. The field starts empty unless `value` is set.
 
 | Prop | Type | Default | Description |
 | --- | --- | --- | --- |
 | `isDisabled` | `boolean` | `false` | When true, key input is ignored. The mask is shown without a cursor. |
 | `placeholder` | `string` | `''` | Text shown when the value is empty. It is not masked. The first character is drawn as the cursor and the rest is dimmed. |
+| `value` | `string` | `undefined` | Controlled value, with the raw text. The parent owns the value: each edit is reported through `onChange`, and the field shows this value until the parent changes it. See Controlled value below. |
 | `onChange` | `(value: string) => void` | `undefined` | Called after the value changes, with the raw value. |
 | `onSubmit` | `(value: string) => void` | `undefined` | Called on Enter with the raw value. |
+
+## Controlled value
+
+With `value`, the parent owns the text and the mask follows that value. Each edit calls `onChange` with the next raw value, and the field changes only when the parent passes a new `value`:
+
+```tsx
+const [secret, setSecret] = useState('');
+
+<PasswordInput value={secret} onChange={setSecret} />;
+```
+
+- The cursor stays where the user left it, clamped to the current value, as in `TextInput`.
+- With `value` and no `onChange`, the field is read-only.
+- Updates must be synchronous, as for `TextInput`. Store the new value in `onChange`, not in a transition.
 
 ## Masking
 
@@ -93,4 +108,4 @@ The mask character and the cursor style are fixed in the input hook. They are no
 - Moving the cursor over an emoji highlights the whole emoji. One Backspace removes the whole emoji from the mask and from the value.
 - A submitted value keeps its characters intact. For example, `😀` is submitted as `😀` while the field shows one `*`.
 - An empty field submits an empty string.
-- If the parent re-renders with a new `onChange` function, `onChange` runs again with the current value. Wrap the callback in `useCallback` to avoid this.
+- `onChange` is called once per change, synchronously from the key that made it. A burst of keys in one read reports each change, in order. A new `onChange` function on each render does not repeat the last call.

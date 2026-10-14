@@ -58,7 +58,8 @@ render(<Prompt />);
 | --- | --- | --- | --- |
 | `isDisabled` | `boolean` | `false` | When true, key input is ignored, no cursor is drawn, and no completion is shown. |
 | `placeholder` | `string` | `''` | Text drawn when the value is empty. See Placeholder and disabled state below. |
-| `defaultValue` | `string` | `''` | Value at mount. The cursor starts at its end. Read once, so later changes have no effect. |
+| `defaultValue` | `string` | `''` | Value at mount. The cursor starts at its end. Read once, so later changes have no effect. Ignored when `value` is set. |
+| `value` | `string` | `undefined` | Controlled value. The parent owns the text: each edit is reported through `onChange`, and the input shows this value until the parent changes it. See Controlled value below. |
 | `suggestions` | `string[]` | `undefined` | Complete values to offer as a completion. See Suggestions below. |
 | `onChange` | `(value: string) => void` | `undefined` | Called with the new value after each change to the value. |
 | `onSubmit` | `(value: string) => void` | `undefined` | Called with the value when Enter is pressed. |
@@ -94,10 +95,25 @@ The cursor is an index into the value, counted in UTF-16 code units. The editor 
 
 `suggestions` is a list of complete values. The editor takes the first entry that starts with the current value. The match is case-sensitive. The editor removes the value from the start of that entry and shows the rest dimmed after the value. When the cursor is at the end, the first character of the rest is drawn with the cursor on it.
 
-- Enter accepts the completion. The editor inserts it, `onChange` is called with the completed value, and `onSubmit` is called with the completed value. Right and Tab do not accept it.
+- Enter accepts the completion. The editor appends it to the end of the value and moves the cursor there. `onChange` is called with the completed value, then `onSubmit` is called with the same value. Right and Tab do not accept it.
 - Only the first matching entry is used. If that entry equals the current value, the completion is empty and nothing is shown, even when a later entry extends the value. With `['app', 'apple']`, the input `app` shows no completion. With `['apple', 'app']`, it shows `le`.
 - No completion is shown when the value is empty or when `isDisabled` is true.
-- When the cursor is not at the end, Enter inserts the completion at the cursor, but `onSubmit` receives the value followed by the completion. The text left in the input can then differ from the string passed to `onSubmit`. Move the cursor to the end before pressing Enter if the two must match.
+- The cursor position does not change where the completion goes. It is always appended to the end, so the text in the input matches the value passed to `onSubmit`.
+
+## Controlled value
+
+Pass `value` to let the parent own the text. The input shows `value`, and each edit calls `onChange` with the next value. The input does not change until the parent passes a new `value`:
+
+```tsx
+const [name, setName] = useState('');
+
+<TextInput value={name} onChange={setName} />;
+```
+
+- A key the parent does not store leaves the display unchanged.
+- The cursor stays where the user left it, clamped to the current value. If an external change shortens the value, the cursor moves to its end. A cursor inside a character made of several code units moves to the start of that character.
+- With `value` and no `onChange`, the input is read-only.
+- Updates must be synchronous. Store the new value in `onChange`, not in a transition or a deferred update. Under `concurrent` rendering, a transition can commit after later keystrokes and revert them.
 
 ## Placeholder and disabled state
 
@@ -107,9 +123,9 @@ The cursor is an index into the value, counted in UTF-16 code units. The editor 
 
 ## Callbacks
 
-- `onChange` is called after each change to the value. It is not called on mount, for cursor movement, or for a key that leaves the value unchanged, such as Backspace at the start.
+- `onChange` is called once per change to the value, synchronously from the key that made it. A burst of keys in one read reports each change, in order. It is not called on mount, for cursor movement, or for a key that leaves the value unchanged, such as Backspace at the start.
 - `onSubmit` is called with the current value. An empty value is passed as `''`.
-- `onChange` runs from an effect that depends on the function. If the parent passes a new function on every render, `onChange` runs again with the current value after that render. Wrap the callback in `useCallback` to avoid this.
+- A new `onChange` function on each render does not repeat the last call, so wrapping the callback in `useCallback` is not needed.
 
 ## Theme keys
 

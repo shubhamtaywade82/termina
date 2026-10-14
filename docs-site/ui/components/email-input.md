@@ -91,10 +91,10 @@ The cursor (inverse) and the suggestion (dimmed) are drawn with fixed styles in 
 
 ## Edge cases
 
-- If the cursor is before the end of the value and Enter accepts a suggestion, the suggestion is inserted at the cursor. `onSubmit` still receives the value with the suggestion appended to the end, so the two can differ. For example, with the value `test@a` and the cursor after `tes`, Enter changes the field to `tesol.comt@a`, and `onSubmit` receives `test@aol.com`. Move the cursor to the end before pressing Enter.
+- Enter accepts a suggestion by appending it to the end of the value and moving the cursor there, wherever the cursor was. `onChange` is called with the completed value, then `onSubmit` with the same value, so the two always match.
 - Editing works on UTF-16 code units, not on grapheme clusters. Left and Right move one code unit. A character outside the Basic Multilingual Plane, such as most emoji, takes two presses. Backspace removes one code unit, so it can leave half of a surrogate pair in the value. When the cursor sits between the two halves, the inverse cursor is drawn on the character after the emoji. No cursor is drawn only when the split pair is at the end of the value. [PasswordInput](/ui/components/password-input) edits by grapheme cluster.
 - Control characters are not filtered. A key that sends one inserts it. Ctrl+J sends a line feed, and it is inserted into the value.
 - A key with Ctrl and a letter inserts the letter. Ctrl+A inserts `a`.
 - The guard against a second `@` checks the current value. Pasting `a@b@c` into an empty field inserts the whole text, with two `@` characters.
 - The address is not validated. `onSubmit` receives an empty string when Enter is pressed on an empty field.
-- `onChange` runs from an effect that depends on the callback. If the parent re-renders with a new function, `onChange` runs again with the current value. Wrap the callback in `useCallback` to avoid this.
+- `onChange` is called once per change, synchronously from the key that made it. A burst of keys in one read reports each change, in order. A new callback on each render does not repeat the last call.

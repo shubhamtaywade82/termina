@@ -1,107 +1,18 @@
-import {useReducer, useCallback, useEffect, type Reducer} from 'react';
+import {useCallback, useLayoutEffect} from 'react';
+import {clampToBoundary} from '../../lib/grapheme.js';
 import {
-	nextBoundary,
-	previousBoundary,
-	sanitizeInsertedText,
-} from '../../lib/grapheme.js';
-
-type State = {
-	previousValue: string;
-	value: string;
-	cursorOffset: number;
-};
-
-type Action =
-	| MoveCursorLeftAction
-	| MoveCursorRightAction
-	| InsertAction
-	| DeleteAction
-	| DeleteForwardAction;
-
-type MoveCursorLeftAction = {
-	type: 'move-cursor-left';
-};
-
-type MoveCursorRightAction = {
-	type: 'move-cursor-right';
-};
-
-type InsertAction = {
-	type: 'insert';
-	text: string;
-};
-
-type DeleteAction = {
-	type: 'delete';
-};
-
-type DeleteForwardAction = {
-	type: 'delete-forward';
-};
-
-const reducer: Reducer<State, Action> = (state, action) => {
-	switch (action.type) {
-		case 'move-cursor-left': {
-			return {
-				...state,
-				cursorOffset: previousBoundary(state.value, state.cursorOffset),
-			};
-		}
-
-		case 'move-cursor-right': {
-			return {
-				...state,
-				cursorOffset: nextBoundary(state.value, state.cursorOffset),
-			};
-		}
-
-		case 'insert': {
-			const text = sanitizeInsertedText(action.text);
-			if (text === '') {
-				return state;
-			}
-
-			return {
-				...state,
-				previousValue: state.value,
-				value:
-					state.value.slice(0, state.cursorOffset) +
-					text +
-					state.value.slice(state.cursorOffset),
-				cursorOffset: state.cursorOffset + text.length,
-			};
-		}
-
-		case 'delete': {
-			const start = previousBoundary(state.value, state.cursorOffset);
-			if (start === state.cursorOffset) {
-				return state;
-			}
-
-			return {
-				...state,
-				previousValue: state.value,
-				value: state.value.slice(0, start) + state.value.slice(state.cursorOffset),
-				cursorOffset: start,
-			};
-		}
-
-		case 'delete-forward': {
-			const end = nextBoundary(state.value, state.cursorOffset);
-			if (end === state.cursorOffset) {
-				return state;
-			}
-
-			return {
-				...state,
-				previousValue: state.value,
-				value: state.value.slice(0, state.cursorOffset) + state.value.slice(end),
-			};
-		}
-	}
-};
+	reduceTextEdit,
+	type TextEditAction,
+	type TextEditState,
+} from '../../lib/text-edit-reducer.js';
+import {useSyncedReducer} from '../../lib/use-synced-reducer.js';
 
 export type UseTextInputStateProps = {
+	/**
+	 * Controlled input value. When set, the parent owns the value: edits are reported through `onChange`, and the input shows this value until the parent changes it.
+	 */
+	value?: string;
+
 	/**
 	 * Callback when value updates.
 	 */
@@ -113,7 +24,7 @@ export type UseTextInputStateProps = {
 	onSubmit?: (value: string) => void;
 };
 
-export type PasswordInputState = State & {
+export type PasswordInputState = TextEditState & {
 	/**
 	 * Move cursor to the left.
 	 */
@@ -146,55 +57,91 @@ export type PasswordInputState = State & {
 };
 
 export const usePasswordInputState = ({
+	value: controlledValue,
 	onChange,
 	onSubmit,
 }: UseTextInputStateProps) => {
-	const [state, dispatch] = useReducer(reducer, {
-		previousValue: '',
-		value: '',
-		cursorOffset: 0,
+	const isControlled = controlledValue !== undefined;
+	const {
+		state: uncontrolled,
+		latest,
+		dispatch,
+	} = useSyncedReducer(reduceTextEdit, () => {
+		const initial = controlledValue ?? '';
+		return {value: initial, cursorOffset: initial.length};
 	});
+
+	// A controlled value is the prop. The cursor stays in local state, clamped to wherever the value now ends.
+	const state: TextEditState =
+		controlledValue === undefined
+			? uncontrolled
+			: {
+					value: controlledValue,
+					cursorOffset: clampToBoundary(
+						controlledValue,
+						uncontrolled.cursorOffset,
+					),
+				};
+
+	// Runs after the reducer's own refresh, so a controlled input reads the prop, not the last uncontrolled edit.
+	useLayoutEffect(() => {
+		if (isControlled) {
+			latest.current = state;
+		}
+	});
+
+	// Notifies from the edit itself, not from an effect. Effects are keyed to the callback and to the last edit, which repeats calls on re-render and merges edits in one drain.
+	const commit = useCallback(
+		(action: TextEditAction): TextEditState => {
+			const {previous, next} = dispatch(action);
+
+			if (next.value !== previous.value) {
+				onChange?.(next.value);
+			}
+
+			return next;
+		},
+		[dispatch, onChange],
+	);
 
 	const moveCursorLeft = useCallback(() => {
 		dispatch({
 			type: 'move-cursor-left',
 		});
-	}, []);
+	}, [dispatch]);
 
 	const moveCursorRight = useCallback(() => {
 		dispatch({
 			type: 'move-cursor-right',
 		});
-	}, []);
+	}, [dispatch]);
 
-	const insert = useCallback((text: string) => {
-		dispatch({
-			type: 'insert',
-			text,
-		});
-	}, []);
+	const insert = useCallback(
+		(text: string) => {
+			commit({
+				type: 'insert',
+				text,
+			});
+		},
+		[commit],
+	);
 
 	const deleteForward = useCallback(() => {
-		dispatch({
+		commit({
 			type: 'delete-forward',
 		});
-	}, []);
+	}, [commit]);
 
 	const deleteCharacter = useCallback(() => {
-		dispatch({
+		commit({
 			type: 'delete',
 		});
-	}, []);
+	}, [commit]);
 
 	const submit = useCallback(() => {
-		onSubmit?.(state.value);
-	}, [state.value, onSubmit]);
-
-	useEffect(() => {
-		if (state.value !== state.previousValue) {
-			onChange?.(state.value);
-		}
-	}, [state.previousValue, state.value, onChange]);
+		// Read the latest value, not the render's closure, so Enter after a burst submits what the burst produced.
+		onSubmit?.(latest.current.value);
+	}, [latest, onSubmit]);
 
 	return {
 		...state,
