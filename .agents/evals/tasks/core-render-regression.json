@@ -1,0 +1,74 @@
+{
+  "schema_version": 1,
+  "id": "core-render-regression",
+  "title": "Core renderer regression investigation",
+  "kind": "core-regression",
+  "user_prompt": "Investigate a report that terminal output becomes incorrect after a rendered region shrinks or grows near the viewport boundary. Trace the physical-terminal behavior before changing code. Add or improve a focused regression test using the repository's real terminal fixture where needed, prove the test detects the faulty behavior, and keep the fix limited to the responsible layer.",
+  "expected_skills": [
+    "termina-core",
+    "termina-tui-validation"
+  ],
+  "adjacent_skills_not_required": [
+    "termina-tui-design",
+    "termina-agentic-ui-patterns"
+  ],
+  "environment": {
+    "terminal_sizes": [
+      {
+        "columns": 40,
+        "rows": 12
+      },
+      {
+        "columns": 80,
+        "rows": 24
+      }
+    ],
+    "execution_modes": [
+      "interactive",
+      "xterm-emulator"
+    ]
+  },
+  "acceptance_checks": [
+    {
+      "id": "layer-tracing",
+      "verification": "static-review",
+      "assertion": "The investigation distinguishes layout, rendered rows, output diffing, cursor position, and emulator behavior instead of assuming the cause.",
+      "evidence_required": "Concise trace of the relevant pipeline and evidence at the failing layer."
+    },
+    {
+      "id": "physical-regression",
+      "verification": "test",
+      "assertion": "A focused regression test exercises the relevant physical rows/cursor behavior with the xterm-backed test helper where necessary.",
+      "evidence_required": "Test path and reproducible assertion."
+    },
+    {
+      "id": "red-green-evidence",
+      "verification": "test",
+      "assertion": "The report establishes whether the regression test fails on the faulty state and passes with the fix; if the defect cannot be reproduced, that limitation is explicit.",
+      "evidence_required": "Before/after test output or a clear non-reproduction report."
+    },
+    {
+      "id": "scope",
+      "verification": "static-review",
+      "assertion": "The fix changes the responsible layer and preserves already-correct higher-level rendering behavior.",
+      "evidence_required": "Changed-file rationale and adjacent regression checks."
+    }
+  ],
+  "hard_gates": [
+    {
+      "id": "false-regression-claim",
+      "failure_condition": "The agent claims a failing-before/passing-after test without actually running or demonstrating it."
+    },
+    {
+      "id": "wrong-layer-fix",
+      "failure_condition": "The change masks a writer/emulator defect by modifying unrelated layout or public API behavior without evidence."
+    }
+  ],
+  "score_dimensions": [
+    "api-grounding",
+    "terminal-resilience",
+    "interaction",
+    "tests",
+    "engineering-discipline"
+  ]
+}
