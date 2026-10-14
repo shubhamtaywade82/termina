@@ -1,5 +1,5 @@
 import test, {type TestContext} from 'node:test';
-import React, {useEffect} from 'react';
+import React, {useEffect, useState} from 'react';
 import stripAnsi from 'strip-ansi';
 import {
 	render,
@@ -415,3 +415,66 @@ test('suspendTerminal rolls back so a later suspend works if handover throws', a
 	t.assert.ok(wasFirstRejected);
 	t.assert.ok(didSecondSucceed);
 });
+
+for (const [mode, options] of Object.entries({
+	'primary screen': {},
+	'alternate screen': {alternateScreen: true},
+})) {
+	test(`a <Static> item committed while suspended is written once after resume - ${mode}`, async (t: TestContext) => {
+		const stdout = createStdout();
+		stdout.rows = 5;
+		const stdin = createStdin();
+
+		const {promise: done, resolve: finished} = Promise.withResolvers<void>();
+
+		function Example() {
+			const {suspendTerminal} = useApp();
+			const [items, setItems] = useState(['S1']);
+			useInput(() => {});
+
+			useEffect(() => {
+				void (async () => {
+					try {
+						await suspendTerminal(async () => {
+							// The commit happens while the terminal is suspended. Static drops the item on its next commit.
+							setItems(['S1', 'S2']);
+							await delay(50);
+						});
+					} finally {
+						finished();
+					}
+				})();
+			}, [suspendTerminal]);
+
+			return (
+				<>
+					<Static items={items}>
+						{item => <Text key={item}>{item}</Text>}
+					</Static>
+					<Text>live</Text>
+				</>
+			);
+		}
+
+		const {unmount} = render(<Example />, {
+			stdout,
+			stdin,
+			interactive: true,
+			patchConsole: false,
+			...options,
+		});
+		await done;
+		await delay(50);
+
+		const output = stdout.getWrites().join('');
+		const count = (text: string) => output.split(text).length - 1;
+
+		t.assert.strictEqual(count('S2'), 1, 'S2 was committed while suspended');
+		if (!options.alternateScreen) {
+			// The alternate screen replays everything it has, so only the primary screen can check S1 once.
+			t.assert.strictEqual(count('S1'), 1);
+		}
+
+		unmount();
+	});
+}

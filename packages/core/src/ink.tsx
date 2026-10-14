@@ -259,6 +259,8 @@ export default class Ink {
 	private nextRenderCommit?: PromiseWithResolvers<void>;
 	// Set while suspendTerminal() has handed the terminal to a child process.
 	private isSuspended = false;
+	// Static output of commits made while suspended. Static drops those items on its next commit, so this queue is the only copy. It is written on resume, or on unmount.
+	private suspendedStaticOutput = '';
 	// Input pause/resume hooks registered by the App component, which owns raw
 	// mode and bracketed paste state.
 	private pauseInput?: () => void;
@@ -405,6 +407,7 @@ export default class Ink {
 				this.nextRenderCommit = undefined;
 			}
 
+			this.captureStaticOutputWhileSuspended();
 			return;
 		}
 
@@ -958,6 +961,25 @@ export default class Ink {
 		this.kittyFlags = flags;
 	}
 
+	// Keeps the <Static> output of a suspended commit. The live frame is not drawn, but the items are: Static removes them from the tree on its next commit, so the output must be saved now.
+	private captureStaticOutputWhileSuspended(): void {
+		const {staticOutput} = render(this.rootNode, this.isScreenReaderEnabled);
+
+		if (staticOutput === '') {
+			return;
+		}
+
+		markStaticOutputWritten(this.rootNode);
+		this.hasRenderedStaticOutput = true;
+
+		// The alternate screen and debug mode redraw everything they have written, so the output joins fullStaticOutput. The primary screen writes the queue once, on resume.
+		if (this.alternateScreen || this.options.debug) {
+			this.fullStaticOutput += staticOutput;
+		} else {
+			this.suspendedStaticOutput += staticOutput;
+		}
+	}
+
 	private beginSuspend(): void {
 		if (!this.interactive) {
 			return;
@@ -1053,7 +1075,14 @@ export default class Ink {
 				);
 				this.kittyProtocolEnabled = true;
 			}
+
+			// Static items committed during the suspension, written above the frame the redraw draws next.
+			if (this.suspendedStaticOutput !== '') {
+				this.writeBestEffort(this.options.stdout, this.suspendedStaticOutput);
+			}
 		}
+
+		this.suspendedStaticOutput = '';
 
 		// Force a full redraw instead of diffing against the stale pre-suspension
 		// frame, which the child process may have overwritten. A redraw failure here
@@ -1246,6 +1275,13 @@ export default class Ink {
 				this.onRender();
 			}
 		}
+
+		// Static output from a suspension that ends with unmount is permanent content, so it is written before the app goes away.
+		if (canWriteToStdout && this.suspendedStaticOutput !== '') {
+			this.writeBestEffort(this.options.stdout, this.suspendedStaticOutput);
+		}
+
+		this.suspendedStaticOutput = '';
 
 		// Mark as unmounted after the final render but before stdout writes
 		// that could re-enter exit() via synchronous write callbacks.
