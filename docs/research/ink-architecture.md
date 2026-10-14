@@ -114,7 +114,7 @@ reliably defined across terminals.
 - `source/components/<name>/` holds the component, its `theme.ts`, and its state hook.
 - `source/theme.tsx`: `ThemeProvider`, `useComponentTheme`, and `extendTheme` (deepmerge over per-component `styles`/`config` functions).
 - Components: Alert, Badge, ConfirmInput, EmailInput, MultiSelect, OrderedList, PasswordInput, ProgressBar, Select, Spinner, StatusMessage, TextInput, UnorderedList.
-- Not present in upstream: scroll viewport, log stream, data table, modal, tabs, multi-line input, split pane, spatial focus. The fork adds `ScrollBox` and `LogStream` (see below), and later `DataTable`, `Tabs` and `MultilineTextInput`. Spatial focus exists only as the pure `nearestInDirection` helper, which the focus system does not call yet. Modal and split pane are not built yet.
+- Not present in upstream: scroll viewport, log stream, data table, modal, tabs, multi-line input, split pane, spatial focus. The fork adds `ScrollBox` and `LogStream` (see below), and later `DataTable`, `Tabs`, `MultilineTextInput`, `Modal` and `SplitPane`. Spatial focus exists only as the pure `nearestInDirection` helper, which the focus system does not call yet.
 
 ### Defects confirmed in `TextInput` and `PasswordInput`
 
@@ -150,4 +150,4 @@ semantics require.
 | Target Node 18, tsup | Ink 8 requires Node 22. The fork builds with `tsc`, matching upstream. |
 | Color down-sampling needed | Handled by chalk. `level 2` maps (255,128,0) to `38;5;214`, which is the 6×6×6 cube formula `16 + 36r + 6g + b`. Raw `\x1b[38;2;…` writes bypass chalk and must be avoided. |
 | Mouse support needed | Was absent. Added in the fork (`FORK.md`). |
-| Modal, DataTable, multi-line editor, tabs | Absent upstream. In the fork, DataTable, Tabs and the multi-line editor are built. Modal is not built yet. |
+| Modal, DataTable, multi-line editor, tabs | Absent upstream. In the fork, DataTable, Tabs, the multi-line editor and Modal are built. |

@@ -591,6 +591,7 @@ Calls `inputHandler` for each key press. `input` is the typed text. `key` descri
 - `isActive` defaults to `true`. Setting it to `false` removes the listener and releases raw mode.
 - When `exitOnCtrlC` is `true`, the default, Ctrl+C exits the app and the handler does not receive it.
 - Mouse reports are never passed to `useInput`. They go to `useMouse`.
+- While a `KeyboardCapture` is active, the handler receives input only when it sits inside the innermost active capture. Input from outside that capture is not delivered. See [KeyboardCapture](#keyboardcapture).
 - When no `usePaste` listener is mounted, pasted text arrives as one string. When a `usePaste` listener is mounted, pasted text is delivered only to it. An enabled `TextInput`, `PasswordInput` or `MultilineTextInput` mounts one, so this holds while an enabled editor is mounted.
 - `useInput` calls `setRawMode(true)` while it is active, without checking `isRawModeSupported`. On a stdin without raw mode support, `setRawMode` throws, so guard the component with `isRawModeSupported` from `useStdin()`.
 
@@ -652,6 +653,7 @@ Calls `handler` once for each paste, with the full pasted text, newlines include
 
 - While active, bracketed paste mode is enabled on stdout, so the terminal wraps a paste in markers and the text is not read as key presses. Bracketed paste is written only when stdout is a TTY.
 - `isActive` defaults to `true`. Several `usePaste` hooks can be mounted, and each receives the same paste.
+- While a `KeyboardCapture` is active, a paste reaches only the `usePaste` handlers inside the innermost active capture. A paste that reaches only handlers outside it is dropped. See [KeyboardCapture](#keyboardcapture).
 - Paste content is never passed to `useInput` while a `usePaste` listener is mounted. An enabled `TextInput`, `PasswordInput` or `MultilineTextInput` mounts one, so a `useInput` listener stops seeing paste while an enabled editor is mounted. The editors insert the pasted text themselves. See [Keyboard and Focus](/guide/keyboard-and-focus).
 
 ```tsx
@@ -669,6 +671,58 @@ render(<Paste />);
 ```
 
 See [Keyboard and Focus](/guide/keyboard-and-focus) (Paste with usePaste).
+
+### KeyboardCapture
+
+```ts
+function KeyboardCapture(props: KeyboardCaptureProps): React.ReactNode;
+
+type KeyboardCaptureProps = {
+	isActive?: boolean; // default true
+	children?: React.ReactNode;
+};
+```
+
+A component that makes the input inside it the only input the app delivers while it is active. Keys, paste and mouse reports go to the `useInput`, `usePaste` and `useMouse` listeners inside the capture. Listeners outside it receive nothing. It renders its children and nothing else, so it adds no cells to the layout.
+
+- `isActive` defaults to `true`. While it is `false`, the children behave as if the capture were not there, and their input is not restricted.
+- Captures nest. The innermost active capture decides, so a listener receives input only when its nearest capture is the top one. Closing the inner capture returns input to the outer one.
+- Ctrl+C still exits the app before any capture is checked.
+- A plain Escape does not clear focus while a capture is active.
+- Tab and Shift+Tab move focus only among the focusable components in the scope of the top capture. See [useFocusScope()](#usefocusscope).
+- Suspending the terminal keeps the capture, so the same input is restricted when the app resumes.
+- Pasted text follows the rule under [usePaste()](#usepaste).
+
+`KeyboardCapture` is a component, not a hook. A listener learns its owner from the component tree, and only a component can pass that owner down to its children.
+
+```tsx
+import {Box, KeyboardCapture, Text, render, useInput} from '@nemesis-oss/termina-core';
+
+function DialogBody() {
+	// Receives keys only while the dialog's capture is the innermost one.
+	useInput(input => {
+		if (input === 'y') {
+			// confirm
+		}
+	});
+
+	return <Text>Press y to confirm</Text>;
+}
+
+function Dialog({isOpen}: {readonly isOpen: boolean}) {
+	return (
+		<Box flexDirection="column">
+			<KeyboardCapture isActive={isOpen}>
+				<DialogBody />
+			</KeyboardCapture>
+		</Box>
+	);
+}
+
+render(<Dialog isOpen />);
+```
+
+See [Keyboard and Focus](/guide/keyboard-and-focus#keyboard-capture) for the full rules, and [Modal](/ui/components/modal) for a dialog built on it.
 
 ## Mouse
 
@@ -852,6 +906,42 @@ Returns controls for focus across the whole app.
 - `activeId` is the ID of the focused component, or `undefined`.
 
 See [Keyboard and Focus](/guide/keyboard-and-focus) (useFocusManager).
+
+### useFocusScope()
+
+```ts
+function useFocusScope(): {focusFirstInScope: () => void};
+```
+
+Returns `focusFirstInScope`, which focuses the first active focusable component in the scope of the nearest active `KeyboardCapture`. Outside every capture, it focuses the first focusable component that is not inside one. It does nothing when no active focusable component is in the scope, and it does nothing while focus management is disabled.
+
+Call the hook in a component rendered inside the capture. That component can focus its first field when it opens.
+
+- Each focusable component belongs to the scope of the capture that encloses it when it registers. A focusable component outside every capture is in the app scope.
+- While a capture is active, Tab and Shift+Tab cycle only through the focusable components in its scope. With none in scope, they do nothing. Outside every capture, they reach every focusable component, as before.
+
+```tsx
+import {useEffect} from 'react';
+import {KeyboardCapture, Text, useFocusScope} from '@nemesis-oss/termina-core';
+
+function DialogBody() {
+	const {focusFirstInScope} = useFocusScope();
+
+	useEffect(() => {
+		focusFirstInScope();
+	}, [focusFirstInScope]);
+
+	return <Text>Dialog</Text>;
+}
+
+const Dialog = () => (
+	<KeyboardCapture>
+		<DialogBody />
+	</KeyboardCapture>
+);
+```
+
+See [Keyboard and Focus](/guide/keyboard-and-focus#focus-scope) for the navigation rules.
 
 ## Terminal
 
@@ -1141,6 +1231,7 @@ Type-only exports and the section where each one is documented.
 | `ElementMetrics` | Measurement, measureElement |
 | `Instance` | Rendering, Instance |
 | `Key` | Input, useInput |
+| `KeyboardCaptureProps` | Input, KeyboardCapture |
 | `KittyFlagName` | Terminal, kittyFlags and kittyModifiers |
 | `KittyKeyboardOptions` | Terminal, kittyFlags and kittyModifiers |
 | `MouseAction` | Mouse, MouseEvent |

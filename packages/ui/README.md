@@ -1,8 +1,8 @@
 # @nemesis-oss/termina-ui
 
-38 components for terminal user interfaces, built on [`@nemesis-oss/termina-core`](https://www.npmjs.com/package/@nemesis-oss/termina-core). Thirty-six of them read their styles from a theme, so one `ThemeProvider` can restyle a whole screen.
+40 components for terminal user interfaces, built on [`@nemesis-oss/termina-core`](https://www.npmjs.com/package/@nemesis-oss/termina-core). Thirty-eight of them read their styles from a theme, so one `ThemeProvider` can restyle a whole screen.
 
-It started as a fork of [ink-ui](https://github.com/vadimdemedes/ink-ui) 2.0.0 and adds 23 components, grapheme-aware text editing and two scrolling viewers.
+It started as a fork of [ink-ui](https://github.com/vadimdemedes/ink-ui) 2.0.0 and adds 25 components, grapheme-aware text editing and two scrolling viewers.
 
 ## Install
 

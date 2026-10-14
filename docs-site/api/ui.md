@@ -32,6 +32,7 @@ Each component has the form `(props: <Props>) => React.JSX.Element`.
 | `LoadingBar` | `LoadingBarProps` | [LoadingBar](/ui/components/loading-bar) |
 | `LogStream` | `LogStreamProps` | [LogStream](/ui/components/log-stream) |
 | `Markdown` | `MarkdownProps` | [Markdown](/ui/components/markdown) |
+| `Modal` | `ModalProps` | [Modal](/ui/components/modal) |
 | `MultilineTextInput` | `MultilineTextInputProps` | [MultilineTextInput](/ui/components/multiline-text-input) |
 | `MultiSelect` | `MultiSelectProps` | [MultiSelect](/ui/components/multi-select) |
 | `OrderedList` | `OrderedListProps` | [OrderedList](/ui/components/ordered-list) |
@@ -41,6 +42,7 @@ Each component has the form `(props: <Props>) => React.JSX.Element`.
 | `Select` | `SelectProps` | [Select](/ui/components/select) |
 | `Sparkline` | `SparklineProps` | [Sparkline](/ui/components/sparkline) |
 | `Spinner` | `SpinnerProps` | [Spinner](/ui/components/spinner) |
+| `SplitPane` | `SplitPaneProps` | [SplitPane](/ui/components/split-pane) |
 | `StatusMessage` | `StatusMessageProps` | [StatusMessage](/ui/components/status-message) |
 | `Stepper` | `StepperProps` | [Stepper](/ui/components/stepper) |
 | `StreamingText` | `StreamingTextProps` | [StreamingText](/ui/components/streaming-text) |

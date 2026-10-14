@@ -13,6 +13,7 @@ import BadgeBasic from './badge-basic';
 import ConfirmInputBasic from './confirm-input-basic';
 import EmailInputBasic from './email-input-basic';
 import LogStreamBasic from './log-stream-basic';
+import ModalBasic from './modal-basic';
 import MultilineTextInputBasic from './multiline-text-input-basic';
 import MultiSelectBasic from './multi-select-basic';
 import OrderedListBasic from './ordered-list-basic';
@@ -21,6 +22,7 @@ import PasswordInputBasic from './password-input-basic';
 import ProgressBarBasic from './progress-bar-basic';
 import ScrollBoxBasic from './scroll-box-basic';
 import SelectBasic from './select-basic';
+import SplitPaneBasic from './split-pane-basic';
 import SpinnerBasic from './spinner-basic';
 import StatusMessageBasic from './status-message-basic';
 import TextInputBasic from './text-input-basic';
@@ -67,6 +69,7 @@ export const demos: Record<string, DemoDefinition> = {
     alternateScreen: true,
     mouse: true,
   },
+  'modal-basic': {component: ModalBasic, rows: 10},
   'multi-select-basic': {component: MultiSelectBasic, rows: 13},
   'ordered-list-basic': {component: OrderedListBasic, rows: 11},
   'password-input-basic': {component: PasswordInputBasic, rows: 8},
@@ -79,6 +82,7 @@ export const demos: Record<string, DemoDefinition> = {
   },
   'select-basic': {component: SelectBasic, rows: 10},
   'spinner-basic': {component: SpinnerBasic, rows: 7},
+  'split-pane-basic': {component: SplitPaneBasic, rows: 10},
   'status-message-basic': {component: StatusMessageBasic, rows: 9},
   'text-input-basic': {component: TextInputBasic, rows: 9},
   'multiline-text-input-basic': {component: MultilineTextInputBasic, rows: 10},
