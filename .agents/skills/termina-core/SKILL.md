@@ -24,6 +24,13 @@ Use this skill for changes to `@nemesis-oss/termina-core`, the React renderer an
 5. **Check public API and types.** Export intentional new APIs from `packages/core/src/index.ts`; keep internal helpers private. Update tests that assert actual behavior rather than duplicating the implementation.
 6. **Verify and report.** State the commands run, relevant results, and any checks that could not be run.
 
+## Routing to companion skills
+
+- Use `termina-tui-design` for application-level screen design and responsive layout decisions.
+- Use `termina-tui-app-architecture` when the change requires multi-screen state ownership, navigation, or focus/input coordination.
+- Use `termina-agentic-ui-patterns` for AI/tool lifecycle UI; keep orchestration semantics out of the renderer.
+- Use `termina-tui-validation` for terminal-size and end-to-end acceptance coverage. Core regression tests still remain required for runtime changes.
+
 ## Core invariants
 
 ### Terminal capabilities and streams
