@@ -490,6 +490,7 @@ test('an external shorter value keeps the caret inside the value', async (t: Tes
 		/>,
 	);
 	await delay(50);
+	t.assert.strictEqual(instance.lastFrame(), `hi${cursor()}`);
 	instance.stdin.write('X');
 	await delay(50);
 	instance.unmount();
@@ -606,4 +607,85 @@ test('a parent can transform the value it stores', async (t: TestContext) => {
 	instance.unmount();
 
 	t.assert.strictEqual(instance.lastFrame(), `AB${cursor()}`);
+});
+
+test('a key the parent rejects does not move the caret', async (t: TestContext) => {
+	const instance = render(<TextInput value="abc" onChange={() => {}} />);
+
+	await delay(50);
+	instance.stdin.write(arrowLeft);
+	await delay(30);
+	instance.stdin.write(arrowLeft);
+	await delay(30);
+	instance.stdin.write('X');
+	await delay(50);
+	instance.unmount();
+
+	t.assert.strictEqual(instance.lastFrame(), `a${cursor('b')}c`);
+});
+
+test('a key the parent rejects is not built on by the next key in the same read', async (t: TestContext) => {
+	const changes: string[] = [];
+
+	function DigitsOnly() {
+		const [value, setValue] = useState('1');
+		return (
+			<TextInput
+				value={value}
+				onChange={next => {
+					changes.push(next);
+					if (/^\d*$/.test(next)) {
+						setValue(next);
+					}
+				}}
+			/>
+		);
+	}
+
+	const instance = render(<DigitsOnly />);
+
+	await delay(50);
+	// 'x' is rejected, Up is ignored, '2' is accepted: all three arrive in one read.
+	instance.stdin.write('x\u001B[A2');
+	await delay(50);
+	instance.unmount();
+
+	t.assert.deepStrictEqual(changes, ['1x', '12']);
+	t.assert.strictEqual(instance.lastFrame(), `12${cursor()}`);
+});
+
+test('Enter after a key the parent rejects submits the stored value', async (t: TestContext) => {
+	const submitted: string[] = [];
+	const instance = render(
+		<TextInput
+			value="abc"
+			onChange={() => {}}
+			onSubmit={value => {
+				submitted.push(value);
+			}}
+		/>,
+	);
+
+	await delay(50);
+	instance.stdin.write('d\u001B[A' + enter);
+	await delay(50);
+	instance.unmount();
+
+	t.assert.deepStrictEqual(submitted, ['abc']);
+});
+
+test('an external shorter value moves the caret to the new end only when it was past it', async (t: TestContext) => {
+	const instance = render(<TextInput value="abcdef" onChange={() => {}} />);
+
+	await delay(50);
+	for (let index = 0; index < 4; index++) {
+		instance.stdin.write(arrowLeft);
+		await delay(30);
+	}
+
+	instance.rerender(<TextInput value="abcd" onChange={() => {}} />);
+	await delay(50);
+	instance.unmount();
+
+	t.assert.strictEqual(instance.lastFrame(), `ab${cursor('c')}d`);
 });

@@ -537,3 +537,67 @@ test('a controlled password without onChange is read-only', async (t: TestContex
 
 	t.assert.strictEqual(instance.lastFrame(), `***${cursor()}`);
 });
+
+test('a key the parent rejects does not move the masked caret', async (t: TestContext) => {
+	const instance = render(<PasswordInput value="abc" onChange={() => {}} />);
+
+	await delay(50);
+	instance.stdin.write(arrowLeft);
+	await delay(30);
+	instance.stdin.write(arrowLeft);
+	await delay(30);
+	instance.stdin.write('X');
+	await delay(50);
+	instance.unmount();
+
+	t.assert.strictEqual(instance.lastFrame(), `*${cursor('*')}*`);
+});
+
+test('a key the parent rejects is not built on by the next key in the same read', async (t: TestContext) => {
+	const changes: string[] = [];
+
+	function DigitsOnly() {
+		const [value, setValue] = useState('1');
+		return (
+			<PasswordInput
+				value={value}
+				onChange={next => {
+					changes.push(next);
+					if (/^\d*$/.test(next)) {
+						setValue(next);
+					}
+				}}
+			/>
+		);
+	}
+
+	const instance = render(<DigitsOnly />);
+
+	await delay(50);
+	instance.stdin.write('x\u001B[A2');
+	await delay(50);
+	instance.unmount();
+
+	t.assert.deepStrictEqual(changes, ['1x', '12']);
+	t.assert.strictEqual(instance.lastFrame(), `**${cursor()}`);
+});
+
+test('Enter after a key the parent rejects submits the stored password', async (t: TestContext) => {
+	const submitted: string[] = [];
+	const instance = render(
+		<PasswordInput
+			value="abc"
+			onChange={() => {}}
+			onSubmit={value => {
+				submitted.push(value);
+			}}
+		/>,
+	);
+
+	await delay(50);
+	instance.stdin.write('d\u001B[A' + enter);
+	await delay(50);
+	instance.unmount();
+
+	t.assert.deepStrictEqual(submitted, ['abc']);
+});

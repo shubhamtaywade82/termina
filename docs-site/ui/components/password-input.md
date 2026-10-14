@@ -66,9 +66,9 @@ const [secret, setSecret] = useState('');
 <PasswordInput value={secret} onChange={setSecret} />;
 ```
 
-- The cursor stays where the user left it, clamped to the current value, as in `TextInput`.
+- The cursor stays where the user left it, as in `TextInput`. A key the parent does not store leaves the cursor unchanged.
 - With `value` and no `onChange`, the field is read-only.
-- Updates must be synchronous, as for `TextInput`. Store the new value in `onChange`, not in a transition.
+- Store the new value in `onChange` synchronously, as for `TextInput`. A parent that stores it later counts as having refused the key.
 
 ## Masking
 

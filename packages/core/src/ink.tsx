@@ -250,6 +250,9 @@ export default class Ink {
 	private readonly unsubscribeResize?: () => void;
 	private readonly throttledOnRender?: DebouncedFunc<() => void>;
 	private hasPendingThrottledRender = false;
+	// Input events from one stdin read run as a batch. Renders requested inside the batch wait for it to end.
+	private inputBatchDepth = 0;
+	private hasDeferredRender = false;
 	private kittyProtocolEnabled = false;
 	private kittyFlags: KittyFlagName[] | undefined;
 	private finishKittyDetection?: (isSupported: boolean) => void;
@@ -463,7 +466,13 @@ export default class Ink {
 		this.renderThrottleMs = isUnthrottled ? 0 : renderThrottleMs;
 
 		if (isUnthrottled) {
-			this.rootNode.onRender = this.onRender;
+			this.rootNode.onRender = () => {
+				if (this.deferRenderForInputBatch()) {
+					return;
+				}
+
+				this.onRender();
+			};
 			this.throttledOnRender = undefined;
 		} else {
 			const throttled = throttle(this.onRender, renderThrottleMs, {
@@ -471,6 +480,10 @@ export default class Ink {
 				trailing: true,
 			});
 			this.rootNode.onRender = () => {
+				if (this.deferRenderForInputBatch()) {
+					return;
+				}
+
 				this.hasPendingThrottledRender = true;
 				throttled();
 			};
@@ -1078,6 +1091,7 @@ export default class Ink {
 					onSuspendTerminal={this.suspendTerminal}
 					onRegisterInputControl={this.registerInputControl}
 					onKittyQueryResponse={this.handleKittyQueryResponse}
+					onBatchInput={this.batchInput}
 				>
 					<RootNodeContext value={this.rootNode}>
 						{node}
@@ -1167,6 +1181,36 @@ export default class Ink {
 		if (shouldSync) {
 			this.options.stdout.write(esu);
 		}
+	}
+
+	// Runs the input events of one stdin read as a batch. Each event commits its React updates before the next one runs, so handlers and controlled inputs see the previous event's result. Renders requested during the batch are held and run once when it ends, so one read still produces one frame.
+	private readonly batchInput = (
+		run: (commitEvent: () => void) => void,
+	): void => {
+		this.inputBatchDepth++;
+
+		try {
+			run(() => {
+				reconciler.flushSyncWork();
+			});
+		} finally {
+			this.inputBatchDepth--;
+
+			if (this.inputBatchDepth === 0 && this.hasDeferredRender) {
+				this.hasDeferredRender = false;
+				this.rootNode.onRender?.();
+			}
+		}
+	};
+
+	// Returns true when the render is held until the current input batch ends.
+	private deferRenderForInputBatch(): boolean {
+		if (this.inputBatchDepth === 0) {
+			return false;
+		}
+
+		this.hasDeferredRender = true;
+		return true;
 	}
 
 	// eslint-disable-next-line @typescript-eslint/no-restricted-types

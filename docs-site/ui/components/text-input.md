@@ -110,10 +110,10 @@ const [name, setName] = useState('');
 <TextInput value={name} onChange={setName} />;
 ```
 
-- A key the parent does not store leaves the display unchanged.
-- The cursor stays where the user left it, clamped to the current value. If an external change shortens the value, the cursor moves to its end. A cursor inside a character made of several code units moves to the start of that character.
+- A key the parent does not store leaves the display and the cursor unchanged. The next key in the same read starts from the value the parent holds.
+- The cursor stays where the user left it. If an external change makes the value shorter than that position, the cursor moves to the new end. A cursor inside a character made of several code units moves to the start of that character.
 - With `value` and no `onChange`, the input is read-only.
-- Updates must be synchronous. Store the new value in `onChange`, not in a transition or a deferred update. Under `concurrent` rendering, a transition can commit after later keystrokes and revert them.
+- Store the new value in `onChange` synchronously. A parent that stores it later, in a timer or a transition, counts as having refused the key, so the caret stays put. Under `concurrent` rendering, a transition can also commit after later keystrokes and revert them.
 
 ## Placeholder and disabled state
 

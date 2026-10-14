@@ -56,6 +56,8 @@ type Props = {
 		pauseInput: () => void,
 		resumeInput: () => void,
 	) => void;
+	// Runs the input events of one stdin read as a batch. `commitEvent` must be called after each event.
+	readonly onBatchInput: (run: (commitEvent: () => void) => void) => void;
 	readonly setCursorPosition: (position: CursorPosition | undefined) => void;
 	readonly interactive: boolean;
 	readonly renderThrottleMs: number;
@@ -96,6 +98,7 @@ function App({
 	onSuspendTerminal,
 	onKittyQueryResponse,
 	onRegisterInputControl,
+	onBatchInput,
 	setCursorPosition,
 	interactive,
 	renderThrottleMs,
@@ -366,9 +369,14 @@ function App({
 		let chunk;
 		// eslint-disable-next-line @typescript-eslint/no-restricted-types
 		while ((chunk = stdin.read() as string | null) !== null) {
-			for (const event of inputParserRef.current.push(chunk)) {
-				handleInputEvent(event);
-			}
+			const text = chunk;
+			// Each event commits before the next one runs, so a handler and a controlled input see the state the previous event produced. The render waits for the batch, so one read still produces one frame.
+			onBatchInput(commitEvent => {
+				for (const event of inputParserRef.current.push(text)) {
+					handleInputEvent(event);
+					commitEvent();
+				}
+			});
 		}
 
 		if (inputParserRef.current.hasPendingEscape()) {
@@ -380,6 +388,7 @@ function App({
 		clearPendingInputFlush,
 		schedulePendingInputFlush,
 		onKittyQueryResponse,
+		onBatchInput,
 	]);
 
 	const attachReadableListener = useCallback((): void => {
