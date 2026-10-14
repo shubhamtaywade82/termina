@@ -11,6 +11,7 @@
     "build": "pnpm -r --filter './packages/*' run build",
     "typecheck": "pnpm -r --filter './packages/*' --filter './examples/*' run typecheck",
     "test": "pnpm run build && pnpm -r --no-bail --filter './packages/*' run test",
+    "skills:check": "node .agents/scripts/validate-skills.mjs",
     "verify": "pnpm run build && pnpm run typecheck && pnpm run test",
     "docs:dev": "npm --prefix docs-site run dev",
     "docs:build": "npm --prefix docs-site run build",
