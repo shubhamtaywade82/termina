@@ -180,9 +180,9 @@ Behavior:
 
 - While at least one active `usePaste` is mounted, bracketed paste mode is on in the terminal. The mode is reference counted, and it is turned off when the last one unmounts.
 - The handler receives the whole paste in one call, including newlines. Escape bytes inside the paste are kept as text.
-- When a `usePaste` handler is mounted, paste is delivered only to `usePaste` handlers, never to `useInput`. Every mounted `usePaste` receives the same text. An enabled `TextInput` or `PasswordInput` is one of those handlers, so a `useInput` listener does not see paste while an enabled editor is mounted.
-- `TextInput` and `PasswordInput` insert pasted text through the same action as typing. A single-line editor drops the newlines and control characters in a paste, and a controlled `value` accepts or refuses the pasted text like any other edit. A disabled editor takes no paste.
-- Without a mounted `usePaste`, the app does not turn bracketed paste mode on, and the terminal sends pasted text as ordinary input. An enabled `TextInput` or `PasswordInput` mounts one, so bracketed paste mode is on while it is mounted. If paste markers reach the parser anyway, the pasted text goes to `useInput` as one string, and the flags are computed from that whole string.
+- When a `usePaste` handler is mounted, paste is delivered only to `usePaste` handlers, never to `useInput`. Every mounted `usePaste` receives the same text. An enabled `TextInput`, `PasswordInput` or `MultilineTextInput` is one of those handlers, so a `useInput` listener does not see paste while an enabled editor is mounted.
+- `TextInput` and `PasswordInput` insert pasted text through the same action as typing. A single-line editor drops the newlines and control characters in a paste, and a controlled `value` accepts or refuses the pasted text like any other edit. A disabled editor takes no paste. `MultilineTextInput` keeps line feeds, turns CRLF and CR into line feeds, and turns each tab into four spaces. It removes other control characters.
+- Without a mounted `usePaste`, the app does not turn bracketed paste mode on, and the terminal sends pasted text as ordinary input. An enabled `TextInput`, `PasswordInput` or `MultilineTextInput` mounts one, so bracketed paste mode is on while it is mounted. If paste markers reach the parser anyway, the pasted text goes to `useInput` as one string, and the flags are computed from that whole string.
 - A paste start marker with no end marker is held by the parser until the end marker arrives. The escape timer does not flush it.
 
 ## Focus
@@ -275,5 +275,5 @@ A kitty keyboard query reply (`ESC [ ? digits u`) is consumed by the app and doe
 - [Terminal Features](/guide/terminal-features) for the `kittyKeyboard` render option and terminal capability detection.
 - [Rendering](/guide/rendering) for the rendering model.
 - [Testing](/guide/testing) for testing components.
-- UI kit components that read keys through `useInput`: [TextInput](/ui/components/text-input), [Select](/ui/components/select), [MultiSelect](/ui/components/multi-select), [ConfirmInput](/ui/components/confirm-input), [EmailInput](/ui/components/email-input), [PasswordInput](/ui/components/password-input), and [ScrollBox](/ui/components/scroll-box).
+- UI kit components that read keys through `useInput`: [TextInput](/ui/components/text-input), [Select](/ui/components/select), [MultiSelect](/ui/components/multi-select), [ConfirmInput](/ui/components/confirm-input), [EmailInput](/ui/components/email-input), [PasswordInput](/ui/components/password-input), [MultilineTextInput](/ui/components/multiline-text-input), and [ScrollBox](/ui/components/scroll-box).
 - [API: @nemesis-oss/termina-core](/api/core) for the full export list.

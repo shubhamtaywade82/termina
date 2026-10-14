@@ -134,6 +134,7 @@ export default defineConfig({
               { text: 'LoadingBar', link: '/ui/components/loading-bar' },
               { text: 'LogStream', link: '/ui/components/log-stream' },
               { text: 'Markdown', link: '/ui/components/markdown' },
+              { text: 'MultilineTextInput', link: '/ui/components/multiline-text-input' },
               { text: 'MultiSelect', link: '/ui/components/multi-select' },
               { text: 'OrderedList', link: '/ui/components/ordered-list' },
               { text: 'PasswordInput', link: '/ui/components/password-input' },

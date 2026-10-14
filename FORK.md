@@ -53,10 +53,10 @@ history is not carried over. Re-syncing means diffing against the commits above.
 - **LogStream** (`source/components/log-stream`): tail-following ScrollBox with a
   `maxLines` cap.
 
-- **New components (22).** Accordion, Autocomplete, CodeBlock, DataTable, Dialog,
+- **New components (23).** Accordion, Autocomplete, CodeBlock, DataTable, Dialog,
   DiffView, Divider, Gauge, Header, JSONViewer, KeyHint, LoadingBar, Markdown,
-  Sparkline, Stepper, StreamingText, Table, Tabs, Toast, TokenCounter, Typewriter
-  and TreeView. Each has a theme, a test file, a docs page and a live demo. They
+  MultilineTextInput, Sparkline, Stepper, StreamingText, Table, Tabs, Toast,
+  TokenCounter, Typewriter and TreeView. Each has a theme, a test file, a docs page and a live demo. They
   follow the public documentation of inkui (github.com/kamlesh723/inkui) as a
   behavior reference. No source was copied. `string-width` is a dependency, for
   column widths. `Dialog` has no focus trap, and `Tabs` and `DataTable` are
@@ -79,7 +79,7 @@ history is not carried over. Re-syncing means diffing against the commits above.
 - **Not built:** a cell-level back/front buffer renderer. Measured data is in
   `docs/research/ink-architecture.md`, section 2. The cheap win (incremental
   rendering) is already in upstream.
-- **Not built yet:** multi-line text editor, Modal with focus trap, SplitPane,
+- **Not built yet:** Modal with focus trap, SplitPane,
   spatial focus wired to `useFocus`, OSC 8 and OSC 52 helpers
   as Ink components. The xterm-backed fixture in `packages/core/test/helpers/xterm-terminal.ts`
   has `getLine`, `cellAt`, `cells` and `emitKey`. It has no `getFocusedId`: tests read

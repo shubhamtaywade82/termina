@@ -66,7 +66,7 @@ The proposal review records these verdicts on claims in the original proposal.
 | termina paint is grapheme-safe. | False | The proposal's paint loop advances one cell per code point. |
 | Dirty-cell diffing avoids I/O saturation. | Not in the proposal's code | `ScreenBuffer.toString()` re-serializes every cell on every frame. The review's figures for this claim do not match the measurement script (see [Ink Internals](/architecture/ink-internals)). |
 | Node 18 and tsup. | Not viable | Ink 8 requires Node 22. |
-| `@termina/ui` has `PrecisionMeter`, `SpectrumBar`, `MultilineEditor`, `VirtualTable`, `Modal`, and `ScrollBox`. | Mostly absent | None exist in the proposal. The repository has `ScrollBox` and `LogStream`. Modal, table, and multi-line editor are not built. |
+| `@termina/ui` has `PrecisionMeter`, `SpectrumBar`, `MultilineEditor`, `VirtualTable`, `Modal`, and `ScrollBox`. | Mostly absent | None exist in the proposal. The repository has `ScrollBox`, `LogStream`, `DataTable`, `Tabs`, and `MultilineTextInput`. `Modal` and `VirtualTable` are not built. |
 | Mouse should be on by default. | Rejected | See the opt-in decision above. |
 
 The review also lists defects in the proposed code: mouse handlers never wired, colors and backgrounds mostly not rendering, removed style props staying set, a TurnStream that does not compile against the proposed core, hit testing that ignores clipping, streaming not implemented, and a React and reconciler version mismatch. The fork does not contain that code, so these defects do not apply to it.
@@ -90,7 +90,7 @@ These questions are not closed by any source.
 - **Cell-level back and front buffer renderer.** Status: not built, and no decision to build or to reject it is recorded. The research document says: "A cell-level back/front buffer could go lower again, but this measurement shows the cheap win is already in upstream and off by default." The measured figures are 21,588 bytes per update in the default writer and 701 bytes with incremental rendering. The question is therefore open, and the sources do not settle it.
 - **Cursor position after a reflow.** Status: open. The research document says: "Cursor position after a reflow is not reliably defined across terminals." When a `useCursor()` position is active, the fork falls back to the line-count erase.
 - **Spatial focus wired into `useFocus`.** Status: not built. `nearestInDirection` is a pure function, and `FORK.md` says it "is not wired into focus management."
-- **Components not yet built.** Status: not built. These are a multi-line text editor, a Modal with a focus trap, SplitPane, and the OSC 8 and OSC 52 helpers as Ink components. DataTable and Tabs were built later, and Dialog covers a modal's content without a focus trap.
+- **Components not yet built.** Status: not built. These are a Modal with a focus trap, SplitPane, and the OSC 8 and OSC 52 helpers as Ink components. DataTable, Tabs, and the multi-line editor (`MultilineTextInput`) were built later, and Dialog covers a modal's content without a focus trap.
 
 ## Recorded without a stated reason
 

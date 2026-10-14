@@ -32,6 +32,7 @@ Each component has the form `(props: <Props>) => React.JSX.Element`.
 | `LoadingBar` | `LoadingBarProps` | [LoadingBar](/ui/components/loading-bar) |
 | `LogStream` | `LogStreamProps` | [LogStream](/ui/components/log-stream) |
 | `Markdown` | `MarkdownProps` | [Markdown](/ui/components/markdown) |
+| `MultilineTextInput` | `MultilineTextInputProps` | [MultilineTextInput](/ui/components/multiline-text-input) |
 | `MultiSelect` | `MultiSelectProps` | [MultiSelect](/ui/components/multi-select) |
 | `OrderedList` | `OrderedListProps` | [OrderedList](/ui/components/ordered-list) |
 | `PasswordInput` | `PasswordInputProps` | [PasswordInput](/ui/components/password-input) |

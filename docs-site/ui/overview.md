@@ -4,7 +4,7 @@ outline: [2, 3]
 
 # UI Kit Overview
 
-`@nemesis-oss/termina-ui` is a kit of 37 components for terminal interfaces: text input and selection, status and progress, lists, tables and tabs, expandable sections, code and Markdown display, and two scrolling viewers, `ScrollBox` and `LogStream`. The components render through `@nemesis-oss/termina-core`. Thirty-five of them read their styles from a theme, so one `ThemeProvider` can restyle a whole screen. The two viewers do not use the theme. Use the kit when you need these standard parts in a terminal app built on `@nemesis-oss/termina-core`. It is a fork of `ink-ui` 2.0.0, ported onto `@nemesis-oss/termina-core`. If you have not set up a workspace app yet, start with [Getting Started](/guide/getting-started).
+`@nemesis-oss/termina-ui` is a kit of 38 components for terminal interfaces: text input and selection, status and progress, lists, tables and tabs, expandable sections, code and Markdown display, and two scrolling viewers, `ScrollBox` and `LogStream`. The components render through `@nemesis-oss/termina-core`. Thirty-six of them read their styles from a theme, so one `ThemeProvider` can restyle a whole screen. The two viewers do not use the theme. Use the kit when you need these standard parts in a terminal app built on `@nemesis-oss/termina-core`. It is a fork of `ink-ui` 2.0.0, ported onto `@nemesis-oss/termina-core`. If you have not set up a workspace app yet, start with [Getting Started](/guide/getting-started).
 
 ## Live preview
 
@@ -83,6 +83,7 @@ render(<App />);
 | [LoadingBar](/ui/components/loading-bar) | Indeterminate bar that moves back and forth while work runs. |
 | [LogStream](/ui/components/log-stream) | Tail-following viewer for an array of strings. Keeps the newest `maxLines` entries. |
 | [Markdown](/ui/components/markdown) | Renders a subset of Markdown: headings, lists, block quotes, fenced code and inline emphasis. |
+| [MultilineTextInput](/ui/components/multiline-text-input) | Editor for several lines, with its own caret. Enter inserts a newline, Ctrl+D submits, and the editor scrolls to keep the caret visible. |
 | [MultiSelect](/ui/components/multi-select) | Scrollable list where Space toggles an option and Enter submits the selected values. |
 | [OrderedList](/ui/components/ordered-list) | Numbered list. A nested list prefixes the parent number, for example `2.1.`. |
 | [PasswordInput](/ui/components/password-input) | Single-line input that shows one `*` per grapheme cluster. |
@@ -113,7 +114,7 @@ Every export, with its signature, is listed in the [API Reference](/api/ui).
 
 ## Shared conventions
 
-- Inputs and selects take `isDisabled` (default `false`). When it is `true`, the component ignores keyboard input. This applies to `ConfirmInput`, `EmailInput`, `MultiSelect`, `PasswordInput`, `Select`, and `TextInput`.
+- Inputs and selects take `isDisabled` (default `false`). When it is `true`, the component ignores keyboard input. This applies to `ConfirmInput`, `EmailInput`, `MultilineTextInput`, `MultiSelect`, `PasswordInput`, `Select`, and `TextInput`.
 - `LogStream` and `ScrollBox` take `isActive` (default `true`) instead. When it is `false`, they ignore keyboard and wheel input.
 - Themed components read their styles from the nearest `ThemeProvider` above them. Without a provider, they use `defaultTheme`. See [Theming](/ui/theming).
 - `Select` and `MultiSelect` take options of the `Option` type, which is `{label: string; value: string}`.

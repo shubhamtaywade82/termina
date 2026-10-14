@@ -547,6 +547,34 @@ Returns the terminal size in character cells. The component re-renders when stdo
 
 See [Resize and Reflow](/guide/resize).
 
+### useCursorShape()
+
+```ts
+function useCursorShape(shape: CursorShape): void;
+
+type CursorShape = 'default' | 'block' | 'bar' | 'underline';
+```
+
+Sets the terminal cursor shape while the component is mounted. The shapes are steady, so the cursor does not blink. `default` hands the cursor back to the terminal's own setting.
+
+- Each shape is written as a DECSCUSR sequence: `default` is `ESC [ 0 q`, `block` is `ESC [ 2 q`, `underline` is `ESC [ 4 q`, and `bar` is `ESC [ 6 q`. A terminal that does not support DECSCUSR ignores the sequence.
+- When several components request a shape, the most recent request is shown. When a component unmounts, its request is removed, and the request before it is shown again.
+- Ink writes a shape only on an interactive terminal. Output to a pipe or another non-terminal stream gets no sequence. A shape is written only when the effective shape changes, so the same shape requested twice is written once.
+- Restore: when Ink has set a shape other than `default`, it writes `ESC [ 0 q` to give the cursor back to the terminal's setting. Ink does this on unmount, which includes exit, as the last of its cursor writes. It also does this before [`suspendTerminal()`](#suspendterminal) hands the terminal to a child process, so the child never runs with Ink's shape. Requests made while the terminal is suspended take effect when Ink takes the terminal back. Nothing is written when `default` is already in effect.
+- The hook is opt-in. `TextInput` and the other editors do not set a shape, so their look does not change.
+
+```tsx
+import {Text, render, useCursorShape} from '@nemesis-oss/termina-core';
+
+function Prompt() {
+	useCursorShape('bar');
+
+	return <Text>Name</Text>;
+}
+
+render(<Prompt />);
+```
+
 ## Input
 
 ### useInput()
@@ -563,7 +591,7 @@ Calls `inputHandler` for each key press. `input` is the typed text. `key` descri
 - `isActive` defaults to `true`. Setting it to `false` removes the listener and releases raw mode.
 - When `exitOnCtrlC` is `true`, the default, Ctrl+C exits the app and the handler does not receive it.
 - Mouse reports are never passed to `useInput`. They go to `useMouse`.
-- When no `usePaste` listener is mounted, pasted text arrives as one string. When a `usePaste` listener is mounted, pasted text is delivered only to it. An enabled `TextInput` or `PasswordInput` mounts one, so this holds while an enabled editor is mounted.
+- When no `usePaste` listener is mounted, pasted text arrives as one string. When a `usePaste` listener is mounted, pasted text is delivered only to it. An enabled `TextInput`, `PasswordInput` or `MultilineTextInput` mounts one, so this holds while an enabled editor is mounted.
 - `useInput` calls `setRawMode(true)` while it is active, without checking `isRawModeSupported`. On a stdin without raw mode support, `setRawMode` throws, so guard the component with `isRawModeSupported` from `useStdin()`.
 
 ```ts
@@ -624,7 +652,7 @@ Calls `handler` once for each paste, with the full pasted text, newlines include
 
 - While active, bracketed paste mode is enabled on stdout, so the terminal wraps a paste in markers and the text is not read as key presses. Bracketed paste is written only when stdout is a TTY.
 - `isActive` defaults to `true`. Several `usePaste` hooks can be mounted, and each receives the same paste.
-- Paste content is never passed to `useInput` while a `usePaste` listener is mounted. An enabled `TextInput` or `PasswordInput` mounts one, so a `useInput` listener stops seeing paste while an enabled editor is mounted. The editors insert the pasted text themselves. See [Keyboard and Focus](/guide/keyboard-and-focus).
+- Paste content is never passed to `useInput` while a `usePaste` listener is mounted. An enabled `TextInput`, `PasswordInput` or `MultilineTextInput` mounts one, so a `useInput` listener stops seeing paste while an enabled editor is mounted. The editors insert the pasted text themselves. See [Keyboard and Focus](/guide/keyboard-and-focus).
 
 ```tsx
 import {Text, render, usePaste} from '@nemesis-oss/termina-core';
@@ -1108,6 +1136,7 @@ Type-only exports and the section where each one is documented.
 | `BoxProps` | Components, Box |
 | `ColorLevel` | Terminal, detectTerminalCapabilities |
 | `CursorPosition` | Terminal, useCursor |
+| `CursorShape` | Hooks, useCursorShape |
 | `DOMElement` | Types |
 | `ElementMetrics` | Measurement, measureElement |
 | `Instance` | Rendering, Instance |

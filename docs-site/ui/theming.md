@@ -38,7 +38,7 @@ type ComponentStyles = Record<string, unknown>;
 
 ## Default theme
 
-`defaultTheme` has entries for 35 components: `Accordion`, `Alert`, `Autocomplete`, `Badge`, `CodeBlock`, `ConfirmInput`, `DataTable`, `Dialog`, `DiffView`, `Divider`, `EmailInput`, `Gauge`, `Header`, `JSONViewer`, `KeyHint`, `LoadingBar`, `Markdown`, `MultiSelect`, `OrderedList`, `PasswordInput`, `ProgressBar`, `Select`, `Sparkline`, `Spinner`, `Stepper`, `StatusMessage`, `StreamingText`, `Table`, `Tabs`, `TextInput`, `Toast`, `TokenCounter`, `Typewriter`, `TreeView`, and `UnorderedList`. `LogStream` and `ScrollBox` do not read the theme. They set their props directly in the component.
+`defaultTheme` has entries for 36 components: `Accordion`, `Alert`, `Autocomplete`, `Badge`, `CodeBlock`, `ConfirmInput`, `DataTable`, `Dialog`, `DiffView`, `Divider`, `EmailInput`, `Gauge`, `Header`, `JSONViewer`, `KeyHint`, `LoadingBar`, `Markdown`, `MultilineTextInput`, `MultiSelect`, `OrderedList`, `PasswordInput`, `ProgressBar`, `Select`, `Sparkline`, `Spinner`, `Stepper`, `StatusMessage`, `StreamingText`, `Table`, `Tabs`, `TextInput`, `Toast`, `TokenCounter`, `Typewriter`, `TreeView`, and `UnorderedList`. `LogStream` and `ScrollBox` do not read the theme. They set their props directly in the component.
 
 Each entry is defined in `packages/ui/source/components/<name>/theme.ts`, where `<name>` is the component's folder in kebab case, for example `progress-bar`. The table under "Where styles live" lists the keys in each file.
 
@@ -91,6 +91,7 @@ Each component's `theme.ts` declares its entry with `satisfies ComponentTheme`. 
 | `KeyHint` | `container()`, `key()`, `label()` | none |
 | `LoadingBar` | `container()`, `track()`, `block()` | none |
 | `Markdown` | `container()`, `heading({level})`, `paragraph()`, `listBullet()`, `code()`, `codeBlock()`, `blockquote()`, `bold()`, `italic()`, `link()` | none |
+| `MultilineTextInput` | `value()`, `cursor()`, `placeholder()` | none |
 | `MultiSelect` | `container()`, `option({isFocused})`, `selectedIndicator()`, `focusIndicator()`, `label({isFocused, isSelected})`, `highlightedText()` | none |
 | `OrderedList` | `list()`, `listItem()`, `marker()`, `content()` | none |
 | `PasswordInput` | `value()` | none |

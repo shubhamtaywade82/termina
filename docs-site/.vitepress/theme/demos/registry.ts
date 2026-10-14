@@ -13,6 +13,7 @@ import BadgeBasic from './badge-basic';
 import ConfirmInputBasic from './confirm-input-basic';
 import EmailInputBasic from './email-input-basic';
 import LogStreamBasic from './log-stream-basic';
+import MultilineTextInputBasic from './multiline-text-input-basic';
 import MultiSelectBasic from './multi-select-basic';
 import OrderedListBasic from './ordered-list-basic';
 import OverviewHero from './overview-hero';
@@ -80,6 +81,7 @@ export const demos: Record<string, DemoDefinition> = {
   'spinner-basic': {component: SpinnerBasic, rows: 7},
   'status-message-basic': {component: StatusMessageBasic, rows: 9},
   'text-input-basic': {component: TextInputBasic, rows: 9},
+  'multiline-text-input-basic': {component: MultilineTextInputBasic, rows: 10},
   'unordered-list-basic': {component: UnorderedListBasic, rows: 10},
   'accordion-basic': {component: AccordionBasic, rows: 10},
   'autocomplete-basic': {component: AutocompleteBasic, rows: 11},

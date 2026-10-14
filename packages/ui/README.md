@@ -1,8 +1,8 @@
 # @nemesis-oss/termina-ui
 
-37 components for terminal user interfaces, built on [`@nemesis-oss/termina-core`](https://www.npmjs.com/package/@nemesis-oss/termina-core). Thirty-five of them read their styles from a theme, so one `ThemeProvider` can restyle a whole screen.
+38 components for terminal user interfaces, built on [`@nemesis-oss/termina-core`](https://www.npmjs.com/package/@nemesis-oss/termina-core). Thirty-six of them read their styles from a theme, so one `ThemeProvider` can restyle a whole screen.
 
-It started as a fork of [ink-ui](https://github.com/vadimdemedes/ink-ui) 2.0.0 and adds 22 components, grapheme-aware text editing and two scrolling viewers.
+It started as a fork of [ink-ui](https://github.com/vadimdemedes/ink-ui) 2.0.0 and adds 23 components, grapheme-aware text editing and two scrolling viewers.
 
 ## Install
 
@@ -38,7 +38,7 @@ render(<Deploy />);
 
 ## Components
 
-Accordion, Alert, Autocomplete, Badge, CodeBlock, ConfirmInput, DataTable, Dialog, DiffView, Divider, EmailInput, Gauge, Header, JSONViewer, KeyHint, LoadingBar, LogStream, Markdown, MultiSelect, OrderedList, PasswordInput, ProgressBar, ScrollBox, Select, Sparkline, Spinner, StatusMessage, Stepper, StreamingText, Table, Tabs, TextInput, Toast, TokenCounter, Typewriter, TreeView and UnorderedList.
+Accordion, Alert, Autocomplete, Badge, CodeBlock, ConfirmInput, DataTable, Dialog, DiffView, Divider, EmailInput, Gauge, Header, JSONViewer, KeyHint, LoadingBar, LogStream, Markdown, MultilineTextInput, MultiSelect, OrderedList, PasswordInput, ProgressBar, ScrollBox, Select, Sparkline, Spinner, StatusMessage, Stepper, StreamingText, Table, Tabs, TextInput, Toast, TokenCounter, Typewriter, TreeView and UnorderedList.
 
 Every component has a page with a live preview: https://shubhamtaywade82.github.io/termina/ui/overview
 
