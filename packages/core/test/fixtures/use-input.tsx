@@ -5,6 +5,7 @@ import {render, useInput, useApp} from '../../src/index.js';
 function UserInput({test}: {readonly test: string | undefined}) {
 	const {exit} = useApp();
 	const rapidDownArrowCountRef = React.useRef(0);
+	const carriageReturnSeenRef = React.useRef(false);
 
 	React.useEffect(() => {
 		if (test !== 'rapidArrowsEnter') {
@@ -68,9 +69,17 @@ function UserInput({test}: {readonly test: string | undefined}) {
 			return;
 		}
 
-		if (test === 'pastedCarriageReturn' && input === '\rtest') {
-			exit();
-			return;
+		// A carriage return ahead of text in one read is Enter, then the text. A single '\rtest' event would reach the final throw and fail the run.
+		if (test === 'carriageReturnBeforeText') {
+			if (input === '\r' && key.return) {
+				carriageReturnSeenRef.current = true;
+				return;
+			}
+
+			if (input === 'test' && carriageReturnSeenRef.current) {
+				exit();
+				return;
+			}
 		}
 
 		if (test === 'pastedTab' && input === '\ttest') {

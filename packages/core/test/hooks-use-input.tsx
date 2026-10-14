@@ -72,11 +72,42 @@ test('useInput - \\r should not count as an uppercase character', async (t: Test
 	t.assert.ok(ps.output.includes('exited'));
 });
 
-test('useInput - pasted carriage return', async (t: TestContext) => {
-	const ps = term('use-input', ['pastedCarriageReturn']);
+test('useInput - carriage return ahead of text in one read is Enter, then the text', async (t: TestContext) => {
+	const ps = term('use-input', ['carriageReturnBeforeText']);
 	ps.write('\rtest');
 	await ps.waitForExit();
 	t.assert.ok(ps.output.includes('exited'));
+});
+
+test('useInput - a carriage return in the same read as text is a key after that text', async (t: TestContext) => {
+	const stdin = createStdin();
+	const events: Array<{input: string; return: boolean}> = [];
+	function Example() {
+		useInput((input, key) => {
+			events.push({input, return: key.return});
+		});
+		return null;
+	}
+
+	let instance!: ReturnType<typeof render>;
+	await act(async () => {
+		instance = render(<Example />, {
+			stdin,
+			stdout: createStdout(),
+			patchConsole: false,
+		});
+	});
+	t.after(() => {
+		instance.unmount();
+	});
+	await act(async () => {
+		emitReadable(stdin, 'abc\r');
+	});
+
+	t.assert.deepStrictEqual(events, [
+		{input: 'abc', return: false},
+		{input: '\r', return: true},
+	]);
 });
 
 test('useInput - pasted tab', async (t: TestContext) => {
