@@ -422,6 +422,10 @@ function main() {
 
   validateMetadata(report.run_metadata);
 
+  if (!partialMode && Number.isInteger(report.run_metadata?.repetitions_per_condition) && report.run_metadata.repetitions_per_condition < 3) {
+    fail('run_metadata.repetitions_per_condition', 'complete reports require at least three repetitions per condition; use --partial for a pilot subset');
+  }
+
   if (!Array.isArray(report.runs) || report.runs.length === 0) {
     fail('report.runs', 'must contain at least one recorded run');
   }
