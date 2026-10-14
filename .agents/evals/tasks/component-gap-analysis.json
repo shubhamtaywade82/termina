@@ -11,7 +11,8 @@
     "termina-core",
     "termina-tui-design",
     "termina-tui-app-architecture",
-    "termina-agentic-ui-patterns"
+    "termina-agentic-ui-patterns",
+    "termina-tui-validation"
   ],
   "environment": {
     "terminal_sizes": [],
