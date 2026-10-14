@@ -33,8 +33,8 @@ function App() {
 		return createActionDispatcher([
 			{
 				name: 'applyConfig',
-				schema: z.object({ target: z.string().optional() }),
-				handler: ({ target }) => {
+				schema: z.any(),
+				handler: () => {
 					const values = runtime.getValues();
 					setActionMessage(`Dispatched applyConfig (env=${values.envName}, region=${values.region})`);
 				},
@@ -89,7 +89,14 @@ function App() {
 
 	return (
 		<Box flexDirection="column" padding={1} gap={1}>
-			<Header tab={tab} />
+			<Header
+				tab={tab}
+				onTabChange={nextTab => {
+					setTab(nextTab);
+					if (nextTab === 'streaming') setStreamIndex(0);
+				}}
+				onQuit={exit}
+			/>
 			<Box borderStyle="single" borderColor="gray" padding={1}>
 				<GenUIRenderer
 					node={activeTree}
@@ -104,29 +111,39 @@ function App() {
 	);
 }
 
-function Header({ tab, onTabChange }: { readonly tab: Tab; readonly onTabChange: (t: Tab) => void }) {
+function Header({
+	tab,
+	onTabChange,
+	onQuit,
+}: {
+	readonly tab: Tab;
+	readonly onTabChange?: (t: Tab) => void;
+	readonly onQuit?: () => void;
+}) {
 	return (
 		<Box flexDirection="column" gap={0}>
 			<Text bold color="cyan">
 				TERMINA GENERATIVE UI PLAYGROUND
 			</Text>
 			<Box gap={2}>
-				<Box onClick={() => onTabChange('dashboard')}>
+				<Box onClick={() => onTabChange?.('dashboard')}>
 					<Text color={tab === 'dashboard' ? 'cyan' : 'gray'} bold={tab === 'dashboard'}>
 						[1] Dashboard
 					</Text>
 				</Box>
-				<Box onClick={() => onTabChange('form')}>
+				<Box onClick={() => onTabChange?.('form')}>
 					<Text color={tab === 'form' ? 'green' : 'gray'} bold={tab === 'form'}>
 						[2] Form & Runtime
 					</Text>
 				</Box>
-				<Box onClick={() => onTabChange('streaming')}>
+				<Box onClick={() => onTabChange?.('streaming')}>
 					<Text color={tab === 'streaming' ? 'yellow' : 'gray'} bold={tab === 'streaming'}>
 						[3] Live Streaming
 					</Text>
 				</Box>
-				<Text color="gray">[q] Quit</Text>
+				<Box onClick={() => onQuit?.()}>
+					<Text color="gray">[q] Quit</Text>
+				</Box>
 			</Box>
 		</Box>
 	);

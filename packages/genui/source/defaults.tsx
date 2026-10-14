@@ -169,8 +169,17 @@ export function createDefaultComponents(): GenUIComponent<any>[] {
 				label: z.string(),
 				action: z.string(),
 			}),
-			render: (props: any) => (
-				<Box borderStyle="round" borderColor="cyan" paddingX={1}>
+			render: (props: any, ctx: GenUIRenderContext) => (
+				<Box
+					borderStyle="round"
+					borderColor="cyan"
+					paddingX={1}
+					onClick={() => {
+						if (props.action) {
+							void ctx.dispatchAction(props.action, ctx.runtime.getValues());
+						}
+					}}
+				>
 					<Text color="cyan" bold>[ {props.label} ]</Text>
 				</Box>
 			),
