@@ -22,10 +22,5 @@
     "evals:check": "node .agents/scripts/validate-evals.mjs && node .agents/scripts/eval-prompt.mjs --check && node .agents/scripts/test-evals-tooling.mjs",
     "evals:prompt": "node .agents/scripts/eval-prompt.mjs",
     "evals:report:check": "node .agents/scripts/validate-eval-report.mjs"
-  },
-  "pnpm": {
-    "onlyBuiltDependencies": [
-      "node-pty"
-    ]
   }
 }
