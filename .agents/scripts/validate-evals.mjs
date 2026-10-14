@@ -5,8 +5,8 @@ import { fileURLToPath } from 'node:url';
 
 const scriptDirectory = path.dirname(fileURLToPath(import.meta.url));
 const repositoryRoot = path.resolve(scriptDirectory, '../..');
-const taskDirectory = path.join(repositoryRoot, 'evals', 'tasks');
-const skillsDirectory = path.join(repositoryRoot, 'skills');
+const taskDirectory = path.join(repositoryRoot, '.agents', 'evals', 'tasks');
+const skillsDirectory = path.join(repositoryRoot, '.agents', 'skills');
 const failures = [];
 
 const allowedKinds = new Set(['implementation', 'analysis', 'core-regression']);
