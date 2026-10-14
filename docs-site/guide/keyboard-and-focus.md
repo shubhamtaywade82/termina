@@ -145,6 +145,8 @@ A terminal can deliver several keys in one read, for example during auto-repeat.
 - Each DEL (`\x7F`), BS (`\x08`), and Ctrl+C (`\x03`) inside plain text becomes its own event.
 - Other text stays together, including CR and TAB.
 
+Events from one chunk are handled in order. Each one runs after the React updates the previous event caused have committed, so a handler reads the state its predecessor left. The screen is redrawn once for the whole chunk, not once per event. New `<Static>` output is still written as soon as it commits.
+
 The flags are computed from the whole text event. A chunk such as `'ab\r'` is delivered with `input` `'ab\r'` and `key.return` `false`. Handle a carriage return inside `input` if a chunk can contain one.
 
 ## Paste with usePaste

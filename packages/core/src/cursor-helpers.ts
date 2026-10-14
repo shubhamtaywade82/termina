@@ -10,6 +10,19 @@ const hideCursorEscape = '\u{1B}[?25l';
 
 export {showCursorEscape, hideCursorEscape};
 
+// A row outside the frame would move the cursor outside it, so rows clamp to the frame's rows.
+// Non-finite values fall back to the top row, since they carry no usable position.
+const clampRow = (row: number, lastRow: number): number => {
+	if (!Number.isFinite(row)) {
+		return 0;
+	}
+
+	return Math.min(Math.max(Math.trunc(row), 0), Math.max(lastRow, 0));
+};
+
+const clampColumn = (column: number): number =>
+	Number.isFinite(column) ? Math.max(Math.trunc(column), 0) : 0;
+
 /**
 Compare two cursor positions. Returns true if they differ.
 */
@@ -41,10 +54,11 @@ export const buildCursorSuffix = (
 		return '';
 	}
 
-	const moveUp = bottomLine - cursorPosition.y;
+	const bottom = Math.max(bottomLine, 0);
+	const moveUp = bottom - clampRow(cursorPosition.y, bottom);
 	return (
 		(moveUp > 0 ? ansiEscapes.cursorUp(moveUp) : '') +
-		ansiEscapes.cursorTo(cursorPosition.x) +
+		ansiEscapes.cursorTo(clampColumn(cursorPosition.x)) +
 		showCursorEscape
 	);
 };
@@ -64,7 +78,8 @@ export const buildReturnToBottom = (
 	// PreviousLineCount is the raw `split('\n')` length, so `previousLineCount - 1`
 	// is the row the cursor was left on regardless of a trailing newline — the same
 	// basis `buildCursorSuffix` takes as its `bottomLine`.
-	const down = previousLineCount - 1 - previousCursorPosition.y;
+	const lastRow = previousLineCount - 1;
+	const down = lastRow - clampRow(previousCursorPosition.y, lastRow);
 	return (
 		(down > 0 ? ansiEscapes.cursorDown(down) : '') + ansiEscapes.cursorTo(0)
 	);
@@ -130,7 +145,7 @@ export const buildEraseFrame = (
 	}
 
 	// `buildCursorSuffix` never moves below the bottom row, so a cursor set past the output sits on that row.
-	const rowsBelowTop = Math.min(
+	const rowsBelowTop = clampRow(
 		previousCursorPosition.y,
 		previousLineCount - 1,
 	);

@@ -22,6 +22,23 @@ const drawTrack = (width: number, start: number): string => {
 	);
 };
 
+// React commits a state update in a later task. A fixed 20 ms wait can end before the frame lands, as it did for the first update after mount in a cold process. The tests wait, bounded to one second, for the frame they expect, and then assert it.
+const waitForFrame = async (lastFrame: () => string | undefined, expected: string): Promise<void> => {
+	await new Promise<void>(resolve => {
+		const deadline = Date.now() + 1000;
+		const check = () => {
+			if (lastFrame() === expected || Date.now() >= deadline) {
+				resolve();
+				return;
+			}
+
+			setTimeout(check, 1);
+		};
+
+		check();
+	});
+};
+
 test('draws a 20 cell track with the block at the start by default', (t: TestContext) => {
 	t.mock.timers.enable({apis: ['setInterval']});
 	const {lastFrame, unmount} = render(<LoadingBar />);
@@ -33,18 +50,16 @@ test('draws a 20 cell track with the block at the start by default', (t: TestCon
 test('bounces the block between the ends of the track', async (t: TestContext) => {
 	t.mock.timers.enable({apis: ['setInterval']});
 	const {lastFrame, unmount} = render(<LoadingBar width={6} interval={12} />);
+	const expected = [1, 2, 1, 0, 1, 2, 1, 0].map(start => drawTrack(6, start));
 	const frames: string[] = [];
 
-	for (let tick = 0; tick < 8; tick++) {
+	for (const frame of expected) {
 		t.mock.timers.tick(12);
-		await delay(20);
+		await waitForFrame(lastFrame, frame);
 		frames.push(lastFrame() ?? '');
 	}
 
-	t.assert.deepStrictEqual(
-		frames,
-		[1, 2, 1, 0, 1, 2, 1, 0].map(start => drawTrack(6, start)),
-	);
+	t.assert.deepStrictEqual(frames, expected);
 	unmount();
 });
 
@@ -57,7 +72,7 @@ test('moves one cell every 80 ms by default', async (t: TestContext) => {
 	t.assert.strictEqual(lastFrame(), drawTrack(10, 0));
 
 	t.mock.timers.tick(1);
-	await delay(20);
+	await waitForFrame(lastFrame, drawTrack(10, 1));
 	t.assert.strictEqual(lastFrame(), drawTrack(10, 1));
 	unmount();
 });
@@ -67,7 +82,7 @@ test('returns the block to the start when isActive turns false mid-sweep', async
 	const {lastFrame, rerender, unmount} = render(<LoadingBar width={10} interval={12} />);
 
 	t.mock.timers.tick(36);
-	await delay(20);
+	await waitForFrame(lastFrame, drawTrack(10, 3));
 	t.assert.strictEqual(lastFrame(), drawTrack(10, 3));
 
 	rerender(<LoadingBar width={10} interval={12} isActive={false} />);
@@ -90,7 +105,7 @@ test('starts the sweep from the start when isActive turns true again', async (t:
 	const {lastFrame, rerender, unmount} = render(<LoadingBar width={10} interval={12} />);
 
 	t.mock.timers.tick(36);
-	await delay(20);
+	await waitForFrame(lastFrame, drawTrack(10, 3));
 	rerender(<LoadingBar width={10} interval={12} isActive={false} />);
 	await delay(20);
 	rerender(<LoadingBar width={10} interval={12} />);
@@ -98,7 +113,7 @@ test('starts the sweep from the start when isActive turns true again', async (t:
 	t.assert.strictEqual(lastFrame(), drawTrack(10, 0));
 
 	t.mock.timers.tick(12);
-	await delay(20);
+	await waitForFrame(lastFrame, drawTrack(10, 1));
 	t.assert.strictEqual(lastFrame(), drawTrack(10, 1));
 	unmount();
 });
@@ -145,15 +160,15 @@ test('redraws the track at a new width and keeps the animation running', async (
 	const {lastFrame, rerender, unmount} = render(<LoadingBar width={10} interval={12} />);
 
 	t.mock.timers.tick(36);
-	await delay(20);
+	await waitForFrame(lastFrame, drawTrack(10, 3));
 	t.assert.strictEqual(lastFrame(), drawTrack(10, 3));
 
 	rerender(<LoadingBar width={6} interval={12} />);
-	await delay(20);
+	await waitForFrame(lastFrame, drawTrack(6, 1));
 	t.assert.strictEqual(lastFrame(), drawTrack(6, 1));
 
 	t.mock.timers.tick(12);
-	await delay(20);
+	await waitForFrame(lastFrame, drawTrack(6, 0));
 	t.assert.strictEqual(lastFrame(), drawTrack(6, 0));
 	unmount();
 });
@@ -163,12 +178,12 @@ test('fills a track narrower than the block without moving it', async (t: TestCo
 	const {lastFrame, rerender, unmount} = render(<LoadingBar width={3} interval={12} />);
 
 	t.mock.timers.tick(48);
-	await delay(20);
+	await waitForFrame(lastFrame, chalk.magenta('███'));
 	t.assert.strictEqual(lastFrame(), chalk.magenta('███'));
 
 	rerender(<LoadingBar width={1} interval={12} />);
 	t.mock.timers.tick(48);
-	await delay(20);
+	await waitForFrame(lastFrame, chalk.magenta('█'));
 	t.assert.strictEqual(lastFrame(), chalk.magenta('█'));
 	unmount();
 });
@@ -187,7 +202,7 @@ test('rounds a fractional width down to whole cells', async (t: TestContext) => 
 
 	rerender(<LoadingBar width={5.9} interval={12} />);
 	t.mock.timers.tick(24);
-	await delay(20);
+	await waitForFrame(lastFrame, drawTrack(5, 0));
 	t.assert.strictEqual(lastFrame(), drawTrack(5, 0));
 	unmount();
 });

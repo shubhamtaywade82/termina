@@ -250,12 +250,51 @@ export default class Ink {
 	private readonly unsubscribeResize?: () => void;
 	private readonly throttledOnRender?: DebouncedFunc<() => void>;
 	private hasPendingThrottledRender = false;
+	// Input events from one stdin read run as a batch. Renders requested inside the batch wait for it to end.
+	private inputBatchDepth = 0;
+	private hasDeferredRender = false;
 	private kittyProtocolEnabled = false;
 	private kittyFlags: KittyFlagName[] | undefined;
 	private finishKittyDetection?: (isSupported: boolean) => void;
 	private nextRenderCommit?: PromiseWithResolvers<void>;
 	// Set while suspendTerminal() has handed the terminal to a child process.
 	private isSuspended = false;
+	// Set when the suspension left the alternate screen. The flag is what endSuspend re-enters and finishUnmount checks, so neither exits a screen that is already gone.
+	private alternateScreenSuspended = false;
+	// Set when this process stopped itself on SIGTSTP after handing the terminal back. SIGCONT takes the terminal again only then.
+	private stoppedBySignal = false;
+	// A stop with the terminal still in Ink's modes would leave the shell in the alternate screen, with the cursor hidden and the kitty protocol on. Hand the terminal back first, then stop. SIGCONT takes it again.
+	private readonly handleSigtstp = (): void => {
+		// Another listener owns the signal, so it decides whether to stop.
+		if (process.listenerCount('SIGTSTP') > 1) {
+			return;
+		}
+
+		if (!this.isSuspended && !this.isUnmounted && !this.isUnmounting) {
+			try {
+				this.beginSuspend();
+				this.stoppedBySignal = true;
+			} catch {
+				// Stopping with the terminal not handed back would leave it in Ink's modes, so keep running.
+				return;
+			}
+		}
+
+		// SIGSTOP rather than re-raising SIGTSTP: the kernel discards SIGTSTP for an orphaned process group, and a discarded stop here would leave the terminal handed back with nothing to resume it. SIGSTOP always stops, and the shell's job control reports it the same way.
+		process.kill(process.pid, 'SIGSTOP');
+	};
+
+	private readonly handleSigcont = (): void => {
+		if (!this.stoppedBySignal) {
+			return;
+		}
+
+		this.stoppedBySignal = false;
+		void this.endSuspend();
+	};
+
+	// Static output of commits made while suspended. Static drops those items on its next commit, so this queue is the only copy. It is written on resume, or on unmount.
+	private suspendedStaticOutput = '';
 	// Input pause/resume hooks registered by the App component, which owns raw
 	// mode and bracketed paste state.
 	private pauseInput?: () => void;
@@ -402,6 +441,7 @@ export default class Ink {
 				this.nextRenderCommit = undefined;
 			}
 
+			this.captureStaticOutputWhileSuspended();
 			return;
 		}
 
@@ -463,7 +503,13 @@ export default class Ink {
 		this.renderThrottleMs = isUnthrottled ? 0 : renderThrottleMs;
 
 		if (isUnthrottled) {
-			this.rootNode.onRender = this.onRender;
+			this.rootNode.onRender = () => {
+				if (this.deferRenderForInputBatch()) {
+					return;
+				}
+
+				this.onRender();
+			};
 			this.throttledOnRender = undefined;
 		} else {
 			const throttled = throttle(this.onRender, renderThrottleMs, {
@@ -471,6 +517,10 @@ export default class Ink {
 				trailing: true,
 			});
 			this.rootNode.onRender = () => {
+				if (this.deferRenderForInputBatch()) {
+					return;
+				}
+
 				this.hasPendingThrottledRender = true;
 				throttled();
 			};
@@ -545,6 +595,12 @@ export default class Ink {
 
 		// Unmount when process exits
 		this.unsubscribeExit = signalExit(this.unmount, {alwaysLast: false});
+
+		// Stop and continue are not in signal-exit's list, so a stopped app would otherwise keep the alternate screen and the hidden cursor under the shell.
+		if (this.interactive) {
+			process.on('SIGTSTP', this.handleSigtstp);
+			process.on('SIGCONT', this.handleSigcont);
+		}
 
 		this.setAlternateScreen(Boolean(options.alternateScreen));
 
@@ -945,6 +1001,25 @@ export default class Ink {
 		this.kittyFlags = flags;
 	}
 
+	// Keeps the <Static> output of a suspended commit. The live frame is not drawn, but the items are: Static removes them from the tree on its next commit, so the output must be saved now.
+	private captureStaticOutputWhileSuspended(): void {
+		const {staticOutput} = render(this.rootNode, this.isScreenReaderEnabled);
+
+		if (staticOutput === '') {
+			return;
+		}
+
+		markStaticOutputWritten(this.rootNode);
+		this.hasRenderedStaticOutput = true;
+
+		// The alternate screen and debug mode redraw everything they have written, so the output joins fullStaticOutput. The primary screen writes the queue once, on resume.
+		if (this.alternateScreen || this.options.debug) {
+			this.fullStaticOutput += staticOutput;
+		} else {
+			this.suspendedStaticOutput += staticOutput;
+		}
+	}
+
 	private beginSuspend(): void {
 		if (!this.interactive) {
 			return;
@@ -964,6 +1039,9 @@ export default class Ink {
 		}
 
 		try {
+			// Input goes first. Releasing raw mode is the only step here that can throw, and it runs before any screen write, so a failure leaves the screen and its modes as they were. The catch then only has to give input back.
+			this.pauseInput?.();
+
 			const {stdout} = this.options;
 			const {canWriteToStdout} = getWritableStreamState(stdout);
 
@@ -987,11 +1065,9 @@ export default class Ink {
 						this.options.stdout,
 						ansiEscapes.exitAlternativeScreen,
 					);
+					this.alternateScreenSuspended = true;
 				}
 			}
-
-			// Hand input back to the terminal (raw mode off, bracketed paste off).
-			this.pauseInput?.();
 		} catch (error) {
 			// If handing over the terminal fails partway, don't strand the app in a
 			// suspended state with no way back. Best-effort reclaim input, clear the
@@ -1024,7 +1100,7 @@ export default class Ink {
 		const {canWriteToStdout} = getWritableStreamState(stdout);
 
 		if (canWriteToStdout) {
-			if (this.alternateScreen) {
+			if (this.alternateScreenSuspended) {
 				// Re-entering the alternate screen gives an empty buffer with no scrollback behind it, and the forced redraw below only carries new <Static> items. Replay the accumulated static output ahead of it, as the full-clear path does, so the rows the child process's turn erased come back. The debug redraw writes fullStaticOutput itself, so skip the replay there.
 				this.writeBestEffort(
 					this.options.stdout,
@@ -1040,7 +1116,15 @@ export default class Ink {
 				);
 				this.kittyProtocolEnabled = true;
 			}
+
+			// Static items committed during the suspension, written above the frame the redraw draws next.
+			if (this.suspendedStaticOutput !== '') {
+				this.writeBestEffort(this.options.stdout, this.suspendedStaticOutput);
+			}
 		}
+
+		this.suspendedStaticOutput = '';
+		this.alternateScreenSuspended = false;
 
 		// Force a full redraw instead of diffing against the stale pre-suspension
 		// frame, which the child process may have overwritten. A redraw failure here
@@ -1078,6 +1162,7 @@ export default class Ink {
 					onSuspendTerminal={this.suspendTerminal}
 					onRegisterInputControl={this.registerInputControl}
 					onKittyQueryResponse={this.handleKittyQueryResponse}
+					onBatchInput={this.batchInput}
 				>
 					<RootNodeContext value={this.rootNode}>
 						{node}
@@ -1169,6 +1254,36 @@ export default class Ink {
 		}
 	}
 
+	// Runs the input events of one stdin read as a batch. Each event commits its React updates before the next one runs, so handlers and controlled inputs see the previous event's result. Renders requested during the batch are held and run once when it ends, so one read still produces one frame.
+	private readonly batchInput = (
+		run: (commitEvent: () => void) => void,
+	): void => {
+		this.inputBatchDepth++;
+
+		try {
+			run(() => {
+				reconciler.flushSyncWork();
+			});
+		} finally {
+			this.inputBatchDepth--;
+
+			if (this.inputBatchDepth === 0 && this.hasDeferredRender) {
+				this.hasDeferredRender = false;
+				this.rootNode.onRender?.();
+			}
+		}
+	};
+
+	// Returns true when the render is held until the current input batch ends.
+	private deferRenderForInputBatch(): boolean {
+		if (this.inputBatchDepth === 0) {
+			return false;
+		}
+
+		this.hasDeferredRender = true;
+		return true;
+	}
+
 	// eslint-disable-next-line @typescript-eslint/no-restricted-types
 	unmount(error?: Error | number | null): void {
 		if (this.isUnmounted || this.isUnmounting) {
@@ -1203,6 +1318,13 @@ export default class Ink {
 			}
 		}
 
+		// Static output from a suspension that ends with unmount is permanent content, so it is written before the app goes away.
+		if (canWriteToStdout && this.suspendedStaticOutput !== '') {
+			this.writeBestEffort(this.options.stdout, this.suspendedStaticOutput);
+		}
+
+		this.suspendedStaticOutput = '';
+
 		// Mark as unmounted after the final render but before stdout writes
 		// that could re-enter exit() via synchronous write callbacks.
 		this.isUnmounted = true;
@@ -1225,6 +1347,9 @@ export default class Ink {
 				this.unsubscribeResize();
 			}
 
+			process.removeListener('SIGTSTP', this.handleSigtstp);
+			process.removeListener('SIGCONT', this.handleSigcont);
+
 			// Cancel any in-progress auto-detection before checking protocol state
 			this.finishKittyDetection?.(false);
 
@@ -1245,12 +1370,17 @@ export default class Ink {
 				// buffer switch adds fragile lifecycle-specific behavior, so Ink keeps
 				// alternate-screen teardown intentionally simple and best-effort.
 				if (this.alternateScreen) {
-					this.writeBestEffort(
-						this.options.stdout,
-						ansiEscapes.exitAlternativeScreen,
-					);
+					// A suspension that left the alternate screen has already exited it, and the child may now own the primary screen, so exit only while the screen is still ours. The cursor is restored either way.
+					if (!this.alternateScreenSuspended) {
+						this.writeBestEffort(
+							this.options.stdout,
+							ansiEscapes.exitAlternativeScreen,
+						);
+					}
+
 					this.writeBestEffort(this.options.stdout, showCursorEscape);
 					this.alternateScreen = false;
+					this.alternateScreenSuspended = false;
 				}
 
 				if (!this.interactive) {
