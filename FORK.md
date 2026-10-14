@@ -39,6 +39,16 @@ history is not carried over. Re-syncing means diffing against the commits above.
 - **Capability probe.** `src/terminal-capabilities.ts`. Reads `TERM`, `COLORTERM`,
   `NO_COLOR`, `FORCE_COLOR`, `CI`, and TTY state. `render()` now also defaults to
   non-interactive when `TERM=dumb`. `FORCE_COLOR` levels follow chalk; `NO_COLOR` wins over them.
+- **Viewport-bounded shrink writes.** `src/log-update.ts` (`boundShrinkMoves`,
+  `previousScrolledPastTop`). An incremental write that shrinks a frame taller
+  than the viewport caps its erase and climb to the viewport height, so the
+  cursor never requests travel above the top row. A previous block that
+  overflowed the viewport is rewritten in full, because its top rows are in
+  scrollback and cannot be diffed. Without a known viewport height (`stream.rows`
+  not a number) the moves and skips are unchanged. Ink PR #917 (open at the time
+  of writing) clamps `cursorUp` in its cursor-suffix builder instead; that builder
+  is not bounded here, because a cursor on a row that has scrolled away has no
+  visible position to clamp to.
 
 ## Local changes to `@nemesis-oss/termina-ui`
 
