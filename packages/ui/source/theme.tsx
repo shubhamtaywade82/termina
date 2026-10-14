@@ -29,6 +29,7 @@ import loadingbarTheme from './components/loading-bar/theme.js';
 import markdownTheme from './components/markdown/theme.js';
 import modalTheme from './components/modal/theme.js';
 import sparklineTheme from './components/sparkline/theme.js';
+import splitPaneTheme from './components/split-pane/theme.js';
 import stepperTheme from './components/stepper/theme.js';
 import streamingtextTheme from './components/streaming-text/theme.js';
 import tableTheme from './components/table/theme.js';
@@ -80,6 +81,7 @@ export const defaultTheme: Theme = {
 		Markdown: markdownTheme,
 		Modal: modalTheme,
 		Sparkline: sparklineTheme,
+		SplitPane: splitPaneTheme,
 		Stepper: stepperTheme,
 		StreamingText: streamingtextTheme,
 		Table: tableTheme,

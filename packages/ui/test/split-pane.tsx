@@ -46,8 +46,9 @@ const pressKey = async (
 };
 
 // The panes hold the words `left` and `right`, so a frame shows where each one is.
-const split = (width: number, options: SplitOptions = {}) => (
-	<Box width={width} flexDirection="column">
+// A stacked layout sizes the first pane as a percentage of the split pane's height, so the wrapper passes a height when a test stacks the panes.
+const split = (width: number, options: SplitOptions = {}, height?: number) => (
+	<Box width={width} height={height} flexDirection="column">
 		<ui.SplitPane {...options}>
 			<Text>left</Text>
 			<Text>right</Text>
@@ -88,21 +89,34 @@ const paneRow = (frame: string | undefined): string | undefined =>
 	lines(frame).find((row) => row.includes('left'));
 
 test('stacks the panes as a column below the breakpoint', async (t: TestContext) => {
-	const {lastFrame, unmount} = render(split(40, {breakpoint: 60}));
+	const {lastFrame, unmount} = render(split(40, {breakpoint: 60}, 6));
 	await settle();
-	const rows = lines(lastFrame()).filter((row) => row !== '');
+	const rows = lines(lastFrame());
 	unmount();
 
-	t.assert.deepStrictEqual(rows, ['left', horizontalRule.repeat(40), 'right']);
+	// Six rows: the first pane takes half, three rows, then the divider, then the second pane takes the last two.
+	t.assert.deepStrictEqual(rows.slice(0, 5), [
+		'left',
+		'',
+		'',
+		horizontalRule.repeat(40),
+		'right',
+	]);
 });
 
 test('stacks the panes at 40 columns when direction is column, at any width', async (t: TestContext) => {
-	const {lastFrame, unmount} = render(split(80, {direction: 'column'}));
+	const {lastFrame, unmount} = render(split(80, {direction: 'column'}, 6));
 	await settle();
-	const rows = lines(lastFrame()).filter((row) => row !== '');
+	const rows = lines(lastFrame());
 	unmount();
 
-	t.assert.deepStrictEqual(rows, ['left', horizontalRule.repeat(80), 'right']);
+	t.assert.deepStrictEqual(rows.slice(0, 5), [
+		'left',
+		'',
+		'',
+		horizontalRule.repeat(80),
+		'right',
+	]);
 });
 
 test('keeps the panes side by side at the breakpoint itself', async (t: TestContext) => {
