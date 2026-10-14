@@ -39,7 +39,7 @@ function Example() {
 					setIsOpen(false);
 				}}
 			>
-				<Text>Arrow keys do not reach the Select.</Text>
+				<Text>Arrows do not reach the Select.</Text>
 				<Text>Press Escape to close.</Text>
 			</Modal>
 		</Box>
