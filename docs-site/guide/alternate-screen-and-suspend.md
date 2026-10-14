@@ -85,7 +85,7 @@ While the terminal is suspended:
 - Output through `useStdout().write()` and `useStderr().write()` is dropped. So is `console.*` output when `patchConsole` is on, which is the default.
 - Ink does not read stdin, so the child process receives the keys.
 
-If the handover fails partway, for example because `setRawMode(false)` throws, Ink turns input back on, clears the suspended state and rethrows the error. A later call to `suspendTerminal()` works.
+Input is released before anything is written to the screen. If that step fails, for example because `setRawMode(false)` throws, the screen is left as it was, Ink turns input back on, clears the suspended state and rethrows the error. A later call to `suspendTerminal()` works.
 
 ### Resume
 
@@ -97,6 +97,16 @@ When the renderer is interactive, resuming does the following:
 4. Forgets the last frame and draws the frame again in full, at the cursor position the child process left. Nothing above the frame is erased. The redraw hides the cursor again.
 
 The promise returned by `suspendTerminal()`, or by `resume()`, settles after the redraw has been written.
+
+### Stop signals
+
+A stop signal (`SIGTSTP`, sent by Ctrl+Z when the terminal is in cooked mode, or by `kill -TSTP`) takes the same handover as `suspendTerminal()`, then stops the process with `SIGSTOP`. A shell's job control reports that stop as it reports Ctrl+Z. On `SIGCONT`, Ink resumes as described above. Before this, a stopped app left the alternate screen, the hidden cursor and the kitty keyboard protocol on under the shell.
+
+If another `SIGTSTP` listener is registered, Ink does nothing and that listener decides.
+
+Ink does not handle `SIGTSTP` or `SIGCONT` when it is not interactive.
+
+Exit signals (`SIGINT`, `SIGTERM`, `SIGHUP`) and an uncaught error unmount the app first. The unmount leaves the alternate screen, shows the cursor and pops the kitty keyboard protocol, so the shell gets the terminal back in its own state.
 
 ### Example
 

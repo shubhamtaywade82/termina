@@ -478,3 +478,107 @@ for (const [mode, options] of Object.entries({
 		unmount();
 	});
 }
+
+const countWrites = (stdout: FakeStdout, text: string): number =>
+	stdout.getWrites().join('').split(text).length - 1;
+
+test('a failed handover does not leave the alternate screen, so the unmount exits it once', async (t: TestContext) => {
+	const stdout = createStdout();
+	const stdin = createStdin();
+
+	const {promise: done, resolve: finished} = Promise.withResolvers<void>();
+
+	function Example() {
+		const {suspendTerminal} = useApp();
+		useInput(() => {});
+
+		useEffect(() => {
+			void (async () => {
+				try {
+					const rawModeController = stdin as unknown as {
+						setRawMode: (isEnabled: boolean) => unknown;
+					};
+					const originalSetRawMode = rawModeController.setRawMode;
+					// The handover fails when raw mode is released, which runs after the alternate screen was left in the old ordering.
+					rawModeController.setRawMode = (isEnabled: boolean) => {
+						if (!isEnabled) {
+							throw new Error('handover boom');
+						}
+
+						return stdin;
+					};
+
+					try {
+						await suspendTerminal(async () => {});
+					} catch {}
+
+					rawModeController.setRawMode = originalSetRawMode;
+				} finally {
+					finished();
+				}
+			})();
+		}, [suspendTerminal]);
+
+		return <Text>hello</Text>;
+	}
+
+	const {unmount} = render(<Example />, {
+		stdout,
+		stdin,
+		alternateScreen: true,
+		interactive: true,
+		patchConsole: false,
+	});
+	await done;
+	await delay(50);
+	unmount();
+
+	t.assert.strictEqual(countWrites(stdout, exitAltScreen), 1);
+});
+
+test('unmounting while suspended leaves the alternate screen once', async (t: TestContext) => {
+	const stdout = createStdout();
+	const stdin = createStdin();
+
+	const app: {unmount?: () => void} = {};
+	let wasUnmountedDuringSuspend = false;
+
+	const {promise: done, resolve: finished} = Promise.withResolvers<void>();
+
+	function Example() {
+		const {suspendTerminal} = useApp();
+		useInput(() => {});
+
+		useEffect(() => {
+			void (async () => {
+				try {
+					await suspendTerminal(async () => {
+						// The effect runs inside render(), before it returns the unmount. Wait a tick so the reference is set.
+						await delay(10);
+						// Unmount from inside the suspension, as a signal handler or exit() can.
+						wasUnmountedDuringSuspend = app.unmount !== undefined;
+						app.unmount?.();
+					});
+				} finally {
+					finished();
+				}
+			})();
+		}, [suspendTerminal]);
+
+		return <Text>hello</Text>;
+	}
+
+	const {unmount} = render(<Example />, {
+		stdout,
+		stdin,
+		alternateScreen: true,
+		interactive: true,
+		patchConsole: false,
+	});
+	app.unmount = unmount;
+	await done;
+	await delay(50);
+
+	t.assert.ok(wasUnmountedDuringSuspend);
+	t.assert.strictEqual(countWrites(stdout, exitAltScreen), 1);
+});

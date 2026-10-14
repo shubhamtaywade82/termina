@@ -259,6 +259,40 @@ export default class Ink {
 	private nextRenderCommit?: PromiseWithResolvers<void>;
 	// Set while suspendTerminal() has handed the terminal to a child process.
 	private isSuspended = false;
+	// Set when the suspension left the alternate screen. The flag is what endSuspend re-enters and finishUnmount checks, so neither exits a screen that is already gone.
+	private alternateScreenSuspended = false;
+	// Set when this process stopped itself on SIGTSTP after handing the terminal back. SIGCONT takes the terminal again only then.
+	private stoppedBySignal = false;
+	// A stop with the terminal still in Ink's modes would leave the shell in the alternate screen, with the cursor hidden and the kitty protocol on. Hand the terminal back first, then stop. SIGCONT takes it again.
+	private readonly handleSigtstp = (): void => {
+		// Another listener owns the signal, so it decides whether to stop.
+		if (process.listenerCount('SIGTSTP') > 1) {
+			return;
+		}
+
+		if (!this.isSuspended && !this.isUnmounted && !this.isUnmounting) {
+			try {
+				this.beginSuspend();
+				this.stoppedBySignal = true;
+			} catch {
+				// Stopping with the terminal not handed back would leave it in Ink's modes, so keep running.
+				return;
+			}
+		}
+
+		// SIGSTOP rather than re-raising SIGTSTP: the kernel discards SIGTSTP for an orphaned process group, and a discarded stop here would leave the terminal handed back with nothing to resume it. SIGSTOP always stops, and the shell's job control reports it the same way.
+		process.kill(process.pid, 'SIGSTOP');
+	};
+
+	private readonly handleSigcont = (): void => {
+		if (!this.stoppedBySignal) {
+			return;
+		}
+
+		this.stoppedBySignal = false;
+		void this.endSuspend();
+	};
+
 	// Static output of commits made while suspended. Static drops those items on its next commit, so this queue is the only copy. It is written on resume, or on unmount.
 	private suspendedStaticOutput = '';
 	// Input pause/resume hooks registered by the App component, which owns raw
@@ -561,6 +595,12 @@ export default class Ink {
 
 		// Unmount when process exits
 		this.unsubscribeExit = signalExit(this.unmount, {alwaysLast: false});
+
+		// Stop and continue are not in signal-exit's list, so a stopped app would otherwise keep the alternate screen and the hidden cursor under the shell.
+		if (this.interactive) {
+			process.on('SIGTSTP', this.handleSigtstp);
+			process.on('SIGCONT', this.handleSigcont);
+		}
 
 		this.setAlternateScreen(Boolean(options.alternateScreen));
 
@@ -999,6 +1039,9 @@ export default class Ink {
 		}
 
 		try {
+			// Input goes first. Releasing raw mode is the only step here that can throw, and it runs before any screen write, so a failure leaves the screen and its modes as they were. The catch then only has to give input back.
+			this.pauseInput?.();
+
 			const {stdout} = this.options;
 			const {canWriteToStdout} = getWritableStreamState(stdout);
 
@@ -1022,11 +1065,9 @@ export default class Ink {
 						this.options.stdout,
 						ansiEscapes.exitAlternativeScreen,
 					);
+					this.alternateScreenSuspended = true;
 				}
 			}
-
-			// Hand input back to the terminal (raw mode off, bracketed paste off).
-			this.pauseInput?.();
 		} catch (error) {
 			// If handing over the terminal fails partway, don't strand the app in a
 			// suspended state with no way back. Best-effort reclaim input, clear the
@@ -1059,7 +1100,7 @@ export default class Ink {
 		const {canWriteToStdout} = getWritableStreamState(stdout);
 
 		if (canWriteToStdout) {
-			if (this.alternateScreen) {
+			if (this.alternateScreenSuspended) {
 				// Re-entering the alternate screen gives an empty buffer with no scrollback behind it, and the forced redraw below only carries new <Static> items. Replay the accumulated static output ahead of it, as the full-clear path does, so the rows the child process's turn erased come back. The debug redraw writes fullStaticOutput itself, so skip the replay there.
 				this.writeBestEffort(
 					this.options.stdout,
@@ -1083,6 +1124,7 @@ export default class Ink {
 		}
 
 		this.suspendedStaticOutput = '';
+		this.alternateScreenSuspended = false;
 
 		// Force a full redraw instead of diffing against the stale pre-suspension
 		// frame, which the child process may have overwritten. A redraw failure here
@@ -1305,6 +1347,9 @@ export default class Ink {
 				this.unsubscribeResize();
 			}
 
+			process.removeListener('SIGTSTP', this.handleSigtstp);
+			process.removeListener('SIGCONT', this.handleSigcont);
+
 			// Cancel any in-progress auto-detection before checking protocol state
 			this.finishKittyDetection?.(false);
 
@@ -1325,12 +1370,17 @@ export default class Ink {
 				// buffer switch adds fragile lifecycle-specific behavior, so Ink keeps
 				// alternate-screen teardown intentionally simple and best-effort.
 				if (this.alternateScreen) {
-					this.writeBestEffort(
-						this.options.stdout,
-						ansiEscapes.exitAlternativeScreen,
-					);
+					// A suspension that left the alternate screen has already exited it, and the child may now own the primary screen, so exit only while the screen is still ours. The cursor is restored either way.
+					if (!this.alternateScreenSuspended) {
+						this.writeBestEffort(
+							this.options.stdout,
+							ansiEscapes.exitAlternativeScreen,
+						);
+					}
+
 					this.writeBestEffort(this.options.stdout, showCursorEscape);
 					this.alternateScreen = false;
+					this.alternateScreenSuspended = false;
 				}
 
 				if (!this.interactive) {
