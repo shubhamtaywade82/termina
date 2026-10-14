@@ -40,7 +40,7 @@ a = Alert("Security Warning", "Upgrade recommended", "warning")
 	const frame = lastFrame();
 	unmount();
 
-	t.assert.ok(frame?.includes('v1.2.0'));
+	t.assert.ok(frame?.includes('V1.2.0'));
 	t.assert.ok(frame?.includes('Security Warning'));
 	t.assert.ok(frame?.includes('Upgrade recommended'));
 });
@@ -92,3 +92,21 @@ root = TextInput("username", "Username", "Enter name", "default")
 
 	t.assert.ok(frame?.includes('initial-user') || frame?.includes('Username'));
 });
+
+test('renders button with action dispatcher configured', (t: TestContext) => {
+	const dispatcher = createActionDispatcher();
+	const code = `
+root = Button("Click Me", "customAction")
+`;
+	const { root } = adapter.parse(code);
+	t.assert.ok(root);
+
+	const { lastFrame, unmount } = render(
+		<GenUIRenderer node={root} registry={registry} actionDispatcher={dispatcher} />,
+	);
+	const frame = lastFrame();
+	unmount();
+
+	t.assert.ok(frame?.includes('Click Me'));
+});
+

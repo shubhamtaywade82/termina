@@ -1,19 +1,24 @@
 import type { GenUIAction, GenUIActionDispatcher } from './types.js';
 
 export class ActionNotFoundError extends Error {
-	constructor(readonly actionName: string) {
+	readonly actionName: string;
+
+	constructor(actionName: string) {
 		super(`Action "${actionName}" is not registered.`);
 		this.name = 'ActionNotFoundError';
+		this.actionName = actionName;
 	}
 }
 
 export class ActionValidationError extends Error {
-	constructor(
-		readonly actionName: string,
-		readonly validationError: string,
-	) {
+	readonly actionName: string;
+	readonly validationError: string;
+
+	constructor(actionName: string, validationError: string) {
 		super(`Action "${actionName}" payload failed validation: ${validationError}`);
 		this.name = 'ActionValidationError';
+		this.actionName = actionName;
+		this.validationError = validationError;
 	}
 }
 

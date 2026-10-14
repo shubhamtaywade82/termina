@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import { createLibrary, defineComponent } from '@openuidev/lang-core';
+import { createDefaultComponents } from './defaults.js';
 import type { GenUIComponent, GenUIRegistry } from './types.js';
 
 export function defineGenUIComponent<TProps extends Record<string, unknown>>(
@@ -26,11 +27,12 @@ export function createGenUIRegistry(
 			name: comp.name,
 			description: comp.description,
 			props: comp.schema as z.ZodObject<any>,
+			component: comp.render,
 		}),
 	);
 
 	const library = createLibrary({
-		name: 'termina-genui',
+		id: 'termina-genui',
 		components: openuiComponents,
 	});
 
@@ -42,9 +44,6 @@ export function createGenUIRegistry(
 	};
 }
 
-import { createDefaultComponents } from './defaults.js';
-
 export function createDefaultRegistry(): GenUIRegistry {
 	return createGenUIRegistry(createDefaultComponents());
 }
-

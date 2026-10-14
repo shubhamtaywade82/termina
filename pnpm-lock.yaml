@@ -191,6 +191,37 @@ importers:
         specifier: ^5.8.3
         version: 5.9.3
 
+  examples/genui-playground:
+    dependencies:
+      '@nemesis-oss/termina-core':
+        specifier: workspace:*
+        version: link:../../packages/core
+      '@nemesis-oss/termina-genui':
+        specifier: workspace:*
+        version: link:../../packages/genui
+      '@nemesis-oss/termina-ui':
+        specifier: workspace:*
+        version: link:../../packages/ui
+      react:
+        specifier: '>=19.3.0'
+        version: 19.3.0
+      zod:
+        specifier: ^4.0.0
+        version: 4.6.6
+    devDependencies:
+      '@types/node':
+        specifier: ^26.6.3
+        version: 26.6.5
+      '@types/react':
+        specifier: ^19.3.0
+        version: 19.3.0
+      tsx:
+        specifier: ^4.23.15
+        version: 4.23.15
+      typescript:
+        specifier: ^5.8.3
+        version: 5.9.3
+
   examples/turnstream:
     dependencies:
       '@nemesis-oss/termina-core':

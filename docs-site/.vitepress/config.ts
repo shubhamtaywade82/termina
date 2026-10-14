@@ -103,6 +103,7 @@ export default defineConfig({
           { text: 'Resize and Reflow', link: '/guide/resize' },
           { text: 'Alternate Screen and Suspend', link: '/guide/alternate-screen-and-suspend' },
           { text: 'Testing', link: '/guide/testing' },
+          { text: 'Generative UI', link: '/guide/genui' },
         ],
       },
       {
