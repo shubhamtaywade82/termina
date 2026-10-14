@@ -24,6 +24,13 @@ Use this skill for changes to `@nemesis-oss/termina-ui`, the reusable component 
 5. **Finish the whole feature.** For a new component, add its public export, tests, a documentation page, a live demo, and theme support when applicable. For an existing component, update all affected artifacts.
 6. **Verify.** Run the UI tests, typecheck/build the package, and run broader workspace checks when the change crosses package boundaries.
 
+## Routing to companion skills
+
+- Use `termina-tui-design` to decide information hierarchy, component composition, responsive fallbacks, and the interaction contract before implementing a substantial screen.
+- Use `termina-tui-app-architecture` for multi-screen state, keyboard ownership, navigation, and async lifecycle.
+- Use `termina-agentic-ui-patterns` for agent plans, tool activity, streaming, approvals, cancellation, and recovery behavior.
+- Use `termina-tui-validation` for terminal-size matrices, interaction acceptance tests, xterm-backed layout checks, and docs previews.
+
 ## Component quality rules
 
 ### Terminal layout and text
