@@ -1,0 +1,81 @@
+{
+  "schema_version": 1,
+  "id": "approval-gated-action",
+  "title": "Approval-gated consequential action",
+  "kind": "implementation",
+  "user_prompt": "Build a terminal review screen for a proposed action that will delete a remote resource. Show the target and consequences, allow approval or rejection, and support keyboard operation. Approval may become stale while the screen is open, so the execution service must revalidate the action before executing it. Never treat the UI itself as an authorization boundary.",
+  "expected_skills": [
+    "termina-agentic-ui-patterns",
+    "termina-tui-design",
+    "termina-tui-app-architecture",
+    "termina-ui",
+    "termina-tui-validation"
+  ],
+  "adjacent_skills_not_required": [
+    "termina-core"
+  ],
+  "environment": {
+    "terminal_sizes": [
+      {
+        "columns": 40,
+        "rows": 12
+      },
+      {
+        "columns": 80,
+        "rows": 24
+      }
+    ],
+    "execution_modes": [
+      "interactive"
+    ]
+  },
+  "acceptance_checks": [
+    {
+      "id": "informed-review",
+      "verification": "terminal-run",
+      "assertion": "The target resource and destructive consequence are visible before approval, including at compact width.",
+      "evidence_required": "Captured output at 40x12 and 80x24."
+    },
+    {
+      "id": "explicit-decision",
+      "verification": "test",
+      "assertion": "Approve and reject produce distinct caller-visible decisions; Escape has documented, safe behavior.",
+      "evidence_required": "Tests for approve, reject, and Escape."
+    },
+    {
+      "id": "stale-approval",
+      "verification": "test",
+      "assertion": "The service contract revalidates the proposed action/version at execution time and rejects stale approvals.",
+      "evidence_required": "Service-level contract/test proving stale action rejection."
+    },
+    {
+      "id": "no-ui-authorization",
+      "verification": "static-review",
+      "assertion": "Backend/service authorization is authoritative and does not trust UI state alone.",
+      "evidence_required": "Relevant service boundary and authorization references."
+    }
+  ],
+  "hard_gates": [
+    {
+      "id": "authorization-boundary",
+      "failure_condition": "The implementation treats hiding/disablement in the TUI as sufficient authorization."
+    },
+    {
+      "id": "destructive-confirmation",
+      "failure_condition": "The destructive action can execute without informed confirmation."
+    },
+    {
+      "id": "stale-approval",
+      "failure_condition": "The execution layer does not revalidate stale approvals."
+    }
+  ],
+  "score_dimensions": [
+    "api-grounding",
+    "ux-hierarchy",
+    "interaction",
+    "async-integrity",
+    "accessibility",
+    "tests",
+    "engineering-discipline"
+  ]
+}
