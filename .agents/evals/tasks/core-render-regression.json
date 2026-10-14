@@ -10,7 +10,8 @@
   ],
   "adjacent_skills_not_required": [
     "termina-tui-design",
-    "termina-agentic-ui-patterns"
+    "termina-agentic-ui-patterns",
+    "termina-ui"
   ],
   "environment": {
     "terminal_sizes": [
