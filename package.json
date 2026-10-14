@@ -19,7 +19,9 @@
     "docs:previews:check": "pnpm --filter termina-docs-previews run check",
     "audit:ci": "pnpm audit --prod --audit-level=high",
     "ci": "pnpm install --frozen-lockfile && pnpm skills:check && pnpm evals:check && pnpm build && pnpm typecheck && pnpm test && pnpm docs:previews:check && pnpm audit:ci",
-    "evals:check": "node .agents/scripts/validate-evals.mjs"
+    "evals:check": "node .agents/scripts/validate-evals.mjs && node .agents/scripts/eval-prompt.mjs --check",
+    "evals:prompt": "node .agents/scripts/eval-prompt.mjs",
+    "evals:report:check": "node .agents/scripts/validate-eval-report.mjs"
   },
   "pnpm": {
     "onlyBuiltDependencies": [
