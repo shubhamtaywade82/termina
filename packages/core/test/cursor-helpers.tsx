@@ -6,6 +6,7 @@ import {
 	buildReturnToBottom,
 	buildCursorOnlySequence,
 	buildReturnToBottomPrefix,
+	buildEraseFrame,
 } from '../src/cursor-helpers.js';
 
 const showCursorEscape = '\u{1B}[?25h';
@@ -129,5 +130,43 @@ test('buildReturnToBottomPrefix - with undefined previousCursorPosition still hi
 	t.assert.strictEqual(
 		result,
 		hideCursorEscape + buildReturnToBottom(4, undefined),
+	);
+});
+
+// Out-of-range positions must stay inside the frame. A cursor above the top row would move the
+// terminal cursor into content the frame does not own, and one below the bottom row would scroll.
+
+test('buildCursorSuffix - a row above the frame stops at the top row', (t: TestContext) => {
+	t.assert.strictEqual(
+		buildCursorSuffix(3, {x: 0, y: -5}),
+		ansiEscapes.cursorUp(3) + ansiEscapes.cursorTo(0) + showCursorEscape,
+	);
+});
+
+test('buildCursorSuffix - a row below the frame stops at the bottom row', (t: TestContext) => {
+	t.assert.strictEqual(
+		buildCursorSuffix(3, {x: 0, y: 9}),
+		ansiEscapes.cursorTo(0) + showCursorEscape,
+	);
+});
+
+test('buildCursorSuffix - a negative column is clamped to column 0', (t: TestContext) => {
+	t.assert.strictEqual(
+		buildCursorSuffix(3, {x: -4, y: 1}),
+		ansiEscapes.cursorUp(2) + ansiEscapes.cursorTo(0) + showCursorEscape,
+	);
+});
+
+test('buildReturnToBottom - a row above the frame returns to the bottom from the top row', (t: TestContext) => {
+	t.assert.strictEqual(
+		buildReturnToBottom(4, {x: 2, y: -2}),
+		ansiEscapes.cursorDown(3) + ansiEscapes.cursorTo(0),
+	);
+});
+
+test('buildEraseFrame - a row above the frame erases from the top row without moving down', (t: TestContext) => {
+	t.assert.strictEqual(
+		buildEraseFrame(4, {x: 0, y: -3}),
+		hideCursorEscape + ansiEscapes.cursorTo(0) + ansiEscapes.eraseDown,
 	);
 });
