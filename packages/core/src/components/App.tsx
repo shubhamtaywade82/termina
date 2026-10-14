@@ -68,11 +68,16 @@ type Props = {
 
 type Focusable = {
 	readonly id: string;
+	// Unique per registration, so removing one of two components that share an id leaves the other.
+	readonly token: symbol;
+	// The focus scope of the enclosing KeyboardCapture, or undefined outside every capture.
+	readonly scope: symbol | undefined;
 	readonly isActive: boolean;
 };
 
 type KeyboardCaptureEntry = {
 	readonly owner: symbol;
+	readonly scope: symbol;
 	readonly depth: number;
 };
 
@@ -89,6 +94,32 @@ const uniqueFocusables = (focusables: Focusable[]): Focusable[] => {
 		return true;
 	});
 };
+
+// The deepest entry is the top, so the innermost capture wins. Among entries at the same depth, the one pushed last wins, as in registerCapture.
+const topKeyboardCapture = (
+	stack: KeyboardCaptureEntry[],
+): KeyboardCaptureEntry | undefined => {
+	let top: KeyboardCaptureEntry | undefined;
+
+	for (const entry of stack) {
+		if (top === undefined || entry.depth >= top.depth) {
+			top = entry;
+		}
+	}
+
+	return top;
+};
+
+// With a capture active, navigation reaches only the focusables in its scope. With no capture, every focusable is reachable.
+const navigableFocusables = (
+	focusables: Focusable[],
+	capture: KeyboardCaptureEntry | undefined,
+): Focusable[] =>
+	uniqueFocusables(
+		capture === undefined
+			? focusables
+			: focusables.filter((focusable) => focusable.scope === capture.scope),
+	);
 
 // Root component for all Ink apps
 // It renders stdin and stdout contexts, so that children can access them if needed
@@ -287,8 +318,8 @@ function App({
 
 	// The entry with the greatest depth is the top, so the innermost capture wins. Among captures at the same depth, the one pushed last wins. Layout effects run child first, so push order alone would let an outer capture win over an inner one.
 	const registerCapture = useCallback(
-		(owner: symbol, depth: number): (() => void) => {
-			const entry: KeyboardCaptureEntry = {owner, depth};
+		(owner: symbol, depth: number, scope: symbol): (() => void) => {
+			const entry: KeyboardCaptureEntry = {owner, depth, scope};
 			keyboardCaptureStackRef.current = [
 				...keyboardCaptureStackRef.current,
 				entry,
@@ -308,18 +339,7 @@ function App({
 	const canReceive = useCallback((owner: symbol | undefined): boolean => {
 		const stack = keyboardCaptureStackRef.current;
 
-		if (stack.length === 0) {
-			return true;
-		}
-
-		let top = stack[0];
-		for (const entry of stack) {
-			if (top === undefined || entry.depth >= top.depth) {
-				top = entry;
-			}
-		}
-
-		return top?.owner === owner;
+		return stack.length === 0 || topKeyboardCapture(stack)?.owner === owner;
 	}, []);
 
 	const handleInput = useCallback(
@@ -692,7 +712,16 @@ function App({
 	);
 
 	const focusNext = useCallback((): void => {
-		const currentFocusables = uniqueFocusables(focusablesRef.current);
+		const currentFocusables = navigableFocusables(
+			focusablesRef.current,
+			topKeyboardCapture(keyboardCaptureStackRef.current),
+		);
+
+		// With no active focusable in reach, focus stays where it is. Inside a capture, that keeps Tab from leaving the capture.
+		if (currentFocusables.every((focusable) => !focusable.isActive)) {
+			return;
+		}
+
 		setActiveFocusId(currentActiveFocusId => {
 			const firstFocusableId = currentFocusables.find(
 				focusable => focusable.isActive,
@@ -707,7 +736,16 @@ function App({
 	}, [findNextFocusable]);
 
 	const focusPrevious = useCallback((): void => {
-		const currentFocusables = uniqueFocusables(focusablesRef.current);
+		const currentFocusables = navigableFocusables(
+			focusablesRef.current,
+			topKeyboardCapture(keyboardCaptureStackRef.current),
+		);
+
+		// With no active focusable in reach, focus stays where it is. Inside a capture, that keeps Shift+Tab from leaving the capture.
+		if (currentFocusables.every((focusable) => !focusable.isActive)) {
+			return;
+		}
+
 		setActiveFocusId(currentActiveFocusId => {
 			const lastFocusableId = currentFocusables.findLast(
 				focusable => focusable.isActive,
@@ -720,6 +758,21 @@ function App({
 			return previousFocusableId ?? lastFocusableId;
 		});
 	}, [findPreviousFocusable]);
+
+	// Focuses the first active focusable in `scope`, in navigation order. Ignored while focus management is disabled.
+	const focusFirstInScope = useCallback((scope: symbol | undefined): void => {
+		if (!isFocusEnabledRef.current) {
+			return;
+		}
+
+		const firstFocusable = uniqueFocusables(
+			focusablesRef.current.filter((focusable) => focusable.scope === scope),
+		).find((focusable) => focusable.isActive);
+
+		if (firstFocusable !== undefined) {
+			setActiveFocusId(firstFocusable.id);
+		}
+	}, []);
 
 	// Handle tab navigation via effect that subscribes to input events
 	useEffect(() => {
@@ -775,8 +828,15 @@ function App({
 	}, []);
 
 	const addFocusable = useCallback(
-		(id: string, {autoFocus}: {autoFocus: boolean}): void => {
-			focusablesRef.current = [...focusablesRef.current, {id, isActive: true}];
+		(
+			id: string,
+			{autoFocus, token}: {autoFocus: boolean; token: symbol},
+		): void => {
+			// The scope arrives through setFocusableScope in the same effect flush, before any input is read.
+			focusablesRef.current = [
+				...focusablesRef.current,
+				{id, token, scope: undefined, isActive: true},
+			];
 
 			if (autoFocus && isFocusEnabledRef.current) {
 				setActiveFocusId(currentActiveFocusId => currentActiveFocusId ?? id);
@@ -785,19 +845,42 @@ function App({
 		[],
 	);
 
-	const removeFocusable = useCallback((id: string): void => {
-		setActiveFocusId(currentActiveFocusId =>
-			currentActiveFocusId === id ? undefined : currentActiveFocusId,
+	// Setting the scope updates the registration in place, so its place in the focus order does not change.
+	const setFocusableScope = useCallback(
+		(token: symbol, scope: symbol | undefined): void => {
+			focusablesRef.current = focusablesRef.current.map((focusable) =>
+				focusable.token === token ? {...focusable, scope} : focusable,
+			);
+		},
+		[],
+	);
+
+	// Removes only this registration. Another registration that shares its id stays in the focus order, and keeps the id focused.
+	const removeFocusable = useCallback((token: symbol): void => {
+		const removed = focusablesRef.current.find(
+			(focusable) => focusable.token === token,
 		);
 
 		focusablesRef.current = focusablesRef.current.filter(
-			focusable => focusable.id !== id,
+			(focusable) => focusable.token !== token,
+		);
+
+		if (
+			removed === undefined ||
+			focusablesRef.current.some((focusable) => focusable.id === removed.id)
+		) {
+			return;
+		}
+
+		const removedId = removed.id;
+		setActiveFocusId(currentActiveFocusId =>
+			currentActiveFocusId === removedId ? undefined : currentActiveFocusId,
 		);
 	}, []);
 
 	const activateFocusable = useCallback((id: string): void => {
 		focusablesRef.current = focusablesRef.current.map(focusable =>
-			focusable.id === id ? {id, isActive: true} : focusable,
+			focusable.id === id ? {...focusable, isActive: true} : focusable,
 		);
 	}, []);
 
@@ -807,7 +890,7 @@ function App({
 		);
 
 		focusablesRef.current = focusablesRef.current.map(focusable =>
-			focusable.id === id ? {id, isActive: false} : focusable,
+			focusable.id === id ? {...focusable, isActive: false} : focusable,
 		);
 	}, []);
 
@@ -925,24 +1008,28 @@ function App({
 			activeId: activeFocusId,
 			add: addFocusable,
 			remove: removeFocusable,
+			setScope: setFocusableScope,
 			activate: activateFocusable,
 			deactivate: deactivateFocusable,
 			enableFocus,
 			disableFocus,
 			focusNext,
 			focusPrevious,
+			focusFirstInScope,
 			focus,
 		}),
 		[
 			activeFocusId,
 			addFocusable,
 			removeFocusable,
+			setFocusableScope,
 			activateFocusable,
 			deactivateFocusable,
 			enableFocus,
 			disableFocus,
 			focusNext,
 			focusPrevious,
+			focusFirstInScope,
 			focus,
 		],
 	);

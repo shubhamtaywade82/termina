@@ -1,11 +1,12 @@
 import test, {type TestContext} from 'node:test';
-import React from 'react';
+import React, {useEffect} from 'react';
 import {
 	KeyboardCapture,
 	Text,
 	render,
 	useFocus,
 	useFocusManager,
+	useFocusScope,
 } from '../src/index.js';
 import createStdout from './helpers/create-stdout.js';
 import {createStdin, emitReadable} from './helpers/create-stdin.js';
@@ -213,6 +214,21 @@ test('a duplicate focus ID keeps its survivor after the other registration unmou
 	t.assert.deepStrictEqual(await focus.tab(3), ['a', 'x', 'b']);
 });
 
+test('removing one of two registrations that share the focused ID keeps that ID focused', async (t: TestContext) => {
+	const focus = await renderFocus<boolean>(t, true, (showFirst) => (
+		<>
+			{showFirst && <Field id="x" />}
+			<Field id="x" />
+			<Field id="b" />
+		</>
+	));
+
+	await focus.focusById('x');
+	await focus.rerender(false);
+
+	t.assert.strictEqual(focus.activeId, 'x');
+});
+
 test('focus can be restored to the element that was focused before a KeyboardCapture closed', async (t: TestContext) => {
 	const focus = await renderFocus<boolean>(t, false, (open) => (
 		<>
@@ -231,6 +247,50 @@ test('focus can be restored to the element that was focused before a KeyboardCap
 
 	await focus.rerender(false);
 	await focus.focusById(previousId ?? '');
+
+	t.assert.strictEqual(focus.activeId, 'outer-a');
+});
+
+// Calls focusFirstInScope from an effect, after the focusables rendered inside it have registered.
+function FocusFirstInScope({children}: {readonly children: React.ReactNode}) {
+	const {focusFirstInScope} = useFocusScope();
+
+	useEffect(() => {
+		focusFirstInScope();
+	}, [focusFirstInScope]);
+
+	return <>{children}</>;
+}
+
+test('useFocusScope focuses the first focusable inside its KeyboardCapture', async (t: TestContext) => {
+	const focus = await renderFocus<undefined>(t, undefined, () => (
+		<>
+			<Field autoFocus id="outer-a" />
+			<KeyboardCapture>
+				<FocusFirstInScope>
+					<Field id="inner-a" />
+					<Field id="inner-b" />
+				</FocusFirstInScope>
+			</KeyboardCapture>
+		</>
+	));
+
+	t.assert.strictEqual(focus.activeId, 'inner-a');
+	t.assert.deepStrictEqual(await focus.tab(1), ['inner-b']);
+});
+
+test('useFocusScope outside every KeyboardCapture focuses the first focusable that is not in one', async (t: TestContext) => {
+	const focus = await renderFocus<undefined>(t, undefined, () => (
+		<>
+			<KeyboardCapture>
+				<Field id="inner-a" />
+			</KeyboardCapture>
+			<FocusFirstInScope>
+				<Field id="outer-a" />
+				<Field id="outer-b" />
+			</FocusFirstInScope>
+		</>
+	));
 
 	t.assert.strictEqual(focus.activeId, 'outer-a');
 });

@@ -2,6 +2,7 @@ import React, {use, useLayoutEffect, useMemo, useState} from 'react';
 import KeyboardCaptureContext, {
 	type Props as CaptureValue,
 } from './components/KeyboardCaptureContext.js';
+import FocusScopeContext from './components/FocusScopeContext.js';
 import {useStdinContext} from './hooks/use-stdin.js';
 
 export type Props = {
@@ -31,8 +32,8 @@ const useKeyboardCapture = ({
 
 	// A layout effect runs in the same commit as the render, so the capture is in place before the next input event is read, and its cleanup pops it on release or unmount.
 	useLayoutEffect(
-		() => (isActive ? registerCapture(owner, depth) : undefined),
-		[isActive, depth, registerCapture, owner],
+		() => (isActive ? registerCapture(owner, depth, scope) : undefined),
+		[isActive, depth, registerCapture, owner, scope],
 	);
 
 	return useMemo(() => ({owner, scope, depth}), [owner, scope, depth]);
@@ -78,7 +79,9 @@ const KeyboardCapture = ({
 	);
 
 	return (
-		<KeyboardCaptureContext value={value}>{children}</KeyboardCaptureContext>
+		<KeyboardCaptureContext value={value}>
+			<FocusScopeContext value={value?.scope}>{children}</FocusScopeContext>
+		</KeyboardCaptureContext>
 	);
 };
 
