@@ -1,107 +1,18 @@
-import {useReducer, useCallback, useEffect, type Reducer} from 'react';
-import {
-	nextBoundary,
-	previousBoundary,
-	sanitizeInsertedText,
-} from '../../lib/grapheme.js';
+import {useCallback} from 'react';
+import {useTextBuffer} from '../../lib/use-text-buffer.js';
 
-type State = {
-	previousValue: string;
-	value: string;
-	cursorOffset: number;
-};
+export type UsePasswordInputStateProps = {
+	/**
+	 * Initial value when uncontrolled. Ignored once `value` is set.
+	 */
+	defaultValue?: string;
 
-type Action =
-	| MoveCursorLeftAction
-	| MoveCursorRightAction
-	| InsertAction
-	| DeleteAction
-	| DeleteForwardAction;
+	/**
+	 * Controlled value. Edits are reported through `onChange`; the component
+	 * shows this value until the parent changes it.
+	 */
+	value?: string;
 
-type MoveCursorLeftAction = {
-	type: 'move-cursor-left';
-};
-
-type MoveCursorRightAction = {
-	type: 'move-cursor-right';
-};
-
-type InsertAction = {
-	type: 'insert';
-	text: string;
-};
-
-type DeleteAction = {
-	type: 'delete';
-};
-
-type DeleteForwardAction = {
-	type: 'delete-forward';
-};
-
-const reducer: Reducer<State, Action> = (state, action) => {
-	switch (action.type) {
-		case 'move-cursor-left': {
-			return {
-				...state,
-				cursorOffset: previousBoundary(state.value, state.cursorOffset),
-			};
-		}
-
-		case 'move-cursor-right': {
-			return {
-				...state,
-				cursorOffset: nextBoundary(state.value, state.cursorOffset),
-			};
-		}
-
-		case 'insert': {
-			const text = sanitizeInsertedText(action.text);
-			if (text === '') {
-				return state;
-			}
-
-			return {
-				...state,
-				previousValue: state.value,
-				value:
-					state.value.slice(0, state.cursorOffset) +
-					text +
-					state.value.slice(state.cursorOffset),
-				cursorOffset: state.cursorOffset + text.length,
-			};
-		}
-
-		case 'delete': {
-			const start = previousBoundary(state.value, state.cursorOffset);
-			if (start === state.cursorOffset) {
-				return state;
-			}
-
-			return {
-				...state,
-				previousValue: state.value,
-				value: state.value.slice(0, start) + state.value.slice(state.cursorOffset),
-				cursorOffset: start,
-			};
-		}
-
-		case 'delete-forward': {
-			const end = nextBoundary(state.value, state.cursorOffset);
-			if (end === state.cursorOffset) {
-				return state;
-			}
-
-			return {
-				...state,
-				previousValue: state.value,
-				value: state.value.slice(0, state.cursorOffset) + state.value.slice(end),
-			};
-		}
-	}
-};
-
-export type UseTextInputStateProps = {
 	/**
 	 * Callback when value updates.
 	 */
@@ -113,7 +24,17 @@ export type UseTextInputStateProps = {
 	onSubmit?: (value: string) => void;
 };
 
-export type PasswordInputState = State & {
+export type PasswordInputState = {
+	/**
+	 * Value of the input.
+	 */
+	value: string;
+
+	/**
+	 * UTF-16 index into `value`. Movement and deletion step by grapheme cluster.
+	 */
+	cursorOffset: number;
+
 	/**
 	 * Move cursor to the left.
 	 */
@@ -146,58 +67,49 @@ export type PasswordInputState = State & {
 };
 
 export const usePasswordInputState = ({
+	defaultValue,
+	value: controlledValue,
 	onChange,
 	onSubmit,
-}: UseTextInputStateProps) => {
-	const [state, dispatch] = useReducer(reducer, {
-		previousValue: '',
-		value: '',
-		cursorOffset: 0,
+}: UsePasswordInputStateProps): PasswordInputState => {
+	const buffer = useTextBuffer({
+		value: controlledValue,
+		defaultValue,
+		onChange,
 	});
 
+	const {edit, getValue} = buffer;
+
 	const moveCursorLeft = useCallback(() => {
-		dispatch({
-			type: 'move-cursor-left',
-		});
-	}, []);
+		edit({type: 'move-cursor-left'});
+	}, [edit]);
 
 	const moveCursorRight = useCallback(() => {
-		dispatch({
-			type: 'move-cursor-right',
-		});
-	}, []);
+		edit({type: 'move-cursor-right'});
+	}, [edit]);
 
-	const insert = useCallback((text: string) => {
-		dispatch({
-			type: 'insert',
-			text,
-		});
-	}, []);
-
-	const deleteForward = useCallback(() => {
-		dispatch({
-			type: 'delete-forward',
-		});
-	}, []);
+	const insert = useCallback(
+		(text: string) => {
+			edit({type: 'insert', text});
+		},
+		[edit],
+	);
 
 	const deleteCharacter = useCallback(() => {
-		dispatch({
-			type: 'delete',
-		});
-	}, []);
+		edit({type: 'delete'});
+	}, [edit]);
+
+	const deleteForward = useCallback(() => {
+		edit({type: 'delete-forward'});
+	}, [edit]);
 
 	const submit = useCallback(() => {
-		onSubmit?.(state.value);
-	}, [state.value, onSubmit]);
-
-	useEffect(() => {
-		if (state.value !== state.previousValue) {
-			onChange?.(state.value);
-		}
-	}, [state.previousValue, state.value, onChange]);
+		onSubmit?.(getValue());
+	}, [getValue, onSubmit]);
 
 	return {
-		...state,
+		value: buffer.value,
+		cursorOffset: buffer.cursorOffset,
 		moveCursorLeft,
 		moveCursorRight,
 		insert,

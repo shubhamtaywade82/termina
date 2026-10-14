@@ -1,131 +1,17 @@
-import {useReducer, useCallback, useEffect, type Reducer, useMemo} from 'react';
-import {
-	nextBoundary,
-	previousBoundary,
-	sanitizeInsertedText,
-} from '../../lib/grapheme.js';
-
-type State = {
-	previousValue: string;
-	value: string;
-	// UTF-16 index into `value`, always on a grapheme boundary.
-	cursorOffset: number;
-};
-
-type Action =
-	| MoveCursorLeftAction
-	| MoveCursorRightAction
-	| InsertAction
-	| AppendAction
-	| DeleteAction
-	| DeleteForwardAction;
-
-type MoveCursorLeftAction = {
-	type: 'move-cursor-left';
-};
-
-type MoveCursorRightAction = {
-	type: 'move-cursor-right';
-};
-
-type InsertAction = {
-	type: 'insert';
-	text: string;
-};
-
-// Accepting a suggestion completes the value, wherever the cursor is.
-type AppendAction = {
-	type: 'append';
-	text: string;
-};
-
-type DeleteAction = {
-	type: 'delete';
-};
-
-type DeleteForwardAction = {
-	type: 'delete-forward';
-};
-
-const reducer: Reducer<State, Action> = (state, action) => {
-	switch (action.type) {
-		case 'move-cursor-left': {
-			return {
-				...state,
-				cursorOffset: previousBoundary(state.value, state.cursorOffset),
-			};
-		}
-
-		case 'move-cursor-right': {
-			return {
-				...state,
-				cursorOffset: nextBoundary(state.value, state.cursorOffset),
-			};
-		}
-
-		case 'insert': {
-			const text = sanitizeInsertedText(action.text);
-			if (text === '') {
-				return state;
-			}
-
-			return {
-				...state,
-				previousValue: state.value,
-				value:
-					state.value.slice(0, state.cursorOffset) +
-					text +
-					state.value.slice(state.cursorOffset),
-				cursorOffset: state.cursorOffset + text.length,
-			};
-		}
-
-		case 'append': {
-			const value = state.value + action.text;
-			return {
-				...state,
-				previousValue: state.value,
-				value,
-				cursorOffset: value.length,
-			};
-		}
-
-		case 'delete': {
-			const start = previousBoundary(state.value, state.cursorOffset);
-			if (start === state.cursorOffset) {
-				return state;
-			}
-
-			return {
-				...state,
-				previousValue: state.value,
-				value:
-					state.value.slice(0, start) + state.value.slice(state.cursorOffset),
-				cursorOffset: start,
-			};
-		}
-
-		case 'delete-forward': {
-			const end = nextBoundary(state.value, state.cursorOffset);
-			if (end === state.cursorOffset) {
-				return state;
-			}
-
-			return {
-				...state,
-				previousValue: state.value,
-				value:
-					state.value.slice(0, state.cursorOffset) + state.value.slice(end),
-			};
-		}
-	}
-};
+import {useCallback} from 'react';
+import {useTextBuffer} from '../../lib/use-text-buffer.js';
 
 export type UseTextInputStateProps = {
 	/**
-	 * Default input value.
+	 * Initial value when uncontrolled. Ignored once `value` is set.
 	 */
 	defaultValue?: string;
+
+	/**
+	 * Controlled value. Edits are reported through `onChange`; the component
+	 * shows this value until the parent changes it.
+	 */
+	value?: string;
 
 	/**
 	 * Suggestions to autocomplete the input value.
@@ -143,7 +29,17 @@ export type UseTextInputStateProps = {
 	onSubmit?: (value: string) => void;
 };
 
-export type TextInputState = State & {
+export type TextInputState = {
+	/**
+	 * Input value.
+	 */
+	value: string;
+
+	/**
+	 * UTF-16 index into `value`. Movement and deletion step by grapheme cluster.
+	 */
+	cursorOffset: number;
+
 	/**
 	 * Suggested auto completion.
 	 */
@@ -180,78 +76,74 @@ export type TextInputState = State & {
 	submit: () => void;
 };
 
+const suggestionFor = (
+	value: string,
+	suggestions: string[] | undefined,
+): string | undefined => {
+	if (value.length === 0) {
+		return;
+	}
+
+	return suggestions
+		?.find(suggestion => suggestion.startsWith(value))
+		?.replace(value, '');
+};
+
 export const useTextInputState = ({
-	defaultValue = '',
+	defaultValue,
+	value: controlledValue,
 	suggestions,
 	onChange,
 	onSubmit,
-}: UseTextInputStateProps) => {
-	const [state, dispatch] = useReducer(reducer, {
-		previousValue: defaultValue,
-		value: defaultValue,
-		cursorOffset: defaultValue.length,
+}: UseTextInputStateProps): TextInputState => {
+	const buffer = useTextBuffer({
+		value: controlledValue,
+		defaultValue,
+		onChange,
 	});
 
-	const suggestion = useMemo(() => {
-		if (state.value.length === 0) {
-			return;
-		}
-
-		return suggestions
-			?.find(suggestion => suggestion.startsWith(state.value))
-			?.replace(state.value, '');
-	}, [state.value, suggestions]);
+	const {edit, getValue} = buffer;
 
 	const moveCursorLeft = useCallback(() => {
-		dispatch({
-			type: 'move-cursor-left',
-		});
-	}, []);
+		edit({type: 'move-cursor-left'});
+	}, [edit]);
 
 	const moveCursorRight = useCallback(() => {
-		dispatch({
-			type: 'move-cursor-right',
-		});
-	}, []);
+		edit({type: 'move-cursor-right'});
+	}, [edit]);
 
-	const insert = useCallback((text: string) => {
-		dispatch({
-			type: 'insert',
-			text,
-		});
-	}, []);
+	const insert = useCallback(
+		(text: string) => {
+			edit({type: 'insert', text});
+		},
+		[edit],
+	);
 
 	const deleteCharacter = useCallback(() => {
-		dispatch({
-			type: 'delete',
-		});
-	}, []);
+		edit({type: 'delete'});
+	}, [edit]);
 
 	const deleteForward = useCallback(() => {
-		dispatch({
-			type: 'delete-forward',
-		});
-	}, []);
+		edit({type: 'delete-forward'});
+	}, [edit]);
 
 	const submit = useCallback(() => {
+		const current = getValue();
+		const suggestion = suggestionFor(current, suggestions);
+
 		if (suggestion) {
-			dispatch({type: 'append', text: suggestion});
-			onSubmit?.(state.value + suggestion);
+			edit({type: 'append', text: suggestion});
+			onSubmit?.(current + suggestion);
 			return;
 		}
 
-		onSubmit?.(state.value);
-	}, [state.value, suggestion, onSubmit]);
-
-	useEffect(() => {
-		if (state.value !== state.previousValue) {
-			onChange?.(state.value);
-		}
-	}, [state.previousValue, state.value, onChange]);
+		onSubmit?.(current);
+	}, [edit, getValue, suggestions, onSubmit]);
 
 	return {
-		...state,
-		suggestion,
+		value: buffer.value,
+		cursorOffset: buffer.cursorOffset,
+		suggestion: suggestionFor(buffer.value, suggestions),
 		moveCursorLeft,
 		moveCursorRight,
 		insert,

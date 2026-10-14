@@ -45,6 +45,15 @@ history is not carried over. Re-syncing means diffing against the commits above.
 - **TextInput and PasswordInput editing.** Grapheme-aware cursor and deletion,
   forward Delete, no-op Backspace at 0, Ctrl/Alt chords ignored, pasted control
   characters removed. Shared module `source/lib/grapheme.ts`.
+- **Controlled `value` and notification contract.** `TextInput` and
+  `PasswordInput` accept `value` (controlled) and `defaultValue` (uncontrolled).
+  `TextInput`, `PasswordInput` and `EmailInput` call `onChange` from the edit
+  path, once per edit that changes the value. None of them notify from an
+  effect. Before this, a parent that re-rendered with a new callback received
+  the same value again. An exception thrown by `onChange` re-throws during
+  render, so an error boundary catches it. Edit logic is in
+  `source/lib/text-edit.ts`. The buffer, controlled reconciliation and error
+  handling are in `source/lib/use-text-buffer.ts`. Render has no side effects.
 - **ScrollBox** (`source/components/scroll-box`): fixed-height viewport, arrow,
   page, home and end keys, mouse wheel through `<Box onWheel>` (needs
   `render(..., {mouse: true})`), keys read only when stdin supports raw mode,

@@ -97,4 +97,4 @@ The cursor (inverse) and the suggestion (dimmed) are drawn with fixed styles in 
 - A key with Ctrl and a letter inserts the letter. Ctrl+A inserts `a`.
 - The guard against a second `@` checks the current value. Pasting `a@b@c` into an empty field inserts the whole text, with two `@` characters.
 - The address is not validated. `onSubmit` receives an empty string when Enter is pressed on an empty field.
-- `onChange` runs from an effect that depends on the callback. If the parent re-renders with a new function, `onChange` runs again with the current value. Wrap the callback in `useCallback` to avoid this.
+- `onChange` is called from the key handler, once for each edit that changes the value. A re-render with a new function does not call it again.
