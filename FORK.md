@@ -39,12 +39,31 @@ history is not carried over. Re-syncing means diffing against the commits above.
 - **Capability probe.** `src/terminal-capabilities.ts`. Reads `TERM`, `COLORTERM`,
   `NO_COLOR`, `FORCE_COLOR`, `CI`, and TTY state. `render()` now also defaults to
   non-interactive when `TERM=dumb`. `FORCE_COLOR` levels follow chalk; `NO_COLOR` wins over them.
+- **Viewport-bounded shrink writes.** `src/log-update.ts` (`boundShrinkMoves`,
+  `previousScrolledPastTop`). An incremental write that shrinks a frame taller
+  than the viewport caps its erase and climb to the viewport height, so the
+  cursor never requests travel above the top row. A previous block that
+  overflowed the viewport is rewritten in full, because its top rows are in
+  scrollback and cannot be diffed. Without a known viewport height (`stream.rows`
+  not a number) the moves and skips are unchanged. Ink PR #917 (open at the time
+  of writing) clamps `cursorUp` in its cursor-suffix builder instead; that builder
+  is not bounded here, because a cursor on a row that has scrolled away has no
+  visible position to clamp to.
 
 ## Local changes to `@nemesis-oss/termina-ui`
 
 - **TextInput and PasswordInput editing.** Grapheme-aware cursor and deletion,
   forward Delete, no-op Backspace at 0, Ctrl/Alt chords ignored, pasted control
   characters removed. Shared module `source/lib/grapheme.ts`.
+- **Controlled `value` and notification contract.** `TextInput` and
+  `PasswordInput` accept `value` (controlled) and `defaultValue` (uncontrolled).
+  `TextInput`, `PasswordInput` and `EmailInput` call `onChange` from the edit
+  path, once per edit that changes the value. None of them notify from an
+  effect. Before this, a parent that re-rendered with a new callback received
+  the same value again. An exception thrown by `onChange` re-throws during
+  render, so an error boundary catches it. Edit logic is in
+  `source/lib/text-edit.ts`. The buffer, controlled reconciliation and error
+  handling are in `source/lib/use-text-buffer.ts`. Render has no side effects.
 - **ScrollBox** (`source/components/scroll-box`): fixed-height viewport, arrow,
   page, home and end keys, mouse wheel through `<Box onWheel>` (needs
   `render(..., {mouse: true})`), keys read only when stdin supports raw mode,

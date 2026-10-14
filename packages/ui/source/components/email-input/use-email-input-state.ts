@@ -1,7 +1,13 @@
-import {useReducer, useCallback, useEffect, type Reducer, useMemo} from 'react';
+import {
+	useCallback,
+	useLayoutEffect,
+	useRef,
+	useState,
+	type Reducer,
+	useMemo,
+} from 'react';
 
 type State = {
-	previousValue: string;
 	value: string;
 	cursorOffset: number;
 };
@@ -59,7 +65,6 @@ const reducer: Reducer<State, Action> = (state, action) => {
 
 			return {
 				...state,
-				previousValue: state.value,
 				value:
 					state.value.slice(0, state.cursorOffset) +
 					action.text +
@@ -72,7 +77,6 @@ const reducer: Reducer<State, Action> = (state, action) => {
 			const value = state.value + action.text;
 			return {
 				...state,
-				previousValue: state.value,
 				value,
 				cursorOffset: value.length,
 			};
@@ -83,7 +87,6 @@ const reducer: Reducer<State, Action> = (state, action) => {
 
 			return {
 				...state,
-				previousValue: state.value,
 				value:
 					state.value.slice(0, newCursorOffset) +
 					state.value.slice(newCursorOffset + 1),
@@ -164,11 +167,43 @@ export const useEmailInputState = ({
 	onChange,
 	onSubmit,
 }: UseEmailInputStateProps) => {
-	const [state, dispatch] = useReducer(reducer, {
-		previousValue: defaultValue,
+	const [state, setState] = useState<
+		State & {readonly failure?: {readonly error: unknown}}
+	>({
 		value: defaultValue,
 		cursorOffset: defaultValue.length,
 	});
+
+	// Latest proposal. Updated synchronously, so keys in one tick compose.
+	const latestRef = useRef<State>(state);
+
+	const onChangeRef = useRef(onChange);
+	useLayoutEffect(() => {
+		onChangeRef.current = onChange;
+	});
+
+	// Notification runs on the edit path. An effect would miss the change when the
+	// parent unmounts on submit, and it would run again on every render.
+	const dispatch = useCallback((action: Action) => {
+		const previous = latestRef.current;
+		const next = reducer(previous, action);
+		if (next === previous) {
+			return;
+		}
+
+		latestRef.current = next;
+
+		let failure: {readonly error: unknown} | undefined;
+		if (next.value !== previous.value) {
+			try {
+				onChangeRef.current?.(next.value);
+			} catch (error: unknown) {
+				failure = {error};
+			}
+		}
+
+		setState({...next, failure});
+	}, []);
 
 	const suggestion = useMemo(() => {
 		if (state.value.length === 0 || !state.value.includes('@')) {
@@ -209,20 +244,20 @@ export const useEmailInputState = ({
 	}, []);
 
 	const submit = useCallback(() => {
+		const current = latestRef.current.value;
 		if (suggestion) {
 			dispatch({type: 'append', text: suggestion});
-			onSubmit?.(state.value + suggestion);
+			onSubmit?.(current + suggestion);
 			return;
 		}
 
-		onSubmit?.(state.value);
-	}, [state.value, suggestion, onSubmit]);
+		onSubmit?.(current);
+	}, [suggestion, onSubmit, dispatch]);
 
-	useEffect(() => {
-		if (state.previousValue !== state.value) {
-			onChange?.(state.value);
-		}
-	}, [state.previousValue, state.value, onChange]);
+	// Re-thrown in render so the nearest error boundary catches it.
+	if (state.failure) {
+		throw state.failure.error;
+	}
 
 	return {
 		...state,

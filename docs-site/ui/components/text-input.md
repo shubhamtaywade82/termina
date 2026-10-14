@@ -58,9 +58,10 @@ render(<Prompt />);
 | --- | --- | --- | --- |
 | `isDisabled` | `boolean` | `false` | When true, key input is ignored, no cursor is drawn, and no completion is shown. |
 | `placeholder` | `string` | `''` | Text drawn when the value is empty. See Placeholder and disabled state below. |
-| `defaultValue` | `string` | `''` | Value at mount. The cursor starts at its end. Read once, so later changes have no effect. |
+| `defaultValue` | `string` | `''` | Initial value when uncontrolled. The cursor starts at its end. Read once, so later changes have no effect. Ignored when `value` is set. |
+| `value` | `string` | `undefined` | Controlled value. The input shows it and reports each edit through `onChange`. It changes only when the parent passes a new `value`. See Controlled and uncontrolled below. |
 | `suggestions` | `string[]` | `undefined` | Complete values to offer as a completion. See Suggestions below. |
-| `onChange` | `(value: string) => void` | `undefined` | Called with the new value after each change to the value. |
+| `onChange` | `(value: string) => void` | `undefined` | Called with the next value after each edit that changes it. See Callbacks below. |
 | `onSubmit` | `(value: string) => void` | `undefined` | Called with the value when Enter is pressed. |
 
 ## Keyboard
@@ -97,7 +98,7 @@ The cursor is an index into the value, counted in UTF-16 code units. The editor 
 - Enter accepts the completion. The editor inserts it, `onChange` is called with the completed value, and `onSubmit` is called with the completed value. Right and Tab do not accept it.
 - Only the first matching entry is used. If that entry equals the current value, the completion is empty and nothing is shown, even when a later entry extends the value. With `['app', 'apple']`, the input `app` shows no completion. With `['apple', 'app']`, it shows `le`.
 - No completion is shown when the value is empty or when `isDisabled` is true.
-- When the cursor is not at the end, Enter inserts the completion at the cursor, but `onSubmit` receives the value followed by the completion. The text left in the input can then differ from the string passed to `onSubmit`. Move the cursor to the end before pressing Enter if the two must match.
+- Enter appends the completion to the end of the value and moves the cursor there, wherever the cursor was. `onSubmit` receives the same string the field shows.
 
 ## Placeholder and disabled state
 
@@ -107,9 +108,33 @@ The cursor is an index into the value, counted in UTF-16 code units. The editor 
 
 ## Callbacks
 
-- `onChange` is called after each change to the value. It is not called on mount, for cursor movement, or for a key that leaves the value unchanged, such as Backspace at the start.
-- `onSubmit` is called with the current value. An empty value is passed as `''`.
-- `onChange` runs from an effect that depends on the function. If the parent passes a new function on every render, `onChange` runs again with the current value after that render. Wrap the callback in `useCallback` to avoid this.
+- `onChange` is called once for each edit that changes the value, with the next value. It runs from the key handler, not from an effect. It is not called on mount, for cursor movement, or for a key that leaves the value unchanged, such as Backspace at the start.
+- A re-render with a new `onChange` function does not call it again. A parent can pass an inline function on every render.
+- `onSubmit` is called with the current value. An empty value is passed as `''`. In controlled mode, this is the latest proposed value. It equals the `value` prop once the parent has echoed it. A completion accepted on the same Enter is included.
+
+## Controlled and uncontrolled
+
+Leave out `value` to let the input keep its own value. Pass `value` to control it:
+
+```tsx
+import {useState} from 'react';
+
+function Name() {
+	const [name, setName] = useState('');
+	return <TextInput value={name} onChange={setName} onSubmit={save} />;
+}
+
+function save(name: string) {
+	console.log(`Saved ${name}`);
+}
+```
+
+- The input shows `value`. A key press reports the proposed value through `onChange`, and the display follows the `value` the parent passes next. A parent that ignores `onChange` keeps the old text on screen, and the cursor moves to the end.
+- The parent must apply the value in the same event, from inside `onChange`, as the `setName` call above does. A value applied later overwrites keys typed in between, and the cursor moves to the end. React's own controlled inputs have the same requirement.
+- When the parent echoes back the value it received, the cursor stays where the user put it.
+- Keys pressed in the same event loop turn compose on the last proposed value, not on the value the parent last rendered.
+- Enter with a completion submits the completed value, even if the parent rejects that edit.
+- Switching between controlled and uncontrolled after mount is not supported.
 
 ## Theme keys
 
@@ -123,5 +148,5 @@ The cursor, placeholder, and completion styles (inverse and dim) are set in the 
 
 ## Edge cases
 
-- `defaultValue` is read once. Changing it later does not change the value.
+- `defaultValue` is read once. Changing it later does not change the value. It is ignored when `value` is set.
 - Inserting a zero-width joiner between two pictographic characters, such as two emoji, merges them into one grapheme, and the cursor can then sit inside it with no cursor drawn. A ZWJ between other characters attaches to the preceding grapheme and does not merge the two. Pressing Left moves the cursor to the start of the merged grapheme, and the cursor is drawn again.

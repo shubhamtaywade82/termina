@@ -46,13 +46,15 @@ render(<Login />);
 
 ## Props
 
-`PasswordInputProps` is exported from `@nemesis-oss/termina-ui`. The component has no `defaultValue` prop. The field always starts empty.
+`PasswordInputProps` is exported from `@nemesis-oss/termina-ui`. The field starts empty unless `defaultValue` or `value` is set. Both follow the same rules as [TextInput](/ui/components/text-input#controlled-and-uncontrolled).
 
 | Prop | Type | Default | Description |
 | --- | --- | --- | --- |
 | `isDisabled` | `boolean` | `false` | When true, key input is ignored. The mask is shown without a cursor. |
 | `placeholder` | `string` | `''` | Text shown when the value is empty. It is not masked. The first character is drawn as the cursor and the rest is dimmed. |
-| `onChange` | `(value: string) => void` | `undefined` | Called after the value changes, with the raw value. |
+| `defaultValue` | `string` | `''` | Initial raw value when uncontrolled. Read once. Ignored when `value` is set. |
+| `value` | `string` | `undefined` | Controlled raw value. The field shows its mask and reports each edit through `onChange`. It changes only when the parent passes a new `value`. |
+| `onChange` | `(value: string) => void` | `undefined` | Called with the next raw value after each edit that changes it. It is never called for a no-op key or because of a re-render. |
 | `onSubmit` | `(value: string) => void` | `undefined` | Called on Enter with the raw value. |
 
 ## Masking
@@ -93,4 +95,4 @@ The mask character and the cursor style are fixed in the input hook. They are no
 - Moving the cursor over an emoji highlights the whole emoji. One Backspace removes the whole emoji from the mask and from the value.
 - A submitted value keeps its characters intact. For example, `😀` is submitted as `😀` while the field shows one `*`.
 - An empty field submits an empty string.
-- If the parent re-renders with a new `onChange` function, `onChange` runs again with the current value. Wrap the callback in `useCallback` to avoid this.
+- If the parent re-renders with a new `onChange` function, `onChange` is not called again.
