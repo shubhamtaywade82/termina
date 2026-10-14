@@ -371,7 +371,7 @@ function App({
 		while ((chunk = stdin.read() as string | null) !== null) {
 			const text = chunk;
 			// Each event commits before the next one runs, so a handler and a controlled input see the state the previous event produced. The render waits for the batch, so one read still produces one frame.
-			onBatchInput(commitEvent => {
+			onBatchInput((commitEvent) => {
 				for (const event of inputParserRef.current.push(text)) {
 					handleInputEvent(event);
 					commitEvent();

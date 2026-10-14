@@ -150,12 +150,19 @@ test('an out-of-range cursor never moves the cursor above the frame, including o
 	update.clearReflowed(100);
 
 	// The frame has four lines, so the cursor may move up at most three rows.
-	const ups = [...stdout.getWrites().join('').matchAll(/\u001B\[(\d+)A/g)].map(
-		match => Number(match[1]),
-	);
+	// A cursor-up move is ESC [ <count> A. Splitting on ESC [ keeps the escape out of a regular expression.
+	const ups = stdout
+		.getWrites()
+		.join('')
+		.split('\u{1B}[')
+		.slice(1)
+		.flatMap((sequence) => {
+			const count = /^(?<count>\d+)A/.exec(sequence)?.groups?.count;
+			return count === undefined ? [] : [Number(count)];
+		});
 	t.assert.ok(ups.length > 0, 'expected a cursor-up move');
 	t.assert.ok(
-		ups.every(count => count <= 3),
+		ups.every((count) => count <= 3),
 		`cursor moved up ${Math.max(...ups)} rows in a four-line frame`,
 	);
 });

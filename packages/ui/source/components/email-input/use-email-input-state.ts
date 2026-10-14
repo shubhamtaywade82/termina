@@ -159,7 +159,7 @@ const findDomainSuggestion = (
 	const enteredDomain = value.slice(atIndex + 1);
 
 	return domains
-		?.find(domain => domain.startsWith(enteredDomain))
+		?.find((domain) => domain.startsWith(enteredDomain))
 		?.replace(enteredDomain, '');
 };
 
@@ -178,11 +178,7 @@ export const useEmailInputState = ({
 	onChange,
 	onSubmit,
 }: UseEmailInputStateProps) => {
-	const {
-		state,
-		latest,
-		dispatch,
-	} = useSyncedReducer(reducer, () => ({
+	const {state, latest, dispatch} = useSyncedReducer(reducer, () => ({
 		value: defaultValue,
 		cursorOffset: defaultValue.length,
 	}));
@@ -236,10 +232,10 @@ export const useEmailInputState = ({
 
 	const submit = useCallback(() => {
 		// Read the latest value, not the render's closure, so Enter after a burst submits what the burst produced.
-		const current = latest.current;
+		const {current} = latest;
 		const completion = findDomainSuggestion(current.value, domains);
 
-		if (completion) {
+		if (completion !== undefined && completion !== '') {
 			const next = commit({type: 'append', text: completion});
 			onSubmit?.(next.value);
 			return;

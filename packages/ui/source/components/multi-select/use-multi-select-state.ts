@@ -1,10 +1,5 @@
 import {isDeepStrictEqual} from 'node:util';
-import {
-	type Reducer,
-	useCallback,
-	useMemo,
-	useState,
-} from 'react';
+import {type Reducer, useCallback, useMemo, useState} from 'react';
 import OptionMap from '../../lib/option-map.js';
 import {type Option} from '../../types.js';
 import {useSyncedReducer} from '../../lib/use-synced-reducer.js';
@@ -42,9 +37,7 @@ type State = {
 };
 
 type Action =
-	| FocusNextOptionAction
-	| FocusPreviousOptionAction
-	| ToggleFocusedOptionAction;
+	FocusNextOptionAction | FocusPreviousOptionAction | ToggleFocusedOptionAction;
 
 type FocusNextOptionAction = {
 	type: 'focus-next-option';

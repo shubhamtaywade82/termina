@@ -449,7 +449,7 @@ for (const [mode, options] of Object.entries({
 			return (
 				<>
 					<Static items={items}>
-						{item => <Text key={item}>{item}</Text>}
+						{(item) => <Text key={item}>{item}</Text>}
 					</Static>
 					<Text>live</Text>
 				</>

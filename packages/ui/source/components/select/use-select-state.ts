@@ -1,10 +1,5 @@
 import {isDeepStrictEqual} from 'node:util';
-import {
-	type Reducer,
-	useCallback,
-	useMemo,
-	useState,
-} from 'react';
+import {type Reducer, useCallback, useMemo, useState} from 'react';
 import {type Option} from '../../types.js';
 import OptionMap from '../../lib/option-map.js';
 import {useSyncedReducer} from '../../lib/use-synced-reducer.js';
@@ -42,9 +37,7 @@ type State = {
 };
 
 type Action =
-	| FocusNextOptionAction
-	| FocusPreviousOptionAction
-	| SelectFocusedOptionAction;
+	FocusNextOptionAction | FocusPreviousOptionAction | SelectFocusedOptionAction;
 
 type FocusNextOptionAction = {
 	type: 'focus-next-option';
@@ -263,7 +256,11 @@ export const useSelectState = ({
 			type: 'select-focused-option',
 		});
 
-		if (next.value && next.value !== previous.value) {
+		if (
+			next.value !== undefined &&
+			next.value !== '' &&
+			next.value !== previous.value
+		) {
 			onChange?.(next.value);
 		}
 	}, [dispatch, onChange]);

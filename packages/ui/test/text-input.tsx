@@ -1,6 +1,6 @@
 /* eslint-disable no-await-in-loop */
-import React, {useState} from 'react';
 import test, {type TestContext} from 'node:test';
+import React, {useState} from 'react';
 import {render} from './helpers/render.js';
 import chalk from 'chalk';
 import delay from 'delay';
@@ -393,7 +393,7 @@ test('typing into a controlled value reports the next value and keeps the displa
 	const instance = render(
 		<TextInput
 			value="abc"
-			onChange={value => {
+			onChange={(value) => {
 				changes.push(value);
 			}}
 		/>,
@@ -427,7 +427,7 @@ test('a parent that stores a controlled value shows each keystroke', async (t: T
 });
 
 test('a burst into a controlled value reports one change per input event and shows the final value', async (t: TestContext) => {
-	const run = async (burst: boolean) => {
+	const run = async (isBurst: boolean) => {
 		const changes: string[] = [];
 
 		function Form() {
@@ -435,7 +435,7 @@ test('a burst into a controlled value reports one change per input event and sho
 			return (
 				<TextInput
 					value={value}
-					onChange={next => {
+					onChange={(next) => {
 						changes.push(next);
 						setValue(next);
 					}}
@@ -446,7 +446,7 @@ test('a burst into a controlled value reports one change per input event and sho
 		const instance = render(<Form />);
 
 		await delay(50);
-		if (burst) {
+		if (isBurst) {
 			instance.stdin.write('ab' + del);
 		} else {
 			instance.stdin.write('a');
@@ -474,7 +474,7 @@ test('an external shorter value keeps the caret inside the value', async (t: Tes
 	const instance = render(
 		<TextInput
 			value="hello"
-			onChange={value => {
+			onChange={(value) => {
 				changes.push(value);
 			}}
 		/>,
@@ -484,7 +484,7 @@ test('an external shorter value keeps the caret inside the value', async (t: Tes
 	instance.rerender(
 		<TextInput
 			value="hi"
-			onChange={value => {
+			onChange={(value) => {
 				changes.push(value);
 			}}
 		/>,
@@ -503,7 +503,7 @@ test('a caret inside a multi-code-unit character snaps to a character boundary a
 	const instance = render(
 		<TextInput
 			value="ab"
-			onChange={value => {
+			onChange={(value) => {
 				changes.push(value);
 			}}
 		/>,
@@ -515,7 +515,7 @@ test('a caret inside a multi-code-unit character snaps to a character boundary a
 	instance.rerender(
 		<TextInput
 			value="😀x"
-			onChange={value => {
+			onChange={(value) => {
 				changes.push(value);
 			}}
 		/>,
@@ -540,10 +540,10 @@ test('accepting a suggestion in a controlled value reports onChange before onSub
 		<TextInput
 			value="app"
 			suggestions={['apple']}
-			onChange={value => {
+			onChange={(value) => {
 				events.push(`change:${value}`);
 			}}
-			onSubmit={value => {
+			onSubmit={(value) => {
 				events.push(`submit:${value}`);
 			}}
 		/>,
@@ -563,7 +563,7 @@ test('a disabled controlled value ignores keys', async (t: TestContext) => {
 		<TextInput
 			isDisabled
 			value="abc"
-			onChange={value => {
+			onChange={(value) => {
 				changes.push(value);
 			}}
 		/>,
@@ -593,7 +593,12 @@ test('a parent can transform the value it stores', async (t: TestContext) => {
 	function Form() {
 		const [value, setValue] = useState('');
 		return (
-			<TextInput value={value} onChange={next => setValue(next.toUpperCase())} />
+			<TextInput
+				value={value}
+				onChange={(next) => {
+					setValue(next.toUpperCase());
+				}}
+			/>
 		);
 	}
 
@@ -632,7 +637,7 @@ test('a key the parent rejects is not built on by the next key in the same read'
 		return (
 			<TextInput
 				value={value}
-				onChange={next => {
+				onChange={(next) => {
 					changes.push(next);
 					if (/^\d*$/.test(next)) {
 						setValue(next);
@@ -646,7 +651,7 @@ test('a key the parent rejects is not built on by the next key in the same read'
 
 	await delay(50);
 	// 'x' is rejected, Up is ignored, '2' is accepted: all three arrive in one read.
-	instance.stdin.write('x\u001B[A2');
+	instance.stdin.write('x\u{1B}[A2');
 	await delay(50);
 	instance.unmount();
 
@@ -660,14 +665,14 @@ test('Enter after a key the parent rejects submits the stored value', async (t: 
 		<TextInput
 			value="abc"
 			onChange={() => {}}
-			onSubmit={value => {
+			onSubmit={(value) => {
 				submitted.push(value);
 			}}
 		/>,
 	);
 
 	await delay(50);
-	instance.stdin.write('d\u001B[A' + enter);
+	instance.stdin.write('d\u{1B}[A' + enter);
 	await delay(50);
 	instance.unmount();
 

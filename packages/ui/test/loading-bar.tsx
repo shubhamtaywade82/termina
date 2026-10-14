@@ -23,8 +23,11 @@ const drawTrack = (width: number, start: number): string => {
 };
 
 // React commits a state update in a later task. A fixed 20 ms wait can end before the frame lands, as it did for the first update after mount in a cold process. The tests wait, bounded to one second, for the frame they expect, and then assert it.
-const waitForFrame = async (lastFrame: () => string | undefined, expected: string): Promise<void> => {
-	await new Promise<void>(resolve => {
+const waitForFrame = async (
+	lastFrame: () => string | undefined,
+	expected: string,
+): Promise<void> => {
+	await new Promise<void>((resolve) => {
 		const deadline = Date.now() + 1000;
 		const check = () => {
 			if (lastFrame() === expected || Date.now() >= deadline) {
@@ -50,14 +53,24 @@ test('draws a 20 cell track with the block at the start by default', (t: TestCon
 test('bounces the block between the ends of the track', async (t: TestContext) => {
 	t.mock.timers.enable({apis: ['setInterval']});
 	const {lastFrame, unmount} = render(<LoadingBar width={6} interval={12} />);
-	const expected = [1, 2, 1, 0, 1, 2, 1, 0].map(start => drawTrack(6, start));
-	const frames: string[] = [];
+	const expected = [1, 2, 1, 0, 1, 2, 1, 0].map((start) => drawTrack(6, start));
 
-	for (const frame of expected) {
+	// Each frame is awaited before the next tick, so the frames are read one after another.
+	const collect = async (
+		remaining: string[],
+		frames: string[],
+	): Promise<string[]> => {
+		const [frame, ...rest] = remaining;
+		if (frame === undefined) {
+			return frames;
+		}
+
 		t.mock.timers.tick(12);
 		await waitForFrame(lastFrame, frame);
-		frames.push(lastFrame() ?? '');
-	}
+		return collect(rest, [...frames, lastFrame() ?? '']);
+	};
+
+	const frames = await collect(expected, []);
 
 	t.assert.deepStrictEqual(frames, expected);
 	unmount();
