@@ -1,6 +1,13 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { z } from 'zod';
-import { Box, Text, render, useApp, useInput, useMouse } from '@nemesis-oss/termina-core';
+import {
+	Box,
+	Text,
+	render,
+	useApp,
+	useInput,
+	useWindowSize,
+} from '@nemesis-oss/termina-core';
 import {
 	GenUIRenderer,
 	createActionDispatcher,
@@ -20,15 +27,11 @@ type Tab = 'dashboard' | 'form' | 'streaming';
 
 function App() {
 	const { exit } = useApp();
+	const { columns, rows } = useWindowSize();
 	const [tab, setTab] = useState<Tab>('dashboard');
 	const [actionMessage, setActionMessage] = useState<string>('');
 	const [streamTree, setStreamTree] = useState<GenUIElementNode | null>(null);
 	const [streamIndex, setStreamIndex] = useState(0);
-	const [mouseInfo, setMouseInfo] = useState<string>('none');
-
-	useMouse(event => {
-		setMouseInfo(`${event.button} ${event.action} @ (${event.x}, ${event.y})`);
-	});
 
 	const registry = useMemo(() => createDefaultRegistry(), []);
 	const adapter = useMemo(() => createLanguageAdapter(registry), [registry]);
@@ -93,7 +96,7 @@ function App() {
 	}, [tab, adapter, streamTree]);
 
 	return (
-		<Box flexDirection="column" padding={1} gap={1}>
+		<Box flexDirection="column" width={columns} height={rows} padding={1} gap={1}>
 			<Header
 				tab={tab}
 				onTabChange={nextTab => {
@@ -102,7 +105,7 @@ function App() {
 				}}
 				onQuit={exit}
 			/>
-			<Box borderStyle="single" borderColor="gray" padding={1}>
+			<Box borderStyle="single" borderColor="gray" padding={1} flexGrow={1}>
 				<GenUIRenderer
 					node={activeTree}
 					registry={registry}
@@ -115,7 +118,6 @@ function App() {
 				tab={tab}
 				streamIndex={streamIndex}
 				actionMessage={actionMessage}
-				mouseInfo={mouseInfo}
 			/>
 		</Box>
 	);
@@ -138,38 +140,33 @@ function Header({
 			<Box gap={1}>
 				<Box
 					onClick={() => onTabChange?.('dashboard')}
-					borderStyle="round"
-					borderColor={tab === 'dashboard' ? 'cyan' : 'gray'}
+					backgroundColor={tab === 'dashboard' ? 'blue' : undefined}
 					paddingX={1}
 				>
-					<Text color={tab === 'dashboard' ? 'cyan' : 'gray'} bold={tab === 'dashboard'}>
+					<Text color={tab === 'dashboard' ? 'white' : 'gray'} bold={tab === 'dashboard'}>
 						[1] Dashboard
 					</Text>
 				</Box>
 				<Box
 					onClick={() => onTabChange?.('form')}
-					borderStyle="round"
-					borderColor={tab === 'form' ? 'green' : 'gray'}
+					backgroundColor={tab === 'form' ? 'green' : undefined}
 					paddingX={1}
 				>
-					<Text color={tab === 'form' ? 'green' : 'gray'} bold={tab === 'form'}>
+					<Text color={tab === 'form' ? 'white' : 'gray'} bold={tab === 'form'}>
 						[2] Form & Runtime
 					</Text>
 				</Box>
 				<Box
 					onClick={() => onTabChange?.('streaming')}
-					borderStyle="round"
-					borderColor={tab === 'streaming' ? 'yellow' : 'gray'}
+					backgroundColor={tab === 'streaming' ? 'yellow' : undefined}
 					paddingX={1}
 				>
-					<Text color={tab === 'streaming' ? 'yellow' : 'gray'} bold={tab === 'streaming'}>
+					<Text color={tab === 'streaming' ? 'black' : 'gray'} bold={tab === 'streaming'}>
 						[3] Live Streaming
 					</Text>
 				</Box>
 				<Box
 					onClick={() => onQuit?.()}
-					borderStyle="round"
-					borderColor="gray"
 					paddingX={1}
 				>
 					<Text color="gray">[q] Quit</Text>
@@ -183,12 +180,10 @@ function Footer({
 	tab,
 	streamIndex,
 	actionMessage,
-	mouseInfo,
 }: {
 	readonly tab: Tab;
 	readonly streamIndex: number;
 	readonly actionMessage: string;
-	readonly mouseInfo: string;
 }) {
 	return (
 		<Box flexDirection="column">
@@ -198,7 +193,7 @@ function Footer({
 				</Text>
 			)}
 			{tab === 'form' && (
-				<Text dimColor>Press [a] or click the button to trigger registered "applyConfig" action</Text>
+				<Text dimColor>Click the button or press [a] to trigger registered "applyConfig" action</Text>
 			)}
 			{actionMessage !== '' && (
 				<Text color="green" bold>
@@ -206,11 +201,15 @@ function Footer({
 				</Text>
 			)}
 			<Text dimColor>
-				🖱️ Mouse tracking: {mouseInfo}
+				Click any tab button above or press 1, 2, 3, q
 			</Text>
 		</Box>
 	);
 }
 
-render(<App />, { mouse: true, alternateScreen: true });
-
+render(<App />, {
+	alternateScreen: true,
+	incrementalRendering: true,
+	maxFps: 30,
+	mouse: true,
+});
