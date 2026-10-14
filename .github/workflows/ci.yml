@@ -35,6 +35,9 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
+      - name: Validate repository agent skills
+        run: pnpm skills:check
+
       # The UI package typechecks against the core package's built declarations, so build first.
       - name: Build
         run: pnpm build
