@@ -1,0 +1,77 @@
+{
+  "schema_version": 1,
+  "id": "narrow-terminal-adaptation",
+  "title": "Narrow-terminal adaptation",
+  "kind": "implementation",
+  "user_prompt": "Refactor an existing multi-region terminal screen so it remains usable in a small terminal. Preserve the primary content and its most important action; reduce secondary metadata, wrap, scroll, or switch layout deliberately instead of squeezing every panel into one line. Support 40x12 as the compact case and 80x24 as the common case.",
+  "expected_skills": [
+    "termina-tui-design",
+    "termina-ui",
+    "termina-tui-validation"
+  ],
+  "adjacent_skills_not_required": [
+    "termina-core",
+    "termina-agentic-ui-patterns",
+    "termina-tui-app-architecture"
+  ],
+  "environment": {
+    "terminal_sizes": [
+      {
+        "columns": 40,
+        "rows": 12
+      },
+      {
+        "columns": 80,
+        "rows": 24
+      }
+    ],
+    "execution_modes": [
+      "interactive"
+    ]
+  },
+  "acceptance_checks": [
+    {
+      "id": "primary-action",
+      "verification": "terminal-run",
+      "assertion": "The primary action and current task state remain discoverable at compact width/height.",
+      "evidence_required": "Captured 40x12 output."
+    },
+    {
+      "id": "secondary-degradation",
+      "verification": "terminal-run",
+      "assertion": "Secondary content degrades deliberately through wrapping, scrolling, or omission with an accessible detail path.",
+      "evidence_required": "Captured 40x12 and 80x24 outputs with explanation."
+    },
+    {
+      "id": "cell-width",
+      "verification": "static-review",
+      "assertion": "Manual text-width calculations use terminal display width or layout primitives rather than JavaScript string length.",
+      "evidence_required": "Relevant implementation reference."
+    },
+    {
+      "id": "no-clipped-controls",
+      "verification": "terminal-run",
+      "assertion": "Essential controls and their key hints are not silently clipped out of view.",
+      "evidence_required": "Viewport inspection at both sizes."
+    }
+  ],
+  "hard_gates": [
+    {
+      "id": "hidden-essential-action",
+      "failure_condition": "A required action disappears at compact sizes without an alternate access path."
+    },
+    {
+      "id": "string-length-layout",
+      "failure_condition": "Manual width calculations use JavaScript string length for display-cell alignment with potentially wide/combining text."
+    }
+  ],
+  "score_dimensions": [
+    "api-grounding",
+    "ux-hierarchy",
+    "terminal-resilience",
+    "interaction",
+    "accessibility",
+    "tests",
+    "engineering-discipline"
+  ]
+}

@@ -1,0 +1,71 @@
+{
+  "schema_version": 1,
+  "id": "dialog-contract",
+  "title": "Dialog behavior against the actual contract",
+  "kind": "implementation",
+  "user_prompt": "Add a confirmation panel to a screen using the repository's existing dialog component. Read its public API and behavior first. Make the surrounding screen's key handling safe while the confirmation is visible, and document exactly how Escape behaves. Do not assume a dialog automatically overlays content or traps keyboard focus.",
+  "expected_skills": [
+    "termina-ui",
+    "termina-tui-design",
+    "termina-tui-validation"
+  ],
+  "adjacent_skills_not_required": [
+    "termina-core",
+    "termina-agentic-ui-patterns"
+  ],
+  "environment": {
+    "terminal_sizes": [
+      {
+        "columns": 80,
+        "rows": 24
+      }
+    ],
+    "execution_modes": [
+      "interactive"
+    ]
+  },
+  "acceptance_checks": [
+    {
+      "id": "api-grounding",
+      "verification": "static-review",
+      "assertion": "The solution uses the actual Dialog props and composition model documented/exported by Termina.",
+      "evidence_required": "Public export/API and docs/source references."
+    },
+    {
+      "id": "key-isolation",
+      "verification": "test",
+      "assertion": "While confirmation is visible, surrounding-screen key handlers cannot accidentally trigger the underlying destructive or navigation action.",
+      "evidence_required": "Interaction test with both dialog and parent mounted."
+    },
+    {
+      "id": "escape-contract",
+      "verification": "test",
+      "assertion": "Escape closes only when the documented callback/state path is supplied; no undocumented modal behavior is assumed.",
+      "evidence_required": "Test and implementation reference."
+    },
+    {
+      "id": "no-focus-trap-claim",
+      "verification": "static-review",
+      "assertion": "The implementation does not claim the existing dialog traps focus or automatically overlays the screen.",
+      "evidence_required": "Review of comments/docs and composition."
+    }
+  ],
+  "hard_gates": [
+    {
+      "id": "invented-modal-capability",
+      "failure_condition": "The implementation relies on or claims focus trapping/overlay behavior unsupported by the current Dialog contract."
+    },
+    {
+      "id": "background-action",
+      "failure_condition": "A key press intended for the visible confirmation accidentally triggers the background screen action."
+    }
+  ],
+  "score_dimensions": [
+    "api-grounding",
+    "ux-hierarchy",
+    "interaction",
+    "accessibility",
+    "tests",
+    "engineering-discipline"
+  ]
+}

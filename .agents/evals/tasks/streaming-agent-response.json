@@ -1,0 +1,77 @@
+{
+  "schema_version": 1,
+  "id": "streaming-agent-response",
+  "title": "Streaming agent response states",
+  "kind": "implementation",
+  "user_prompt": "Build the response panel for an assistant that receives text chunks from a caller-owned stream. It needs to show waiting, streaming, completed, empty, failed, and cancelled states. Let the user request cancellation and retry a failed run. The UI must reflect the execution state supplied by the caller and must not invent progress or initiate network requests itself.",
+  "expected_skills": [
+    "termina-agentic-ui-patterns",
+    "termina-tui-design",
+    "termina-tui-app-architecture",
+    "termina-ui",
+    "termina-tui-validation"
+  ],
+  "adjacent_skills_not_required": [
+    "termina-core"
+  ],
+  "environment": {
+    "terminal_sizes": [
+      {
+        "columns": 40,
+        "rows": 12
+      },
+      {
+        "columns": 80,
+        "rows": 24
+      }
+    ],
+    "execution_modes": [
+      "interactive"
+    ]
+  },
+  "acceptance_checks": [
+    {
+      "id": "state-coverage",
+      "verification": "test",
+      "assertion": "Waiting, streaming, completed, empty, failed, and cancelled states render distinguishably from explicit state input.",
+      "evidence_required": "Tests for all six state cases."
+    },
+    {
+      "id": "no-fake-progress",
+      "verification": "static-review",
+      "assertion": "Progress indicators are grounded in real values or are explicitly indeterminate; elapsed time is not presented as completion percentage.",
+      "evidence_required": "State/data-flow review of progress labels."
+    },
+    {
+      "id": "caller-owned-stream",
+      "verification": "static-review",
+      "assertion": "The component renders supplied chunks and state; transport, retries, and cancellation requests belong to the caller/service contract.",
+      "evidence_required": "Component/service boundary explanation."
+    },
+    {
+      "id": "late-result-guard",
+      "verification": "test",
+      "assertion": "A late result from an older run cannot overwrite the currently selected/retried run.",
+      "evidence_required": "Test or explicit generation/run identity guard."
+    }
+  ],
+  "hard_gates": [
+    {
+      "id": "fabricated-progress",
+      "failure_condition": "The UI fabricates progress, tool success, or completion without authoritative state."
+    },
+    {
+      "id": "cancellation-integrity",
+      "failure_condition": "A cancel request is shown as confirmed cancellation before execution confirms it."
+    }
+  ],
+  "score_dimensions": [
+    "api-grounding",
+    "ux-hierarchy",
+    "interaction",
+    "async-integrity",
+    "accessibility",
+    "tests",
+    "engineering-discipline"
+  ]
+}

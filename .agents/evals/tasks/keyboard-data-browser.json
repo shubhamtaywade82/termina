@@ -1,0 +1,83 @@
+{
+  "schema_version": 1,
+  "id": "keyboard-data-browser",
+  "title": "Keyboard-driven data browser",
+  "kind": "implementation",
+  "user_prompt": "Build a terminal browser for a list of jobs. Users need to move through rows, filter by text, open the selected job, and cancel back to the list. Data can refresh while the user is browsing, including when the selected row disappears. Make keyboard behavior explicit and keep only the correct input active at a time.",
+  "expected_skills": [
+    "termina-tui-design",
+    "termina-tui-app-architecture",
+    "termina-ui",
+    "termina-tui-validation"
+  ],
+  "adjacent_skills_not_required": [
+    "termina-core",
+    "termina-agentic-ui-patterns"
+  ],
+  "environment": {
+    "terminal_sizes": [
+      {
+        "columns": 40,
+        "rows": 12
+      },
+      {
+        "columns": 80,
+        "rows": 24
+      }
+    ],
+    "execution_modes": [
+      "interactive"
+    ]
+  },
+  "acceptance_checks": [
+    {
+      "id": "navigation-boundaries",
+      "verification": "test",
+      "assertion": "Up/down navigation respects list boundaries, and behavior for an empty list is safe.",
+      "evidence_required": "Tests for first/last row and empty results."
+    },
+    {
+      "id": "submit-and-cancel",
+      "verification": "test",
+      "assertion": "Enter opens the intended selection and Escape cancels the current interaction without triggering a competing handler.",
+      "evidence_required": "Tests covering Enter, Escape, and resulting state."
+    },
+    {
+      "id": "refresh-selection",
+      "verification": "test",
+      "assertion": "Refreshes preserve selection by stable identity when possible and recover predictably when the selected item disappears.",
+      "evidence_required": "Test where rows are replaced and the selected row is removed."
+    },
+    {
+      "id": "single-input-owner",
+      "verification": "static-review",
+      "assertion": "Only the intended screen/component consumes list or filter key events at each state.",
+      "evidence_required": "Focus/input ownership explanation and code references."
+    },
+    {
+      "id": "compact-layout",
+      "verification": "terminal-run",
+      "assertion": "Essential row identity, selection, and interaction hints remain usable at 40x12.",
+      "evidence_required": "Captured 40x12 output."
+    }
+  ],
+  "hard_gates": [
+    {
+      "id": "invented-api",
+      "failure_condition": "The implementation invents Termina component APIs instead of inspecting exports/docs/source."
+    },
+    {
+      "id": "lost-selection",
+      "failure_condition": "Refreshes can silently open a different item than the one visibly selected."
+    }
+  ],
+  "score_dimensions": [
+    "api-grounding",
+    "ux-hierarchy",
+    "terminal-resilience",
+    "interaction",
+    "accessibility",
+    "tests",
+    "engineering-discipline"
+  ]
+}
