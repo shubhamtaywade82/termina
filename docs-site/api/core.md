@@ -563,7 +563,7 @@ Calls `inputHandler` for each key press. `input` is the typed text. `key` descri
 - `isActive` defaults to `true`. Setting it to `false` removes the listener and releases raw mode.
 - When `exitOnCtrlC` is `true`, the default, Ctrl+C exits the app and the handler does not receive it.
 - Mouse reports are never passed to `useInput`. They go to `useMouse`.
-- When no `usePaste` listener is mounted, pasted text arrives as one string. When a `usePaste` listener is mounted, pasted text is delivered only to it.
+- When no `usePaste` listener is mounted, pasted text arrives as one string. When a `usePaste` listener is mounted, pasted text is delivered only to it. An enabled `TextInput` or `PasswordInput` mounts one, so this holds while an enabled editor is mounted.
 - `useInput` calls `setRawMode(true)` while it is active, without checking `isRawModeSupported`. On a stdin without raw mode support, `setRawMode` throws, so guard the component with `isRawModeSupported` from `useStdin()`.
 
 ```ts
@@ -624,7 +624,7 @@ Calls `handler` once for each paste, with the full pasted text, newlines include
 
 - While active, bracketed paste mode is enabled on stdout, so the terminal wraps a paste in markers and the text is not read as key presses. Bracketed paste is written only when stdout is a TTY.
 - `isActive` defaults to `true`. Several `usePaste` hooks can be mounted, and each receives the same paste.
-- Paste content is never passed to `useInput` while a `usePaste` listener is mounted.
+- Paste content is never passed to `useInput` while a `usePaste` listener is mounted. An enabled `TextInput` or `PasswordInput` mounts one, so a `useInput` listener stops seeing paste while an enabled editor is mounted. The editors insert the pasted text themselves. See [Keyboard and Focus](/guide/keyboard-and-focus).
 
 ```tsx
 import {Text, render, usePaste} from '@nemesis-oss/termina-core';

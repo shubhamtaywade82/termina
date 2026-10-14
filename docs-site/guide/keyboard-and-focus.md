@@ -180,8 +180,9 @@ Behavior:
 
 - While at least one active `usePaste` is mounted, bracketed paste mode is on in the terminal. The mode is reference counted, and it is turned off when the last one unmounts.
 - The handler receives the whole paste in one call, including newlines. Escape bytes inside the paste are kept as text.
-- When a `usePaste` handler is mounted, paste is delivered only to `usePaste` handlers, never to `useInput`. Every mounted `usePaste` receives the same text.
-- Without a mounted `usePaste`, the app does not turn bracketed paste mode on. The terminal then sends pasted text as ordinary input. If paste markers reach the parser anyway, the pasted text goes to `useInput` as one string, and the flags are computed from that whole string.
+- When a `usePaste` handler is mounted, paste is delivered only to `usePaste` handlers, never to `useInput`. Every mounted `usePaste` receives the same text. An enabled `TextInput` or `PasswordInput` is one of those handlers, so a `useInput` listener does not see paste while an enabled editor is mounted.
+- `TextInput` and `PasswordInput` insert pasted text through the same action as typing. A single-line editor drops the newlines and control characters in a paste, and a controlled `value` accepts or refuses the pasted text like any other edit. A disabled editor takes no paste.
+- Without a mounted `usePaste`, the app does not turn bracketed paste mode on, and the terminal sends pasted text as ordinary input. An enabled `TextInput` or `PasswordInput` mounts one, so bracketed paste mode is on while it is mounted. If paste markers reach the parser anyway, the pasted text goes to `useInput` as one string, and the flags are computed from that whole string.
 - A paste start marker with no end marker is held by the parser until the end marker arrives. The escape timer does not flush it.
 
 ## Focus
