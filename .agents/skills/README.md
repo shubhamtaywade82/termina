@@ -11,7 +11,7 @@ These repository-local skills are focused instruction sets for agents working on
 | [termina-agentic-ui-patterns](termina-agentic-ui-patterns/SKILL.md) | Agent plans, tool execution, streaming, approvals, cancellation, retries, run history and outcomes |
 | [termina-ui](termina-ui/SKILL.md) | Reusable component implementation, public APIs, themes, component tests, docs and demos |
 | [termina-core](termina-core/SKILL.md) | React renderer, terminal protocol, input routing, capabilities, rendering, resize/reflow, runtime lifecycle |
-| [termina-tui-validation](termina-tui-validation/SKILL.md) | Acceptance tests for layout, terminal modes, keyboard/mouse interaction, reflow, async behavior and docs previews |
+| [termina-tui-validation](termina-tui-validation/SKILL.md) | Acceptance tests for layout, terminal modes, keyboard/mouse interaction, reflow, async behavior and docs previews |\n| [termina-skill-evaluation](termina-skill-evaluation/SKILL.md) | Evaluate skill routing and actual agent outputs with repeatable tasks, hard gates, and evidence-based scoring |
 
 ## Recommended routing order
 
