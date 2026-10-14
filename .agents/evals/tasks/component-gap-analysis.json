@@ -1,0 +1,64 @@
+{
+  "schema_version": 1,
+  "id": "component-gap-analysis",
+  "title": "Component gap analysis",
+  "kind": "analysis",
+  "user_prompt": "A product team asks for a reusable tree browser with expand/collapse, keyboard navigation, selected-node details, and support for long labels. Before writing code, determine whether the existing package already supports this request through a component or composition of components. Provide an evidence-backed recommendation and list the actual files, exports, tests, and documentation that support it.",
+  "expected_skills": [
+    "termina-ui"
+  ],
+  "adjacent_skills_not_required": [
+    "termina-core",
+    "termina-tui-design",
+    "termina-tui-app-architecture",
+    "termina-agentic-ui-patterns"
+  ],
+  "environment": {
+    "terminal_sizes": [],
+    "execution_modes": [
+      "repository-inspection"
+    ]
+  },
+  "acceptance_checks": [
+    {
+      "id": "export-inspection",
+      "verification": "static-review",
+      "assertion": "The analysis inspects the current public export surface rather than assuming the requested widget exists.",
+      "evidence_required": "Exact export file references."
+    },
+    {
+      "id": "source-and-docs",
+      "verification": "static-review",
+      "assertion": "The recommendation is based on relevant implementation, tests, and documentation, not names alone.",
+      "evidence_required": "File paths and API details from each relevant surface."
+    },
+    {
+      "id": "gap-decision",
+      "verification": "static-review",
+      "assertion": "The report distinguishes direct reuse, composition, and a genuine missing capability and explains tradeoffs.",
+      "evidence_required": "A decision with evidence and minimal implementation scope if a gap exists."
+    },
+    {
+      "id": "no-invented-api",
+      "verification": "static-review",
+      "assertion": "No nonexistent component, prop, or hook is represented as public API.",
+      "evidence_required": "All named APIs verified against source/exports/docs."
+    }
+  ],
+  "hard_gates": [
+    {
+      "id": "invented-api",
+      "failure_condition": "The report recommends a component/prop/hook that does not exist without labeling it as a proposed addition."
+    },
+    {
+      "id": "unsupported-claim",
+      "failure_condition": "The recommendation claims behavior not supported by inspected source, tests, or documentation."
+    }
+  ],
+  "score_dimensions": [
+    "api-grounding",
+    "ux-hierarchy",
+    "tests",
+    "engineering-discipline"
+  ]
+}
