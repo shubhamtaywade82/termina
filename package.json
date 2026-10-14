@@ -10,6 +10,7 @@
   "scripts": {
     "build": "pnpm -r --filter './packages/*' run build",
     "typecheck": "pnpm -r --filter './packages/*' --filter './examples/*' run typecheck",
+    "lint:ratchet": "node scripts/lint-ratchet.mjs",
     "test": "pnpm run build && pnpm -r --no-bail --filter './packages/*' run test",
     "verify": "pnpm run build && pnpm run typecheck && pnpm run test",
     "docs:dev": "npm --prefix docs-site run dev",
@@ -22,6 +23,9 @@
   "pnpm": {
     "onlyBuiltDependencies": [
       "node-pty"
-    ]
+    ],
+    "overrides": {
+      "xo>typescript": "5.9.3"
+    }
   }
 }

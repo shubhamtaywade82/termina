@@ -17,19 +17,19 @@ export const useSyncedReducer = <State, Action>(
 	initialState: State | (() => State),
 ) => {
 	const [state, setState] = useState(initialState);
-	const latest = useRef(state);
+	const latestRef = useRef(state);
 
 	useLayoutEffect(() => {
-		latest.current = state;
+		latestRef.current = state;
 	}, [state]);
 
 	const dispatch = useCallback(
 		(action: Action): Transition<State> => {
-			const previous = latest.current;
+			const previous = latestRef.current;
 			const next = reducer(previous, action);
 
 			if (next !== previous) {
-				latest.current = next;
+				latestRef.current = next;
 				setState(next);
 			}
 
@@ -45,7 +45,7 @@ export const useSyncedReducer = <State, Action>(
 
 	return {
 		state,
-		latest,
+		latest: latestRef,
 		dispatch,
 		replace,
 	};

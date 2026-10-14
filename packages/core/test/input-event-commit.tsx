@@ -10,7 +10,7 @@ test('each input event in one read sees the state committed by the event before 
 	function Echo() {
 		const [text, setText] = useState('');
 
-		useInput(input => {
+		useInput((input) => {
 			if (input === 'a' || input === 'b') {
 				setText(text + input);
 			}
@@ -33,7 +33,7 @@ test('each input event in one read sees the state committed by the event before 
 
 	await delay(20);
 	// 'a', then Left arrow, then 'b': three events, one read.
-	emitReadable(stdin, 'a\u001B[Db');
+	emitReadable(stdin, 'a\u{1B}[Db');
 	await delay(20);
 
 	t.assert.strictEqual(stdout.get(), 'ab');

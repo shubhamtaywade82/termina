@@ -1,7 +1,6 @@
-import React, {useState} from 'react';
 import test, {type TestContext} from 'node:test';
+import React, {useState} from 'react';
 import delay from 'delay';
-import {render} from './helpers/render.js';
 import {
 	EmailInput,
 	MultiSelect,
@@ -9,11 +8,12 @@ import {
 	Select,
 	TextInput,
 } from '../source/index.js';
+import {render} from './helpers/render.js';
 
 const enter = '\r';
-const down = '\u001B[B';
+const down = '\u{1B}[B';
 const space = ' ';
-const backspace = '\u007F';
+const backspace = '\u{7F}';
 
 // Parent updates are capped so a looping component fails the assertion instead of hanging the run.
 const LOOP_LIMIT = 10;
@@ -24,6 +24,7 @@ type Harness = ReturnType<typeof render>;
 const typeOneByOne = async (instance: Harness, keys: string[]) => {
 	for (const key of keys) {
 		instance.stdin.write(key);
+		// eslint-disable-next-line no-await-in-loop -- Each key must reach the component before the next one is written.
 		await delay(15);
 	}
 
@@ -36,18 +37,21 @@ const typeAsBurst = async (instance: Harness, keys: string[]) => {
 	await delay(40);
 };
 
-const textChanges = async (keys: string[], burst: boolean): Promise<string[]> => {
+const textChanges = async (
+	keys: string[],
+	isBurst: boolean,
+): Promise<string[]> => {
 	const changes: string[] = [];
 	const instance = render(
 		<TextInput
-			onChange={value => {
+			onChange={(value) => {
 				changes.push(value);
 			}}
 		/>,
 	);
 
 	await delay(20);
-	if (burst) {
+	if (isBurst) {
 		await typeAsBurst(instance, keys);
 	} else {
 		await typeOneByOne(instance, keys);
@@ -72,7 +76,7 @@ test('TextInput: a burst that ends in Enter submits the value after the burst', 
 	const submitted: string[] = [];
 	const instance = render(
 		<TextInput
-			onSubmit={value => {
+			onSubmit={(value) => {
 				submitted.push(value);
 			}}
 		/>,
@@ -89,7 +93,7 @@ test('TextInput: re-rendering with a new inline onChange does not repeat the las
 	const changes: string[] = [];
 	const instance = render(
 		<TextInput
-			onChange={value => {
+			onChange={(value) => {
 				changes.push(value);
 			}}
 		/>,
@@ -99,7 +103,7 @@ test('TextInput: re-rendering with a new inline onChange does not repeat the las
 	await typeOneByOne(instance, ['a']);
 	instance.rerender(
 		<TextInput
-			onChange={value => {
+			onChange={(value) => {
 				changes.push(value);
 			}}
 		/>,
@@ -118,7 +122,7 @@ test('TextInput: a parent that stores each change does not loop', async (t: Test
 		return (
 			<TextInput
 				defaultValue={form.name}
-				onChange={value => {
+				onChange={(value) => {
 					changes.push(value);
 					if (changes.length < LOOP_LIMIT) {
 						setForm({name: value});
@@ -138,18 +142,18 @@ test('TextInput: a parent that stores each change does not loop', async (t: Test
 
 test('PasswordInput: a burst reports one change per input event, in order', async (t: TestContext) => {
 	const keys = ['a', 'b', backspace];
-	const collect = async (burst: boolean) => {
+	const collect = async (isBurst: boolean) => {
 		const changes: string[] = [];
 		const instance = render(
 			<PasswordInput
-				onChange={value => {
+				onChange={(value) => {
 					changes.push(value);
 				}}
 			/>,
 		);
 
 		await delay(20);
-		if (burst) {
+		if (isBurst) {
 			await typeAsBurst(instance, keys);
 		} else {
 			await typeOneByOne(instance, keys);
@@ -170,10 +174,11 @@ test('PasswordInput: a parent that stores each change does not loop', async (t: 
 	const changes: string[] = [];
 
 	function Form() {
+		// eslint-disable-next-line @eslint-react/use-state -- The stored value is never read, so only the setter is named.
 		const [, setForm] = useState({secret: ''});
 		return (
 			<PasswordInput
-				onChange={value => {
+				onChange={(value) => {
 					changes.push(value);
 					if (changes.length < LOOP_LIMIT) {
 						setForm({secret: value});
@@ -193,18 +198,18 @@ test('PasswordInput: a parent that stores each change does not loop', async (t: 
 
 test('EmailInput: a burst reports one change per input event, in order', async (t: TestContext) => {
 	const keys = ['a', 'b', backspace];
-	const collect = async (burst: boolean) => {
+	const collect = async (isBurst: boolean) => {
 		const changes: string[] = [];
 		const instance = render(
 			<EmailInput
-				onChange={value => {
+				onChange={(value) => {
 					changes.push(value);
 				}}
 			/>,
 		);
 
 		await delay(20);
-		if (burst) {
+		if (isBurst) {
 			await typeAsBurst(instance, keys);
 		} else {
 			await typeOneByOne(instance, keys);
@@ -229,7 +234,7 @@ test('EmailInput: a parent that stores each change does not loop', async (t: Tes
 		return (
 			<EmailInput
 				defaultValue={form.email}
-				onChange={value => {
+				onChange={(value) => {
 					changes.push(value);
 					if (changes.length < LOOP_LIMIT) {
 						setForm({email: value});
@@ -258,7 +263,7 @@ test('Select: re-rendering with equal options and a new inline onChange does not
 	const instance = render(
 		<Select
 			options={colors}
-			onChange={value => {
+			onChange={(value) => {
 				changes.push(value);
 			}}
 		/>,
@@ -268,8 +273,8 @@ test('Select: re-rendering with equal options and a new inline onChange does not
 	await typeOneByOne(instance, [down, enter]);
 	instance.rerender(
 		<Select
-			options={colors.map(option => ({...option}))}
-			onChange={value => {
+			options={colors.map((option) => ({...option}))}
+			onChange={(value) => {
 				changes.push(value);
 			}}
 		/>,
@@ -287,9 +292,9 @@ test('Select: a parent that stores each selection does not loop', async (t: Test
 		const [form, setForm] = useState({color: ''});
 		return (
 			<Select
-				options={colors.map(option => ({...option}))}
+				options={colors.map((option) => ({...option}))}
 				defaultValue={form.color}
-				onChange={value => {
+				onChange={(value) => {
 					changes.push(value);
 					if (changes.length < LOOP_LIMIT) {
 						setForm({color: value});
@@ -312,13 +317,17 @@ test('Select: resetting to different options does not call onChange', async (t: 
 	const onChange = (value: string) => {
 		changes.push(value);
 	};
+
 	const instance = render(<Select options={colors} onChange={onChange} />);
 
 	await delay(20);
 	await typeOneByOne(instance, [down, enter]);
 	instance.rerender(
 		<Select
-			options={[{label: 'Cyan', value: 'cyan'}, {label: 'Magenta', value: 'magenta'}]}
+			options={[
+				{label: 'Cyan', value: 'cyan'},
+				{label: 'Magenta', value: 'magenta'},
+			]}
 			onChange={onChange}
 		/>,
 	);
@@ -339,7 +348,7 @@ test('MultiSelect: re-rendering with equal options and a new inline onChange doe
 	const instance = render(
 		<MultiSelect
 			options={toppings}
-			onChange={value => {
+			onChange={(value) => {
 				changes.push(value);
 			}}
 		/>,
@@ -349,8 +358,8 @@ test('MultiSelect: re-rendering with equal options and a new inline onChange doe
 	await typeOneByOne(instance, [space]);
 	instance.rerender(
 		<MultiSelect
-			options={toppings.map(option => ({...option}))}
-			onChange={value => {
+			options={toppings.map((option) => ({...option}))}
+			onChange={(value) => {
 				changes.push(value);
 			}}
 		/>,
@@ -368,9 +377,9 @@ test('MultiSelect: a parent that copies the selection does not loop', async (t: 
 		const [form, setForm] = useState({toppings: [] as string[]});
 		return (
 			<MultiSelect
-				options={toppings.map(option => ({...option}))}
+				options={toppings.map((option) => ({...option}))}
 				defaultValue={form.toppings}
-				onChange={value => {
+				onChange={(value) => {
 					changes.push(value);
 					if (changes.length < LOOP_LIMIT) {
 						setForm({toppings: [...value]});
@@ -393,13 +402,19 @@ test('MultiSelect: resetting to different options does not call onChange', async
 	const onChange = (value: string[]) => {
 		changes.push(value);
 	};
-	const instance = render(<MultiSelect options={toppings} onChange={onChange} />);
+
+	const instance = render(
+		<MultiSelect options={toppings} onChange={onChange} />,
+	);
 
 	await delay(20);
 	await typeOneByOne(instance, [space]);
 	instance.rerender(
 		<MultiSelect
-			options={[{label: 'Ham', value: 'ham'}, {label: 'Pineapple', value: 'pineapple'}]}
+			options={[
+				{label: 'Ham', value: 'ham'},
+				{label: 'Pineapple', value: 'pineapple'},
+			]}
 			onChange={onChange}
 		/>,
 	);

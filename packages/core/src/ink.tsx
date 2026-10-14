@@ -253,6 +253,27 @@ export default class Ink {
 	// Input events from one stdin read run as a batch. Renders requested inside the batch wait for it to end.
 	private inputBatchDepth = 0;
 	private hasDeferredRender = false;
+
+	// Runs the input events of one stdin read as a batch. Each event commits its React updates before the next one runs, so handlers and controlled inputs see the previous event's result. Renders requested during the batch are held and run once when it ends, so one read still produces one frame.
+	private readonly batchInput = (
+		run: (commitEvent: () => void) => void,
+	): void => {
+		this.inputBatchDepth++;
+
+		try {
+			run(() => {
+				reconciler.flushSyncWork();
+			});
+		} finally {
+			this.inputBatchDepth--;
+
+			if (this.inputBatchDepth === 0 && this.hasDeferredRender) {
+				this.hasDeferredRender = false;
+				this.rootNode.onRender?.();
+			}
+		}
+	};
+
 	private kittyProtocolEnabled = false;
 	private kittyFlags: KittyFlagName[] | undefined;
 	private finishKittyDetection?: (isSupported: boolean) => void;
@@ -510,6 +531,7 @@ export default class Ink {
 
 				this.onRender();
 			};
+
 			this.throttledOnRender = undefined;
 		} else {
 			const throttled = throttle(this.onRender, renderThrottleMs, {
@@ -1001,6 +1023,16 @@ export default class Ink {
 		this.kittyFlags = flags;
 	}
 
+	// Returns true when the render is held until the current input batch ends.
+	private deferRenderForInputBatch(): boolean {
+		if (this.inputBatchDepth === 0) {
+			return false;
+		}
+
+		this.hasDeferredRender = true;
+		return true;
+	}
+
 	// Keeps the <Static> output of a suspended commit. The live frame is not drawn, but the items are: Static removes them from the tree on its next commit, so the output must be saved now.
 	private captureStaticOutputWhileSuspended(): void {
 		const {staticOutput} = render(this.rootNode, this.isScreenReaderEnabled);
@@ -1252,36 +1284,6 @@ export default class Ink {
 		if (shouldSync) {
 			this.options.stdout.write(esu);
 		}
-	}
-
-	// Runs the input events of one stdin read as a batch. Each event commits its React updates before the next one runs, so handlers and controlled inputs see the previous event's result. Renders requested during the batch are held and run once when it ends, so one read still produces one frame.
-	private readonly batchInput = (
-		run: (commitEvent: () => void) => void,
-	): void => {
-		this.inputBatchDepth++;
-
-		try {
-			run(() => {
-				reconciler.flushSyncWork();
-			});
-		} finally {
-			this.inputBatchDepth--;
-
-			if (this.inputBatchDepth === 0 && this.hasDeferredRender) {
-				this.hasDeferredRender = false;
-				this.rootNode.onRender?.();
-			}
-		}
-	};
-
-	// Returns true when the render is held until the current input batch ends.
-	private deferRenderForInputBatch(): boolean {
-		if (this.inputBatchDepth === 0) {
-			return false;
-		}
-
-		this.hasDeferredRender = true;
-		return true;
 	}
 
 	// eslint-disable-next-line @typescript-eslint/no-restricted-types
