@@ -316,13 +316,13 @@ test('the top is clamped to the value when the value shrinks', (t: TestContext) 
 });
 
 test('the top keeps the caret visible when the viewport gets shorter', (t: TestContext) => {
-	// Four rows show rows 0 to 3, so Down to row 4 scrolls to top 1. Then two rows show rows 2 and 3, and Left on row 3 needs top 2.
+	// Four rows show rows 0 to 3, so Down to row 4 scrolls to top 1. The caret is on row 4 when the viewport drops to two rows, so the top moves to 3 to keep it on the bottom row. Left to row 3 stays inside rows 3 and 4.
 	const scrolled = at('a\nb\nc\nd\ne', 6);
 	const down = reduceMultilineEdit(scrolled, {type: 'move-down', rows: 4});
 	const shorter = reduceMultilineEdit(down, {type: 'move-left', rows: 2});
 
 	t.assert.strictEqual(down.top, 1);
-	t.assert.strictEqual(shorter.top, 2);
+	t.assert.strictEqual(shorter.top, 3);
 });
 
 test('viewportTop keeps the top when the caret is already visible', (t: TestContext) => {

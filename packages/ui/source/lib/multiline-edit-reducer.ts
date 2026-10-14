@@ -169,29 +169,31 @@ const applyAction = (
 	}
 };
 
-// Returns the previous state object when the action changed nothing, including the top, so a no-op is not a new state.
-const settle = (
-	previous: MultilineEditState,
-	next: MultilineEditState,
+// The state with its top brought up to date for the caret and the rows. The editor draws the view from the same function, so the top the user sees is the top the next action starts from.
+const withViewport = (
+	state: MultilineEditState,
 	rows: number,
 ): MultilineEditState => {
-	const {row} = positionOf(next.value, next.cursorOffset);
-	const top = viewportTop(next.top, row, rows, lineStarts(next.value).length);
+	const {row} = positionOf(state.value, state.cursorOffset);
+	const top = viewportTop(state.top, row, rows, lineStarts(state.value).length);
 
-	if (
-		top === previous.top &&
-		next.value === previous.value &&
-		next.cursorOffset === previous.cursorOffset &&
-		next.goalColumn === previous.goalColumn
-	) {
-		return previous;
-	}
-
-	return {...next, top};
+	return top === state.top ? state : {...state, top};
 };
 
-// Pure: no callbacks run here, so React may call it more than once.
+// Pure: no callbacks run here, so React may call it more than once. A no-op returns the state it was given, so the caller sees no change.
 export const reduceMultilineEdit: Reducer<
 	MultilineEditState,
 	MultilineEditAction
-> = (state, action) => settle(state, applyAction(state, action), action.rows);
+> = (state, action) => {
+	const next = withViewport(
+		applyAction(withViewport(state, action.rows), action),
+		action.rows,
+	);
+
+	return next.value === state.value &&
+		next.cursorOffset === state.cursorOffset &&
+		next.goalColumn === state.goalColumn &&
+		next.top === state.top
+		? state
+		: next;
+};
