@@ -147,7 +147,7 @@ See [Spatial Focus Geometry](/ui/spatial).
 
 ### Theme and dependency changes
 
-- Thirty-five components have a `theme.ts` file. `ScrollBox` and `LogStream` do not.
+- Thirty-eight components have a `theme.ts` file. `ScrollBox` and `LogStream` do not.
 - `packages/ui/source/theme.tsx` exports `ThemeProvider`, `extendTheme`, and `useComponentTheme`.
 - Upstream ink-ui peers on `ink` (`>=5`), according to the research document. The fork's `packages/ui/package.json` instead depends on `@nemesis-oss/termina-core` through the workspace and peers on `react` (`>=19.3.0`).
 
@@ -165,7 +165,7 @@ See [Theming](/ui/theming).
 | Resize test in `test/render.tsx` | Reducer-based model | Runs on `@xterm/headless`, because the reducer does not model column reflow. |
 | Known-bug markers | `test.failing` in `packages/ui/test/alert.tsx` and `status-message.tsx`, present at `edc640a` | Converted to ordinary tests in `0b39c69`, because their bodies pass on this base. The markers are absent from `packages/ui` at HEAD. |
 | Cell-level renderer | A back and front buffer renderer | Not built. Incremental rendering is the measured fix, and it is already in upstream. See [Decisions](/architecture/decisions). |
-| Components not built | Multi-line text editor, Modal with focus trap, SplitPane, spatial focus wired to `useFocus`, OSC 8 and OSC 52 helpers as Ink components | Not built. `DataTable`, `Tabs` and `Dialog` are built, and `Dialog` has no focus trap. `hyperlink()` and `copyToClipboard()` exist as functions in `@nemesis-oss/termina-core`. |
+| Components not built | Multi-line text editor, Modal with focus trap, SplitPane, spatial focus wired to `useFocus`, OSC 8 and OSC 52 helpers as Ink components | Modal and SplitPane are built. Spatial focus and the OSC helpers as components are not. `MultilineTextInput`, `DataTable` and `Tabs` are built, and `Dialog` has no focus trap. `hyperlink()` and `copyToClipboard()` exist as functions in `@nemesis-oss/termina-core`. |
 
 The xterm test fixture is `packages/core/test/helpers/xterm-terminal.ts`. It provides `getLine`, `cellAt`, `cells`, and `emitKey`. It has no `getFocusedId`. Tests read focus with a probe component (`packages/core/test/xterm-fixture.tsx`).
 

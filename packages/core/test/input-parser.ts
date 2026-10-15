@@ -344,9 +344,9 @@ const backspaceAndDeleteCases = [
 		events: ['ab', '\u{7F}', 'cd'],
 	},
 	{
-		title: 'does not split pasted carriage return from text',
+		title: 'splits carriage return from following text',
 		chunks: ['\rtest'],
-		events: ['\rtest'],
+		events: ['\r', 'test'],
 	},
 	{
 		title: 'does not split pasted tab from text',
@@ -461,6 +461,25 @@ test('paste event delivers backspace chars verbatim without splitting', (t: Test
 		parseChunks(['\u{1B}[200~\u{7F}\u{8}\u{7F}\u{1B}[201~']),
 		[{paste: '\u{7F}\u{8}\u{7F}'}],
 	);
+});
+
+test('splits a carriage return that follows text in the same read', (t: TestContext) => {
+	t.assert.deepStrictEqual(parseChunks(['abc\r']), ['abc', '\r']);
+});
+
+test('a carriage return alone in a read is one key event', (t: TestContext) => {
+	t.assert.deepStrictEqual(parseChunks(['\r']), ['\r']);
+});
+
+test('keeps carriage returns inside a bracketed paste as paste text', (t: TestContext) => {
+	t.assert.deepStrictEqual(
+		parseChunks(['\u{1B}[200~line1\rline2\r\u{1B}[201~']),
+		[{paste: 'line1\rline2\r'}],
+	);
+});
+
+test('keeps line feed as text outside bracketed paste', (t: TestContext) => {
+	t.assert.deepStrictEqual(parseChunks(['abc\ndef']), ['abc\ndef']);
 });
 
 test('isCompleteControlSequence accepts every complete CSI and SS3 form the parser emits', (t: TestContext) => {

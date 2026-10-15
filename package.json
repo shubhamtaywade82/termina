@@ -10,6 +10,7 @@
   "scripts": {
     "build": "pnpm -r --filter './packages/*' run build",
     "typecheck": "pnpm -r --filter './packages/*' --filter './examples/*' run typecheck",
+    "lint:ratchet": "node scripts/lint-ratchet.mjs",
     "test": "pnpm run build && pnpm -r --no-bail --filter './packages/*' run test",
     "skills:check": "node .agents/scripts/validate-skills.mjs",
     "verify": "pnpm skills:check && pnpm evals:check && pnpm run build && pnpm run typecheck && pnpm run test",
@@ -20,10 +21,5 @@
     "audit:ci": "pnpm audit --prod --audit-level=high",
     "ci": "pnpm install --frozen-lockfile && pnpm skills:check && pnpm evals:check && pnpm build && pnpm typecheck && pnpm test && pnpm docs:previews:check && pnpm audit:ci",
     "evals:check": "node .agents/scripts/validate-evals.mjs"
-  },
-  "pnpm": {
-    "onlyBuiltDependencies": [
-      "node-pty"
-    ]
   }
 }

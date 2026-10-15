@@ -1,4 +1,5 @@
-import {useEffect, useEffectEvent} from 'react';
+import {use, useEffect, useEffectEvent} from 'react';
+import KeyboardCaptureContext from '../components/KeyboardCaptureContext.js';
 import parseKeypress, {nonAlphanumericKeys} from '../parse-keypress.js';
 import reconciler from '../reconciler.js';
 import {useStdinContext} from './use-stdin.js';
@@ -158,8 +159,9 @@ const UserInput = () => {
 */
 const useInput = (inputHandler: Handler, options: Options = {}) => {
 	// eslint-disable-next-line @typescript-eslint/naming-convention
-	const {setRawMode, isRawModeSupported, internal_exitOnCtrlC, internal_eventEmitter} =
+	const {setRawMode, isRawModeSupported, internal_exitOnCtrlC, internal_eventEmitter, canReceive} =
 		useStdinContext();
+	const keyboardCapture = use(KeyboardCaptureContext);
 
 	useEffect(() => {
 		// Piped stdin cannot enter raw mode, so the hook stays idle there instead of throwing.
@@ -175,6 +177,11 @@ const useInput = (inputHandler: Handler, options: Options = {}) => {
 	}, [options.isActive, isRawModeSupported, setRawMode]);
 
 	const handleData = useEffectEvent((data: string) => {
+		// Typed keys and paste that has no usePaste listener arrive here. Outside a capture this is delivered only while no capture is active.
+		if (!canReceive(keyboardCapture?.owner)) {
+			return;
+		}
+
 		const keypress = parseKeypress(data);
 
 		const key: Key = {

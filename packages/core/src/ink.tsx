@@ -15,6 +15,7 @@ import reconciler from './reconciler.js';
 import render, {markStaticOutputWritten} from './renderer.js';
 import * as dom from './dom.js';
 import {hideCursorEscape, showCursorEscape} from './cursor-helpers.js';
+import {cursorShapeSequence, type CursorShape} from './cursor-shape.js';
 import logUpdate, {type LogUpdate, type CursorPosition} from './log-update.js';
 import {bsu, esu, shouldSynchronize} from './write-synchronized.js';
 import instances from './instances.js';
@@ -217,6 +218,12 @@ export type Options = {
 	alternateScreen?: boolean;
 };
 
+// A cursor shape requested by one mounted component. The id is the component's useId().
+type CursorShapeRequest = {
+	readonly id: string;
+	readonly shape: CursorShape;
+};
+
 export default class Ink {
 	private readonly options: Options;
 	private readonly log: LogUpdate;
@@ -253,6 +260,27 @@ export default class Ink {
 	// Input events from one stdin read run as a batch. Renders requested inside the batch wait for it to end.
 	private inputBatchDepth = 0;
 	private hasDeferredRender = false;
+
+	// Runs the input events of one stdin read as a batch. Each event commits its React updates before the next one runs, so handlers and controlled inputs see the previous event's result. Renders requested during the batch are held and run once when it ends, so one read still produces one frame.
+	private readonly batchInput = (
+		run: (commitEvent: () => void) => void,
+	): void => {
+		this.inputBatchDepth++;
+
+		try {
+			run(() => {
+				reconciler.flushSyncWork();
+			});
+		} finally {
+			this.inputBatchDepth--;
+
+			if (this.inputBatchDepth === 0 && this.hasDeferredRender) {
+				this.hasDeferredRender = false;
+				this.rootNode.onRender?.();
+			}
+		}
+	};
+
 	private kittyProtocolEnabled = false;
 	private kittyFlags: KittyFlagName[] | undefined;
 	private finishKittyDetection?: (isSupported: boolean) => void;
@@ -299,6 +327,10 @@ export default class Ink {
 	// mode and bracketed paste state.
 	private pauseInput?: () => void;
 	private resumeInput?: () => void;
+	// Cursor shapes requested by mounted components, in request order. The last request is the shape on the terminal.
+	private cursorShapeRequests: CursorShapeRequest[] = [];
+	// The shape Ink last wrote. Ink has not touched the cursor yet, so the terminal shows its own default.
+	private appliedCursorShape: CursorShape = 'default';
 
 	/**
 	Whether this instance is using concurrent rendering mode.
@@ -370,6 +402,17 @@ export default class Ink {
 	setCursorPosition = (position: CursorPosition | undefined): void => {
 		this.cursorPosition = position;
 		this.log.setCursorPosition(position);
+	};
+
+	// A request under an id that is already present replaces it and becomes the last request. `undefined` releases the id's request.
+	setCursorShape = (id: string, shape: CursorShape | undefined): void => {
+		const otherRequests = this.cursorShapeRequests.filter(
+			(request) => request.id !== id,
+		);
+		this.cursorShapeRequests =
+			shape === undefined ? otherRequests : [...otherRequests, {id, shape}];
+
+		this.applyCursorShape();
 	};
 
 	// Must stay referentially stable across `render()` calls: it feeds into App's
@@ -510,6 +553,7 @@ export default class Ink {
 
 				this.onRender();
 			};
+
 			this.throttledOnRender = undefined;
 		} else {
 			const throttled = throttle(this.onRender, renderThrottleMs, {
@@ -1001,6 +1045,16 @@ export default class Ink {
 		this.kittyFlags = flags;
 	}
 
+	// Returns true when the render is held until the current input batch ends.
+	private deferRenderForInputBatch(): boolean {
+		if (this.inputBatchDepth === 0) {
+			return false;
+		}
+
+		this.hasDeferredRender = true;
+		return true;
+	}
+
 	// Keeps the <Static> output of a suspended commit. The live frame is not drawn, but the items are: Static removes them from the tree on its next commit, so the output must be saved now.
 	private captureStaticOutputWhileSuspended(): void {
 		const {staticOutput} = render(this.rootNode, this.isScreenReaderEnabled);
@@ -1018,6 +1072,35 @@ export default class Ink {
 		} else {
 			this.suspendedStaticOutput += staticOutput;
 		}
+	}
+
+	// Writes the effective shape when it differs from the one on the terminal. Ink writes nothing while it does not own the terminal (non-interactive output, a suspension, or an unmount). endSuspend applies the shape again when the terminal comes back.
+	private applyCursorShape(): void {
+		const shape = this.cursorShapeRequests.at(-1)?.shape ?? 'default';
+
+		if (
+			shape === this.appliedCursorShape ||
+			!this.interactive ||
+			this.isSuspended ||
+			this.isUnmounted ||
+			this.isUnmounting ||
+			!getWritableStreamState(this.options.stdout).canWriteToStdout
+		) {
+			return;
+		}
+
+		this.writeBestEffort(this.options.stdout, cursorShapeSequence(shape));
+		this.appliedCursorShape = shape;
+	}
+
+	// Hands the cursor back to the terminal's own shape. Nothing is written when the default is already applied.
+	private restoreCursorShape(): void {
+		if (this.appliedCursorShape === 'default') {
+			return;
+		}
+
+		this.writeBestEffort(this.options.stdout, cursorShapeSequence('default'));
+		this.appliedCursorShape = 'default';
 	}
 
 	private beginSuspend(): void {
@@ -1067,6 +1150,9 @@ export default class Ink {
 					);
 					this.alternateScreenSuspended = true;
 				}
+
+				// Last, so the child process never runs with Ink's cursor shape.
+				this.restoreCursorShape();
 			}
 		} catch (error) {
 			// If handing over the terminal fails partway, don't strand the app in a
@@ -1134,6 +1220,7 @@ export default class Ink {
 		this.lastOutputToRender = '';
 		this.lastOutputHeight = 0;
 		this.log.reset();
+		this.applyCursorShape();
 
 		try {
 			this.calculateLayout();
@@ -1163,6 +1250,7 @@ export default class Ink {
 					onRegisterInputControl={this.registerInputControl}
 					onKittyQueryResponse={this.handleKittyQueryResponse}
 					onBatchInput={this.batchInput}
+					onCursorShape={this.setCursorShape}
 				>
 					<RootNodeContext value={this.rootNode}>
 						{node}
@@ -1252,36 +1340,6 @@ export default class Ink {
 		if (shouldSync) {
 			this.options.stdout.write(esu);
 		}
-	}
-
-	// Runs the input events of one stdin read as a batch. Each event commits its React updates before the next one runs, so handlers and controlled inputs see the previous event's result. Renders requested during the batch are held and run once when it ends, so one read still produces one frame.
-	private readonly batchInput = (
-		run: (commitEvent: () => void) => void,
-	): void => {
-		this.inputBatchDepth++;
-
-		try {
-			run(() => {
-				reconciler.flushSyncWork();
-			});
-		} finally {
-			this.inputBatchDepth--;
-
-			if (this.inputBatchDepth === 0 && this.hasDeferredRender) {
-				this.hasDeferredRender = false;
-				this.rootNode.onRender?.();
-			}
-		}
-	};
-
-	// Returns true when the render is held until the current input batch ends.
-	private deferRenderForInputBatch(): boolean {
-		if (this.inputBatchDepth === 0) {
-			return false;
-		}
-
-		this.hasDeferredRender = true;
-		return true;
 	}
 
 	// eslint-disable-next-line @typescript-eslint/no-restricted-types
@@ -1382,6 +1440,9 @@ export default class Ink {
 					this.alternateScreen = false;
 					this.alternateScreenSuspended = false;
 				}
+
+				// Last among the cursor writes: log.done() and the alternate-screen exit both show the cursor, and the restored shape must be what the terminal ends on.
+				this.restoreCursorShape();
 
 				if (!this.interactive) {
 					// Non-interactive environments don't handle erasing ansi escapes well.

@@ -33,6 +33,16 @@ export type Props = PublicProps & {
 	readonly internal_exitOnCtrlC: boolean;
 
 	readonly internal_eventEmitter: EventEmitter;
+
+	// Pushes a keyboard capture onto the stack. `depth` is how many captures enclose it, counting itself, and `scope` is its focus scope. The returned function removes that entry.
+	readonly registerCapture: (
+		owner: symbol,
+		depth: number,
+		scope: symbol,
+	) => () => void;
+
+	// Whether input for `owner` may be delivered now. `undefined` is app-level input, which has no owner.
+	readonly canReceive: (owner: symbol | undefined) => boolean;
 };
 
 /**
@@ -49,6 +59,8 @@ const StdinContext = createContext<Props>({
 	isRawModeSupported: false,
 	// eslint-disable-next-line @typescript-eslint/naming-convention
 	internal_exitOnCtrlC: true,
+	registerCapture: () => () => {},
+	canReceive: () => true,
 });
 
 StdinContext.displayName = 'InternalStdinContext';

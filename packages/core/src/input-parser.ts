@@ -186,16 +186,17 @@ const parseEscapeSequence = (
 };
 
 /**
-Split a chunk of non-escape text so that backspace bytes (`0x7F` and `0x08`) and Ctrl+C (`0x03`) become individual events. Ctrl+C must be recognized even when buffered with ordinary text. When a user holds the backspace key, the terminal sends repeated bytes in a single stdin chunk. Without splitting, `parseKeypress` receives the multi-byte string and fails to recognize it as a key event, corrupting the input state.
+Split a chunk of non-escape text so that backspace bytes (`0x7F` and `0x08`), Ctrl+C (`0x03`) and carriage return (`\r`) become individual events. Ctrl+C must be recognized even when buffered with ordinary text. When a user holds the backspace key, the terminal sends repeated bytes in a single stdin chunk. Without splitting, `parseKeypress` receives the multi-byte string and fails to recognize it as a key event, corrupting the input state.
 
-Other control characters like `\r` and `\t` are NOT split because they can legitimately appear inside pasted text.
+Tab (`\t`) and line feed (`\n`) are NOT split because they can appear inside ordinary text and pasted text alike. Pasted text that contains carriage returns is not seen here: its bracketed paste content is taken whole in `parseKeypresses`.
 */
 const splitControlBytes = (text: string, events: InputEvent[]): void => {
 	let textSegmentStart = 0;
 
 	for (let index = 0; index < text.length; index++) {
 		const character = text[index]!;
-		if (!['\u{7F}', '\u{8}', '\u{3}'].includes(character)) {
+		// A carriage return that reaches this function is Enter, not text. Ink enables bracketed paste while an editor or usePaste is mounted, so pasted multi-line text arrives wrapped in paste markers and is never split here. Without that wrapping, a carriage return sharing a read with text before it (typing `abc` then Enter in one read) must still reach `useInput` as its own key.
+		if (!['\u{7F}', '\u{8}', '\u{3}', '\r'].includes(character)) {
 			continue;
 		}
 

@@ -113,7 +113,7 @@ export const termAsJob = (fixture: string) => {
 		},
 	};
 
-	shell.onData(data => {
+	shell.onData((data) => {
 		result.output += data;
 
 		// Type the command after the first prompt, so it is not lost in startup output.

@@ -13,12 +13,12 @@ type Output = {
 	disableFocus: Props['disableFocus'];
 
 	/**
-	Switch focus to the next focusable component. If there's no active component right now, focus will be given to the first focusable component. If the active component is the last in the list of focusable components, focus will be switched to the first focusable component.
+	Switch focus to the next focusable component. If there's no active component right now, focus will be given to the first focusable component. If the active component is the last in the list of focusable components, focus will be switched to the first focusable component. While a `KeyboardCapture` is active, only the focusable components inside its scope are considered.
 	*/
 	focusNext: Props['focusNext'];
 
 	/**
-	Switch focus to the previous focusable component. If there's no active component right now, focus will be given to the first focusable component. If the active component is the first in the list of focusable components, focus will be switched to the last focusable component.
+	Switch focus to the previous focusable component. If there's no active component right now, focus will be given to the last focusable component. If the active component is the first in the list of focusable components, focus will be switched to the last focusable component. While a `KeyboardCapture` is active, only the focusable components inside its scope are considered.
 	*/
 	focusPrevious: Props['focusPrevious'];
 

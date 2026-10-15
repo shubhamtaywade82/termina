@@ -1,4 +1,5 @@
-import {useEffect, useEffectEvent} from 'react';
+import {use, useEffect, useEffectEvent} from 'react';
+import KeyboardCaptureContext from '../components/KeyboardCaptureContext.js';
 import reconciler from '../reconciler.js';
 import {type MouseEvent} from '../mouse.js';
 import {useStdinContext} from './use-stdin.js';
@@ -36,7 +37,8 @@ const useMouse = (
 	options: Options = {},
 ): void => {
 	// eslint-disable-next-line @typescript-eslint/naming-convention
-	const {setRawMode, isRawModeSupported, setMouseTracking, internal_eventEmitter} = useStdinContext();
+	const {setRawMode, isRawModeSupported, setMouseTracking, internal_eventEmitter, canReceive} = useStdinContext();
+	const keyboardCapture = use(KeyboardCaptureContext);
 
 	useEffect(() => {
 		// Piped stdin cannot enter raw mode, so the hook stays idle there instead of throwing.
@@ -55,6 +57,11 @@ const useMouse = (
 	}, [options.isActive, isRawModeSupported, setRawMode, setMouseTracking]);
 
 	const handleMouse = useEffectEvent((event: MouseEvent) => {
+		// Reports inside a capture reach only the top capture's listeners. Reports outside every capture wait until no capture is active.
+		if (!canReceive(keyboardCapture?.owner)) {
+			return;
+		}
+
 		// Same priority as useInput and usePaste, so a click is handled in the same batch as the state it changes.
 		// @ts-expect-error Types require 5 arguments (fn, a, b, c, d) but only fn is needed at runtime.
 		reconciler.discreteUpdates(() => {

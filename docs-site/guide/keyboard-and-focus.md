@@ -56,6 +56,7 @@ Behavior:
 - Handlers receive key release events when the kitty protocol reports them (`reportEventTypes`). Check `key.eventType` if a handler should ignore releases.
 - With `exitOnCtrlC` set to its default of `true` in `render()`, Ctrl+C exits the app and is not passed to handlers. Set `exitOnCtrlC: false` to receive it as `input` `'c'` with `key.ctrl` set.
 - Mouse reports never reach `useInput`. Terminal replies that name no key are dropped. See [Terminal replies](#terminal-replies).
+- While a [KeyboardCapture](#keyboard-capture) is active, a handler outside the innermost capture receives nothing.
 
 ## The Key object
 
@@ -180,9 +181,67 @@ Behavior:
 
 - While at least one active `usePaste` is mounted, bracketed paste mode is on in the terminal. The mode is reference counted, and it is turned off when the last one unmounts.
 - The handler receives the whole paste in one call, including newlines. Escape bytes inside the paste are kept as text.
-- When a `usePaste` handler is mounted, paste is delivered only to `usePaste` handlers, never to `useInput`. Every mounted `usePaste` receives the same text.
-- Without a mounted `usePaste`, the app does not turn bracketed paste mode on. The terminal then sends pasted text as ordinary input. If paste markers reach the parser anyway, the pasted text goes to `useInput` as one string, and the flags are computed from that whole string.
+- When a `usePaste` handler is mounted, paste is delivered only to `usePaste` handlers, never to `useInput`. Every mounted `usePaste` receives the same text. An enabled `TextInput`, `PasswordInput` or `MultilineTextInput` is one of those handlers, so a `useInput` listener does not see paste while an enabled editor is mounted.
+- `TextInput` and `PasswordInput` insert pasted text through the same action as typing. A single-line editor drops the newlines and control characters in a paste, and a controlled `value` accepts or refuses the pasted text like any other edit. A disabled editor takes no paste. `MultilineTextInput` keeps line feeds, turns CRLF and CR into line feeds, and turns each tab into four spaces. It removes other control characters.
+- Without a mounted `usePaste`, the app does not turn bracketed paste mode on, and the terminal sends pasted text as ordinary input. An enabled `TextInput`, `PasswordInput` or `MultilineTextInput` mounts one, so bracketed paste mode is on while it is mounted. If paste markers reach the parser anyway, the pasted text goes to `useInput` as one string, and the flags are computed from that whole string.
 - A paste start marker with no end marker is held by the parser until the end marker arrives. The escape timer does not flush it.
+- Under a [KeyboardCapture](#keyboard-capture), a paste reaches only the `usePaste` handlers inside the innermost active capture. A paste that reaches only handlers outside it is dropped. When no `usePaste` handler is mounted, the paste goes to `useInput`, and only the `useInput` handlers inside the innermost active capture receive it.
+
+## Keyboard capture
+
+A `KeyboardCapture` decides which listeners receive input. While one is active, the keys, paste and mouse reports go only to the `useInput`, `usePaste` and `useMouse` listeners inside it, and listeners outside it receive nothing. Use it for a dialog or any region that owns the keys while it is open. `KeyboardCapture` is a component, and it is exported from `@nemesis-oss/termina-core`. [Modal](/ui/components/modal) is built on it.
+
+```tsx
+import {useState} from 'react';
+import {Box, KeyboardCapture, Text, render, useInput} from '@nemesis-oss/termina-core';
+
+function Dialog() {
+	const [isOpen, setIsOpen] = useState(false);
+
+	useInput(input => {
+		if (input === 'd') {
+			setIsOpen(true);
+		}
+	});
+
+	return (
+		<Box flexDirection="column">
+			<Text>Press d to open the dialog</Text>
+			<KeyboardCapture isActive={isOpen}>
+				<DialogBody onClose={() => setIsOpen(false)} />
+			</KeyboardCapture>
+		</Box>
+	);
+}
+
+function DialogBody({onClose}: {readonly onClose: () => void}) {
+	// Receives keys only while the dialog's capture is the innermost one.
+	useInput((_input, key) => {
+		if (key.escape) {
+			onClose();
+		}
+	});
+
+	return <Text>Dialog. Press Escape to close.</Text>;
+}
+
+render(<Dialog />);
+```
+
+The rules:
+
+- **Gated.** The `useInput`, `usePaste` and `useMouse` listeners outside the innermost active capture receive nothing. Inside it, they receive input as usual.
+- **Not gated.** Ctrl+C exits the app before any capture is checked, so a capture cannot block it.
+- **Escape.** A plain Escape does not clear the focused component while a capture is active.
+- **Tab.** Tab and Shift+Tab move focus only within the scope of the innermost capture. See [Focus scope](#focus-scope).
+- **Nesting.** Captures nest, and the innermost active one decides. Closing it returns input to the capture around it. With no capture active, every listener receives input again.
+- **Inactive.** `isActive={false}` makes the capture pass through. Its children behave as if it were not there.
+- **Suspend.** Suspending the terminal keeps the capture and the focus, so the same input is restricted when the app resumes.
+- **Box mouse props.** `Box` handlers such as `onClick` and `onWheel` are found by hit testing on the layout, not by the capture. A handler on a covered element does not run, because the hit test finds the element above it first. See [Mouse](/guide/mouse).
+
+### Paste under a capture
+
+Paste follows the same rule as keys, with one addition. A paste that arrives while a capture is active goes to the `usePaste` handlers inside the innermost capture. A paste that reaches only handlers outside it is dropped. It is not passed to `useInput` either, because a mounted `usePaste` handler keeps paste away from `useInput`.
 
 ## Focus
 
@@ -249,9 +308,41 @@ Signature: `useFocusManager()` takes no arguments and returns the fields below.
 - **Inactive components.** A component with `isActive: false` stays in the list and is skipped by Tab and Shift+Tab. If it was focused, it loses focus.
 - **Duplicate IDs.** Tab visits an ID once, at its first registration. Every component with that ID reports `isFocused`.
 - **Unmounting.** When the focused component unmounts, `activeId` becomes `undefined`. The next Tab moves to the first active component.
-- **Tab in input.** Tab and Shift+Tab are also delivered to `useInput` handlers. Tab with Ctrl, Meta, Super, or Hyper does not move focus.
-- **Escape.** A plain Escape clears the focused component when focus management is enabled. Escape with Shift, Ctrl, Meta, Super, or Hyper does not. The Escape key is still delivered to `useInput` handlers.
+- **Tab in input.** Tab and Shift+Tab are also delivered to `useInput` handlers. Tab with Ctrl, Meta, Super, or Hyper does not move focus. While a capture is active, Tab moves focus only within its scope. See [Focus scope](#focus-scope).
+- **Escape.** A plain Escape clears the focused component when focus management is enabled and no capture is active. Escape with Shift, Ctrl, Meta, Super, or Hyper does not. The Escape key is still delivered to `useInput` handlers.
 - **disableFocus.** Tab, Shift+Tab, Escape clearing, and `autoFocus` stop working while focus is disabled. `focusNext`, `focusPrevious`, and `focus` do not check this flag, so a direct call still moves focus. `enableFocus` turns the automatic behavior back on.
+
+### Focus scope
+
+Each focusable component belongs to a scope. A component inside a `KeyboardCapture` belongs to that capture's scope, and a component outside every capture belongs to the app scope.
+
+- While a capture is active, Tab and Shift+Tab cycle only through the focusable components in the innermost capture's scope, and they wrap within it. With none in that scope, Tab does nothing.
+- With no capture active, Tab reaches every focusable component, as in the rules above.
+- Focus that was on a component outside the capture is not moved by the capture. Such a component keeps `isFocused` but receives no keys until the capture is released.
+- `useFocusScope()` returns `focusFirstInScope`, which focuses the first active focusable component in the scope of the nearest active capture. Outside every capture, it focuses the first focusable component that is not inside one. A dialog calls it when it opens, so focus moves inside.
+
+```tsx
+import {useEffect} from 'react';
+import {KeyboardCapture, Text, useFocusScope} from '@nemesis-oss/termina-core';
+
+function DialogBody() {
+	const {focusFirstInScope} = useFocusScope();
+
+	useEffect(() => {
+		focusFirstInScope();
+	}, [focusFirstInScope]);
+
+	return <Text>Dialog</Text>;
+}
+
+const Dialog = () => (
+	<KeyboardCapture>
+		<DialogBody />
+	</KeyboardCapture>
+);
+```
+
+Signature: `useFocusScope(): {focusFirstInScope: () => void}`. The API entry is on [useFocusScope()](/api/core#usefocusscope).
 
 ## Non-TTY input
 
@@ -274,5 +365,6 @@ A kitty keyboard query reply (`ESC [ ? digits u`) is consumed by the app and doe
 - [Terminal Features](/guide/terminal-features) for the `kittyKeyboard` render option and terminal capability detection.
 - [Rendering](/guide/rendering) for the rendering model.
 - [Testing](/guide/testing) for testing components.
-- UI kit components that read keys through `useInput`: [TextInput](/ui/components/text-input), [Select](/ui/components/select), [MultiSelect](/ui/components/multi-select), [ConfirmInput](/ui/components/confirm-input), [EmailInput](/ui/components/email-input), [PasswordInput](/ui/components/password-input), and [ScrollBox](/ui/components/scroll-box).
+- UI kit components that use keyboard capture or focus scope: [Modal](/ui/components/modal) and [SplitPane](/ui/components/split-pane).
+- UI kit components that read keys through `useInput`: [TextInput](/ui/components/text-input), [Select](/ui/components/select), [MultiSelect](/ui/components/multi-select), [ConfirmInput](/ui/components/confirm-input), [EmailInput](/ui/components/email-input), [PasswordInput](/ui/components/password-input), [MultilineTextInput](/ui/components/multiline-text-input), and [ScrollBox](/ui/components/scroll-box).
 - [API: @nemesis-oss/termina-core](/api/core) for the full export list.

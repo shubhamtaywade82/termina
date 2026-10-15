@@ -12,13 +12,10 @@ export {showCursorEscape, hideCursorEscape};
 
 // A row outside the frame would move the cursor outside it, so rows clamp to the frame's rows.
 // Non-finite values fall back to the top row, since they carry no usable position.
-const clampRow = (row: number, lastRow: number): number => {
-	if (!Number.isFinite(row)) {
-		return 0;
-	}
-
-	return Math.min(Math.max(Math.trunc(row), 0), Math.max(lastRow, 0));
-};
+const clampRow = (row: number, lastRow: number): number =>
+	Number.isFinite(row)
+		? Math.min(Math.max(Math.trunc(row), 0), Math.max(lastRow, 0))
+		: 0;
 
 const clampColumn = (column: number): number =>
 	Number.isFinite(column) ? Math.max(Math.trunc(column), 0) : 0;

@@ -1,6 +1,6 @@
 /* eslint-disable no-await-in-loop */
-import React, {useState} from 'react';
 import test, {type TestContext} from 'node:test';
+import React, {useState} from 'react';
 import {render} from './helpers/render.js';
 import chalk from 'chalk';
 import delay from 'delay';
@@ -423,7 +423,7 @@ test('typing into a controlled value reports the next value and keeps the masked
 	const instance = render(
 		<PasswordInput
 			value="abc"
-			onChange={value => {
+			onChange={(value) => {
 				changes.push(value);
 			}}
 		/>,
@@ -461,7 +461,7 @@ test('an external shorter controlled password keeps the caret inside the value',
 	const instance = render(
 		<PasswordInput
 			value="abcd"
-			onChange={value => {
+			onChange={(value) => {
 				changes.push(value);
 			}}
 		/>,
@@ -471,7 +471,7 @@ test('an external shorter controlled password keeps the caret inside the value',
 	instance.rerender(
 		<PasswordInput
 			value="xy"
-			onChange={value => {
+			onChange={(value) => {
 				changes.push(value);
 			}}
 		/>,
@@ -485,7 +485,7 @@ test('an external shorter controlled password keeps the caret inside the value',
 });
 
 test('a burst into a controlled password reports one change per input event and shows the final value', async (t: TestContext) => {
-	const run = async (burst: boolean) => {
+	const run = async (isBurst: boolean) => {
 		const changes: string[] = [];
 
 		function Form() {
@@ -493,7 +493,7 @@ test('a burst into a controlled password reports one change per input event and 
 			return (
 				<PasswordInput
 					value={value}
-					onChange={next => {
+					onChange={(next) => {
 						changes.push(next);
 						setValue(next);
 					}}
@@ -504,7 +504,7 @@ test('a burst into a controlled password reports one change per input event and 
 		const instance = render(<Form />);
 
 		await delay(50);
-		if (burst) {
+		if (isBurst) {
 			instance.stdin.write('ab' + del);
 		} else {
 			instance.stdin.write('a');
@@ -561,7 +561,7 @@ test('a key the parent rejects is not built on by the next key in the same read'
 		return (
 			<PasswordInput
 				value={value}
-				onChange={next => {
+				onChange={(next) => {
 					changes.push(next);
 					if (/^\d*$/.test(next)) {
 						setValue(next);
@@ -574,7 +574,7 @@ test('a key the parent rejects is not built on by the next key in the same read'
 	const instance = render(<DigitsOnly />);
 
 	await delay(50);
-	instance.stdin.write('x\u001B[A2');
+	instance.stdin.write('x\u{1B}[A2');
 	await delay(50);
 	instance.unmount();
 
@@ -588,14 +588,14 @@ test('Enter after a key the parent rejects submits the stored password', async (
 		<PasswordInput
 			value="abc"
 			onChange={() => {}}
-			onSubmit={value => {
+			onSubmit={(value) => {
 				submitted.push(value);
 			}}
 		/>,
 	);
 
 	await delay(50);
-	instance.stdin.write('d\u001B[A' + enter);
+	instance.stdin.write('d\u{1B}[A' + enter);
 	await delay(50);
 	instance.unmount();
 

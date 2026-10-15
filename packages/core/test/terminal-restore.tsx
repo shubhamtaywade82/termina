@@ -10,7 +10,7 @@ const kittyPop = '[<u';
 const mouseOff = '\u{1B}[?1006l\u{1B}[?1002l\u{1B}[?1000l';
 
 const delay = async (ms: number) =>
-	new Promise(resolve => {
+	new Promise((resolve) => {
 		setTimeout(resolve, ms);
 	});
 
@@ -103,17 +103,17 @@ test('Ctrl+Z hands the terminal back before the process stops, and takes it agai
 		const beforeStop = shell.output.length;
 		shell.write('\u{1A}');
 		// The shell reports the stop after the job has written its restore sequences, so wait for the report before reading the output.
-		await waitFor(() =>
-			shell.output.slice(beforeStop).includes('Stopped'),
-		);
+		await waitFor(() => shell.output.slice(beforeStop).includes('Stopped'));
 		t.assert.ok(processState(job).startsWith('T'), 'the job is stopped');
 
-		const stoppedOutput = shell.output.slice(beforeStop);
 		t.assert.ok(
-			stoppedOutput.includes(exitAltScreen),
+			shell.output.slice(beforeStop).includes(exitAltScreen),
 			'left the alternate screen before stopping',
 		);
-		t.assert.ok(stoppedOutput.includes(showCursor), 'showed the cursor before stopping');
+		t.assert.ok(
+			shell.output.slice(beforeStop).includes(showCursor),
+			'showed the cursor before stopping',
+		);
 
 		const beforeContinue = shell.output.length;
 		execFileSync('kill', ['-CONT', String(job)]);

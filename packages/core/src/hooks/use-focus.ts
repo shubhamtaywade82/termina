@@ -1,5 +1,6 @@
-import {useEffect, use, useId} from 'react';
+import {useEffect, use, useId, useState} from 'react';
 import FocusContext from '../components/FocusContext.js';
+import FocusScopeContext from '../components/FocusScopeContext.js';
 import useStdin from './use-stdin.js';
 
 type Input = {
@@ -41,19 +42,27 @@ const useFocus = ({
 	id: customId,
 }: Input = {}): Output => {
 	const {isRawModeSupported, setRawMode} = useStdin();
-	const {activeId, add, remove, activate, deactivate, focus} =
+	const {activeId, add, remove, setScope, activate, deactivate, focus} =
 		use(FocusContext);
+	const scope = use(FocusScopeContext);
 
 	const generatedId = useId();
 	const id = customId ?? generatedId;
+	// Each hook instance registers under its own token, so a shared id cannot make one registration remove another.
+	const [token] = useState(() => Symbol('focus-registration'));
 
 	useEffect(() => {
-		add(id, {autoFocus});
+		add(id, {autoFocus, token});
 
 		return () => {
-			remove(id);
+			remove(token);
 		};
-	}, [id, autoFocus, add, remove]);
+	}, [id, autoFocus, token, add, remove]);
+
+	// The scope is set in its own effect. A change of scope then updates this registration in place, instead of re-registering it at the end of the focus order.
+	useEffect(() => {
+		setScope(token, scope);
+	}, [scope, token, setScope]);
 
 	useEffect(() => {
 		// Reapply active state when autoFocus changes and re-registers this component.
