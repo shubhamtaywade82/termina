@@ -126,8 +126,10 @@ Confirmed with tests before the fix (`test/text-input-editing.tsx`, 8 cases):
 - Ctrl+letter inserted the letter (Ctrl+A typed `a`).
 - Pasted control characters, including newlines, were stored in a single-line value.
 
-Fixed in `source/lib/grapheme.ts` (shared, `Intl.Segmenter`-based) and both state
-reducers. The cursor stays a UTF-16 index, always on a grapheme boundary.
+Fixed in `source/lib/grapheme.ts` (shared, `Intl.Segmenter`-based) and the edit
+logic in `source/lib/text-edit-reducer.ts`. The cursor stays a UTF-16 index. Movement and
+deletion step by grapheme cluster, but an inserted zero-width joiner can leave
+the cursor inside a grapheme (see the TextInput edge cases).
 
 ### Known-bug markers in the upstream test suite
 

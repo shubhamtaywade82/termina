@@ -98,3 +98,4 @@ The cursor (inverse) and the suggestion (dimmed) are drawn with fixed styles in 
 - The guard against a second `@` checks the current value. Pasting `a@b@c` into an empty field inserts the whole text, with two `@` characters.
 - The address is not validated. `onSubmit` receives an empty string when Enter is pressed on an empty field.
 - `onChange` is called once per change, synchronously from the key that made it. A burst of keys in one read reports each change, in order. A new callback on each render does not repeat the last call.
+- An exception thrown by `onChange` is rethrown during the next render, so the nearest error boundary catches it. The input does not catch it.

@@ -4,6 +4,7 @@ import {
 	type TextEditAction,
 	type TextEditState,
 } from '../../lib/text-edit-reducer.js';
+import {useChangeNotifier} from '../../lib/use-change-notifier.js';
 import {useControlledCaret} from '../../lib/use-controlled-caret.js';
 import {useSyncedReducer} from '../../lib/use-synced-reducer.js';
 
@@ -111,18 +112,19 @@ export const useTextInputState = ({
 	const state: TextEditState = controlled ?? editor;
 
 	// Notifies from the edit itself, not from an effect. Effects are keyed to the callback and to the last edit, which repeats calls on re-render and merges edits in one drain.
+	const notify = useChangeNotifier(onChange);
 	const commit = useCallback(
 		(action: TextEditAction): TextEditState => {
 			const {previous, next} = dispatch(action);
 
 			if (next.value !== previous.value) {
 				recordEdit(next);
-				onChange?.(next.value);
+				notify(next.value);
 			}
 
 			return next;
 		},
-		[dispatch, recordEdit, onChange],
+		[dispatch, recordEdit, notify],
 	);
 
 	// A cursor move changes no value, so the parent has nothing to refuse: a controlled input takes it at once.

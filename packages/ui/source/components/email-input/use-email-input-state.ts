@@ -1,4 +1,5 @@
 import {useCallback, useMemo, type Reducer} from 'react';
+import {useChangeNotifier} from '../../lib/use-change-notifier.js';
 import {useSyncedReducer} from '../../lib/use-synced-reducer.js';
 
 type State = {
@@ -201,17 +202,18 @@ export const useEmailInputState = ({
 	}, []);
 
 	// Notifies from the edit itself, not from an effect. Effects are keyed to the callback and to the last edit, which repeats calls on re-render and merges edits in one drain.
+	const notify = useChangeNotifier(onChange);
 	const commit = useCallback(
 		(action: Action): State => {
 			const {previous, next} = dispatch(action);
 
 			if (next.value !== previous.value) {
-				onChange?.(next.value);
+				notify(next.value);
 			}
 
 			return next;
 		},
-		[dispatch, onChange],
+		[dispatch, notify],
 	);
 
 	const insert = useCallback(

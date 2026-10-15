@@ -19,6 +19,11 @@ export type PasswordInputProps = {
 	readonly placeholder?: string;
 
 	/**
+	 * Initial value when uncontrolled. Read once, so later changes have no effect. Ignored when `value` is set.
+	 */
+	readonly defaultValue?: string;
+
+	/**
 	 * Controlled input value. When set, the parent owns the value: each edit is reported through `onChange`, and the input shows this value until the parent changes it. An input with `value` and no `onChange` is read-only.
 	 */
 	readonly value?: string;
@@ -37,11 +42,13 @@ export type PasswordInputProps = {
 export function PasswordInput({
 	isDisabled = false,
 	placeholder = '',
+	defaultValue,
 	value,
 	onChange,
 	onSubmit,
 }: PasswordInputProps) {
 	const state = usePasswordInputState({
+		defaultValue,
 		value,
 		onChange,
 		onSubmit,

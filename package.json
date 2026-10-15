@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "type": "module",
-  "packageManager": "pnpm@10.28.0",
+  "packageManager": "pnpm@12.11.2",
   "engines": {
     "node": ">=22"
   },
@@ -19,13 +19,5 @@
     "docs:previews:check": "pnpm --filter termina-docs-previews run check",
     "audit:ci": "pnpm audit --prod --audit-level=high",
     "ci": "pnpm install --frozen-lockfile && pnpm build && pnpm typecheck && pnpm test && pnpm docs:previews:check && pnpm audit:ci"
-  },
-  "pnpm": {
-    "onlyBuiltDependencies": [
-      "node-pty"
-    ],
-    "overrides": {
-      "xo>typescript": "5.9.3"
-    }
   }
 }

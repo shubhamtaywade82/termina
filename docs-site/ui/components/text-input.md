@@ -113,6 +113,7 @@ const [name, setName] = useState('');
 - A key the parent does not store leaves the display and the cursor unchanged. The next key in the same read starts from the value the parent holds.
 - The cursor stays where the user left it. If an external change makes the value shorter than that position, the cursor moves to the new end. A cursor inside a character made of several code units moves to the start of that character.
 - With `value` and no `onChange`, the input is read-only.
+- A new `value` from the parent keeps the caret at its offset, clamped to the new length. The caret moves only when the user edits or moves it.
 - Store the new value in `onChange` synchronously. A parent that stores it later, in a timer or a transition, counts as having refused the key, so the caret stays put. Under `concurrent` rendering, a transition can also commit after later keystrokes and revert them.
 
 ## Placeholder and disabled state
@@ -126,6 +127,7 @@ const [name, setName] = useState('');
 - `onChange` is called once per change to the value, synchronously from the key that made it. A burst of keys in one read reports each change, in order. It is not called on mount, for cursor movement, or for a key that leaves the value unchanged, such as Backspace at the start.
 - `onSubmit` is called with the current value. An empty value is passed as `''`.
 - A new `onChange` function on each render does not repeat the last call, so wrapping the callback in `useCallback` is not needed.
+- An exception thrown by `onChange` is rethrown during the next render, so the nearest error boundary catches it. The input does not catch it.
 
 ## Theme keys
 

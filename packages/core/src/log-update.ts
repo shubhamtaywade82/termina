@@ -36,6 +36,24 @@ export type LogUpdate = {
 const visibleLineCount = (lines: string[], text: string): number =>
 	text.endsWith('\n') ? lines.length - 1 : lines.length;
 
+// Bounds the moves of a shrinking incremental write to the viewport. eraseLines(n) climbs n - 1 rows, and cursorUp(m) climbs m rows. Once the frame has scrolled past the top, the requested climb can exceed the viewport. Emulators clamp at the top, so a climb capped at the viewport height leaves the same screen. Without a known viewport height, the moves are returned unchanged.
+const boundShrinkMoves = (
+	eraseCount: number,
+	cursorUpCount: number,
+	viewportRows: number | undefined,
+): {eraseCount: number; cursorUpCount: number} => {
+	if (typeof viewportRows !== 'number' || viewportRows <= 0) {
+		return {eraseCount, cursorUpCount};
+	}
+
+	const erase = Math.min(eraseCount, viewportRows);
+	const climbLimit = Math.max(0, viewportRows - erase);
+	return {
+		eraseCount: erase,
+		cursorUpCount: Math.min(cursorUpCount, climbLimit),
+	};
+};
+
 const createStandard = (
 	stream: NodeJS.WritableStream,
 	{showCursor = false} = {},
@@ -294,20 +312,33 @@ const createIncremental = (
 		if (visibleCount < previousVisible) {
 			const didPreviousHaveTrailingNewline = previousOutput.endsWith('\n');
 			const extraSlot = didPreviousHaveTrailingNewline ? 1 : 0;
-			buffer.push(
-				ansiEscapes.eraseLines(previousVisible - visibleCount + extraSlot),
-				ansiEscapes.cursorUp(visibleCount),
+			const moves = boundShrinkMoves(
+				previousVisible - visibleCount + extraSlot,
+				visibleCount,
+				stream.rows,
 			);
+			buffer.push(ansiEscapes.eraseLines(moves.eraseCount));
+			if (moves.cursorUpCount > 0) {
+				buffer.push(ansiEscapes.cursorUp(moves.cursorUpCount));
+			}
 		} else if (previousLines.length > 1) {
 			buffer.push(ansiEscapes.cursorUp(previousLines.length - 1));
 		}
+
+		// Rows can be reused only while they still show their previous content. A previous block taller than the viewport has lost its top rows to scrollback, and the erase above reaches the top of the screen. Every row is then rewritten, and no line is diffed against content that is no longer on screen.
+		const previousScrolledPastTop =
+			typeof stream.rows === 'number' && previousVisible > stream.rows;
 
 		for (let i = 0; i < visibleCount; i++) {
 			const isLastLine = i === visibleCount - 1;
 
 			// We do not write lines if the contents are the same. This prevents flickering during renders.
 			// New blank rows need a line feed to scroll at the terminal bottom; the trailing split entry is not a visible row.
-			if (i < previousVisible && nextLines[i] === previousLines[i]) {
+			if (
+				!previousScrolledPastTop &&
+				i < previousVisible &&
+				nextLines[i] === previousLines[i]
+			) {
 				// Don't move past the last line when there's no trailing newline,
 				// otherwise the cursor overshoots the rendered block.
 				if (!isLastLine || hasTrailingNewline) {
@@ -319,7 +350,9 @@ const createIncremental = (
 
 			const nextLine = nextLines[i]!;
 			const changedLine =
-				areColumnsUnchanged && nextLines.length === previousLines.length
+				areColumnsUnchanged &&
+				!previousScrolledPastTop &&
+				nextLines.length === previousLines.length
 					? lineUpdate(previousLines[i]!, nextLine, stream.columns)
 					: ansiEscapes.cursorTo(0) + ansiEscapes.eraseEndLine + nextLine;
 

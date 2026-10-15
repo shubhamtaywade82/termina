@@ -1,3 +1,11 @@
 packages:
   - 'packages/*'
   - 'examples/*'
+
+overrides:
+  xo>typescript: 5.9.3
+
+allowBuilds:
+  node-pty: true
+  esbuild: false
+  unrs-resolver: false

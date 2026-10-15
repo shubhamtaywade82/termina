@@ -4,10 +4,16 @@ import {
 	type TextEditAction,
 	type TextEditState,
 } from '../../lib/text-edit-reducer.js';
+import {useChangeNotifier} from '../../lib/use-change-notifier.js';
 import {useControlledCaret} from '../../lib/use-controlled-caret.js';
 import {useSyncedReducer} from '../../lib/use-synced-reducer.js';
 
 export type UseTextInputStateProps = {
+	/**
+	 * Initial value when uncontrolled. Read once, so later changes have no effect. Ignored when `value` is set.
+	 */
+	defaultValue?: string;
+
 	/**
 	 * Controlled input value. When set, the parent owns the value: edits are reported through `onChange`, and the input shows this value until the parent changes it.
 	 */
@@ -57,6 +63,7 @@ export type PasswordInputState = TextEditState & {
 };
 
 export const usePasswordInputState = ({
+	defaultValue = '',
 	value: controlledValue,
 	onChange,
 	onSubmit,
@@ -66,13 +73,13 @@ export const usePasswordInputState = ({
 		latest,
 		dispatch,
 	} = useSyncedReducer(reduceTextEdit, () => {
-		const initial = controlledValue ?? '';
+		const initial = controlledValue ?? defaultValue;
 		return {value: initial, cursorOffset: initial.length};
 	});
 
 	const {controlled, recordEdit, moveCaret} = useControlledCaret({
 		value: controlledValue,
-		initialCursor: (controlledValue ?? '').length,
+		initialCursor: (controlledValue ?? defaultValue).length,
 		latest,
 	});
 
@@ -80,18 +87,19 @@ export const usePasswordInputState = ({
 	const state: TextEditState = controlled ?? editor;
 
 	// Notifies from the edit itself, not from an effect. Effects are keyed to the callback and to the last edit, which repeats calls on re-render and merges edits in one drain.
+	const notify = useChangeNotifier(onChange);
 	const commit = useCallback(
 		(action: TextEditAction): TextEditState => {
 			const {previous, next} = dispatch(action);
 
 			if (next.value !== previous.value) {
 				recordEdit(next);
-				onChange?.(next.value);
+				notify(next.value);
 			}
 
 			return next;
 		},
-		[dispatch, recordEdit, onChange],
+		[dispatch, recordEdit, notify],
 	);
 
 	// A cursor move changes no value, so the parent has nothing to refuse: a controlled input takes it at once.
