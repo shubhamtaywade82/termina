@@ -193,6 +193,12 @@ async function run(argv) {
 async function main(argv) {
 	// Child mode for countBaseErrors: the file's text arrives on stdin and the error count goes to stdout.
 	if (argv[0] === '--count-errors') {
+		// typescript-estree's single-run inference (inferSingleRun) treats CI=true, which every
+		// CI provider sets, as a one-shot CLI lint. In single-run mode lintText parses the file on
+		// disk instead of the text it was given, so the base copy would be linted as the head copy
+		// and every base count would be wrong on CI. The base copy only ever exists as text, so
+		// the child must always run in watch mode, which honors the given text.
+		process.env.TSESTREE_SINGLE_RUN = 'false';
 		const [packageAbs, fileAbs] = argv.slice(1);
 		const count = await countErrors(packageAbs, fileAbs, readFileSync(0, 'utf8'));
 		console.log(String(count));
