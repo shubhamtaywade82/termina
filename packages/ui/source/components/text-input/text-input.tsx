@@ -19,12 +19,14 @@ export type TextInputProps = {
 	readonly placeholder?: string;
 
 	/**
-	 * Default input value.
+	 * Initial value for an uncontrolled input. Ignored when `value` is set.
 	 */
 	readonly defaultValue?: string;
 
 	/**
-	 * Controlled input value. When set, the parent owns the value: each edit is reported through `onChange`, and the input shows this value until the parent changes it. `defaultValue` is ignored. An input with `value` and no `onChange` is read-only.
+	 * Controlled value. The input shows this value and reports every edit
+	 * through `onChange`; it changes only when the parent passes a new `value`.
+	 * Omit it to let the input manage its own value.
 	 */
 	readonly value?: string;
 
@@ -34,7 +36,8 @@ export type TextInputProps = {
 	readonly suggestions?: string[];
 
 	/**
-	 * Callback when input value changes.
+	 * Callback with the next value after every edit that changes it. It is
+	 * never called for a no-op key and never called because of a re-render.
 	 */
 	readonly onChange?: (value: string) => void;
 

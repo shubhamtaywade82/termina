@@ -1,0 +1,22 @@
+{
+  "schema_version": 1,
+  "suite_id": "termina-agent-skills-v1",
+  "run_metadata": {
+    "started_at": "REPLACE_WITH_ISO_8601_TIMESTAMP",
+    "repository": "shubhamtaywade82/termina",
+    "base_commit": "REPLACE_WITH_40_CHARACTER_BASE_SHA",
+    "skills_commit": "REPLACE_WITH_40_CHARACTER_SKILLS_SHA",
+    "agent": {
+      "name": "REPLACE_WITH_AGENT_NAME",
+      "version": "REPLACE_WITH_AGENT_VERSION"
+    },
+    "model": {
+      "provider": "REPLACE_WITH_PROVIDER",
+      "id": "REPLACE_WITH_MODEL_ID",
+      "version": "REPLACE_WITH_MODEL_VERSION"
+    },
+    "tool_permissions_fingerprint": "REPLACE_WITH_PERMISSION_CONFIG_HASH_OR_VERSION",
+    "repetitions_per_condition": 3
+  },
+  "runs": []
+}

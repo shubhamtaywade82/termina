@@ -6,6 +6,7 @@ overrides:
   xo>typescript: 5.9.3
 
 allowBuilds:
-  node-pty: true
+  '@openuidev/lang-core': false
   esbuild: false
+  node-pty: true
   unrs-resolver: false

@@ -1,0 +1,73 @@
+{
+  "schema_version": 1,
+  "id": "non-interactive-output",
+  "title": "Non-interactive output mode",
+  "kind": "implementation",
+  "user_prompt": "Make a CLI report useful both in an interactive terminal and when stdin is piped or stdout is redirected to a file. In non-interactive mode, it should print a clear summary and exit without waiting for input or emitting interactive terminal-control sequences. Keep interactive behavior when an actual TTY is available.",
+  "expected_skills": [
+    "termina-core",
+    "termina-tui-validation"
+  ],
+  "adjacent_skills_not_required": [
+    "termina-tui-design",
+    "termina-agentic-ui-patterns",
+    "termina-ui"
+  ],
+  "environment": {
+    "terminal_sizes": [
+      {
+        "columns": 80,
+        "rows": 24
+      }
+    ],
+    "execution_modes": [
+      "interactive",
+      "piped-stdin",
+      "redirected-stdout",
+      "term-dumb"
+    ]
+  },
+  "acceptance_checks": [
+    {
+      "id": "piped-stdin",
+      "verification": "terminal-run",
+      "assertion": "The process completes safely with piped stdin and does not require terminal raw mode.",
+      "evidence_required": "Command and output/exit status with piped stdin."
+    },
+    {
+      "id": "redirected-output",
+      "verification": "terminal-run",
+      "assertion": "Redirected stdout contains readable report content and no unintended interactive ANSI/OSC sequences.",
+      "evidence_required": "Captured redirected output and control-sequence check."
+    },
+    {
+      "id": "term-dumb",
+      "verification": "terminal-run",
+      "assertion": "TERM=dumb produces a usable plain-text result without crashing.",
+      "evidence_required": "Command output and exit status with TERM=dumb."
+    },
+    {
+      "id": "tty-behavior",
+      "verification": "terminal-run",
+      "assertion": "Interactive mode remains available when the supported TTY conditions are present.",
+      "evidence_required": "Interactive smoke-test notes or harness output."
+    }
+  ],
+  "hard_gates": [
+    {
+      "id": "non-tty-crash",
+      "failure_condition": "A required non-TTY case throws due to raw-mode or TTY-only assumptions."
+    },
+    {
+      "id": "control-sequence-leak",
+      "failure_condition": "Interactive cursor/alternate-screen/mouse control sequences leak into ordinary redirected logs."
+    }
+  ],
+  "score_dimensions": [
+    "api-grounding",
+    "terminal-resilience",
+    "interaction",
+    "tests",
+    "engineering-discipline"
+  ]
+}

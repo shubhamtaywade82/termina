@@ -538,7 +538,7 @@ test('a controlled password without onChange is read-only', async (t: TestContex
 	t.assert.strictEqual(instance.lastFrame(), `***${cursor()}`);
 });
 
-test('a key the parent rejects does not move the masked caret', async (t: TestContext) => {
+test('a key the parent rejects leaves the masked display and moves the cursor to the end', async (t: TestContext) => {
 	const instance = render(<PasswordInput value="abc" onChange={() => {}} />);
 
 	await delay(50);
@@ -550,7 +550,7 @@ test('a key the parent rejects does not move the masked caret', async (t: TestCo
 	await delay(50);
 	instance.unmount();
 
-	t.assert.strictEqual(instance.lastFrame(), `*${cursor('*')}*`);
+	t.assert.strictEqual(instance.lastFrame(), `***${cursor()}`);
 });
 
 test('a key the parent rejects is not built on by the next key in the same read', async (t: TestContext) => {
