@@ -76,11 +76,13 @@ function createRepo({base, change}) {
 	return root;
 }
 
+// Always runs with CI=true. Under CI, a base copy linted from stdin was checked against the head file on disk, so the cases must cover that path on any machine.
 function runRatchet(root) {
 	try {
 		const stdout = execFileSync(process.execPath, [scriptPath, '--base', 'main'], {
 			cwd: root,
 			encoding: 'utf8',
+			env: {...process.env, CI: 'true'},
 			stdio: ['ignore', 'pipe', 'pipe'],
 		});
 		return {status: 0, stdout};

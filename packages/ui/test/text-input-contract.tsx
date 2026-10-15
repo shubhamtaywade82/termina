@@ -452,7 +452,11 @@ class Boundary extends React.Component<
 test('PasswordInput: an error thrown by onChange reaches the nearest error boundary', async (t: TestContext) => {
 	const caught: string[] = [];
 	const {lastFrame, stdin, unmount} = render(
-		<Boundary onError={error => caught.push(error instanceof Error ? error.message : String(error))}>
+		<Boundary
+			onError={(error) => {
+				caught.push(error instanceof Error ? error.message : String(error));
+			}}
+		>
 			<PasswordInput
 				onChange={() => {
 					throw new Error('boom');
@@ -473,7 +477,11 @@ test('PasswordInput: an error thrown by onChange reaches the nearest error bound
 test('EmailInput: an error thrown by onChange reaches the nearest error boundary', async (t: TestContext) => {
 	const caught: string[] = [];
 	const {lastFrame, stdin, unmount} = render(
-		<Boundary onError={error => caught.push(error instanceof Error ? error.message : String(error))}>
+		<Boundary
+			onError={(error) => {
+				caught.push(error instanceof Error ? error.message : String(error));
+			}}
+		>
 			<EmailInput
 				onChange={() => {
 					throw new Error('boom');

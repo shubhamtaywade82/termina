@@ -4,7 +4,7 @@
 // Exit codes: 0 when no file gained errors, 1 when at least one did, 2 when the check itself could not run.
 
 import {execFileSync} from 'node:child_process';
-import {existsSync, readFileSync} from 'node:fs';
+import {existsSync, readFileSync, rmSync, writeFileSync} from 'node:fs';
 import {createRequire} from 'node:module';
 import path from 'node:path';
 import {fileURLToPath, pathToFileURL} from 'node:url';
@@ -111,18 +111,25 @@ async function countErrors(packageAbs, fileAbs, text) {
 }
 
 // A base copy is linted in a child process. Type-aware linting keeps the text it was given in a program that the process shares, so a base copy linted here would be what the head lint of any file importing it sees.
+// The base text is written to a file beside the head file and linted from disk. Linting text from stdin is not reliable: under CI (CI=true) xo's type-aware pass read the head file from disk instead, so the base count described the wrong content.
 function countBaseErrors(packageAbs, fileAbs, baseText) {
-	const output = execFileSync(
-		process.execPath,
-		[scriptPath, '--count-errors', packageAbs, fileAbs],
-		{
-			input: baseText,
-			encoding: 'utf8',
-			maxBuffer,
-			stdio: ['pipe', 'pipe', 'pipe'],
-		},
-	);
-	return Number(output.trim().split('\n').at(-1));
+	const baseAbs = path.join(path.dirname(fileAbs), `ratchet-base-${process.pid}-${path.basename(fileAbs)}`);
+	writeFileSync(baseAbs, baseText);
+
+	try {
+		const output = execFileSync(
+			process.execPath,
+			[scriptPath, '--count-errors', packageAbs, baseAbs],
+			{
+				encoding: 'utf8',
+				maxBuffer,
+				stdio: ['ignore', 'pipe', 'pipe'],
+			},
+		);
+		return Number(output.trim().split('\n').at(-1));
+	} finally {
+		rmSync(baseAbs, {force: true});
+	}
 }
 
 async function checkFile(repoRoot, base, file) {
@@ -191,10 +198,10 @@ async function run(argv) {
 }
 
 async function main(argv) {
-	// Child mode for countBaseErrors: the file's text arrives on stdin and the error count goes to stdout.
+	// Child mode for countBaseErrors: the error count of the file on disk goes to stdout.
 	if (argv[0] === '--count-errors') {
 		const [packageAbs, fileAbs] = argv.slice(1);
-		const count = await countErrors(packageAbs, fileAbs, readFileSync(0, 'utf8'));
+		const count = await countErrors(packageAbs, fileAbs, readFileSync(fileAbs, 'utf8'));
 		console.log(String(count));
 		return 0;
 	}
