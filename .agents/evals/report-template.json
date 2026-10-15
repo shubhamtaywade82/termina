@@ -4,43 +4,19 @@
   "run_metadata": {
     "started_at": "REPLACE_WITH_ISO_8601_TIMESTAMP",
     "repository": "shubhamtaywade82/termina",
-    "base_commit": "REPLACE_WITH_BASE_COMMIT_SHA",
-    "skills_commit": "REPLACE_WITH_TREATMENT_COMMIT_SHA",
+    "base_commit": "REPLACE_WITH_40_CHARACTER_BASE_SHA",
+    "skills_commit": "REPLACE_WITH_40_CHARACTER_SKILLS_SHA",
     "agent": {
-      "name": "REPLACE",
-      "version": "REPLACE"
+      "name": "REPLACE_WITH_AGENT_NAME",
+      "version": "REPLACE_WITH_AGENT_VERSION"
     },
     "model": {
-      "provider": "REPLACE",
-      "id": "REPLACE",
-      "version": "REPLACE"
+      "provider": "REPLACE_WITH_PROVIDER",
+      "id": "REPLACE_WITH_MODEL_ID",
+      "version": "REPLACE_WITH_MODEL_VERSION"
     },
-    "tool_permissions_fingerprint": "REPLACE_WITH_CONFIG_OR_HASH",
+    "tool_permissions_fingerprint": "REPLACE_WITH_PERMISSION_CONFIG_HASH_OR_VERSION",
     "repetitions_per_condition": 3
   },
-  "runs": [
-    {
-      "task_id": "responsive-status-dashboard",
-      "condition": "baseline",
-      "repetition": 1,
-      "selected_skills": [],
-      "scores": {
-        "api-grounding": 0,
-        "ux-hierarchy": 0,
-        "terminal-resilience": 0,
-        "accessibility": 0,
-        "tests": 0,
-        "engineering-discipline": 0
-      },
-      "hard_gate_failures": [],
-      "evidence": [
-        {
-          "kind": "terminal-output",
-          "reference": "REPLACE_WITH_ARTIFACT_PATH_OR_URL",
-          "note": "Describe exactly what this artifact proves."
-        }
-      ],
-      "review_notes": "REPLACE_WITH_LIMITATIONS_OR_QUALITATIVE_NOTES"
-    }
-  ]
+  "runs": []
 }

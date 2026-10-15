@@ -4,13 +4,17 @@ This directory contains repeatable task prompts and evaluator metadata for measu
 
 ## What the checker does
 
-Run:
+Run the fixture checks and list available prompts:
 
 ```sh
 pnpm evals:check
+pnpm evals:prompt -- --list
+pnpm evals:prompt -- responsive-status-dashboard
 ```
 
-The checker validates fixture structure, skill references, unique task/check/gate identifiers, objective acceptance assertions, evidence requirements, and score-dimension IDs. It does **not** execute an agent, render a generated app, or certify behavior. Those require executing the task and collecting the evidence listed in each fixture.
+The prompt command writes **only** the task's `user_prompt` to stdout. It does not leak expected skill routing, acceptance checks, hard gates, or scoring metadata into the agent context.
+
+The fixture checker validates task structure, skill references, unique task/check/gate identifiers, objective assertions, evidence requirements, score-dimension IDs, and coverage. The prompt checker verifies task IDs and prompt availability. Neither command executes an agent, renders a generated app, or certifies behavior. Those require running the task and collecting evidence from the resulting code and terminal output.
 
 ## Run protocol
 
@@ -35,5 +39,29 @@ Every task contains:
 - Acceptance checks with verification method and required evidence.
 - Hard-gate failure conditions.
 - Applicable scoring dimensions.
+
+## Preparing and validating a result report
+
+Copy `.agents/evals/report-template.json`, then record one run for every task, condition, and repetition. A run object contains:
+- `task_id`, `condition` (`baseline` or `treatment`), and `repetition`.
+- `selected_skills` (empty for baseline runs with repository skills disabled).
+- `acceptance_results`: one entry per acceptance check with `check_id`, `status` (`pass`, `fail`, `not_run`, or `blocked`), and `evidence`. A pass/fail requires evidence; not-run/blocked requires a reason in `note`.
+- `scores` with exactly the task's applicable `score_dimensions`, each scored 0–2.
+- `hard_gate_failures`, plus `hard_gate_evidence` when one or more gates fail.
+- `review_notes` explaining the qualitative judgement and limitations.
+
+Validate a complete report (all tasks, at least three repetitions per condition):
+
+```sh
+pnpm evals:report:check -- path/to/report.json
+```
+
+Validate a paired pilot subset without misrepresenting it as a complete suite:
+
+```sh
+pnpm evals:report:check -- path/to/report.json --partial
+```
+
+The report validator checks metadata, task/check/gate IDs, score ranges, evidence, paired baseline/treatment repetitions, and report completeness. A structurally valid report can still contain failed runs; any hard-gate failure remains a failure, regardless of numeric score.
 
 Add or change fixtures deliberately; update this suite guide when the run protocol changes.
