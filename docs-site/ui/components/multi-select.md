@@ -102,5 +102,5 @@ The component reads the `MultiSelect` entry of the theme. To change a key, pass 
 - Values in `defaultValue` that match no option stay in the selection. They are passed to `onChange` and `onSubmit`.
 - An empty `options` array renders no output.
 - `highlightText` is matched case-sensitively, and only its first occurrence in each label is bold.
-- If the parent re-renders with a new `onChange` function, `onChange` runs again with the current selection. Wrap the callback in `useCallback` to avoid this.
+- `onChange` is called once per toggle, synchronously from the key that made it. A new callback, or a new `options` array with the same contents, does not repeat the last call.
 - A change to `visibleOptionCount` after mount has no effect until `options` changes.

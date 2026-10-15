@@ -1,0 +1,86 @@
+{
+  "schema_version": 1,
+  "id": "responsive-status-dashboard",
+  "title": "Responsive status dashboard",
+  "kind": "implementation",
+  "user_prompt": "Build a terminal dashboard for three background services. Show each service's current status, latency, last update, and a short activity summary. One service has no latency sample yet and one has a long name containing a wide Unicode character. Make the layout useful at 40x12, 80x24, and 120x40 terminal sizes. Keep the primary problem and service states easy to scan.",
+  "expected_skills": [
+    "termina-tui-design",
+    "termina-tui-app-architecture",
+    "termina-ui",
+    "termina-tui-validation"
+  ],
+  "adjacent_skills_not_required": [
+    "termina-core",
+    "termina-agentic-ui-patterns"
+  ],
+  "environment": {
+    "terminal_sizes": [
+      {
+        "columns": 40,
+        "rows": 12
+      },
+      {
+        "columns": 80,
+        "rows": 24
+      },
+      {
+        "columns": 120,
+        "rows": 40
+      }
+    ],
+    "execution_modes": [
+      "interactive"
+    ]
+  },
+  "acceptance_checks": [
+    {
+      "id": "compact-priority",
+      "verification": "terminal-run",
+      "assertion": "At 40x12, every service's identity and status remain discoverable and the layout does not rely on horizontal overflow.",
+      "evidence_required": "Captured output at 40x12 with service labels and statuses visible."
+    },
+    {
+      "id": "responsive-expansion",
+      "verification": "terminal-run",
+      "assertion": "At 80x24 and 120x40, available space improves scanning without changing the meaning or ordering of status information.",
+      "evidence_required": "Captured output at both sizes."
+    },
+    {
+      "id": "non-color-status",
+      "verification": "static-review",
+      "assertion": "Every status remains distinguishable without color alone.",
+      "evidence_required": "Rendered text labels or symbols plus a monochrome review."
+    },
+    {
+      "id": "missing-latency",
+      "verification": "test",
+      "assertion": "Missing latency is shown as unknown/not yet sampled and is not silently converted to zero.",
+      "evidence_required": "Assertion or recorded output for the missing-latency case."
+    },
+    {
+      "id": "unicode-width",
+      "verification": "test",
+      "assertion": "Layout calculations use display-cell width or Termina layout primitives rather than JavaScript string length.",
+      "evidence_required": "Relevant test and implementation reference."
+    }
+  ],
+  "hard_gates": [
+    {
+      "id": "invented-api",
+      "failure_condition": "The implementation uses undocumented or nonexistent Termina exports/props without verifying them."
+    },
+    {
+      "id": "false-verification",
+      "failure_condition": "The report claims terminal sizes or checks were exercised when no evidence was collected."
+    }
+  ],
+  "score_dimensions": [
+    "api-grounding",
+    "ux-hierarchy",
+    "terminal-resilience",
+    "accessibility",
+    "tests",
+    "engineering-discipline"
+  ]
+}

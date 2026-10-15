@@ -1,6 +1,6 @@
 /* eslint-disable no-await-in-loop */
-import React from 'react';
 import test, {type TestContext} from 'node:test';
+import React, {useState} from 'react';
 import {render} from './helpers/render.js';
 import chalk from 'chalk';
 import delay from 'delay';
@@ -408,4 +408,196 @@ test('shows the placeholder without an error when stdin is piped', async (t: Tes
 	t.assert.ok(frame.includes('enter a password'));
 	t.assert.ok(!frame.includes('Raw mode'));
 	unmount();
+});
+
+// A controlled `value` is owned by the parent. The display follows the prop, so an edit the parent ignores does not appear.
+
+test('a controlled value is displayed masked', (t: TestContext) => {
+	const {lastFrame} = render(<PasswordInput value="abc" />);
+
+	t.assert.strictEqual(lastFrame(), `***${cursor()}`);
+});
+
+test('typing into a controlled value reports the next value and keeps the masked display', async (t: TestContext) => {
+	const changes: string[] = [];
+	const instance = render(
+		<PasswordInput
+			value="abc"
+			onChange={(value) => {
+				changes.push(value);
+			}}
+		/>,
+	);
+
+	await delay(50);
+	instance.stdin.write('d');
+	await delay(50);
+	instance.unmount();
+
+	t.assert.deepStrictEqual(changes, ['abcd']);
+	t.assert.strictEqual(instance.lastFrame(), `***${cursor()}`);
+});
+
+test('a parent that stores a controlled password shows each keystroke masked', async (t: TestContext) => {
+	function Form() {
+		const [value, setValue] = useState('');
+		return <PasswordInput value={value} onChange={setValue} />;
+	}
+
+	const instance = render(<Form />);
+
+	await delay(50);
+	instance.stdin.write('a');
+	await delay(30);
+	instance.stdin.write('b');
+	await delay(50);
+	instance.unmount();
+
+	t.assert.strictEqual(instance.lastFrame(), `**${cursor()}`);
+});
+
+test('an external shorter controlled password keeps the caret inside the value', async (t: TestContext) => {
+	const changes: string[] = [];
+	const instance = render(
+		<PasswordInput
+			value="abcd"
+			onChange={(value) => {
+				changes.push(value);
+			}}
+		/>,
+	);
+
+	await delay(50);
+	instance.rerender(
+		<PasswordInput
+			value="xy"
+			onChange={(value) => {
+				changes.push(value);
+			}}
+		/>,
+	);
+	await delay(50);
+	instance.stdin.write('Z');
+	await delay(50);
+	instance.unmount();
+
+	t.assert.deepStrictEqual(changes, ['xyZ']);
+});
+
+test('a burst into a controlled password reports one change per input event and shows the final value', async (t: TestContext) => {
+	const run = async (isBurst: boolean) => {
+		const changes: string[] = [];
+
+		function Form() {
+			const [value, setValue] = useState('');
+			return (
+				<PasswordInput
+					value={value}
+					onChange={(next) => {
+						changes.push(next);
+						setValue(next);
+					}}
+				/>
+			);
+		}
+
+		const instance = render(<Form />);
+
+		await delay(50);
+		if (isBurst) {
+			instance.stdin.write('ab' + del);
+		} else {
+			instance.stdin.write('a');
+			await delay(30);
+			instance.stdin.write('b');
+			await delay(30);
+			instance.stdin.write(del);
+		}
+
+		await delay(50);
+		instance.unmount();
+		return {changes, frame: instance.lastFrame()};
+	};
+
+	const sequential = await run(false);
+	const burst = await run(true);
+
+	t.assert.deepStrictEqual(sequential.changes, ['a', 'ab', 'a']);
+	t.assert.deepStrictEqual(burst.changes, ['ab', 'a']);
+	t.assert.strictEqual(burst.frame, sequential.frame);
+});
+
+test('a controlled password without onChange is read-only', async (t: TestContext) => {
+	const instance = render(<PasswordInput value="abc" />);
+
+	await delay(50);
+	instance.stdin.write('d');
+	await delay(50);
+	instance.unmount();
+
+	t.assert.strictEqual(instance.lastFrame(), `***${cursor()}`);
+});
+
+test('a key the parent rejects leaves the masked display and moves the cursor to the end', async (t: TestContext) => {
+	const instance = render(<PasswordInput value="abc" onChange={() => {}} />);
+
+	await delay(50);
+	instance.stdin.write(arrowLeft);
+	await delay(30);
+	instance.stdin.write(arrowLeft);
+	await delay(30);
+	instance.stdin.write('X');
+	await delay(50);
+	instance.unmount();
+
+	t.assert.strictEqual(instance.lastFrame(), `***${cursor()}`);
+});
+
+test('a key the parent rejects is not built on by the next key in the same read', async (t: TestContext) => {
+	const changes: string[] = [];
+
+	function DigitsOnly() {
+		const [value, setValue] = useState('1');
+		return (
+			<PasswordInput
+				value={value}
+				onChange={(next) => {
+					changes.push(next);
+					if (/^\d*$/.test(next)) {
+						setValue(next);
+					}
+				}}
+			/>
+		);
+	}
+
+	const instance = render(<DigitsOnly />);
+
+	await delay(50);
+	instance.stdin.write('x\u{1B}[A2');
+	await delay(50);
+	instance.unmount();
+
+	t.assert.deepStrictEqual(changes, ['1x', '12']);
+	t.assert.strictEqual(instance.lastFrame(), `**${cursor()}`);
+});
+
+test('Enter after a key the parent rejects submits the stored password', async (t: TestContext) => {
+	const submitted: string[] = [];
+	const instance = render(
+		<PasswordInput
+			value="abc"
+			onChange={() => {}}
+			onSubmit={(value) => {
+				submitted.push(value);
+			}}
+		/>,
+	);
+
+	await delay(50);
+	instance.stdin.write('d\u{1B}[A' + enter);
+	await delay(50);
+	instance.unmount();
+
+	t.assert.deepStrictEqual(submitted, ['abc']);
 });

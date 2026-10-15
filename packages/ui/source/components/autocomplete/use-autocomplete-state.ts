@@ -1,17 +1,12 @@
-import {
-	type Dispatch,
-	useEffect,
-	useEffectEvent,
-	useReducer,
-} from 'react';
+import {type RefObject, useCallback} from 'react';
 import {
 	nextBoundary,
 	previousBoundary,
 	sanitizeInsertedText,
 } from '../../lib/grapheme.js';
+import {useSyncedReducer} from '../../lib/use-synced-reducer.js';
 
 export type AutocompleteState = {
-	previousValue: string;
 	value: string;
 	// UTF-16 index into `value`, always on a grapheme boundary.
 	cursorOffset: number;
@@ -34,7 +29,6 @@ const clampIndex = (index: number, rowCount: number): number =>
 	Math.min(Math.max(index, 0), rowCount - 1);
 
 const createInitialState = (defaultValue: string): AutocompleteState => ({
-	previousValue: defaultValue,
 	value: defaultValue,
 	cursorOffset: defaultValue.length,
 	highlightIndex: 0,
@@ -47,7 +41,6 @@ const replaceValue = (
 	cursorOffset: number,
 ): AutocompleteState => ({
 	...state,
-	previousValue: state.value,
 	value,
 	cursorOffset,
 	highlightIndex: 0,
@@ -152,27 +145,29 @@ type UseAutocompleteStateProps = {
 	onChange?: (value: string) => void;
 };
 
-// The effect is keyed on the value, so a parent that passes a new callback on each render does not hear the last change again.
+// Notifies from the edit itself, not from an effect. An effect keyed on the value runs again whenever a commit changes its inputs, so its call depends on render timing. Here each edit that changes the value is reported once, and a parent that passes a new callback on each render hears nothing new.
 export const useAutocompleteState = ({
 	defaultValue,
 	onChange,
 }: UseAutocompleteStateProps) => {
-	const [state, dispatch] = useReducer(
-		reducer,
-		defaultValue,
-		createInitialState,
+	const {state, latest, dispatch} = useSyncedReducer(reducer, () =>
+		createInitialState(defaultValue),
 	);
-	const notifyChange = useEffectEvent((value: string) => {
-		onChange?.(value);
-	});
 
-	useEffect(() => {
-		if (state.value !== state.previousValue) {
-			notifyChange(state.value);
-		}
-	}, [state.value, state.previousValue]);
+	const commit = useCallback(
+		(action: AutocompleteAction): AutocompleteState => {
+			const {previous, next} = dispatch(action);
 
-	return {state, dispatch};
+			if (next.value !== previous.value) {
+				onChange?.(next.value);
+			}
+
+			return next;
+		},
+		[dispatch, onChange],
+	);
+
+	return {state, latest, commit};
 };
 
 export const getSuggestions = (
@@ -196,40 +191,43 @@ export const getSuggestions = (
 
 type CreateTextInputStateProps = {
 	state: AutocompleteState;
-	dispatch: Dispatch<AutocompleteAction>;
-	rows: string[];
-	highlightIndex: number;
+	latest: RefObject<AutocompleteState>;
+	commit: (action: AutocompleteAction) => AutocompleteState;
+	options: string[];
+	limit: number;
 	onSubmit?: (value: string) => void;
 };
 
 // The shape useTextInput reads. `suggestion` stays undefined because rows sit below the input, not inline after it.
 export const createTextInputState = ({
 	state,
-	dispatch,
-	rows,
-	highlightIndex,
+	latest,
+	commit,
+	options,
+	limit,
 	onSubmit,
 }: CreateTextInputStateProps) => {
-	// useTextInput submits on Enter, so this override decides what Enter means here.
+	// useTextInput submits on Enter, so this override decides what Enter means here. It reads the latest state, not the render's, so Enter after a burst acts on what the burst produced.
 	const submit = () => {
+		const current = latest.current;
+		const {rows, highlightIndex} = getSuggestions(current, options, limit);
 		const highlighted = rows[highlightIndex];
 		if (highlighted === undefined) {
-			onSubmit?.(state.value);
+			onSubmit?.(current.value);
 		} else {
-			dispatch({type: 'accept', text: highlighted});
+			commit({type: 'accept', text: highlighted});
 		}
 	};
 
 	return {
-		previousValue: state.previousValue,
 		value: state.value,
 		cursorOffset: state.cursorOffset,
 		suggestion: undefined,
-		moveCursorLeft: () => dispatch({type: 'move-cursor-left'}),
-		moveCursorRight: () => dispatch({type: 'move-cursor-right'}),
-		insert: (text: string) => dispatch({type: 'insert', text}),
-		delete: () => dispatch({type: 'delete'}),
-		deleteForward: () => dispatch({type: 'delete-forward'}),
+		moveCursorLeft: () => commit({type: 'move-cursor-left'}),
+		moveCursorRight: () => commit({type: 'move-cursor-right'}),
+		insert: (text: string) => commit({type: 'insert', text}),
+		delete: () => commit({type: 'delete'}),
+		deleteForward: () => commit({type: 'delete-forward'}),
 		submit,
 	};
 };

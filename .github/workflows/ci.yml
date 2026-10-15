@@ -35,6 +35,15 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
+      - name: Validate repository agent skills
+        run: pnpm skills:check
+
+      - name: Validate agent evaluation fixtures
+        run: pnpm evals:check
+
+      - name: Check evaluation report validator syntax
+        run: node --check .agents/scripts/validate-eval-report.mjs
+
       # The UI package typechecks against the core package's built declarations, so build first.
       - name: Build
         run: pnpm build
@@ -65,6 +74,41 @@ jobs:
       # Builds both packages, then runs the core and UI suites with their pseudo-terminal and emulator fixtures.
       - name: Test
         run: pnpm test
+
+  lint-ratchet:
+    name: Lint ratchet
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      # The base commit is needed to compare each changed file with its version on the base branch.
+      - name: Checkout repository
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v6
+
+      - name: Setup Node
+        uses: actions/setup-node@v7
+        with:
+          node-version-file: .node-version
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      # The UI files import the core package through its built declarations, so build first. Without them the type-aware rules report errors that a local run does not.
+      - name: Build
+        run: pnpm build
+
+      - name: Test the ratchet
+        run: node --test scripts/lint-ratchet.test.mjs
+
+      # A changed TypeScript file may not have more xo errors than its base copy, and a file the pull request adds must have none.
+      - name: Lint ratchet
+        run: node scripts/lint-ratchet.mjs --base ${{ github.event.pull_request.base.sha }}
 
   docs:
     name: Docs site and previews

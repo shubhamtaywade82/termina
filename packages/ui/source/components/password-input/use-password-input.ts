@@ -1,5 +1,5 @@
 import {useMemo} from 'react';
-import {useInput} from '@nemesis-oss/termina-core';
+import {useInput, usePaste} from '@nemesis-oss/termina-core';
 import chalk from 'chalk';
 import {graphemes, splitFirstGrapheme} from '../../lib/grapheme.js';
 import {type PasswordInputState} from './use-password-input-state.js';
@@ -104,6 +104,14 @@ export const usePasswordInput = ({
 			} else {
 				state.insert(input);
 			}
+		},
+		{isActive: !isDisabled},
+	);
+
+	// While a usePaste listener is mounted, paste never reaches useInput, so the editor takes it here. It goes through the same insert as typing, so the controlled-value rules apply to it too.
+	usePaste(
+		(text) => {
+			state.insert(text);
 		},
 		{isActive: !isDisabled},
 	);

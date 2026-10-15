@@ -1,0 +1,69 @@
+{
+  "name": "@nemesis-oss/termina-genui",
+  "version": "0.1.0",
+  "private": false,
+  "description": "OpenUI-style Generative UI for Termina terminal applications.",
+  "keywords": [
+    "react",
+    "terminal",
+    "tui",
+    "cli",
+    "genui",
+    "generative-ui",
+    "openui",
+    "termina"
+  ],
+  "author": "Shubham Taywade <shubhamtaywade82@gmail.com>",
+  "license": "MIT",
+  "homepage": "https://github.com/shubhamtaywade82/termina/tree/main/packages/genui#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/shubhamtaywade82/termina.git",
+    "directory": "packages/genui"
+  },
+  "bugs": {
+    "url": "https://github.com/shubhamtaywade82/termina/issues"
+  },
+  "type": "module",
+  "main": "./build/index.js",
+  "types": "./build/index.d.ts",
+  "exports": {
+    "types": "./build/index.d.ts",
+    "default": "./build/index.js"
+  },
+  "files": [
+    "build"
+  ],
+  "engines": {
+    "node": ">=22"
+  },
+  "publishConfig": {
+    "access": "public",
+    "provenance": true
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "typecheck": "tsc --noEmit",
+    "test": "env -u CI -u CONTINUOUS_INTEGRATION TERM=xterm NO_COLOR= FORCE_COLOR=true node --import=tsx --test --test-concurrency=1 \"test/*.test.{ts,tsx}\""
+  },
+  "dependencies": {
+    "@nemesis-oss/termina-core": "workspace:*",
+    "@nemesis-oss/termina-ui": "workspace:*",
+    "@openuidev/lang-core": "1.0.0",
+    "zod": "^4.0.0"
+  },
+  "peerDependencies": {
+    "react": ">=19.3.0"
+  },
+  "devDependencies": {
+    "@sindresorhus/tsconfig": "^8.1.0",
+    "@types/node": "^26.6.3",
+    "@types/react": "^19.3.0",
+    "chalk": "^5.3.0",
+    "delay": "^7.0.0",
+    "react": "^19.3.0",
+    "strip-ansi": "^7.2.0",
+    "tsx": "^4.23.15",
+    "typescript": "^5.8.3"
+  }
+}

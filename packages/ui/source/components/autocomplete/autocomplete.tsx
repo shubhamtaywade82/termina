@@ -1,10 +1,11 @@
-import React, {type Dispatch} from 'react';
+import React from 'react';
 import {Box, Text, useInput, useStdin} from '@nemesis-oss/termina-core';
 import figures from 'figures';
 import {useComponentTheme} from '../../theme.js';
 import {useTextInput} from '../text-input/use-text-input.js';
 import {
 	type AutocompleteAction,
+	type AutocompleteState,
 	createTextInputState,
 	getSuggestions,
 	useAutocompleteState,
@@ -69,20 +70,20 @@ type UseAutocompleteProps = {
 type UseHighlightKeysProps = {
 	isActive: boolean;
 	rowCount: number;
-	dispatch: Dispatch<AutocompleteAction>;
+	commit: (action: AutocompleteAction) => AutocompleteState;
 };
 
 // useTextInput ignores Up and Down, so the highlight keys are handled here.
 const useHighlightKeys = ({
 	isActive,
 	rowCount,
-	dispatch,
+	commit,
 }: UseHighlightKeysProps) => {
 	useInput(
 		(_input, key) => {
 			if (key.upArrow || key.downArrow) {
 				const step = key.upArrow ? -1 : 1;
-				dispatch({type: 'move-highlight', step, rowCount});
+				commit({type: 'move-highlight', step, rowCount});
 			}
 		},
 		{isActive},
@@ -101,18 +102,25 @@ const useAutocomplete = ({
 	// Piped stdin takes no keys, so the input is drawn without a cursor there, as when disabled.
 	const {isRawModeSupported} = useStdin();
 	const isInteractive = !isDisabled && isRawModeSupported;
-	const {state, dispatch} = useAutocompleteState({defaultValue, onChange});
+	const {state, latest, commit} = useAutocompleteState({defaultValue, onChange});
 	const {rows, highlightIndex, showNoMatches} = getSuggestions(
 		state,
 		options,
 		limit,
 	);
-	useHighlightKeys({isActive: isInteractive, rowCount: rows.length, dispatch});
+	useHighlightKeys({isActive: isInteractive, rowCount: rows.length, commit});
 
 	const {inputValue} = useTextInput({
 		isDisabled: !isInteractive,
 		placeholder,
-		state: createTextInputState({state, dispatch, rows, highlightIndex, onSubmit}),
+		state: createTextInputState({
+			state,
+			latest,
+			commit,
+			options,
+			limit,
+			onSubmit,
+		}),
 	});
 
 	return {

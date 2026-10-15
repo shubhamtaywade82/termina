@@ -1,3 +1,16 @@
 packages:
   - 'packages/*'
   - 'examples/*'
+allowBuilds:
+  '@openuidev/lang-core': false
+  esbuild: false
+  node-pty: true
+  unrs-resolver: false
+# Pin every TypeScript instance to the version the workspace uses. xo bundles its own
+# TypeScript 6, and pnpm 12 otherwise resolves @typescript-eslint/parser's `typescript: *`
+# peer to 6.x, which changes @types auto-inclusion: a program built from a tsconfig without
+# `types` then drops @types/node, every import resolves to `any`, and the type-aware rules
+# flood the file with "could not be resolved" errors. One version also avoids mixing
+# TypeScript instances in a single process, which can crash type-aware linting under pnpm.
+overrides:
+  typescript: 5.9.3

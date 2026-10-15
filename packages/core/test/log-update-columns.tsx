@@ -137,3 +137,32 @@ test('side-by-side public components do not rewrite the unchanged left region', 
 		);
 	}
 });
+
+test('an out-of-range cursor never moves the cursor above the frame, including on a width change', (t: TestContext) => {
+	const stdout = createStdout(80);
+	const update = logUpdate.create(stdout, {showCursor: true});
+	const frame = 'one\ntwo\nthree\nfour';
+
+	update(frame);
+	update.setCursorPosition({x: 0, y: -7});
+	update(frame);
+	update.setCursorPosition({x: 0, y: -7});
+	update.clearReflowed(100);
+
+	// The frame has four lines, so the cursor may move up at most three rows.
+	// A cursor-up move is ESC [ <count> A. Splitting on ESC [ keeps the escape out of a regular expression.
+	const ups = stdout
+		.getWrites()
+		.join('')
+		.split('\u{1B}[')
+		.slice(1)
+		.flatMap((sequence) => {
+			const count = /^(?<count>\d+)A/.exec(sequence)?.groups?.count;
+			return count === undefined ? [] : [Number(count)];
+		});
+	t.assert.ok(ups.length > 0, 'expected a cursor-up move');
+	t.assert.ok(
+		ups.every((count) => count <= 3),
+		`cursor moved up ${Math.max(...ups)} rows in a four-line frame`,
+	);
+});
