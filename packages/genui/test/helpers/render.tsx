@@ -11,7 +11,11 @@ export function render(node: ReactNode) {
 		rows: number;
 		write: (data: string) => boolean;
 	};
-	stdout.isTTY = true;
+	// Terminal control sequences (bracketed paste, mouse tracking) are written
+	// only to a TTY stdout. These tests render static frames, so a non-TTY
+	// stdout matches the UI test helper convention and keeps lastFrame() a
+	// rendered frame rather than a control sequence.
+	stdout.isTTY = false;
 	stdout.columns = 100;
 	stdout.rows = 24;
 	let isRecording = true;
