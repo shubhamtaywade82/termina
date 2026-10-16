@@ -498,7 +498,7 @@ test('an external shorter value keeps the caret inside the value', async (t: Tes
 	t.assert.deepStrictEqual(changes, ['hiX']);
 });
 
-test('an external change moves the caret to the end', async (t: TestContext) => {
+test('a caret inside a multi-code-unit character snaps to a character boundary after an external change', async (t: TestContext) => {
 	const changes: string[] = [];
 	const instance = render(
 		<TextInput
@@ -525,7 +525,7 @@ test('an external change moves the caret to the end', async (t: TestContext) => 
 	await delay(50);
 	instance.unmount();
 
-	t.assert.deepStrictEqual(changes, ['😀xX']);
+	t.assert.deepStrictEqual(changes, ['X😀x']);
 });
 
 test('value takes precedence over defaultValue', (t: TestContext) => {
@@ -614,7 +614,7 @@ test('a parent can transform the value it stores', async (t: TestContext) => {
 	t.assert.strictEqual(instance.lastFrame(), `AB${cursor()}`);
 });
 
-test('a key the parent rejects leaves the displayed value and moves the cursor to the end', async (t: TestContext) => {
+test('a key the parent rejects does not move the caret', async (t: TestContext) => {
 	const instance = render(<TextInput value="abc" onChange={() => {}} />);
 
 	await delay(50);
@@ -626,7 +626,7 @@ test('a key the parent rejects leaves the displayed value and moves the cursor t
 	await delay(50);
 	instance.unmount();
 
-	t.assert.strictEqual(instance.lastFrame(), `abc${cursor()}`);
+	t.assert.strictEqual(instance.lastFrame(), `a${cursor('b')}c`);
 });
 
 test('a key the parent rejects is not built on by the next key in the same read', async (t: TestContext) => {
@@ -679,7 +679,7 @@ test('Enter after a key the parent rejects submits the stored value', async (t: 
 	t.assert.deepStrictEqual(submitted, ['abc']);
 });
 
-test('an external shorter value moves the caret to the new end', async (t: TestContext) => {
+test('an external shorter value moves the caret to the new end only when it was past it', async (t: TestContext) => {
 	const instance = render(<TextInput value="abcdef" onChange={() => {}} />);
 
 	await delay(50);
@@ -692,5 +692,5 @@ test('an external shorter value moves the caret to the new end', async (t: TestC
 	await delay(50);
 	instance.unmount();
 
-	t.assert.strictEqual(instance.lastFrame(), `abcd${cursor()}`);
+	t.assert.strictEqual(instance.lastFrame(), `ab${cursor('c')}d`);
 });

@@ -1,15 +1,21 @@
-import {useCallback} from 'react';
-import {useTextBuffer} from '../../lib/use-text-buffer.js';
+import {useCallback, useMemo} from 'react';
+import {
+	reduceTextEdit,
+	type TextEditAction,
+	type TextEditState,
+} from '../../lib/text-edit-reducer.js';
+import {useChangeNotifier} from '../../lib/use-change-notifier.js';
+import {useControlledCaret} from '../../lib/use-controlled-caret.js';
+import {useSyncedReducer} from '../../lib/use-synced-reducer.js';
 
 export type UseTextInputStateProps = {
 	/**
-	 * Initial value when uncontrolled. Ignored once `value` is set.
+	 * Default input value.
 	 */
 	defaultValue?: string;
 
 	/**
-	 * Controlled value. Edits are reported through `onChange`; the component
-	 * shows this value until the parent changes it.
+	 * Controlled input value. When set, the parent owns the value: edits are reported through `onChange`, and the input shows this value until the parent changes it.
 	 */
 	value?: string;
 
@@ -29,17 +35,7 @@ export type UseTextInputStateProps = {
 	onSubmit?: (value: string) => void;
 };
 
-export type TextInputState = {
-	/**
-	 * Input value.
-	 */
-	value: string;
-
-	/**
-	 * UTF-16 index into `value`. Movement and deletion step by grapheme cluster.
-	 */
-	cursorOffset: number;
-
+export type TextInputState = TextEditState & {
 	/**
 	 * Suggested auto completion.
 	 */
@@ -76,7 +72,8 @@ export type TextInputState = {
 	submit: () => void;
 };
 
-const suggestionFor = (
+// The first suggestion that extends the value, with the value itself removed. Empty values have no suggestion.
+const findSuggestion = (
 	value: string,
 	suggestions: string[] | undefined,
 ): string | undefined => {
@@ -90,60 +87,111 @@ const suggestionFor = (
 };
 
 export const useTextInputState = ({
-	defaultValue,
+	defaultValue = '',
 	value: controlledValue,
 	suggestions,
 	onChange,
 	onSubmit,
-}: UseTextInputStateProps): TextInputState => {
-	const buffer = useTextBuffer({
-		value: controlledValue,
-		defaultValue,
-		onChange,
+}: UseTextInputStateProps) => {
+	const {
+		state: editor,
+		latest,
+		dispatch,
+	} = useSyncedReducer(reduceTextEdit, () => {
+		const initial = controlledValue ?? defaultValue;
+		return {value: initial, cursorOffset: initial.length};
 	});
 
-	const {edit, getValue} = buffer;
+	const {controlled, recordEdit, moveCaret} = useControlledCaret({
+		value: controlledValue,
+		initialCursor: (controlledValue ?? defaultValue).length,
+		latest,
+	});
+
+	// A controlled value is the prop. The caret is the shown one, clamped to the value.
+	const state: TextEditState = controlled ?? editor;
+
+	// Notifies from the edit itself, not from an effect. Effects are keyed to the callback and to the last edit, which repeats calls on re-render and merges edits in one drain.
+	const notify = useChangeNotifier(onChange);
+	const commit = useCallback(
+		(action: TextEditAction): TextEditState => {
+			const {previous, next} = dispatch(action);
+
+			if (next.value !== previous.value) {
+				recordEdit(next);
+				notify(next.value);
+			}
+
+			return next;
+		},
+		[dispatch, recordEdit, notify],
+	);
+
+	// A cursor move changes no value, so the parent has nothing to refuse: a controlled input takes it at once.
+	const moveCursor = useCallback(
+		(action: TextEditAction) => {
+			const {next} = dispatch(action);
+			moveCaret(next.cursorOffset);
+		},
+		[dispatch, moveCaret],
+	);
+
+	const suggestion = useMemo(
+		() => findSuggestion(state.value, suggestions),
+		[state.value, suggestions],
+	);
 
 	const moveCursorLeft = useCallback(() => {
-		edit({type: 'move-cursor-left'});
-	}, [edit]);
+		moveCursor({
+			type: 'move-cursor-left',
+		});
+	}, [moveCursor]);
 
 	const moveCursorRight = useCallback(() => {
-		edit({type: 'move-cursor-right'});
-	}, [edit]);
+		moveCursor({
+			type: 'move-cursor-right',
+		});
+	}, [moveCursor]);
 
 	const insert = useCallback(
 		(text: string) => {
-			edit({type: 'insert', text});
+			commit({
+				type: 'insert',
+				text,
+			});
 		},
-		[edit],
+		[commit],
 	);
 
 	const deleteCharacter = useCallback(() => {
-		edit({type: 'delete'});
-	}, [edit]);
+		commit({
+			type: 'delete',
+		});
+	}, [commit]);
 
 	const deleteForward = useCallback(() => {
-		edit({type: 'delete-forward'});
-	}, [edit]);
+		commit({
+			type: 'delete-forward',
+		});
+	}, [commit]);
 
 	const submit = useCallback(() => {
-		const current = getValue();
-		const suggestion = suggestionFor(current, suggestions);
+		// Read the latest value, not the render's closure, so Enter after a burst submits what the burst produced.
+		const current = latest.current;
+		const completion = findSuggestion(current.value, suggestions);
 
-		if (suggestion) {
-			edit({type: 'append', text: suggestion});
-			onSubmit?.(current + suggestion);
+		if (completion) {
+			const next = commit({type: 'append', text: completion});
+			onSubmit?.(next.value);
 			return;
 		}
 
-		onSubmit?.(current);
-	}, [edit, getValue, suggestions, onSubmit]);
+		onSubmit?.(current.value);
+	}, [commit, latest, onSubmit, suggestions]);
 
 	return {
-		value: buffer.value,
-		cursorOffset: buffer.cursorOffset,
-		suggestion: suggestionFor(buffer.value, suggestions),
+		...state,
+		suggestion,
 		moveCursorLeft,
 		moveCursorRight,
 		insert,
