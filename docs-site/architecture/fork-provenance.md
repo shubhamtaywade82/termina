@@ -12,8 +12,8 @@ The record for this page is `FORK.md` at the repository root. Each file path and
 
 | Workspace path | Manifest name | Name used in these docs | Upstream | Manifest version |
 | --- | --- | --- | --- | --- |
-| `packages/core` | `@nemesis-oss/termina-core` | `@nemesis-oss/termina-core` | vadimdemedes/ink 8.0.0 | 0.1.0 |
-| `packages/ui` | `@nemesis-oss/termina-ui` | `@nemesis-oss/termina-ui` | vadimdemedes/ink-ui 2.0.0 | 0.1.0 |
+| `packages/core` | `@nemesis-oss/termina-core` | `@nemesis-oss/termina-core` | vadimdemedes/ink 8.0.0 | 0.2.0 |
+| `packages/ui` | `@nemesis-oss/termina-ui` | `@nemesis-oss/termina-ui` | vadimdemedes/ink-ui 2.0.0 | 0.2.0 |
 
 Both manifests set `"private": false`, and both packages are published to npm. The publish workflow (`.github/workflows/publish.yml`) releases them when a `v*` tag is pushed.
 
