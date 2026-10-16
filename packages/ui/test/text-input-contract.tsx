@@ -138,7 +138,8 @@ test('TextInput controlled: an echoed edit keeps the cursor where the user put i
 	unmount();
 });
 
-test('TextInput controlled: an external value change moves the cursor to the end', async (t: TestContext) => {
+// The caret keeps its offset when the parent changes the value, clamped to the new length. It moves only when the user edits or moves it.
+test('TextInput controlled: an external value change keeps the cursor offset, clamped to the new value', async (t: TestContext) => {
 	const {lastFrame, stdin, rerender, unmount} = render(<TextInput value="abc" />);
 
 	await delay(50);
@@ -149,7 +150,7 @@ test('TextInput controlled: an external value change moves the cursor to the end
 
 	rerender(<TextInput value="world!" />);
 	await delay(50);
-	t.assert.strictEqual(lastFrame(), `world!${cursor()}`);
+	t.assert.strictEqual(lastFrame(), cursorAt('world!', 1));
 	unmount();
 });
 
@@ -284,7 +285,7 @@ test('TextInput controlled: accepting a suggestion notifies once with the comple
 	unmount();
 });
 
-test('PasswordInput controlled: an external value change moves the cursor to the end', async (t: TestContext) => {
+test('PasswordInput controlled: an external value change keeps the cursor offset, clamped to the new value', async (t: TestContext) => {
 	const {lastFrame, stdin, rerender, unmount} = render(<PasswordInput value="abc" />);
 
 	await delay(50);
@@ -293,7 +294,7 @@ test('PasswordInput controlled: an external value change moves the cursor to the
 
 	rerender(<PasswordInput value="wxyz" />);
 	await delay(50);
-	t.assert.strictEqual(lastFrame(), `****${cursor()}`);
+	t.assert.strictEqual(lastFrame(), cursorAt('****', 2));
 	unmount();
 });
 
@@ -393,6 +394,7 @@ test('TextInput: forward Delete in the middle of the value deletes the character
 	unmount();
 });
 
+// A value the parent adopts after refusing the edit leaves the caret where the user left it. The caret never follows a value the user did not type.
 test('TextInput controlled: a rejected value is not notified again when the parent later adopts it', async (t: TestContext) => {
 	const proposed: string[] = [];
 	const {lastFrame, stdin, rerender, unmount} = render(
@@ -407,7 +409,7 @@ test('TextInput controlled: a rejected value is not notified again when the pare
 	rerender(<TextInput value="abx" onChange={value => proposed.push(value)} />);
 	await delay(50);
 	t.assert.deepStrictEqual(proposed, ['abx']);
-	t.assert.strictEqual(lastFrame(), `abx${cursor()}`);
+	t.assert.strictEqual(lastFrame(), cursorAt('abx', 2));
 	unmount();
 });
 
@@ -446,6 +448,56 @@ class Boundary extends React.Component<
 		return this.state.failed ? <Text>boundary</Text> : this.props.children;
 	}
 }
+
+test('PasswordInput: an error thrown by onChange reaches the nearest error boundary', async (t: TestContext) => {
+	const caught: string[] = [];
+	const {lastFrame, stdin, unmount} = render(
+		<Boundary
+			onError={(error) => {
+				caught.push(error instanceof Error ? error.message : String(error));
+			}}
+		>
+			<PasswordInput
+				onChange={() => {
+					throw new Error('boom');
+				}}
+			/>
+		</Boundary>,
+	);
+
+	await delay(50);
+	stdin.write('x');
+	await delay(50);
+
+	t.assert.deepStrictEqual(caught, ['boom']);
+	t.assert.ok((lastFrame() ?? '').includes('boundary'));
+	unmount();
+});
+
+test('EmailInput: an error thrown by onChange reaches the nearest error boundary', async (t: TestContext) => {
+	const caught: string[] = [];
+	const {lastFrame, stdin, unmount} = render(
+		<Boundary
+			onError={(error) => {
+				caught.push(error instanceof Error ? error.message : String(error));
+			}}
+		>
+			<EmailInput
+				onChange={() => {
+					throw new Error('boom');
+				}}
+			/>
+		</Boundary>,
+	);
+
+	await delay(50);
+	stdin.write('x');
+	await delay(50);
+
+	t.assert.deepStrictEqual(caught, ['boom']);
+	t.assert.ok((lastFrame() ?? '').includes('boundary'));
+	unmount();
+});
 
 test('TextInput: an error thrown by onChange reaches the nearest error boundary', async (t: TestContext) => {
 	const caught: string[] = [];

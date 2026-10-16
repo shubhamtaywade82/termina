@@ -19,20 +19,17 @@ export type PasswordInputProps = {
 	readonly placeholder?: string;
 
 	/**
-	 * Initial value for an uncontrolled input. Ignored when `value` is set.
+	 * Initial value when uncontrolled. Read once, so later changes have no effect. Ignored when `value` is set.
 	 */
 	readonly defaultValue?: string;
 
 	/**
-	 * Controlled value. The input shows this value and reports every edit
-	 * through `onChange`; it changes only when the parent passes a new `value`.
-	 * Omit it to let the input manage its own value.
+	 * Controlled input value. When set, the parent owns the value: each edit is reported through `onChange`, and the input shows this value until the parent changes it. An input with `value` and no `onChange` is read-only.
 	 */
 	readonly value?: string;
 
 	/**
-	 * Callback with the next value after every edit that changes it. It is
-	 * never called for a no-op key and never called because of a re-render.
+	 * Callback when value updates.
 	 */
 	readonly onChange?: (value: string) => void;
 
@@ -44,9 +41,9 @@ export type PasswordInputProps = {
 
 export function PasswordInput({
 	isDisabled = false,
+	placeholder = '',
 	defaultValue,
 	value,
-	placeholder = '',
 	onChange,
 	onSubmit,
 }: PasswordInputProps) {

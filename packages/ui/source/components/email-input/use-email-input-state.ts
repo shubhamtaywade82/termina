@@ -1,11 +1,6 @@
-import {
-	useCallback,
-	useLayoutEffect,
-	useRef,
-	useState,
-	type Reducer,
-	useMemo,
-} from 'react';
+import {useCallback, useMemo, type Reducer} from 'react';
+import {useChangeNotifier} from '../../lib/use-change-notifier.js';
+import {useSyncedReducer} from '../../lib/use-synced-reducer.js';
 
 type State = {
 	value: string;
@@ -152,6 +147,23 @@ export type EmailInputState = State & {
 	submit: () => void;
 };
 
+// The domain completion for an address. Empty values and values without an `@` have none.
+const findDomainSuggestion = (
+	value: string,
+	domains: string[] | undefined,
+): string | undefined => {
+	if (value.length === 0 || !value.includes('@')) {
+		return;
+	}
+
+	const atIndex = value.indexOf('@');
+	const enteredDomain = value.slice(atIndex + 1);
+
+	return domains
+		?.find((domain) => domain.startsWith(enteredDomain))
+		?.replace(enteredDomain, '');
+};
+
 export const useEmailInputState = ({
 	defaultValue = '',
 	domains = [
@@ -167,56 +179,15 @@ export const useEmailInputState = ({
 	onChange,
 	onSubmit,
 }: UseEmailInputStateProps) => {
-	const [state, setState] = useState<
-		State & {readonly failure?: {readonly error: unknown}}
-	>({
+	const {state, latest, dispatch} = useSyncedReducer(reducer, () => ({
 		value: defaultValue,
 		cursorOffset: defaultValue.length,
-	});
+	}));
 
-	// Latest proposal. Updated synchronously, so keys in one tick compose.
-	const latestRef = useRef<State>(state);
-
-	const onChangeRef = useRef(onChange);
-	useLayoutEffect(() => {
-		onChangeRef.current = onChange;
-	});
-
-	// Notification runs on the edit path. An effect would miss the change when the
-	// parent unmounts on submit, and it would run again on every render.
-	const dispatch = useCallback((action: Action) => {
-		const previous = latestRef.current;
-		const next = reducer(previous, action);
-		if (next === previous) {
-			return;
-		}
-
-		latestRef.current = next;
-
-		let failure: {readonly error: unknown} | undefined;
-		if (next.value !== previous.value) {
-			try {
-				onChangeRef.current?.(next.value);
-			} catch (error: unknown) {
-				failure = {error};
-			}
-		}
-
-		setState({...next, failure});
-	}, []);
-
-	const suggestion = useMemo(() => {
-		if (state.value.length === 0 || !state.value.includes('@')) {
-			return;
-		}
-
-		const atIndex = state.value.indexOf('@');
-		const enteredDomain = state.value.slice(atIndex + 1);
-
-		return domains
-			?.find(domain => domain.startsWith(enteredDomain))
-			?.replace(enteredDomain, '');
-	}, [state.value, domains]);
+	const suggestion = useMemo(
+		() => findDomainSuggestion(state.value, domains),
+		[state.value, domains],
+	);
 
 	const moveCursorLeft = useCallback(() => {
 		dispatch({
@@ -230,34 +201,50 @@ export const useEmailInputState = ({
 		});
 	}, []);
 
-	const insert = useCallback((text: string) => {
-		dispatch({
-			type: 'insert',
-			text,
-		});
-	}, []);
+	// Notifies from the edit itself, not from an effect. Effects are keyed to the callback and to the last edit, which repeats calls on re-render and merges edits in one drain.
+	const notify = useChangeNotifier(onChange);
+	const commit = useCallback(
+		(action: Action): State => {
+			const {previous, next} = dispatch(action);
+
+			if (next.value !== previous.value) {
+				notify(next.value);
+			}
+
+			return next;
+		},
+		[dispatch, notify],
+	);
+
+	const insert = useCallback(
+		(text: string) => {
+			commit({
+				type: 'insert',
+				text,
+			});
+		},
+		[commit],
+	);
 
 	const deleteCharacter = useCallback(() => {
-		dispatch({
+		commit({
 			type: 'delete',
 		});
-	}, []);
+	}, [commit]);
 
 	const submit = useCallback(() => {
-		const current = latestRef.current.value;
-		if (suggestion) {
-			dispatch({type: 'append', text: suggestion});
-			onSubmit?.(current + suggestion);
+		// Read the latest value, not the render's closure, so Enter after a burst submits what the burst produced.
+		const {current} = latest;
+		const completion = findDomainSuggestion(current.value, domains);
+
+		if (completion !== undefined && completion !== '') {
+			const next = commit({type: 'append', text: completion});
+			onSubmit?.(next.value);
 			return;
 		}
 
-		onSubmit?.(current);
-	}, [suggestion, onSubmit, dispatch]);
-
-	// Re-thrown in render so the nearest error boundary catches it.
-	if (state.failure) {
-		throw state.failure.error;
-	}
+		onSubmit?.(current.value);
+	}, [commit, domains, latest, onSubmit]);
 
 	return {
 		...state,

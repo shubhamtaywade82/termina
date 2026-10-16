@@ -55,15 +55,18 @@ history is not carried over. Re-syncing means diffing against the commits above.
 - **TextInput and PasswordInput editing.** Grapheme-aware cursor and deletion,
   forward Delete, no-op Backspace at 0, Ctrl/Alt chords ignored, pasted control
   characters removed. Shared module `source/lib/grapheme.ts`.
-- **Controlled `value` and notification contract.** `TextInput` and
-  `PasswordInput` accept `value` (controlled) and `defaultValue` (uncontrolled).
-  `TextInput`, `PasswordInput` and `EmailInput` call `onChange` from the edit
-  path, once per edit that changes the value. None of them notify from an
-  effect. Before this, a parent that re-rendered with a new callback received
-  the same value again. An exception thrown by `onChange` re-throws during
-  render, so an error boundary catches it. Edit logic is in
-  `source/lib/text-edit.ts`. The buffer, controlled reconciliation and error
-  handling are in `source/lib/use-text-buffer.ts`. Render has no side effects.
+- **Controlled `value` and notification contract.** `TextInput`,
+  `PasswordInput` and `EmailInput` accept `defaultValue` (uncontrolled), and
+  `TextInput` and `PasswordInput` also accept `value` (controlled). All three call
+  `onChange` from the edit path, once per edit that changes the value, and none
+  of them notify from an effect, so a parent that re-renders with a new callback
+  does not receive the same value again. The caret is kept in state: a rejected
+  edit leaves it where the user left it, and a new `value` from the parent keeps
+  its offset, clamped to the new length. An exception thrown by `onChange` is
+  rethrown during the next render, so an error boundary catches it. Edit logic is
+  in `source/lib/text-edit-reducer.ts` and `source/lib/use-synced-reducer.ts`,
+  controlled caret in `source/lib/use-controlled-caret.ts`, and change
+  notification in `source/lib/use-change-notifier.ts`.
 - **ScrollBox** (`source/components/scroll-box`): fixed-height viewport, arrow,
   page, home and end keys, mouse wheel through `<Box onWheel>` (needs
   `render(..., {mouse: true})`), keys read only when stdin supports raw mode,
