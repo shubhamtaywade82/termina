@@ -1,94 +1,25 @@
 import {useCallback, useMemo, type Reducer} from 'react';
 import {useChangeNotifier} from '../../lib/use-change-notifier.js';
+import {
+	reduceTextEdit,
+	type TextEditAction,
+	type TextEditState,
+} from '../../lib/text-edit-reducer.js';
 import {useSyncedReducer} from '../../lib/use-synced-reducer.js';
 
-type State = {
-	value: string;
-	cursorOffset: number;
-};
+type State = TextEditState;
 
-type Action =
-	| MoveCursorLeftAction
-	| MoveCursorRightAction
-	| InsertAction
-	| AppendAction
-	| DeleteAction;
-
-type MoveCursorLeftAction = {
-	type: 'move-cursor-left';
-};
-
-type MoveCursorRightAction = {
-	type: 'move-cursor-right';
-};
-
-type InsertAction = {
-	type: 'insert';
-	text: string;
-};
-
-// Accepting a suggestion completes the value, wherever the cursor is.
-type AppendAction = {
-	type: 'append';
-	text: string;
-};
-
-type DeleteAction = {
-	type: 'delete';
-};
-
-const reducer: Reducer<State, Action> = (state, action) => {
-	switch (action.type) {
-		case 'move-cursor-left': {
-			return {
-				...state,
-				cursorOffset: Math.max(0, state.cursorOffset - 1),
-			};
-		}
-
-		case 'move-cursor-right': {
-			return {
-				...state,
-				cursorOffset: Math.min(state.value.length, state.cursorOffset + 1),
-			};
-		}
-
-		case 'insert': {
-			if (state.value.includes('@') && action.text.includes('@')) {
-				return state;
-			}
-
-			return {
-				...state,
-				value:
-					state.value.slice(0, state.cursorOffset) +
-					action.text +
-					state.value.slice(state.cursorOffset),
-				cursorOffset: state.cursorOffset + action.text.length,
-			};
-		}
-
-		case 'append': {
-			const value = state.value + action.text;
-			return {
-				...state,
-				value,
-				cursorOffset: value.length,
-			};
-		}
-
-		case 'delete': {
-			const newCursorOffset = Math.max(0, state.cursorOffset - 1);
-
-			return {
-				...state,
-				value:
-					state.value.slice(0, newCursorOffset) +
-					state.value.slice(newCursorOffset + 1),
-				cursorOffset: newCursorOffset,
-			};
-		}
+// An address has one `@`, so a second one is dropped. Everything else is the shared text edit.
+const reducer: Reducer<State, TextEditAction> = (state, action) => {
+	if (
+		action.type === 'insert' &&
+		state.value.includes('@') &&
+		action.text.includes('@')
+	) {
+		return state;
 	}
+
+	return reduceTextEdit(state, action);
 };
 
 export type UseEmailInputStateProps = {
@@ -204,7 +135,7 @@ export const useEmailInputState = ({
 	// Notifies from the edit itself, not from an effect. Effects are keyed to the callback and to the last edit, which repeats calls on re-render and merges edits in one drain.
 	const notify = useChangeNotifier(onChange);
 	const commit = useCallback(
-		(action: Action): State => {
+		(action: TextEditAction): State => {
 			const {previous, next} = dispatch(action);
 
 			if (next.value !== previous.value) {

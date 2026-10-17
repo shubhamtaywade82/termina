@@ -1,5 +1,5 @@
+import {stripVTControlCharacters} from 'node:util';
 import stringWidth from 'string-width';
-import stripAnsi from 'strip-ansi';
 
 const segmenter = new Intl.Segmenter(undefined, {granularity: 'grapheme'});
 
@@ -15,7 +15,7 @@ export const rowsForLine = (line: string, columns: number): number => {
 
 	let rows = 1;
 	let column = 0;
-	for (const {segment} of segmenter.segment(stripAnsi(line))) {
+	for (const {segment} of segmenter.segment(stripVTControlCharacters(line))) {
 		const width = stringWidth(segment);
 		// A wide character that does not fit in the cells left on a row moves whole to the next row and leaves the last cell blank, so dividing the total width by `columns` would undercount.
 		if (column > 0 && column + width > columns) {

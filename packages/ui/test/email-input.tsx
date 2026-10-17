@@ -400,3 +400,24 @@ test('shows the value without an error when stdin is piped', async (t: TestConte
 	t.assert.ok(!(lastFrame() ?? '').includes('Raw mode'));
 	unmount();
 });
+
+test('backspace at the start of the input deletes nothing', async (t: TestContext) => {
+	let value = 'abc';
+
+	const {stdin} = render(
+		<EmailInput
+			defaultValue={value}
+			onChange={newValue => {
+				value = newValue;
+			}}
+		/>,
+	);
+
+	await delay(50);
+	stdin.write(arrowLeft + arrowLeft + arrowLeft);
+	await delay(50);
+	stdin.write(del);
+	await delay(50);
+
+	t.assert.strictEqual(value, 'abc');
+});

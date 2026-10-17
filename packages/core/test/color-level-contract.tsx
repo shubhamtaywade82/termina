@@ -15,7 +15,8 @@ for (const value of ['', '0', 'false', 'true', '1', '2', '3', '9']) {
 		].join('\n');
 		const result = spawnSync(process.execPath, ['--import=tsx', '--input-type=module', '-e', source], {
 			encoding: 'utf8',
-			env: {...process.env, FORCE_COLOR: value},
+			// Host terminal variables such as COLORTERM would reach chalk but not the detector input above.
+			env: {PATH: process.env['PATH'], FORCE_COLOR: value},
 		});
 		t.assert.strictEqual(result.status, 0, result.stderr);
 		const {chalk, detected} = JSON.parse(result.stdout) as {chalk: number; detected: string};

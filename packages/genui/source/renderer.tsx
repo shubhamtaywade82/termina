@@ -29,6 +29,7 @@ export function GenUIRenderer({
 	fallback,
 }: GenUIRendererProps): React.ReactNode {
 	const [, setTick] = useState(0);
+	const [actionError, setActionError] = useState<string | undefined>(undefined);
 	const activeRuntime = useMemo(() => runtime ?? createGenUIRuntime(), [runtime]);
 
 	// Subscribe to runtime state mutations for reactive form re-rendering
@@ -39,9 +40,17 @@ export function GenUIRenderer({
 	}, [activeRuntime]);
 
 	const dispatchAction = useMemo(() => {
+		// Components fire actions from input handlers with no one awaiting them, so a rejection here would be unhandled and kill the process. Show it instead.
 		return async (name: string, payload: unknown) => {
 			if (!actionDispatcher) return undefined;
-			return actionDispatcher.dispatch(name, payload);
+			try {
+				const result = await actionDispatcher.dispatch(name, payload);
+				setActionError(undefined);
+				return result;
+			} catch (error: unknown) {
+				setActionError(`Action "${name}" failed: ${error instanceof Error ? error.message : String(error)}`);
+				return undefined;
+			}
 		};
 	}, [actionDispatcher]);
 
@@ -108,5 +117,12 @@ export function GenUIRenderer({
 		}
 	}
 
-	return renderNode(node);
+	if (!actionError) return renderNode(node);
+
+	return (
+		<Box flexDirection="column">
+			{renderNode(node)}
+			<Text color="red">{sanitizeText(actionError)}</Text>
+		</Box>
+	);
 }

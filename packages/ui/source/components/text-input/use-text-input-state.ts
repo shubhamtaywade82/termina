@@ -82,8 +82,11 @@ const findSuggestion = (
 	}
 
 	return suggestions
-		?.find(suggestion => suggestion.startsWith(value))
-		?.replace(value, '');
+		?.find(
+			suggestion =>
+				suggestion.length > value.length && suggestion.startsWith(value),
+		)
+		?.slice(value.length);
 };
 
 export const useTextInputState = ({

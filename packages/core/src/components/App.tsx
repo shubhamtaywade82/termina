@@ -604,6 +604,7 @@ function App({
 	const pauseInput = useCallback((): void => {
 		isInputPausedRef.current = true;
 
+		// The mode writes below are best effort: stdout may already be closed (EPIPE) while suspending, and a throw here would leave raw mode on for the child.
 		if (bracketedPasteModeEnabledCountRef.current > 0 && stdout.isTTY) {
 			try {
 				stdout.write('\u{1B}[?2004l');
@@ -641,6 +642,7 @@ function App({
 			attachReadableListener();
 		}
 
+		// Best effort, as in pauseInput: a closed stdout must not abort resuming input.
 		if (bracketedPasteModeEnabledCountRef.current > 0 && stdout.isTTY) {
 			try {
 				stdout.write('\u{1B}[?2004h');

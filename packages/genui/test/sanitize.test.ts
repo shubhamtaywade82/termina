@@ -37,3 +37,7 @@ test('enforces maxTextLength limit safely without splitting surrogate pairs', (t
 	t.assert.ok(truncated.length <= 12);
 	t.assert.strictEqual(truncated, 'Safe Text 🚀');
 });
+
+test('strips 8-bit C1 controls such as the one-byte CSI introducer', (t: TestContext) => {
+	t.assert.strictEqual(sanitizeText('a\u009B31mb\u0085c'), 'a31mbc');
+});

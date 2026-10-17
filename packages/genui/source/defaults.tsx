@@ -196,7 +196,16 @@ export function createDefaultComponents(): GenUIComponent<any>[] {
 				defaultValue: z.string().optional(),
 			}),
 			render: (props: any, ctx: GenUIRenderContext) => {
-				const current = (ctx.runtime.getValue(props.name) as string) ?? props.defaultValue ?? '';
+				const stored = ctx.runtime.getValue(props.name) as string | undefined;
+				if (stored === undefined && props.defaultValue !== undefined) {
+					// Seed after render: setValue notifies the renderer, and updating state mid-render is not allowed. Without it an untouched default never reaches the action payload.
+					queueMicrotask(() => {
+						if (ctx.runtime.getValue(props.name) === undefined) {
+							ctx.runtime.setValue(props.name, props.defaultValue);
+						}
+					});
+				}
+				const current = stored ?? props.defaultValue ?? '';
 				return (
 					<Box flexDirection="column">
 						{props.label && <Text bold>{props.label}:</Text>}

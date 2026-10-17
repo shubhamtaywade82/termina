@@ -4,8 +4,8 @@ const OSC_REGEX = /\u001B\][^\u0007\u001B]*(?:\u0007|\u001B\\)/g;
 // Strip CSI (Control Sequence Introducer) escapes like cursor moves, clears, color codes
 const CSI_REGEX = /\u001B\[[0-?]*[ -/]*[@-~]/g;
 
-// Strip raw control characters except tab (\t), newline (\n), carriage return (\r)
-const CONTROL_CHAR_REGEX = /[\u0000-\u0008\u000B\u000C\u000E-\u001F\u007F]/g;
+// Strip raw control characters except tab (\t), newline (\n), carriage return (\r). C1 (U+0080-U+009F) included: U+009B is a one-byte CSI on terminals that honor 8-bit controls.
+const CONTROL_CHAR_REGEX = /[\u0000-\u0008\u000B\u000C\u000E-\u001F\u007F-\u009F]/g;
 
 export const DEFAULT_MAX_TEXT_LENGTH = 10_000;
 

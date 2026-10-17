@@ -694,3 +694,15 @@ test('an external shorter value moves the caret to the new end only when it was 
 
 	t.assert.strictEqual(instance.lastFrame(), `ab${cursor('c')}d`);
 });
+
+test('autocomplete skips a suggestion equal to the value for a longer one', async (t: TestContext) => {
+	const {lastFrame, stdin} = render(
+		<TextInput suggestions={['git', 'git commit']} />,
+	);
+
+	await delay(50);
+	stdin.write('git');
+	await delay(50);
+
+	t.assert.strictEqual(lastFrame(), `git${cursor(' ')}${chalk.dim('commit')}`);
+});

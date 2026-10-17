@@ -1,6 +1,9 @@
 import React from 'react';
 import test, { type TestContext } from 'node:test';
-import { createDefaultRegistry } from '../source/registry.js';
+import { z } from 'zod';
+import { Text } from '@nemesis-oss/termina-core';
+import { createDefaultRegistry, createGenUIRegistry } from '../source/registry.js';
+import type { GenUINode, GenUIRenderContext } from '../source/types.js';
 import { createLanguageAdapter } from '../source/adapter.js';
 import { createGenUIRuntime } from '../source/runtime.js';
 import { createActionDispatcher } from '../source/actions.js';
@@ -110,3 +113,39 @@ root = Button("Click Me", "customAction")
 	t.assert.ok(frame?.includes('Click Me'));
 });
 
+
+test('seeds an untouched TextInput default into the runtime so actions receive it', async (t: TestContext) => {
+	const runtime = createGenUIRuntime();
+	const { root } = adapter.parse('root = TextInput("city", "City", "", "Pune")');
+	t.assert.ok(root);
+
+	const { unmount } = render(<GenUIRenderer node={root} registry={registry} runtime={runtime} />);
+	await new Promise(resolve => setTimeout(resolve, 20));
+	unmount();
+
+	t.assert.deepStrictEqual(runtime.getValues(), { city: 'Pune' });
+});
+
+test('shows a failed action instead of rejecting unhandled', async (t: TestContext) => {
+	const fireOnRender = createGenUIRegistry([
+		{
+			name: 'Fire',
+			description: 'Dispatches an unregistered action',
+			schema: z.object({}),
+			render: (_props: any, ctx: GenUIRenderContext) => {
+				void ctx.dispatchAction('missing', {});
+				return <Text>fired</Text>;
+			},
+		},
+	]);
+	const node = { type: 'element', name: 'Fire', props: {} } as unknown as GenUINode;
+
+	const { lastFrame, unmount } = render(
+		<GenUIRenderer node={node} registry={fireOnRender} actionDispatcher={createActionDispatcher()} />,
+	);
+	await new Promise(resolve => setTimeout(resolve, 20));
+	const frame = lastFrame();
+	unmount();
+
+	t.assert.ok(frame?.includes('Action "missing" failed'));
+});

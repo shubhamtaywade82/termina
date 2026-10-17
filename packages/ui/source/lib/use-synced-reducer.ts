@@ -40,6 +40,7 @@ export const useSyncedReducer = <State, Action>(
 
 	// Replaces the state without a transition, so the caller decides whether anyone is notified. Used when the options change and the component resets.
 	const replace = useCallback((next: State) => {
+		latestRef.current = next;
 		setState(next);
 	}, []);
 
