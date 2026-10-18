@@ -1,10 +1,12 @@
 // Browser shim for `node:util`.
 //
-// Two functions are needed by the packages bundled into the live previews:
+// Three functions are needed by the packages bundled into the live previews:
 //
 // - `isDeepStrictEqual` (termina-ui Select/MultiSelect state comparison)
 // - `types.isNativeError` and `types.isPromise` (termina-core renderToString
 //   and ErrorBoundary)
+// - `stripVTControlCharacters` (termina-core reflow, reached through the
+//   Text/Ansi rendering paths of the live examples)
 
 function isDeepStrictEqual(a: unknown, b: unknown): boolean {
   if (a === b) {
@@ -79,4 +81,19 @@ export {isDeepStrictEqual};
 export const inspect = (value: unknown): string => String(value);
 export const promisify = <T extends (...args: any[]) => any>(fn: T) => fn;
 export const callbackify = <T extends (...args: any[]) => any>(fn: T) => fn;
-export default {types, isDeepStrictEqual, inspect, promisify, callbackify};
+// Mirrors node:util's stripVTControlCharacters (same regex Node uses): drops
+// ANSI escape sequences - CSI, OSC terminations, and other VT sequences - so
+// reflow sees plain text in the browser bundle.
+const vtControlPattern = new RegExp(
+  [
+    '[\\u001B\\u009B][[\\]()#;?]*(?:(?:(?:(?:;[-a-zA-Z\\d\\/#&.:=?%@~_]+)*|[a-zA-Z\\d]+(?:;[-a-zA-Z\\d\\/#&.:=?%@~_]*)*)?\\u0007)',
+    '(?:(?:\\d{1,4}(?:;\\d{0,4})*)?[\\dA-PR-TZcf-nq-uy=><~]))',
+  ].join('|'),
+  'g',
+);
+
+export function stripVTControlCharacters(str: string): string {
+  return str.replace(vtControlPattern, '');
+}
+
+export default {types, isDeepStrictEqual, inspect, promisify, callbackify, stripVTControlCharacters};
