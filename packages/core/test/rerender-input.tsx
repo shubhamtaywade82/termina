@@ -4,7 +4,10 @@ import FakeTimers from '@sinonjs/fake-timers';
 import {render, useInput, usePaste, Text} from '../src/index.js';
 import createStdout from './helpers/create-stdout.js';
 import {createStdin, emitReadable} from './helpers/create-stdin.js';
-import {escapeFlushDelayMilliseconds} from '../src/input-parser.js';
+import {
+	escapeFlushDelayMilliseconds,
+	pasteFlushDelayMilliseconds,
+} from '../src/input-parser.js';
 
 test('rerender() keeps a pending Escape keypress', async (t: TestContext) => {
 	const clock = FakeTimers.install({
@@ -108,4 +111,38 @@ test('rerender() does not detach and reattach the stdin readable listener', (t: 
 	});
 	app.rerender(<Example label="b" />);
 	t.assert.strictEqual(removed, 0);
+});
+
+test('an unterminated paste is delivered after the paste window and keys work again', async (t: TestContext) => {
+	const clock = FakeTimers.install({
+		toFake: ['setTimeout', 'clearTimeout'],
+	});
+
+	try {
+		const stdin = createStdin();
+		const stdout = createStdout();
+		const pastes: string[] = [];
+		const inputs: string[] = [];
+		function Example() {
+			usePaste((text) => {
+				pastes.push(text);
+			});
+			useInput((input) => {
+				inputs.push(input);
+			});
+			return <Text>x</Text>;
+		}
+
+		const app = render(<Example />, {stdin, stdout, interactive: true});
+		t.after(() => {
+			app.unmount();
+		});
+		emitReadable(stdin, '\u{1B}[200~partial');
+		await clock.tickAsync(pasteFlushDelayMilliseconds);
+		emitReadable(stdin, 'a');
+		t.assert.deepStrictEqual(pastes, ['partial']);
+		t.assert.deepStrictEqual(inputs, ['a']);
+	} finally {
+		clock.uninstall();
+	}
 });

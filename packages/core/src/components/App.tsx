@@ -15,6 +15,7 @@ import {type CursorShape} from '../cursor-shape.js';
 import {
 	createInputParser,
 	escapeFlushDelayMilliseconds,
+	pasteFlushDelayMilliseconds,
 	isCompleteControlSequence,
 	type InputEvent,
 } from '../input-parser.js';
@@ -383,6 +384,20 @@ function App({
 		[handleInput],
 	);
 
+	const emitPaste = useCallback(
+		(pasted: string): void => {
+			// Keep paste on a separate channel from `useInput` so key handlers
+			// don't need to branch on mixed key-vs-paste event shapes.
+			if (eventEmitterRef.current.listenerCount('paste') === 0) {
+				emitInput(pasted);
+				return;
+			}
+
+			eventEmitterRef.current.emit('paste', pasted);
+		},
+		[emitInput],
+	);
+
 	const schedulePendingInputFlush = useCallback((): void => {
 		clearPendingInputFlush();
 		pendingInputFlushRef.current = setTimeout(() => {
@@ -395,6 +410,19 @@ function App({
 			emitInput(pendingEscape);
 		}, escapeFlushDelayMilliseconds);
 	}, [clearPendingInputFlush, emitInput]);
+
+	const schedulePendingPasteFlush = useCallback((): void => {
+		clearPendingInputFlush();
+		pendingInputFlushRef.current = setTimeout(() => {
+			pendingInputFlushRef.current = undefined;
+			const pasted = inputParserRef.current.flushPendingPaste();
+			if (pasted === undefined || pasted === '') {
+				return;
+			}
+
+			emitPaste(pasted);
+		}, pasteFlushDelayMilliseconds);
+	}, [clearPendingInputFlush, emitPaste]);
 
 	const handleReadable = useCallback((): void => {
 		const handleInputEvent = (event: InputEvent): void => {
@@ -423,14 +451,7 @@ function App({
 
 				emitInput(event);
 			} else {
-				// Keep paste on a separate channel from `useInput` so key handlers
-				// don't need to branch on mixed key-vs-paste event shapes.
-				if (eventEmitterRef.current.listenerCount('paste') === 0) {
-					emitInput(event.paste);
-					return;
-				}
-
-				eventEmitterRef.current.emit('paste', event.paste);
+				emitPaste(event.paste);
 			}
 		};
 
@@ -450,12 +471,16 @@ function App({
 
 		if (inputParserRef.current.hasPendingEscape()) {
 			schedulePendingInputFlush();
+		} else if (inputParserRef.current.hasPendingPaste()) {
+			schedulePendingPasteFlush();
 		}
 	}, [
 		stdin,
 		emitInput,
+		emitPaste,
 		clearPendingInputFlush,
 		schedulePendingInputFlush,
+		schedulePendingPasteFlush,
 		onKittyQueryResponse,
 		onBatchInput,
 	]);

@@ -5,6 +5,10 @@ const pasteEnd = '\u{1B}[201~';
 // How long a lone ESC waits for the rest of its sequence before it is delivered as the Escape key. Most terminals write a sequence in one chunk, so the window only matters when a chunk is split. It sits mid-range: a shorter window risks splitting a sequence that arrives in two reads, and a longer one delays a real Escape press. Tests pin it to 25-50 ms.
 export const escapeFlushDelayMilliseconds = 40;
 
+// How long an unterminated bracketed paste waits for its end marker before what arrived is delivered as the paste. Terminals write a paste without pauses, so a gap this long means the end marker was lost, and waiting longer would leave the app deaf to keys.
+// ponytail: idle timeout, a paste that stalls longer than this on a slow link arrives split in two.
+export const pasteFlushDelayMilliseconds = 1000;
+
 export type InputEvent = string | {readonly paste: string};
 
 type ParsedInput = {
@@ -266,6 +270,8 @@ export type InputParser = {
 	push: (chunk: string) => InputEvent[];
 	hasPendingEscape: () => boolean;
 	flushPendingEscape: () => string | undefined;
+	hasPendingPaste: () => boolean;
+	flushPendingPaste: () => string | undefined;
 	reset: () => void;
 };
 
@@ -274,6 +280,19 @@ export const createInputParser = (): InputParser => {
 
 	return {
 		push(chunk) {
+			// Only the new chunk can hold the end marker, give or take a marker split across reads, so a large paste is not rescanned on every read.
+			if (pending.startsWith(pasteStart)) {
+				const combined = pending + chunk;
+				const searchFrom = Math.max(
+					pasteStart.length,
+					pending.length - pasteEnd.length + 1,
+				);
+				if (!combined.includes(pasteEnd, searchFrom)) {
+					pending = combined;
+					return [];
+				}
+			}
+
 			const parsedInput = parseKeypresses(pending + chunk);
 			pending = parsedInput.pending;
 			return parsedInput.events;
@@ -295,6 +314,18 @@ export const createInputParser = (): InputParser => {
 			const pendingEscape = pending;
 			pending = '';
 			return pendingEscape;
+		},
+		hasPendingPaste() {
+			return pending.startsWith(pasteStart);
+		},
+		flushPendingPaste() {
+			if (!pending.startsWith(pasteStart)) {
+				return undefined;
+			}
+
+			const pasted = pending.slice(pasteStart.length);
+			pending = '';
+			return pasted;
 		},
 		reset() {
 			pending = '';

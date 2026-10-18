@@ -527,3 +527,20 @@ test('isCompleteControlSequence rejects partial sequences and escaped code point
 		);
 	}
 });
+
+test('finds a paste end marker split across reads', (t: TestContext) => {
+	const parser = createInputParser();
+
+	t.assert.deepStrictEqual(parser.push('\u{1B}[200~hello\u{1B}[2'), []);
+	t.assert.deepStrictEqual(parser.push('01~x'), [{paste: 'hello'}, 'x']);
+});
+
+test('flushPendingPaste delivers an unterminated paste and frees the parser', (t: TestContext) => {
+	const parser = createInputParser();
+
+	t.assert.deepStrictEqual(parser.push('\u{1B}[200~lost end'), []);
+	t.assert.ok(parser.hasPendingPaste());
+	t.assert.strictEqual(parser.flushPendingPaste(), 'lost end');
+	t.assert.strictEqual(parser.hasPendingPaste(), false);
+	t.assert.deepStrictEqual(parser.push('a'), ['a']);
+});

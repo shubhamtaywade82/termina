@@ -3,6 +3,10 @@ import {type Reducer, useCallback, useMemo, useState} from 'react';
 import OptionMap from '../../lib/option-map.js';
 import {type Option} from '../../types.js';
 import {useSyncedReducer} from '../../lib/use-synced-reducer.js';
+import {
+	focusNext,
+	focusPrevious,
+} from '../select/use-select-state.js';
 
 type State = {
 	/**
@@ -54,86 +58,11 @@ type ToggleFocusedOptionAction = {
 const reducer: Reducer<State, Action> = (state, action) => {
 	switch (action.type) {
 		case 'focus-next-option': {
-			if (!state.focusedValue) {
-				return state;
-			}
-
-			const item = state.optionMap.get(state.focusedValue);
-
-			if (!item) {
-				return state;
-			}
-
-			// eslint-disable-next-line prefer-destructuring
-			const next = item.next;
-
-			if (!next) {
-				return state;
-			}
-
-			const needsToScroll = next.index >= state.visibleToIndex;
-
-			if (!needsToScroll) {
-				return {
-					...state,
-					focusedValue: next.value,
-				};
-			}
-
-			const nextVisibleToIndex = Math.min(
-				state.optionMap.size,
-				state.visibleToIndex + 1,
-			);
-
-			const nextVisibleFromIndex =
-				nextVisibleToIndex - state.visibleOptionCount;
-
-			return {
-				...state,
-				focusedValue: next.value,
-				visibleFromIndex: nextVisibleFromIndex,
-				visibleToIndex: nextVisibleToIndex,
-			};
+			return focusNext(state);
 		}
 
 		case 'focus-previous-option': {
-			if (!state.focusedValue) {
-				return state;
-			}
-
-			const item = state.optionMap.get(state.focusedValue);
-
-			if (!item) {
-				return state;
-			}
-
-			// eslint-disable-next-line prefer-destructuring
-			const previous = item.previous;
-
-			if (!previous) {
-				return state;
-			}
-
-			const needsToScroll = previous.index <= state.visibleFromIndex;
-
-			if (!needsToScroll) {
-				return {
-					...state,
-					focusedValue: previous.value,
-				};
-			}
-
-			const nextVisibleFromIndex = Math.max(0, state.visibleFromIndex - 1);
-
-			const nextVisibleToIndex =
-				nextVisibleFromIndex + state.visibleOptionCount;
-
-			return {
-				...state,
-				focusedValue: previous.value,
-				visibleFromIndex: nextVisibleFromIndex,
-				visibleToIndex: nextVisibleToIndex,
-			};
+			return focusPrevious(state);
 		}
 
 		case 'toggle-focused-option': {

@@ -407,7 +407,7 @@ test('backspace at the start of the input deletes nothing', async (t: TestContex
 	const {stdin} = render(
 		<EmailInput
 			defaultValue={value}
-			onChange={newValue => {
+			onChange={(newValue) => {
 				value = newValue;
 			}}
 		/>,
