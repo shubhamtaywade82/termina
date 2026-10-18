@@ -80,8 +80,14 @@ test('tracking sequences are the byte-exact DECSET/DECRST contract', (t: TestCon
 	// button-event tracking (1002) and SGR encoding (1006); disable resets
 	// them in reverse order. A truncated or reordered sequence now fails
 	// here instead of silently passing the whole suite.
-	t.assert.strictEqual(mouseTrackingEnable, `${esc}[?1000h${esc}[?1002h${esc}[?1006h`);
-	t.assert.strictEqual(mouseTrackingDisable, `${esc}[?1006l${esc}[?1002l${esc}[?1000l`);
+	t.assert.strictEqual(
+		mouseTrackingEnable,
+		`${esc}[?1000h${esc}[?1002h${esc}[?1006h`,
+	);
+	t.assert.strictEqual(
+		mouseTrackingDisable,
+		`${esc}[?1006l${esc}[?1002l${esc}[?1000l`,
+	);
 });
 
 const createInput = (): NodeJS.ReadStream => {
