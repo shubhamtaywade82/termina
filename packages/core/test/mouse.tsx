@@ -71,6 +71,19 @@ test('malformed reports are rejected', (t: TestContext) => {
 	t.assert.strictEqual(parseMouseEvent('x'), undefined);
 });
 
+test('tracking sequences are the byte-exact DECSET/DECRST contract', (t: TestContext) => {
+	// Pinned as literals on purpose: the behavioral tests assert that stdout
+	// receives `mouseTrackingEnable` itself, so they are tautological with
+	// respect to the constant's content - whatever bytes the constant holds,
+	// writing it and grepping for it will always agree. These literals are
+	// the xterm ground truth: enable turns on click tracking (1000),
+	// button-event tracking (1002) and SGR encoding (1006); disable resets
+	// them in reverse order. A truncated or reordered sequence now fails
+	// here instead of silently passing the whole suite.
+	t.assert.strictEqual(mouseTrackingEnable, `${esc}[?1000h${esc}[?1002h${esc}[?1006h`);
+	t.assert.strictEqual(mouseTrackingDisable, `${esc}[?1006l${esc}[?1002l${esc}[?1000l`);
+});
+
 const createInput = (): NodeJS.ReadStream => {
 	const stdin = new PassThrough() as PassThrough & {
 		isTTY: boolean;
