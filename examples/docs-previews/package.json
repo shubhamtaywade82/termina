@@ -13,7 +13,7 @@
   "dependencies": {
     "@nemesis-oss/termina-core": "workspace:*",
     "@nemesis-oss/termina-ui": "workspace:*",
-    "react": "^19.3.0"
+    "react": "^19.3.1"
   },
   "devDependencies": {
     "@types/node": "^26.6.3",

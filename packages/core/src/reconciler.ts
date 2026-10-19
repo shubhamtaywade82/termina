@@ -214,7 +214,7 @@ type HostConfig = ReconcilerHostConfig<
 	DOMElement,
 	DOMElement,
 	TextNode,
-	unknown,
+	never,
 	DOMElement,
 	unknown,
 	unknown,
