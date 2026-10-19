@@ -301,8 +301,8 @@ importers:
         specifier: ^0.34.0
         version: 0.34.0(react@19.3.1)
       signal-exit:
-        specifier: ^3.0.7
-        version: 3.0.7
+        specifier: ^4.1.0
+        version: 4.1.0
       stack-utils:
         specifier: ^2.0.6
         version: 2.0.6
@@ -347,8 +347,8 @@ importers:
         specifier: ^0.34.0
         version: 0.34.0(@types/react@19.3.0)
       '@types/signal-exit':
-        specifier: ^3.0.0
-        version: 3.0.4
+        specifier: ^4.0.0
+        version: 4.0.0
       '@types/sinon':
         specifier: ^22.0.0
         version: 22.0.0
@@ -1101,8 +1101,9 @@ packages:
   '@types/react@19.3.0':
     resolution: {integrity: sha512-N0rFCuH9YoxG9/m61l9MfpJKfmLOVU0em7ipIz6TRgSSkvReLB9vL85GB+yr8Bs5leqpvg96JSwF4ZS1s4viQg==}
 
-  '@types/signal-exit@3.0.4':
-    resolution: {integrity: sha512-e7EUPfU9afHyWc5CXtlqbvVHEshrb05uPlDCenWIbMgtWoFrTuTDVYNLKk6o4X2/4oHTfNqrJX/vaJ3uBhtXTg==}
+  '@types/signal-exit@4.0.0':
+    resolution: {integrity: sha512-jedWBlHic/rm8C/i+e/U1gVhYPsfNC8KLhzziglnPupn7fBIit/4a/Cp3IGgvigRdHT/trnm4J+osWameksqrw==}
+    deprecated: This is a stub types definition. signal-exit provides its own type definitions, so you do not need this installed.
 
   '@types/sinon@22.0.0':
     resolution: {integrity: sha512-TDbVpbccc2HfiqHR09Argj3mHV1KMW7sCCKj52fsl8lbRLkEn7fB1966EWhOKWUBcqfBueZuPoA7/OK1CKiy3g==}
@@ -3484,7 +3485,9 @@ snapshots:
     dependencies:
       csstype: 3.2.3
 
-  '@types/signal-exit@3.0.4': {}
+  '@types/signal-exit@4.0.0':
+    dependencies:
+      signal-exit: 4.1.0
 
   '@types/sinon@22.0.0':
     dependencies:
