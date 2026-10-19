@@ -10,7 +10,7 @@
   "dependencies": {
     "@nemesis-oss/termina-core": "workspace:*",
     "@nemesis-oss/termina-ui": "workspace:*",
-    "chalk": "^5.3.0",
+    "chalk": "^6.0.1",
     "react": ">=19.3.0"
   },
   "devDependencies": {
