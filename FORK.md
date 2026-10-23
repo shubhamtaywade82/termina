@@ -50,6 +50,8 @@ history is not carried over. Re-syncing means diffing against the commits above.
   is not bounded here, because a cursor on a row that has scrolled away has no
   visible position to clamp to.
 
+- **Soft-wrap spacing.** `src/wrap-text.ts`. A soft wrap drops the space it breaks on, so a continuation row never starts or ends with a space, and a break that leaves only a space adds no row. Each input line keeps its leading indentation on its first row. `hard` wrapping is unchanged. Measurement (`src/dom.ts`) and painting (`src/render-node-to-output.ts`) call the same function, so the row counts agree.
+
 ## Local changes to `@nemesis-oss/termina-ui`
 
 - **TextInput and PasswordInput editing.** Grapheme-aware cursor and deletion,
@@ -83,6 +85,11 @@ history is not carried over. Re-syncing means diffing against the commits above.
   behavior reference. No source was copied. `string-width` is a dependency, for
   column widths. `Dialog` has no focus trap, and `Tabs` and `DataTable` are
   described on their docs pages.
+
+- **Table and DataTable fit their container.** `source/lib/fit-column-widths.ts` shrinks the widest column one cell at a time until the row fits, so short columns keep their width. `source/lib/use-fitted-column-widths.ts` measures the container with `useBoxMetrics`, and uses the terminal width until the first measurement. Cells truncate with `…`. The rule is a one-row clip, so it never shows an ellipsis. DataTable's focus highlight covers the table's width.
+- **List and Markdown item text.** Item content boxes take the width the marker leaves (`flexBasis: 0`). Without it, wrapped text was measured at the full row width and overflowed the row by the marker's width.
+- **Select and MultiSelect scroll up symmetrically.** Up scrolls only when focus moves above the first visible row, as Down scrolls only below it. Focus can rest on the top visible row.
+- **Spatial geometry docs removed.** `cae5ff6` removed `nearestInDirection`, and its docs pages are removed with it. Spatial focus is not built.
 
 ## Deviations from the original plan
 

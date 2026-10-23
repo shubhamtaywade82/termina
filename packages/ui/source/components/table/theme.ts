@@ -14,8 +14,10 @@ const theme = {
 			gap: 2,
 			minHeight: 1,
 		}),
+		// Cells shrink, down to one column, when the row is wider than the container. Their text truncates, so a row stays one line.
 		cell: ({align}: {align: 'left' | 'right'}): BoxProps => ({
-			flexShrink: 0,
+			flexShrink: 1,
+			minWidth: 1,
 			justifyContent: align === 'right' ? 'flex-end' : 'flex-start',
 		}),
 		separator: (): TextProps => ({

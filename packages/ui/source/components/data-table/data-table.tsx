@@ -3,6 +3,7 @@ import {Box, Text} from '@nemesis-oss/termina-core';
 import figures from 'figures';
 import stringWidth from 'string-width';
 import {useComponentTheme} from '../../theme.js';
+import {useFittedColumnWidths} from '../../lib/use-fitted-column-widths.js';
 import {type TableColumn, type TableRow} from '../table/index.js';
 import {
 	getCellText,
@@ -77,7 +78,7 @@ type LineProps = {
 	readonly cells: ReactNode[];
 };
 
-// Each cell is a fixed-width box, so header and body lines line up and a cell never wraps.
+// Each cell is a box sized to its column, so header and body lines line up. The row is the table's width, which fits the container: see `fitColumnWidths`.
 function Line({measure, isFocused, cells}: LineProps) {
 	const {styles} = useComponentTheme<Theme>('DataTable');
 
@@ -105,18 +106,19 @@ type HeaderCellProps = {
 	readonly sortDirection: DataTableSortDirection | undefined;
 };
 
+// The indicator is nested in the label's text, so truncating the cell shortens the label and keeps the arrow on the same line.
 function HeaderCell({label, isFocused, sortDirection}: HeaderCellProps) {
 	const {styles} = useComponentTheme<Theme>('DataTable');
 	const glyph =
 		sortDirection === 'descending' ? figures.arrowDown : figures.arrowUp;
 
 	return (
-		<>
-			<Text {...styles.headerCell({isFocused})}>{label}</Text>
+		<Text {...styles.headerCell({isFocused})} wrap="truncate-end">
+			{label}
 			{sortDirection !== undefined && (
 				<Text {...styles.sortIndicator()}>{` ${glyph}`}</Text>
 			)}
-		</>
+		</Text>
 	);
 }
 
@@ -136,9 +138,12 @@ function Header({measure, state}: {readonly measure: Measure; readonly state: Da
 					/>
 				))}
 			/>
-			<Box width={measure.tableWidth}>
-				<Text {...styles.separator()}>{'─'.repeat(measure.tableWidth)}</Text>
-			</Box>
+			{measure.tableWidth > 0 && (
+				// A one-row clip, not truncation: an ellipsis would make the rule read as text.
+				<Box height={1} overflow="hidden">
+					<Text {...styles.separator()}>{'─'.repeat(measure.tableWidth)}</Text>
+				</Box>
+			)}
 		</>
 	);
 }
@@ -165,7 +170,7 @@ function Body({measure, rows, state, visibleRowCount}: BodyProps) {
 						measure={measure}
 						isFocused={rowIndex === state.focusedRow}
 						cells={measure.columns.map(column => (
-							<Text>{getCellText(row, column.key)}</Text>
+							<Text wrap="truncate-end">{getCellText(row, column.key)}</Text>
 						))}
 					/>
 				);
@@ -185,15 +190,20 @@ export function DataTable({
 	const windowRowCount = Math.max(Math.floor(visibleRowCount), 1);
 	const state = useDataTableState({columns, rows, visibleRowCount: windowRowCount, isActive, onSelect});
 	const {styles} = useComponentTheme<Theme>('DataTable');
-	const widths = columns.map(column => getColumnWidth(column, rows));
+	const gap = styles.row({isFocused: false}).gap ?? 0;
+	// The widest columns shrink until the row fits the container.
+	const {ref: containerRef, widths} = useFittedColumnWidths(
+		columns.map(column => getColumnWidth(column, rows)),
+		gap,
+	);
 	const measure: Measure = {
 		columns,
 		widths,
-		tableWidth: getTableWidth(widths, styles.row({isFocused: false}).gap ?? 0),
+		tableWidth: getTableWidth(widths, gap),
 	};
 
 	return (
-		<Box {...styles.container()}>
+		<Box ref={containerRef} {...styles.container()}>
 			<Header measure={measure} state={state} />
 			<Body
 				measure={measure}

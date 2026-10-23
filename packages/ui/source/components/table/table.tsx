@@ -2,6 +2,7 @@ import React from 'react';
 import {Box, Text, type TextProps} from '@nemesis-oss/termina-core';
 import stringWidth from 'string-width';
 import {useComponentTheme} from '../../theme.js';
+import {useFittedColumnWidths} from '../../lib/use-fitted-column-widths.js';
 import {type Theme} from './theme.js';
 
 export type TableColumn = {
@@ -78,7 +79,9 @@ function TableLine({columns, widths, values, textStyle}: TableLineProps) {
 					{...styles.cell({align: column.align ?? 'left'})}
 					width={widths[index]}
 				>
-					<Text {...textStyle}>{values[index]}</Text>
+					<Text {...textStyle} wrap="truncate-end">
+						{values[index]}
+					</Text>
 				</Box>
 			))}
 		</Box>
@@ -87,20 +90,28 @@ function TableLine({columns, widths, values, textStyle}: TableLineProps) {
 
 export function Table({columns, rows}: TableProps) {
 	const {styles} = useComponentTheme<Theme>('Table');
-	const widths = columns.map(column => getColumnWidth(column, rows));
-	const ruleWidth = getRuleWidth(widths, styles.row().gap ?? 0);
+	const gap = styles.row().gap ?? 0;
+	// The widest columns shrink until the row fits the container.
+	const {ref: containerRef, widths} = useFittedColumnWidths(
+		columns.map(column => getColumnWidth(column, rows)),
+		gap,
+	);
+	const ruleWidth = getRuleWidth(widths, gap);
 
 	return (
-		<Box {...styles.container()}>
+		<Box ref={containerRef} {...styles.container()}>
 			<TableLine
 				columns={columns}
 				widths={widths}
 				values={columns.map(column => column.header)}
 				textStyle={styles.header()}
 			/>
-			<Box {...styles.cell({align: 'left'})} width={ruleWidth}>
-				<Text {...styles.separator()}>{'─'.repeat(ruleWidth)}</Text>
-			</Box>
+			{ruleWidth > 0 && (
+				// A one-row clip, not truncation: an ellipsis would make the rule read as text.
+				<Box height={1} overflow="hidden">
+					<Text {...styles.separator()}>{'─'.repeat(ruleWidth)}</Text>
+				</Box>
+			)}
 			{rows.map((row, index) => (
 				<TableLine
 					key={index}
