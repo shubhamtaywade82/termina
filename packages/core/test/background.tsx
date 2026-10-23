@@ -552,9 +552,9 @@ test('Text-only backgroundColor colors text content but does not fill Box width'
 		</Box>,
 	);
 
-	// Text-only bg colors just the text, not the remaining space to fill Box width
+	// Text-only bg colors just the text, not the remaining space to fill Box width. The space the line breaks on is not painted, as with a collapsible space in CSS.
 	t.assert.strictEqual(
 		output,
-		`${ansi.bgRed}Hello ${ansi.bgReset}\n${ansi.bgRed}World!!${ansi.bgReset}`,
+		`${ansi.bgRed}Hello${ansi.bgReset}\n${ansi.bgRed}World!!${ansi.bgReset}`,
 	);
 });
