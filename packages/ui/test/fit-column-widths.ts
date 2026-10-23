@@ -7,7 +7,7 @@ test('keeps natural widths when the row, gaps included, already fits', (t: TestC
 });
 
 test('keeps natural widths until the container is measured', (t: TestContext) => {
-	t.assert.deepStrictEqual(fitColumnWidths([12, 4], 2, Number.POSITIVE_INFINITY), [12, 4]);
+	t.assert.deepStrictEqual(fitColumnWidths([12, 4], 2, Infinity), [12, 4]);
 });
 
 test('shrinks the widest column first, so short columns keep their width', (t: TestContext) => {

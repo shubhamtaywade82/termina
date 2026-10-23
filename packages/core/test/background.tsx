@@ -84,7 +84,7 @@ for (const initialBackgroundColor of [undefined, 'red']) {
 test('Static background color is inherited by its text', (t: TestContext) => {
 	const output = renderToString(
 		<Static items={['A']} style={{width: 3, backgroundColor: 'blue'}}>
-			{item => <Text key={item}>{item}</Text>}
+			{(item) => <Text key={item}>{item}</Text>}
 		</Static>,
 	);
 

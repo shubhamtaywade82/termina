@@ -12,8 +12,10 @@ import {type Styles} from './styles.js';
 export const wrapTextCache = new QuickLRU<string, string>({maxSize: 4096});
 
 // A soft wrap breaks at a space, and that space belongs to the break, not to either line. Without this, wrapped text starts continuation lines with a stray space, and a space that does not fit adds a row of its own.
-const startsWithBreakWhitespace = /^(?:\u{1B}\[[\d:;]*m)*[ \t]/u;
-const endsWithBreakWhitespace = /[ \t](?:\u{1B}\[[\d:;]*m)*$/u;
+// eslint-disable-next-line no-control-regex, regexp/no-control-character -- SGR starts with ESC.
+const startsWithBreakWhitespace = /^(?:\u{1B}\[[\d:;]*m)*[\t ]/u;
+// eslint-disable-next-line no-control-regex, regexp/no-control-character -- SGR starts with ESC.
+const endsWithBreakWhitespace = /[\t ](?:\u{1B}\[[\d:;]*m)*$/u;
 
 const isBreakWhitespace = (character: StyledChar): boolean =>
 	character.value === ' ' || character.value === '\t';
@@ -25,7 +27,7 @@ const withoutLeadingBreakWhitespace = (line: string): string => {
 
 	const characters = styledCharsFromTokens(tokenize(line));
 	const firstVisible = characters.findIndex(
-		character => !isBreakWhitespace(character),
+		(character) => !isBreakWhitespace(character),
 	);
 
 	return firstVisible === -1
@@ -47,7 +49,7 @@ const withoutTrailingBreakWhitespace = (line: string): string => {
 	return styledCharsToString(characters.slice(0, end));
 };
 
-// wrap-ansi keeps every space (`trim: false`) so that `hard` wrapping and intentional indentation survive, and the cleaning here is limited to what a soft wrap leaves behind. Each input line wraps into its own run of output rows. A row that ends a run keeps its trailing spaces, since they were not a break. Styles are read from one wrap of the whole text, so a style that spans a newline is still reopened.
+// Wrapping keeps every space (`trim: false`) so that `hard` wrapping and intentional indentation survive, and the cleaning here is limited to what a soft wrap leaves behind. Each input line wraps into its own run of output rows. A row that ends a run keeps its trailing spaces, since they were not a break. Styles are read from one wrap of the whole text, so a style that spans a newline is still reopened.
 const wrapWords = (text: string, maxWidth: number): string => {
 	const options = {trim: false, hard: true} as const;
 	const lines = wrapAnsi(text, maxWidth, options).split('\n');
@@ -142,11 +144,11 @@ const wrapText = (
 				}
 			}
 
-			lines = styledLines.map(line => styledCharsToString(line));
+			lines = styledLines.map((line) => styledCharsToString(line));
 		}
 
 		wrappedText = lines
-			.map(line => cliTruncate(line, maxWidth, {position}))
+			.map((line) => cliTruncate(line, maxWidth, {position}))
 			.join('\n');
 	}
 

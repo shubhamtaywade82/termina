@@ -46,7 +46,10 @@ test('drops the space a soft wrap breaks on, so no continuation line starts with
 
 test('a break space that fills a row alone adds no row', (t: TestContext) => {
 	// "hello " fills five columns, so the space would have been a sixth-row orphan.
-	t.assert.strictEqual(wrapText('hello world', 5, 'wrap').split('\n').length, 2);
+	t.assert.strictEqual(
+		wrapText('hello world', 5, 'wrap').split('\n').length,
+		2,
+	);
 });
 
 test('keeps the leading indentation of the first line of each input line', (t: TestContext) => {

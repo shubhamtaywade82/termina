@@ -1,5 +1,5 @@
-import React, {type ReactNode} from 'react';
 import test, {type TestContext} from 'node:test';
+import React, {type ReactNode} from 'react';
 import delay from 'delay';
 import stripAnsi from 'strip-ansi';
 import stringWidth from 'string-width';
@@ -34,47 +34,142 @@ import {
 import {render} from './helpers/render.js';
 
 // Long text with wide characters and a zero-width joiner sequence, so every width measures a different break.
-const LONG = 'The quick brown fox jumps over 漢字テキスト the lazy dog and keeps going far past any narrow terminal';
+const LONG =
+	'The quick brown fox jumps over 漢字テキスト the lazy dog and keeps going far past any narrow terminal';
 const WIDTHS = [16, 28, 40];
 
 // Lets the throttled render and the measure-then-fit pass land before the frame is read.
 const settle = async () => delay(100);
 
 const widestLine = (frame: string | undefined): number =>
-	Math.max(0, ...stripAnsi(frame ?? '').split('\n').map(line => stringWidth(line)));
+	Math.max(
+		0,
+		...stripAnsi(frame ?? '')
+			.split('\n')
+			.map((line) => stringWidth(line)),
+	);
 
 const cases: Array<[string, (width: number) => ReactNode]> = [
 	['Header', () => <Header title={LONG} />],
 	['KeyHint', () => <KeyHint keys="Ctrl+Shift+Alt+Enter" label={LONG} />],
-	['StatusMessage', () => <StatusMessage variant="error">{LONG}</StatusMessage>],
+	[
+		'StatusMessage',
+		() => <StatusMessage variant="error">{LONG}</StatusMessage>,
+	],
 	['Toast', () => <Toast variant="success">{LONG}</Toast>],
-	['Table', () => <Table columns={[{key: 'a', header: 'Name'}, {key: 'b', header: 'Description'}]} rows={[{a: LONG, b: LONG}]} />],
-	['DataTable', () => <DataTable columns={[{key: 'a', header: 'Name'}, {key: 'b', header: 'Description'}]} rows={[{a: LONG, b: LONG}]} />],
-	['Tabs', () => <Tabs tabs={[{id: 'a', label: LONG, content: <Text>{LONG}</Text>}]} />],
+	[
+		'Table',
+		() => (
+			<Table
+				columns={[
+					{key: 'a', header: 'Name'},
+					{key: 'b', header: 'Description'},
+				]}
+				rows={[{a: LONG, b: LONG}]}
+			/>
+		),
+	],
+	[
+		'DataTable',
+		() => (
+			<DataTable
+				columns={[
+					{key: 'a', header: 'Name'},
+					{key: 'b', header: 'Description'},
+				]}
+				rows={[{a: LONG, b: LONG}]}
+			/>
+		),
+	],
+	[
+		'Tabs',
+		() => (
+			<Tabs tabs={[{id: 'a', label: LONG, content: <Text>{LONG}</Text>}]} />
+		),
+	],
 	['Stepper', () => <Stepper steps={[LONG, 'b']} current={0} />],
 	['Gauge', () => <Gauge value={52} />],
 	['ProgressBar', () => <ProgressBar value={50} />],
 	['Divider', () => <Divider title={LONG} />],
-	['Select', () => <Select options={[{label: LONG, value: 'a'}, {label: 'b', value: 'b'}]} />],
+	[
+		'Select',
+		() => (
+			<Select
+				options={[
+					{label: LONG, value: 'a'},
+					{label: 'b', value: 'b'},
+				]}
+			/>
+		),
+	],
 	['MultiSelect', () => <MultiSelect options={[{label: LONG, value: 'a'}]} />],
 	['TextInput', () => <TextInput defaultValue={LONG} />],
-	['Markdown', () => <Markdown>{`# ${LONG}\n\n- ${LONG}\n\n1. ${LONG}\n\n\`\`\`\n${LONG}\n\`\`\``}</Markdown>],
+	[
+		'Markdown',
+		() => (
+			<Markdown>{`# ${LONG}\n\n- ${LONG}\n\n1. ${LONG}\n\n\`\`\`\n${LONG}\n\`\`\``}</Markdown>
+		),
+	],
 	['CodeBlock', () => <CodeBlock code={LONG} language="text" />],
 	['DiffView', () => <DiffView patch={`@@ -1 +1 @@\n-${LONG}\n+${LONG}`} />],
 	['JSONViewer', () => <JSONViewer data={{key: LONG, list: [LONG]}} />],
-	['TreeView', () => <TreeView nodes={[{label: LONG, children: [{label: LONG}]}] as never} />],
-	['Accordion', () => <Accordion items={[{title: LONG, content: LONG}] as never} />],
-	['OrderedList', () => <OrderedList><OrderedList.Item><Text>{LONG}</Text></OrderedList.Item></OrderedList>],
-	['UnorderedList', () => <UnorderedList><UnorderedList.Item><Text>{LONG}</Text></UnorderedList.Item></UnorderedList>],
-	['Dialog', () => <Dialog title={LONG} onClose={() => {}}>{LONG}</Dialog>],
-	['Modal', () => <Box height={20}><Modal isOpen onClose={() => {}} title={LONG}><Text>{LONG}</Text></Modal></Box>],
+	[
+		'TreeView',
+		() => (
+			<TreeView nodes={[{label: LONG, children: [{label: LONG}]}] as never} />
+		),
+	],
+	[
+		'Accordion',
+		() => <Accordion items={[{title: LONG, content: LONG}] as never} />,
+	],
+	[
+		'OrderedList',
+		() => (
+			<OrderedList>
+				<OrderedList.Item>
+					<Text>{LONG}</Text>
+				</OrderedList.Item>
+			</OrderedList>
+		),
+	],
+	[
+		'UnorderedList',
+		() => (
+			<UnorderedList>
+				<UnorderedList.Item>
+					<Text>{LONG}</Text>
+				</UnorderedList.Item>
+			</UnorderedList>
+		),
+	],
+	[
+		'Dialog',
+		() => (
+			<Dialog title={LONG} onClose={() => {}}>
+				{LONG}
+			</Dialog>
+		),
+	],
+	[
+		'Modal',
+		() => (
+			<Box height={20}>
+				<Modal isOpen title={LONG} onClose={() => {}}>
+					<Text>{LONG}</Text>
+				</Modal>
+			</Box>
+		),
+	],
 	['LogStream', () => <LogStream lines={[LONG, LONG]} height={3} />],
 ];
 
 for (const [name, make] of cases) {
 	test(`${name} keeps every line inside the terminal width`, async (t: TestContext) => {
 		for (const width of WIDTHS) {
-			const {lastFrame, unmount} = render(make(width) as React.ReactElement, {columns: width});
+			const {lastFrame, unmount} = render(make(width) as React.ReactElement, {
+				columns: width,
+			});
 			// eslint-disable-next-line no-await-in-loop
 			await settle();
 
