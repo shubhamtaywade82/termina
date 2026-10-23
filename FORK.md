@@ -52,6 +52,8 @@ history is not carried over. Re-syncing means diffing against the commits above.
 
 - **Soft-wrap spacing.** `src/wrap-text.ts`. A soft wrap drops the space it breaks on, so a continuation row never starts or ends with a space, and a break that leaves only a space adds no row. Each input line keeps its leading indentation on its first row. `hard` wrapping is unchanged. Measurement (`src/dom.ts`) and painting (`src/render-node-to-output.ts`) call the same function, so the row counts agree.
 
+- **Directional focus.** `src/spatial.ts` holds `nearestInDirection`, the pure geometry that `cae5ff6` had removed as unwired. It is now called by `focusDirection` in `useFocusManager`, and it is exported with its types. A focusable passes its `Box` ref to `useFocus({ref})`, and `focusDirection` measures its visible rectangle with `visibleBoundsOf`. `src/visible-box.ts` holds the box and clip walk that hit-testing (`src/mouse-dispatch.ts`) also uses, so a click and a focus move agree about what is drawn. The element ref is stored in place, like the scope, so re-rendering does not change the Tab order.
+
 ## Local changes to `@nemesis-oss/termina-ui`
 
 - **TextInput and PasswordInput editing.** Grapheme-aware cursor and deletion,
@@ -89,7 +91,6 @@ history is not carried over. Re-syncing means diffing against the commits above.
 - **Table and DataTable fit their container.** `source/lib/fit-column-widths.ts` shrinks the widest column one cell at a time until the row fits, so short columns keep their width. `source/lib/use-fitted-column-widths.ts` measures the container with `useBoxMetrics`, and uses the terminal width until the first measurement. Cells truncate with `…`. The rule is a one-row clip, so it never shows an ellipsis. DataTable's focus highlight covers the table's width.
 - **List and Markdown item text.** Item content boxes take the width the marker leaves (`flexBasis: 0`). Without it, wrapped text was measured at the full row width and overflowed the row by the marker's width.
 - **Select and MultiSelect scroll up symmetrically.** Up scrolls only when focus moves above the first visible row, as Down scrolls only below it. Focus can rest on the top visible row.
-- **Spatial geometry docs removed.** `cae5ff6` removed `nearestInDirection`, and its docs pages are removed with it. Spatial focus is not built.
 
 ## Deviations from the original plan
 
@@ -108,8 +109,7 @@ history is not carried over. Re-syncing means diffing against the commits above.
 - **Not built:** a cell-level back/front buffer renderer. Measured data is in
   `docs/research/ink-architecture.md`, section 2. The cheap win (incremental
   rendering) is already in upstream.
-- **Not built yet:** spatial focus wired to `useFocus`, OSC 8 and
-  OSC 52 helpers as Ink components. The xterm-backed fixture in `packages/core/test/helpers/xterm-terminal.ts`
+- **Not built yet:** OSC 8 and OSC 52 helpers as Ink components. The xterm-backed fixture in `packages/core/test/helpers/xterm-terminal.ts`
   has `getLine`, `cellAt`, `cells` and `emitKey`. It has no `getFocusedId`: tests read
   focus with a probe component (see `packages/core/test/xterm-fixture.tsx`).
 

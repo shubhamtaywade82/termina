@@ -2,6 +2,7 @@ import {EventEmitter} from 'node:events';
 import process from 'node:process';
 import React, {
 	type ReactNode,
+	type RefObject,
 	useState,
 	useRef,
 	useCallback,
@@ -12,6 +13,9 @@ import React, {
 import cliCursor from 'cli-cursor';
 import {type CursorPosition} from '../log-update.js';
 import {type CursorShape} from '../cursor-shape.js';
+import {type DOMElement} from '../dom.js';
+import {type Direction, nearestInDirection, type Rect} from '../spatial.js';
+import {visibleBoundsOf} from '../visible-box.js';
 import {
 	createInputParser,
 	escapeFlushDelayMilliseconds,
@@ -74,6 +78,26 @@ type Focusable = {
 	// The focus scope of the enclosing KeyboardCapture, or undefined outside every capture.
 	readonly scope: symbol | undefined;
 	readonly isActive: boolean;
+	// The element that directional focus measures, or undefined when the component did not pass a ref.
+	// eslint-disable-next-line @typescript-eslint/no-restricted-types -- React ref objects are typed with null until the element mounts.
+	readonly element: RefObject<DOMElement | null> | undefined;
+};
+
+// The on-screen rectangle of a focusable, or undefined when it has no element or none of it is drawn.
+const focusableRect = (focusable: Focusable): Rect | undefined => {
+	const element = focusable.element?.current;
+	const bounds = element ? visibleBoundsOf(element) : undefined;
+
+	if (bounds === undefined) {
+		return undefined;
+	}
+
+	return {
+		x: bounds.x1,
+		y: bounds.y1,
+		width: bounds.x2 - bounds.x1,
+		height: bounds.y2 - bounds.y1,
+	};
 };
 
 type KeyboardCaptureEntry = {
@@ -786,6 +810,42 @@ function App({
 		});
 	}, [findPreviousFocusable]);
 
+	// Moves focus to the nearest focusable in `direction` from the focused one, by the rectangles on screen. Only focusables in reach, active, and at least partly drawn take part. Focus stays put when nothing lies that way.
+	const focusDirection = useCallback((direction: Direction): void => {
+		if (!isFocusEnabledRef.current) {
+			return;
+		}
+
+		const currentFocusables = navigableFocusables(
+			focusablesRef.current,
+			topKeyboardCapture(keyboardCaptureStackRef.current),
+		);
+
+		setActiveFocusId((currentActiveFocusId) => {
+			const candidates: Array<{id: string; rect: Rect}> = [];
+			let origin: Rect | undefined;
+
+			for (const focusable of currentFocusables) {
+				const rect = focusable.isActive ? focusableRect(focusable) : undefined;
+
+				if (rect !== undefined && focusable.id === currentActiveFocusId) {
+					origin = rect;
+				} else if (rect !== undefined) {
+					candidates.push({id: focusable.id, rect});
+				}
+			}
+
+			if (origin === undefined) {
+				return currentActiveFocusId;
+			}
+
+			return (
+				nearestInDirection(origin, candidates, direction) ??
+				currentActiveFocusId
+			);
+		});
+	}, []);
+
 	// Focuses the first active focusable in `scope`, in navigation order. Ignored while focus management is disabled.
 	const focusFirstInScope = useCallback((scope: symbol | undefined): void => {
 		if (!isFocusEnabledRef.current) {
@@ -859,10 +919,10 @@ function App({
 			id: string,
 			{autoFocus, token}: {autoFocus: boolean; token: symbol},
 		): void => {
-			// The scope arrives through setFocusableScope in the same effect flush, before any input is read.
+			// The scope and the element arrive through their setters in the same effect flush, before any input is read.
 			focusablesRef.current = [
 				...focusablesRef.current,
-				{id, token, scope: undefined, isActive: true},
+				{id, token, scope: undefined, isActive: true, element: undefined},
 			];
 
 			if (autoFocus && isFocusEnabledRef.current) {
@@ -877,6 +937,20 @@ function App({
 		(token: symbol, scope: symbol | undefined): void => {
 			focusablesRef.current = focusablesRef.current.map((focusable) =>
 				focusable.token === token ? {...focusable, scope} : focusable,
+			);
+		},
+		[],
+	);
+
+	// Stores the ref in place, like the scope, so a re-render does not move the registration in the focus order.
+	const setFocusableElement = useCallback(
+		(
+			token: symbol,
+			// eslint-disable-next-line @typescript-eslint/no-restricted-types -- React ref objects are typed with null until the element mounts.
+			element: RefObject<DOMElement | null> | undefined,
+		): void => {
+			focusablesRef.current = focusablesRef.current.map((focusable) =>
+				focusable.token === token ? {...focusable, element} : focusable,
 			);
 		},
 		[],
@@ -1036,12 +1110,14 @@ function App({
 			add: addFocusable,
 			remove: removeFocusable,
 			setScope: setFocusableScope,
+			setElement: setFocusableElement,
 			activate: activateFocusable,
 			deactivate: deactivateFocusable,
 			enableFocus,
 			disableFocus,
 			focusNext,
 			focusPrevious,
+			focusDirection,
 			focusFirstInScope,
 			focus,
 		}),
@@ -1050,12 +1126,14 @@ function App({
 			addFocusable,
 			removeFocusable,
 			setFocusableScope,
+			setFocusableElement,
 			activateFocusable,
 			deactivateFocusable,
 			enableFocus,
 			disableFocus,
 			focusNext,
 			focusPrevious,
+			focusDirection,
 			focusFirstInScope,
 			focus,
 		],

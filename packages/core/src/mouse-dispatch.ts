@@ -1,6 +1,13 @@
 import Yoga from 'yoga-layout';
 import {type DOMElement} from './dom.js';
 import {type MouseEvent} from './mouse.js';
+import {
+	type Bounds,
+	boundsOf,
+	clipForChildren,
+	isInside,
+	contentOffset,
+} from './visible-box.js';
 
 export type MouseHandlers = {
 	onClick?: (event: MouseEvent) => void;
@@ -10,38 +17,6 @@ export type MouseHandlers = {
 };
 
 type HandlerName = keyof MouseHandlers;
-
-// Half-open edges, so an infinite edge means "unclipped" without special cases.
-type Bounds = {readonly x1: number; readonly y1: number; readonly x2: number; readonly y2: number};
-
-const boundsOf = (x: number, y: number, width: number, height: number): Bounds => ({
-	x1: x,
-	y1: y,
-	x2: x + width,
-	y2: y + height,
-});
-
-const contains = (bounds: Bounds, x: number, y: number): boolean =>
-	x >= bounds.x1 && x < bounds.x2 && y >= bounds.y1 && y < bounds.y2;
-
-// A node's children are clipped to its box on each axis where it has `overflow: hidden`. Clips only narrow as the walk descends.
-const clipForChildren = (node: DOMElement, box: Bounds, clip: Bounds | undefined): Bounds | undefined => {
-	const clipsX = node.style.overflowX === 'hidden';
-	const clipsY = node.style.overflowY === 'hidden';
-	if (!clipsX && !clipsY) {
-		return clip;
-	}
-
-	return {
-		x1: clipsX ? Math.max(clip?.x1 ?? -Infinity, box.x1) : (clip?.x1 ?? -Infinity),
-		y1: clipsY ? Math.max(clip?.y1 ?? -Infinity, box.y1) : (clip?.y1 ?? -Infinity),
-		x2: clipsX ? Math.min(clip?.x2 ?? Infinity, box.x2) : (clip?.x2 ?? Infinity),
-		y2: clipsY ? Math.min(clip?.y2 ?? Infinity, box.y2) : (clip?.y2 ?? Infinity),
-	};
-};
-
-const contentOffset = (value: number | undefined): number =>
-	typeof value === 'number' && Number.isFinite(value) ? Math.trunc(value) : 0;
 
 // Returns the deepest element under (x, y) whose box, and every clipping ancestor's box, contains the point. Layout coordinates do not include an ancestor's `contentOffsetX/Y`, so each child origin subtracts it, as the renderer does.
 const hitNode = (
@@ -63,7 +38,7 @@ const hitNode = (
 		layout.getComputedWidth(),
 		layout.getComputedHeight(),
 	);
-	if (!contains(box, x, y) || (clip && !contains(clip, x, y))) {
+	if (!isInside(box, x, y) || (clip && !isInside(clip, x, y))) {
 		return undefined;
 	}
 
@@ -77,7 +52,7 @@ const hitNode = (
 			continue;
 		}
 
-		const hit = hitNode(child as DOMElement, x, y, childOriginX, childOriginY, childClip);
+		const hit = hitNode(child, x, y, childOriginX, childOriginY, childClip);
 		if (hit) {
 			return hit;
 		}
@@ -94,7 +69,7 @@ const findHandler = (
 	name: HandlerName,
 ): DOMElement | undefined => {
 	const hit = hitNode(root, x, y, 0, 0, undefined);
-	for (let node: DOMElement | undefined = hit; node; node = node.parentNode as DOMElement | undefined) {
+	for (let node: DOMElement | undefined = hit; node; node = node.parentNode) {
 		if (node.internal_mouseHandlers?.[name]) {
 			return node;
 		}
@@ -126,22 +101,32 @@ export class MouseDispatcher {
 		if (event.action === 'press') {
 			this.call(findHandler(root, x, y, 'onMouseDown'), 'onMouseDown', event);
 			this.pressTarget =
-				event.button === 'left' ? findHandler(root, x, y, 'onClick') : undefined;
+				event.button === 'left'
+					? findHandler(root, x, y, 'onClick')
+					: undefined;
 			return;
 		}
 
 		if (event.action === 'release') {
 			this.call(findHandler(root, x, y, 'onMouseUp'), 'onMouseUp', event);
 			const releaseTarget = findHandler(root, x, y, 'onClick');
-			const pressTarget = this.pressTarget;
+			const {pressTarget} = this;
 			this.pressTarget = undefined;
-			if (event.button === 'left' && releaseTarget && releaseTarget === pressTarget) {
+			if (
+				event.button === 'left' &&
+				releaseTarget &&
+				releaseTarget === pressTarget
+			) {
 				this.call(releaseTarget, 'onClick', event);
 			}
 		}
 	}
 
-	private call(node: DOMElement | undefined, name: HandlerName, event: MouseEvent): void {
+	private call(
+		node: DOMElement | undefined,
+		name: HandlerName,
+		event: MouseEvent,
+	): void {
 		node?.internal_mouseHandlers?.[name]?.(event);
 	}
 }
@@ -151,14 +136,18 @@ True when the terminal cell (x, y), 1-based as reported, lands on `element` or o
 
 Layout rectangles alone cannot answer this. An element can sit inside a clipping ancestor, or be scrolled out of view by `contentOffset`, and the hit walk applies both. Something drawn over the element, such as a modal, also answers false.
 */
-export const isElementAt = (element: DOMElement, x: number, y: number): boolean => {
+export const isElementAt = (
+	element: DOMElement,
+	x: number,
+	y: number,
+): boolean => {
 	let root = element;
 	while (root.parentNode) {
-		root = root.parentNode as DOMElement;
+		root = root.parentNode;
 	}
 
 	const hit = hitNode(root, x - 1, y - 1, 0, 0, undefined);
-	for (let node: DOMElement | undefined = hit; node; node = node.parentNode as DOMElement | undefined) {
+	for (let node: DOMElement | undefined = hit; node; node = node.parentNode) {
 		if (node === element) {
 			return true;
 		}

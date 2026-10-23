@@ -40,6 +40,8 @@ export {default as useStderr} from './hooks/use-stderr.js';
 export {default as useFocus} from './hooks/use-focus.js';
 export {default as useFocusManager} from './hooks/use-focus-manager.js';
 export {default as useFocusScope} from './hooks/use-focus-scope.js';
+export {nearestInDirection} from './spatial.js';
+export type {Direction, FocusCandidate, Rect} from './spatial.js';
 export type {Props as KeyboardCaptureProps} from './keyboard-capture.js';
 export {default as KeyboardCapture} from './keyboard-capture.js';
 export {default as useIsScreenReaderEnabled} from './hooks/use-is-screen-reader-enabled.js';
