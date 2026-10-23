@@ -48,7 +48,8 @@ test('expanded tabs participate in text wrapping', (t: TestContext) => {
 		</Box>,
 	);
 
-	t.assert.strictEqual(output, 'A\n   B\n!');
+	// The tab's expansion is whitespace at the break, so the wrap consumes it, as it does for a space.
+	t.assert.strictEqual(output, 'A\nB\n!');
 });
 
 test('tab stops account for styled wide characters', (t: TestContext) => {

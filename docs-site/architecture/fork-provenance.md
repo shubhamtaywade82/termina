@@ -138,13 +138,6 @@ See [ScrollBox](/ui/components/scroll-box).
 
 See [LogStream](/ui/components/log-stream).
 
-### Spatial focus geometry
-
-- File: `packages/ui/source/lib/spatial.ts`. Export: `nearestInDirection`, plus the `Direction`, `FocusCandidate`, and `Rect` types, all re-exported from `packages/ui/source/index.ts`.
-- No runtime source in `packages/core` or `packages/ui` calls it. Its only caller is `packages/ui/test/spatial.tsx`, so focus management is unchanged.
-
-See [Spatial Focus Geometry](/ui/spatial).
-
 ### Theme and dependency changes
 
 - Thirty-eight components have a `theme.ts` file. `ScrollBox` and `LogStream` do not.
@@ -165,7 +158,7 @@ See [Theming](/ui/theming).
 | Resize test in `test/render.tsx` | Reducer-based model | Runs on `@xterm/headless`, because the reducer does not model column reflow. |
 | Known-bug markers | `test.failing` in `packages/ui/test/alert.tsx` and `status-message.tsx`, present at `edc640a` | Converted to ordinary tests in `0b39c69`, because their bodies pass on this base. The markers are absent from `packages/ui` at HEAD. |
 | Cell-level renderer | A back and front buffer renderer | Not built. Incremental rendering is the measured fix, and it is already in upstream. See [Decisions](/architecture/decisions). |
-| Components not built | Multi-line text editor, Modal with focus trap, SplitPane, spatial focus wired to `useFocus`, OSC 8 and OSC 52 helpers as Ink components | Modal and SplitPane are built. Spatial focus and the OSC helpers as components are not. `MultilineTextInput`, `DataTable` and `Tabs` are built, and `Dialog` has no focus trap. `hyperlink()` and `copyToClipboard()` exist as functions in `@nemesis-oss/termina-core`. |
+| Components not built | Multi-line text editor, Modal with focus trap, SplitPane, OSC 8 and OSC 52 helpers as Ink components | Modal and SplitPane are built, and spatial focus is built as `focusDirection` (see FORK.md). The OSC helpers as components are not. `MultilineTextInput`, `DataTable` and `Tabs` are built, and `Dialog` has no focus trap. `hyperlink()` and `copyToClipboard()` exist as functions in `@nemesis-oss/termina-core`. |
 
 The xterm test fixture is `packages/core/test/helpers/xterm-terminal.ts`. It provides `getLine`, `cellAt`, `cells`, and `emitKey`. It has no `getFocusedId`. Tests read focus with a probe component (`packages/core/test/xterm-fixture.tsx`).
 

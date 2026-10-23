@@ -1,6 +1,7 @@
-import {useEffect, use, useId, useState} from 'react';
+import {useEffect, use, useId, useState, type RefObject} from 'react';
 import FocusContext from '../components/FocusContext.js';
 import FocusScopeContext from '../components/FocusScopeContext.js';
+import {type DOMElement} from '../dom.js';
 import useStdin from './use-stdin.js';
 
 type Input = {
@@ -18,6 +19,12 @@ type Input = {
 	Assign an ID to this component, so it can be programmatically focused with `focus(id)`. The ID must be unique among focusable components.
 	*/
 	id?: string;
+
+	/**
+	The `Box` this component renders, so `focusDirection` in `useFocusManager` can place it on screen. Without a ref, the component takes part only in Tab order.
+	*/
+	// eslint-disable-next-line @typescript-eslint/no-restricted-types -- React ref objects are typed with null until the element mounts.
+	ref?: RefObject<DOMElement | null>;
 };
 
 type Output = {
@@ -40,10 +47,19 @@ const useFocus = ({
 	isActive = true,
 	autoFocus = false,
 	id: customId,
+	ref,
 }: Input = {}): Output => {
 	const {isRawModeSupported, setRawMode} = useStdin();
-	const {activeId, add, remove, setScope, activate, deactivate, focus} =
-		use(FocusContext);
+	const {
+		activeId,
+		add,
+		remove,
+		setScope,
+		setElement,
+		activate,
+		deactivate,
+		focus,
+	} = use(FocusContext);
 	const scope = use(FocusScopeContext);
 
 	const generatedId = useId();
@@ -63,6 +79,11 @@ const useFocus = ({
 	useEffect(() => {
 		setScope(token, scope);
 	}, [scope, token, setScope]);
+
+	// Like the scope, the element is updated in place, so a new ref does not move this component in the focus order.
+	useEffect(() => {
+		setElement(token, ref);
+	}, [ref, token, setElement]);
 
 	useEffect(() => {
 		// Reapply active state when autoFocus changes and re-registers this component.

@@ -95,7 +95,7 @@ The component reads the `DataTable` entry of the theme. To change a key, pass a 
 | `styles.container` | none | Box props: `flexDirection: 'column'`. |
 | `styles.headerCell` | `{isFocused}` | Text props: `bold: true`, and `underline` set to `isFocused`. Applied to every header label. |
 | `styles.row` | `{isFocused}` | Box props: `flexDirection: 'row'`, `gap: 2`, `minHeight: 1`, and `backgroundColor: 'blue'` when focused, otherwise unset. Applied to the header and to each body row, so the background covers the gaps between cells. |
-| `styles.cell` | none | Box props: `flexShrink: 0`. Applied to every header and data cell. |
+| `styles.cell` | none | Box props: `flexShrink: 1`, `minWidth: 1`. Applied to every header and data cell. |
 | `styles.separator` | none | Text props: `dimColor: true`. Applied to the rule under the header. |
 | `styles.sortIndicator` | none | Text props: `color: 'cyan'`. Applied to the space and arrow after the label in the sorted column's header. |
 
@@ -110,6 +110,7 @@ The rule's `─` glyph and the sort arrows are set in the component, so the them
 - A row whose cells are all blank still takes one line.
 - When `visibleRowCount` is larger than the number of rows, every row is shown with no blank lines.
 - Column widths are measured from every row, so a long value outside the visible window still sets the width.
+- A table wider than its container shrinks its widest columns until it fits, and cuts their values with `…`. Each row stays one line, and the focus highlight covers the table's width.
 - Each header reserves room for the sort arrow, so sorting never changes a column's width.
 - Sorting does not move focus. The focus stays on the same position, so the highlight can land on a different row.
 - Blank cells sort first in ascending order, and they are not read as 0.

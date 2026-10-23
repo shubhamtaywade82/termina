@@ -114,7 +114,7 @@ reliably defined across terminals.
 - `source/components/<name>/` holds the component, its `theme.ts`, and its state hook.
 - `source/theme.tsx`: `ThemeProvider`, `useComponentTheme`, and `extendTheme` (deepmerge over per-component `styles`/`config` functions).
 - Components: Alert, Badge, ConfirmInput, EmailInput, MultiSelect, OrderedList, PasswordInput, ProgressBar, Select, Spinner, StatusMessage, TextInput, UnorderedList.
-- Not present in upstream: scroll viewport, log stream, data table, modal, tabs, multi-line input, split pane, spatial focus. The fork adds `ScrollBox` and `LogStream` (see below), and later `DataTable`, `Tabs`, `MultilineTextInput`, `Modal` and `SplitPane`. Spatial focus exists only as the pure `nearestInDirection` helper, which the focus system does not call yet.
+- Not present in upstream: scroll viewport, log stream, data table, modal, tabs, multi-line input, split pane, spatial focus. The fork adds `ScrollBox` and `LogStream` (see below), and later `DataTable`, `Tabs`, `MultilineTextInput`, `Modal` and `SplitPane`. Spatial focus is not built.
 
 ### Defects confirmed in `TextInput` and `PasswordInput`
 

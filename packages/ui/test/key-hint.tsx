@@ -147,6 +147,7 @@ test('wraps a label that does not fit beside the key block, and drops the gap', 
 
 	t.assert.strictEqual(
 		stripAnsi(lastFrame() ?? ''),
-		'      quit the a\nCtrl+Cpplication\n       now',
+		// The wrapped row starts at the label's column, so it lines up with the rows above.
+		'      quit the a\nCtrl+Cpplication\n      now',
 	);
 });

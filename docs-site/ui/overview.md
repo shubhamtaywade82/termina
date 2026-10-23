@@ -109,7 +109,6 @@ render(<App />);
 The kit also exports these, which are not components:
 
 - `ThemeProvider`, `defaultTheme`, `extendTheme`, and `useComponentTheme` are covered in [Theming](/ui/theming).
-- `nearestInDirection` and the `Rect`, `Direction`, and `FocusCandidate` types are covered in [Spatial Focus Geometry](/ui/spatial).
 - `useSpinner` is the hook behind `Spinner`. See [Spinner](/ui/components/spinner).
 
 Every export, with its signature, is listed in the [API Reference](/api/ui).
@@ -129,7 +128,6 @@ Every export, with its signature, is listed in the [API Reference](/api/ui).
 - `TextInput` and `PasswordInput` edit by grapheme cluster. The cursor moves, inserts, and deletes by cluster, so an emoji or a letter with a combining mark is not split. Backspace at offset 0 does nothing. Delete removes the cluster after the cursor. Ctrl and Meta chords are not inserted as text. Pasted control characters are removed. The shared helpers are in `source/lib/grapheme.ts`.
 - `PasswordInput` shows one `*` per grapheme cluster.
 - `ScrollBox` and `LogStream` are new. See their component pages for behavior.
-- `nearestInDirection` and its types are new. It is pure geometry and is not wired into focus. See [Spatial Focus Geometry](/ui/spatial).
 
 `EmailInput` is not covered by these changes. It moves and deletes by UTF-16 code unit, it does not remove control characters from pasted text, Delete acts as Backspace, and a Ctrl chord with a letter inserts that letter. Code that needs grapheme-aware editing should use `TextInput` or `PasswordInput`.
 

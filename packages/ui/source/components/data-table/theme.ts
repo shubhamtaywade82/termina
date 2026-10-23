@@ -16,8 +16,10 @@ const theme = {
 			minHeight: 1,
 			backgroundColor: isFocused ? 'blue' : undefined,
 		}),
+		// Cells shrink, down to one column, when the row is wider than the container. Their text truncates, so a row stays one line.
 		cell: (): BoxProps => ({
-			flexShrink: 0,
+			flexShrink: 1,
+			minWidth: 1,
 		}),
 		separator: (): TextProps => ({
 			dimColor: true,

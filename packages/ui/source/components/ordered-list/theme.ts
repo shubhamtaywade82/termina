@@ -12,8 +12,12 @@ const theme = {
 		marker: (): TextProps => ({
 			dimColor: true,
 		}),
+		// A zero basis makes the content take the width the marker leaves, so wrapped text stays inside the row.
 		content: (): BoxProps => ({
 			flexDirection: 'column',
+			flexBasis: 0,
+			flexGrow: 1,
+			flexShrink: 1,
 		}),
 	},
 } satisfies ComponentTheme;
