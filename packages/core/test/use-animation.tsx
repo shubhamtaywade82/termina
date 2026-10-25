@@ -6,6 +6,7 @@ import {render, Text, useAnimation} from '../src/index.js';
 import createStdout from './helpers/create-stdout.js';
 import mockTimerCalls from './helpers/mock-timer-calls.js';
 import {act} from './helpers/act.js';
+import {waitFor} from './helpers/wait-for.js';
 
 function AnimatedCounter({interval}: {readonly interval?: number}) {
 	const {frame} = useAnimation({interval});
@@ -1577,15 +1578,19 @@ test('suspended transitions do not reset the committed animation before commit',
 			concurrent: true,
 		});
 
-		await delay(130);
+		// Wait for committed frames instead of a fixed delay, because a slow runner may draw only one frame in 130 ms.
+		await waitFor(
+			() => Number(stdout.get()) >= 2,
+			'the animation to commit at least two frames before suspending',
+		);
 		const frameBeforeSuspend = Number(stdout.get());
-		t.assert.ok(frameBeforeSuspend >= 1);
 
 		await act(async () => {
 			suspendWithNewInterval();
 		});
 
-		t.assert.strictEqual(stdout.get(), String(frameBeforeSuspend));
+		// Ticks can run while act waits, so the frame may advance. A reset would move it backwards, and that is what this asserts against.
+		t.assert.ok(Number(stdout.get()) >= frameBeforeSuspend);
 
 		await delay(120);
 		t.assert.ok(Number(stdout.get()) > frameBeforeSuspend);
