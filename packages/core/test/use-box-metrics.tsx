@@ -11,6 +11,7 @@ import {
 } from '../src/index.js';
 import createStdout from './helpers/create-stdout.js';
 import {act} from './helpers/act.js';
+import {waitFor} from './helpers/wait-for.js';
 
 test('returns correct size on first render', async (t: TestContext) => {
 	const stdout = createStdout(100);
@@ -406,21 +407,23 @@ test('hasMeasured resets when tracked ref switches to a detached element', async
 		);
 	}
 
-	const {waitUntilRenderFlush} = render(<Test />, {stdout, debug: true});
-	await waitUntilRenderFlush();
-	await delay(50);
-
-	t.assert.ok(stripAnsi(stdout.get()).includes('Has measured: true'));
+	render(<Test />, {stdout, debug: true});
+	await waitFor(
+		() => stripAnsi(stdout.get()).includes('Has measured: true'),
+		'the first ref to be measured',
+	);
 
 	trackSecondRef();
-	await waitUntilRenderFlush();
-	await delay(50);
-
-	t.assert.ok(stripAnsi(stdout.get()).includes('Has measured: false'));
+	await waitFor(
+		() => stripAnsi(stdout.get()).includes('Has measured: false'),
+		'hasMeasured to reset',
+	);
 
 	mountSecondRef();
-	await waitUntilRenderFlush();
-	await delay(50);
+	await waitFor(
+		() => stripAnsi(stdout.get()).includes('Has measured: true'),
+		'the second ref to be measured',
+	);
 
 	t.assert.ok(stripAnsi(stdout.get()).includes('Has measured: true'));
 });

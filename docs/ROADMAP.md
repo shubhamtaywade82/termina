@@ -12,12 +12,12 @@ Status values: `open`, `in progress`, `done`, `deferred`.
 - Acceptance: a core test renders `<Box><Text>- </Text><Box><Text>{LONG}</Text></Box></Box>` at 16 columns, with no `flexBasis` set, and every line is at most 16 columns wide. The `flexBasis={0}` workarounds in `ui` can then be removed without changing output.
 
 ### R2. A timing-sensitive core test is flaky under load
-- Status: `open`
+- Status: `in progress`. The wait is fixed. Evidence so far: the file passed 11 runs in a row, 6 of them with four CPU-burning processes competing for the cores. The 20-run full-suite check will come from CI history.
 - Problem: `hasMeasured resets when tracked ref switches to a detached element` (`packages/core/test/use-box-metrics.tsx`) waits a fixed 50 ms. It failed once in a full-suite run and passed on every rerun.
 - Acceptance: the test waits for the render flush instead of a fixed delay. It passes 20 consecutive full-suite runs.
 
 ### R3. `ScrollBox` controlled offset can drift
-- Status: `open`
+- Status: `done`. Controlled requests last one turn of the event loop. After that, the next scroll starts from the offset the parent last supplied. A regression test fails without the fix and passes with it.
 - Problem: in controlled mode, `latestOffsetRef` advances on each scroll, but it is only resynced on render. If a parent rejects an offset without re-rendering, later key presses start from the rejected value.
 - Acceptance: a test where the parent ignores `onScroll` shows that the next key press starts from the value the parent last provided.
 
