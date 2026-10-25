@@ -35,7 +35,7 @@ Status values: `open`, `in progress`, `done`, `deferred`.
 - Acceptance: the test job runs on `ubuntu-latest`, `macos-latest` and `windows-latest`, and all three are green.
 
 ### R6. Docs can drift from the code
-- Status: `open`
+- Status: `done`. `scripts/check-docs.mjs` (`pnpm docs:check`) reads each `docs-site/api/<name>.md` against `packages/<name>/build/index.d.ts` through the TypeScript checker. It checks top-level headings and `useApp().member` headings against the function's return type. It also checks every internal `link:` in `docs-site/.vitepress/config.ts`. The docs job in CI runs it after the build. Evidence: it passes on the repo (42 names, 61 links). It fails with exit 1 on an injected fake export, a missing member and a dead link. This check found `suspendTerminal` documented as a top-level export, which was a member of `useApp()`.
 - Problem: the spatial-focus docs described an export that did not exist, and nothing in CI caught it.
 - Acceptance: a script checks that every name documented in `docs-site/api/*.md` is exported from the built `index.d.ts`, and that every sidebar link resolves to a page. The script runs in CI.
 

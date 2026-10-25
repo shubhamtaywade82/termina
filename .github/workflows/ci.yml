@@ -137,6 +137,10 @@ jobs:
       - name: Check committed previews are current
         run: pnpm docs:previews:check
 
+      # Every API name the docs document must be exported by the built declarations, and every sidebar link must resolve to a page.
+      - name: Check docs against the built packages
+        run: pnpm docs:check
+
       - name: Install docs-site dependencies
         run: npm ci
         working-directory: docs-site
