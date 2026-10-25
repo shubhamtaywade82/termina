@@ -91,7 +91,7 @@ Wait for pending suspense boundaries to resolve.
 */
 export async function waitForSuspense(ms = 0): Promise<void> {
 	await act(async () => {
-		await new Promise<void>(resolve => {
+		await new Promise<void>((resolve) => {
 			setTimeout(resolve, ms);
 		});
 	});

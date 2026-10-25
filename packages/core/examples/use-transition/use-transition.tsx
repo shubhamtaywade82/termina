@@ -28,7 +28,7 @@ function generateItems(filter: string): string[] {
 	}
 
 	return allItems
-		.filter(item => item.toLowerCase().includes(filter.toLowerCase()))
+		.filter((item) => item.toLowerCase().includes(filter.toLowerCase()))
 		.slice(0, 10);
 }
 
@@ -53,10 +53,10 @@ function SearchApp() {
 				setDeferredQuery(deleteLastGrapheme);
 			});
 		} else if (input !== '' && !key.ctrl && !key.meta && !key.return) {
-			setQuery(previousQuery => previousQuery + input);
+			setQuery((previousQuery) => previousQuery + input);
 			// Wrap the expensive update in a transition
 			startTransition(() => {
-				setDeferredQuery(previousQuery => previousQuery + input);
+				setDeferredQuery((previousQuery) => previousQuery + input);
 			});
 		}
 	});
@@ -88,7 +88,7 @@ function SearchApp() {
 				{filteredItems.length === 0 ? (
 					<Text dimColor> No items found</Text>
 				) : (
-					filteredItems.map(item => (
+					filteredItems.map((item) => (
 						<Text key={item} dimColor={isPending}>
 							{item}
 						</Text>

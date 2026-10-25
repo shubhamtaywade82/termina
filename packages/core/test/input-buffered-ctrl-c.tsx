@@ -41,7 +41,7 @@ for (const input of ['', 'ab', 'ab']) {
 		});
 		await act(async () => {
 			stdin.push(input);
-			await new Promise<void>(resolve => {
+			await new Promise<void>((resolve) => {
 				setImmediate(resolve);
 			});
 		});
@@ -63,7 +63,7 @@ for (const isBracketedPaste of [false, true]) {
 			useInput((value, key) => {
 				inputs.push(key.ctrl ? `Ctrl+${value}` : value);
 			});
-			usePaste(value => {
+			usePaste((value) => {
 				pastes.push(value);
 			});
 			return null;
@@ -94,7 +94,7 @@ for (const isBracketedPaste of [false, true]) {
 			stdin.push(
 				isBracketedPaste ? `${escape}[200~${input}${escape}[201~` : input,
 			);
-			await new Promise<void>(resolve => {
+			await new Promise<void>((resolve) => {
 				setImmediate(resolve);
 			});
 		});

@@ -22,7 +22,7 @@ function App({
 	return (
 		<Suspense fallback={<Text>Loading</Text>}>
 			<Static key={pending ? 'replacement' : 'original'} items={items}>
-				{item => <Text key={item}>{item}</Text>}
+				{(item) => <Text key={item}>{item}</Text>}
 			</Static>
 			{pending ? <Pending /> : <Text>Live</Text>}
 		</Suspense>

@@ -100,7 +100,7 @@ test('does not emit duplicate key warnings for repeated stack lines', (t: TestCo
 	}
 
 	t.assert.strictEqual(
-		consoleErrors.some(error =>
+		consoleErrors.some((error) =>
 			error.includes('Encountered two children with the same key'),
 		),
 		false,

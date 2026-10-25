@@ -13,13 +13,13 @@ function SubprocessOutput() {
 			'examples/jest',
 		]);
 
-		subprocess.on('error', error => {
+		subprocess.on('error', (error) => {
 			setOutput(error.message);
 		});
 
 		subprocess.stdout.setEncoding('utf8');
 		subprocess.stdout.on('data', (newOutput: string) => {
-			setOutput(previousOutput =>
+			setOutput((previousOutput) =>
 				(previousOutput + newOutput).split('\n').slice(-5).join('\n'),
 			);
 		});

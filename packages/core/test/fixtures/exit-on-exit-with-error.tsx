@@ -11,7 +11,7 @@ function Test() {
 		}, 500);
 
 		const timer = setInterval(() => {
-			setCounter(previous => previous + 1);
+			setCounter((previous) => previous + 1);
 		}, 100);
 
 		return () => {

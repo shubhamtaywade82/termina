@@ -18,13 +18,13 @@ export type MouseHandlers = {
 
 type HandlerName = keyof MouseHandlers;
 
+type Point = {readonly x: number; readonly y: number};
+
 // Returns the deepest element under (x, y) whose box, and every clipping ancestor's box, contains the point. Layout coordinates do not include an ancestor's `contentOffsetX/Y`, so each child origin subtracts it, as the renderer does.
 const hitNode = (
 	node: DOMElement,
-	x: number,
-	y: number,
-	originX: number,
-	originY: number,
+	point: Point,
+	origin: Point,
 	clip: Bounds | undefined,
 ): DOMElement | undefined => {
 	const layout = node.yogaNode;
@@ -33,12 +33,15 @@ const hitNode = (
 	}
 
 	const box = boundsOf(
-		originX + layout.getComputedLeft(),
-		originY + layout.getComputedTop(),
+		origin.x + layout.getComputedLeft(),
+		origin.y + layout.getComputedTop(),
 		layout.getComputedWidth(),
 		layout.getComputedHeight(),
 	);
-	if (!isInside(box, x, y) || (clip && !isInside(clip, x, y))) {
+	if (
+		!isInside(box, point.x, point.y) ||
+		(clip && !isInside(clip, point.x, point.y))
+	) {
 		return undefined;
 	}
 
@@ -52,7 +55,12 @@ const hitNode = (
 			continue;
 		}
 
-		const hit = hitNode(child, x, y, childOriginX, childOriginY, childClip);
+		const hit = hitNode(
+			child,
+			point,
+			{x: childOriginX, y: childOriginY},
+			childClip,
+		);
 		if (hit) {
 			return hit;
 		}
@@ -68,8 +76,10 @@ const findHandler = (
 	y: number,
 	name: HandlerName,
 ): DOMElement | undefined => {
-	const hit = hitNode(root, x, y, 0, 0, undefined);
+	const hit = hitNode(root, {x, y}, {x: 0, y: 0}, undefined);
 	for (let node: DOMElement | undefined = hit; node; node = node.parentNode) {
+		// The handler table has a fixed key set, and a missing name reads as undefined.
+		// eslint-disable-next-line unicorn/no-computed-property-existence-check -- Reading the table by name is the check.
 		if (node.internal_mouseHandlers?.[name]) {
 			return node;
 		}
@@ -87,6 +97,14 @@ Coordinates are assumed to start at the terminal's top-left, which is why routin
 */
 export class MouseDispatcher {
 	private pressTarget: DOMElement | undefined;
+
+	private call(
+		node: DOMElement | undefined,
+		name: HandlerName,
+		event: MouseEvent,
+	): void {
+		node?.internal_mouseHandlers?.[name]?.(event);
+	}
 
 	public dispatch(root: DOMElement, event: MouseEvent): void {
 		// Reports are 1-based, layout is 0-based.
@@ -107,27 +125,21 @@ export class MouseDispatcher {
 			return;
 		}
 
-		if (event.action === 'release') {
-			this.call(findHandler(root, x, y, 'onMouseUp'), 'onMouseUp', event);
-			const releaseTarget = findHandler(root, x, y, 'onClick');
-			const {pressTarget} = this;
-			this.pressTarget = undefined;
-			if (
-				event.button === 'left' &&
-				releaseTarget &&
-				releaseTarget === pressTarget
-			) {
-				this.call(releaseTarget, 'onClick', event);
-			}
+		if (event.action !== 'release') {
+			return;
 		}
-	}
 
-	private call(
-		node: DOMElement | undefined,
-		name: HandlerName,
-		event: MouseEvent,
-	): void {
-		node?.internal_mouseHandlers?.[name]?.(event);
+		this.call(findHandler(root, x, y, 'onMouseUp'), 'onMouseUp', event);
+		const releaseTarget = findHandler(root, x, y, 'onClick');
+		const {pressTarget} = this;
+		this.pressTarget = undefined;
+		if (
+			releaseTarget &&
+			releaseTarget === pressTarget &&
+			event.button === 'left'
+		) {
+			this.call(releaseTarget, 'onClick', event);
+		}
 	}
 }
 
@@ -146,7 +158,7 @@ export const isElementAt = (
 		root = root.parentNode;
 	}
 
-	const hit = hitNode(root, x - 1, y - 1, 0, 0, undefined);
+	const hit = hitNode(root, {x: x - 1, y: y - 1}, {x: 0, y: 0}, undefined);
 	for (let node: DOMElement | undefined = hit; node; node = node.parentNode) {
 		if (node === element) {
 			return true;

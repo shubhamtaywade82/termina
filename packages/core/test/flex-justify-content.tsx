@@ -70,7 +70,7 @@ test('row - space evenly two text nodes', (t: TestContext) => {
 
 // Yoga has a bug, where first child in a container with space-around doesn't have
 // the correct X coordinate and measure function is used on that child node
-// TODO: Use `{expectFailure: '…'}` instead of `skip` when we target Node.js 24.
+// Once Node.js 24 is the target, use `{expectFailure: '…'}` in place of `skip`.
 test(
 	'row - align two text nodes with equal space around them',
 	// eslint-disable-next-line node-test/no-skip-test -- Known failure. Node.js 22 does not support `expectFailure`.
@@ -130,7 +130,7 @@ test('column - align two text nodes on the edges', (t: TestContext) => {
 
 // Yoga has a bug, where first child in a container with space-around doesn't have
 // the correct X coordinate and measure function is used on that child node
-// TODO: Use `{expectFailure: '…'}` instead of `skip` when we target Node.js 24.
+// Once Node.js 24 is the target, use `{expectFailure: '…'}` in place of `skip`.
 test(
 	'column - align two text nodes with equal space around them',
 	// eslint-disable-next-line node-test/no-skip-test -- Known failure. Node.js 22 does not support `expectFailure`.

@@ -9,7 +9,11 @@ Rows one logical line occupies once a terminal has wrapped it at `columns`.
 An empty line still takes one row. A line that exactly fills `columns` does not wrap: the terminal keeps the cursor in a pending-wrap state until the newline after it, so it takes one row too.
 */
 export const rowsForLine = (line: string, columns: number): number => {
-	if (!Number.isFinite(columns) || columns < 1 || stringWidth(line) <= columns) {
+	if (
+		!Number.isFinite(columns) ||
+		columns < 1 ||
+		stringWidth(line) <= columns
+	) {
 		return 1;
 	}
 
@@ -42,13 +46,13 @@ export const rowsToErase = (text: string, columns: number): number => {
 	}
 
 	const lines = text.split('\n');
-	const endsWithNewline = text.endsWith('\n');
-	const frameLines = endsWithNewline ? lines.slice(0, -1) : lines;
+	const hasTrailingNewline = text.endsWith('\n');
+	const frameLines = hasTrailingNewline ? lines.slice(0, -1) : lines;
 
 	let rows = 0;
 	for (const line of frameLines) {
 		rows += rowsForLine(line, columns);
 	}
 
-	return endsWithNewline ? rows + 1 : rows;
+	return hasTrailingNewline ? rows + 1 : rows;
 };

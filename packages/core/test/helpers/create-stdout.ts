@@ -23,9 +23,10 @@ const createStdout = (columns?: number, isTTY?: boolean): FakeStdout => {
 	stdout.write = write;
 
 	stdout.get = () =>
-		(write.args as string[][]).findLast(args => args[0]?.length > 0)?.[0] ?? '';
+		(write.args as string[][]).findLast((args) => args[0]?.length > 0)?.[0] ??
+		'';
 
-	stdout.getWrites = () => (write.args as string[][]).map(args => args[0]!);
+	stdout.getWrites = () => (write.args as string[][]).map((args) => args[0]!);
 
 	return stdout;
 };

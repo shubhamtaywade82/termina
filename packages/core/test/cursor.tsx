@@ -75,12 +75,12 @@ function InputApp() {
 
 	useInput((input, key) => {
 		if (key.backspace || key.delete) {
-			setText(previous => previous.slice(0, -1));
+			setText((previous) => previous.slice(0, -1));
 			return;
 		}
 
 		if (input !== '' && !key.ctrl && !key.meta) {
-			setText(previous => previous + input);
+			setText((previous) => previous + input);
 		}
 	});
 
@@ -368,7 +368,7 @@ test('screen does not scroll up on subsequent renders', async (t: TestContext) =
 
 		useInput((input, key) => {
 			if (input !== '' && !key.ctrl && !key.meta) {
-				setText(previous => previous + input);
+				setText((previous) => previous + input);
 			}
 		});
 
@@ -517,13 +517,13 @@ test('debug mode: useStdout().write() replays latest frame', async (t: TestConte
 	const stdout = createStdout();
 	const {unmount} = render(<DebugStdoutWriteApp />, {stdout, debug: true});
 	await waitForCondition(() =>
-		getWriteCalls(stdout).some(write =>
+		getWriteCalls(stdout).some((write) =>
 			write.includes('from stdout hook\nHello'),
 		),
 	);
 
 	const writes = getWriteCalls(stdout);
-	const hookWrite = writes.find(write =>
+	const hookWrite = writes.find((write) =>
 		write.includes('from stdout hook\nHello'),
 	);
 
@@ -542,18 +542,18 @@ test('debug mode: useStdout().write() does not leak into stderr', async (t: Test
 		debug: true,
 	});
 	await waitForCondition(() =>
-		getWriteCalls(stdout).some(write =>
+		getWriteCalls(stdout).some((write) =>
 			write.includes('from stdout hook\nHello'),
 		),
 	);
 
 	const stderrWrites = getWriteCalls(stderr);
 	t.assert.strictEqual(
-		stderrWrites.some(write => write.includes('from stdout hook\n')),
+		stderrWrites.some((write) => write.includes('from stdout hook\n')),
 		false,
 	);
 	t.assert.strictEqual(
-		stderrWrites.some(write => write.includes('Hello')),
+		stderrWrites.some((write) => write.includes('Hello')),
 		false,
 	);
 	t.assert.strictEqual(stderrWrites.includes(''), false);
@@ -570,7 +570,7 @@ test('debug mode: useStderr().write() replays latest frame without empty writes'
 		debug: true,
 	});
 	await waitForCondition(() =>
-		getWriteCalls(stderr).some(write => write.includes('from stderr hook\n')),
+		getWriteCalls(stderr).some((write) => write.includes('from stderr hook\n')),
 	);
 	await waitForCondition(() => getWriteCalls(stdout).length > 1);
 
@@ -578,17 +578,19 @@ test('debug mode: useStderr().write() replays latest frame without empty writes'
 	const stderrWrites = getWriteCalls(stderr);
 	const stdoutWritesAfterInitialRender = stdoutWrites.slice(1);
 
-	t.assert.ok(stderrWrites.some(write => write.includes('from stderr hook\n')));
+	t.assert.ok(
+		stderrWrites.some((write) => write.includes('from stderr hook\n')),
+	);
 	t.assert.strictEqual(
-		stderrWrites.some(write => write.includes('Hello')),
+		stderrWrites.some((write) => write.includes('Hello')),
 		false,
 	);
 	t.assert.ok(stdoutWritesAfterInitialRender.length > 0);
 	t.assert.ok(
-		stdoutWritesAfterInitialRender.some(write => write.includes('Hello')),
+		stdoutWritesAfterInitialRender.some((write) => write.includes('Hello')),
 	);
 	t.assert.strictEqual(
-		stdoutWritesAfterInitialRender.some(write =>
+		stdoutWritesAfterInitialRender.some((write) =>
 			write.includes('from stderr hook\n'),
 		),
 		false,
@@ -640,7 +642,7 @@ test('debug mode: useStdout().write() replays rerendered frame', async (t: TestC
 		debug: true,
 	});
 	await waitForCondition(() =>
-		getWriteCalls(stdout).some(write =>
+		getWriteCalls(stdout).some((write) =>
 			write.includes('from stdout hook\nUpdated'),
 		),
 	);
@@ -648,10 +650,10 @@ test('debug mode: useStdout().write() replays rerendered frame', async (t: TestC
 	const stdoutWrites = getWriteCalls(stdout);
 
 	t.assert.ok(
-		stdoutWrites.some(write => write.includes('from stdout hook\nUpdated')),
+		stdoutWrites.some((write) => write.includes('from stdout hook\nUpdated')),
 	);
 	t.assert.strictEqual(
-		stdoutWrites.some(write => write.includes('from stdout hook\nInitial')),
+		stdoutWrites.some((write) => write.includes('from stdout hook\nInitial')),
 		false,
 	);
 	t.assert.strictEqual(stdoutWrites.includes(''), false);
@@ -668,36 +670,38 @@ test('debug mode: useStderr().write() replays rerendered frame', async (t: TestC
 		debug: true,
 	});
 	await waitForCondition(() =>
-		getWriteCalls(stderr).some(write => write.includes('from stderr hook\n')),
+		getWriteCalls(stderr).some((write) => write.includes('from stderr hook\n')),
 	);
 	await waitForCondition(() =>
 		getWriteCalls(stdout)
 			.slice(1)
-			.some(write => write.includes('Updated')),
+			.some((write) => write.includes('Updated')),
 	);
 
 	const stdoutWrites = getWriteCalls(stdout);
 	const stderrWrites = getWriteCalls(stderr);
 	const stdoutWritesAfterInitialRender = stdoutWrites.slice(1);
 
-	t.assert.ok(stderrWrites.some(write => write.includes('from stderr hook\n')));
+	t.assert.ok(
+		stderrWrites.some((write) => write.includes('from stderr hook\n')),
+	);
 	t.assert.strictEqual(
-		stderrWrites.some(write => write.includes('Updated')),
+		stderrWrites.some((write) => write.includes('Updated')),
 		false,
 	);
 	t.assert.strictEqual(
-		stderrWrites.some(write => write.includes('Initial')),
+		stderrWrites.some((write) => write.includes('Initial')),
 		false,
 	);
 	t.assert.ok(
-		stdoutWritesAfterInitialRender.some(write => write.includes('Updated')),
+		stdoutWritesAfterInitialRender.some((write) => write.includes('Updated')),
 	);
 	t.assert.strictEqual(
-		stdoutWritesAfterInitialRender.some(write => write.includes('Initial')),
+		stdoutWritesAfterInitialRender.some((write) => write.includes('Initial')),
 		false,
 	);
 	t.assert.strictEqual(
-		stdoutWritesAfterInitialRender.some(write =>
+		stdoutWritesAfterInitialRender.some((write) =>
 			write.includes('from stderr hook\n'),
 		),
 		false,
@@ -733,7 +737,7 @@ function FullscreenCursorApp({
 
 	return (
 		<Box flexDirection="column">
-			{fullscreenLines(lineCount, marker).map(line => (
+			{fullscreenLines(lineCount, marker).map((line) => (
 				<Text key={line}>{line}</Text>
 			))}
 		</Box>

@@ -584,7 +584,7 @@ const createFakeStdin = () => {
 };
 
 const getWrittenStrings = (write: ReturnType<typeof spy>): string[] =>
-	(write.args as string[][]).map(args => args[0]!);
+	(write.args as string[][]).map((args) => args[0]!);
 
 test('kitty protocol - writes enable sequence on init when mode is enabled', (t: TestContext) => {
 	const {stdout, write} = createFakeStdout();
@@ -672,7 +672,7 @@ const createDetectionApp = (onQuery?: (stdin: Readable) => void) => {
 	};
 
 	function Example() {
-		useInput(input => {
+		useInput((input) => {
 			inputs.push(input);
 		});
 		return <Text>Hello</Text>;
@@ -701,7 +701,7 @@ test('kitty protocol - auto detection does not enable protocol after unmount', a
 
 test('kitty protocol - auto detection handles synchronous query response', async (t: TestContext) => {
 	// Respond synchronously to stdout.write, before App has attached its reader.
-	const app = createDetectionApp(stdin => {
+	const app = createDetectionApp((stdin) => {
 		stdin.push('\u{1B}[?1u');
 	});
 	t.after(() => {

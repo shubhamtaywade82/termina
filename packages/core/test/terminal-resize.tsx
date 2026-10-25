@@ -13,7 +13,7 @@ const getWriteContents = (stdout: FakeStdout): string[] =>
 	stdout
 		.getWrites()
 		.filter(
-			w =>
+			(w) =>
 				w.length > 0 &&
 				!w.startsWith('\u{1B}[?25') &&
 				!w.startsWith('\u{1B}[?2026'),
@@ -322,7 +322,7 @@ const screenAfterShrink = (
 ): string[] => {
 	const writes = stdout
 		.getWrites()
-		.map(write => write.replaceAll('\n', '\r\n'));
+		.map((write) => write.replaceAll('\n', '\r\n'));
 	const lines = reconstructTerminalLines(
 		[
 			'shell 0\r\nshell 1\r\nshell 2\r\n',
@@ -355,7 +355,7 @@ function Frame({
 
 	return (
 		<Box flexDirection="column">
-			{letters.map(letter => (
+			{letters.map((letter) => (
 				<Text key={letter}>{letter + suffix}</Text>
 			))}
 		</Box>
@@ -368,7 +368,7 @@ const frame = lines.join('\n');
 function SixLines() {
 	return (
 		<Box flexDirection="column">
-			{lines.map(line => (
+			{lines.map((line) => (
 				<Text key={line}>{line}</Text>
 			))}
 		</Box>
@@ -413,7 +413,7 @@ for (const isIncrementalRendering of [false, true]) {
 
 			t.assert.deepStrictEqual(
 				screenAfterShrink(stdout, writesBeforeResize, rows),
-				[...shell, ...letters.map(letter => letter + '!')],
+				[...shell, ...letters.map((letter) => letter + '!')],
 			);
 		});
 	}
@@ -540,7 +540,7 @@ for (const isIncrementalRendering of [false, true]) {
 			// The byte stream alone cannot show what a shrink erases, so replay it on a modelled terminal with shell output above the frame.
 			const writes = stdout
 				.getWrites()
-				.map(write => write.replaceAll('\n', '\r\n'));
+				.map((write) => write.replaceAll('\n', '\r\n'));
 			const visibleLines = reconstructTerminalLines(
 				[
 					'shell 0\r\nshell 1\r\nshell 2\r\n',

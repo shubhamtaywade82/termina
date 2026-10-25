@@ -8,5 +8,5 @@ const {runIssue450RerenderFixture} =
 	await import('./issue-450-fixture-helpers.js');
 
 runIssue450RerenderFixture({
-	heightForFrame: rows => rows,
+	heightForFrame: (rows) => rows,
 });

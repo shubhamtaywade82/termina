@@ -1,3 +1,4 @@
+/* eslint-disable no-bitwise -- SGR mouse codes are bit fields: button, modifiers, motion and wheel. */
 // SGR (DECSET 1006) mouse protocol. 1000 reports presses and releases, 1002 adds drags, and 1006 encodes each report as decimal parameters, so windows wider than 223 columns do not overflow the legacy single-byte coordinates.
 export const mouseTrackingEnable = '\u{1B}[?1000h\u{1B}[?1002h\u{1B}[?1006h';
 export const mouseTrackingDisable = '\u{1B}[?1006l\u{1B}[?1002l\u{1B}[?1000l';
@@ -26,7 +27,9 @@ export type MouseEvent = {
 };
 
 // `ESC [ < Cb ; Cx ; Cy (M|m)`. Cb packs the button in bits 0-1, shift (4), meta (8), ctrl (16), motion (32) and wheel (64).
-const sgrMousePattern = /^\u{1B}\[<(\d+);(\d+);(\d+)([Mm])$/u;
+const sgrMousePattern =
+	// eslint-disable-next-line no-control-regex, regexp/no-control-character -- ESC opens every SGR mouse report.
+	/^\u{1B}\[<(?<code>\d+);(?<x>\d+);(?<y>\d+)(?<kind>m)$/iu;
 const buttons = ['left', 'middle', 'right'] as const;
 const wheelButtons = [
 	'wheelUp',
@@ -44,9 +47,9 @@ export const parseMouseEvent = (sequence: string): MouseEvent | undefined => {
 		return undefined;
 	}
 
-	const code = Number(match[1]);
-	const x = Number(match[2]);
-	const y = Number(match[3]);
+	const code = Number(match.groups?.['code']);
+	const x = Number(match.groups?.['x']);
+	const y = Number(match.groups?.['y']);
 	if (x < 1 || y < 1) {
 		return undefined;
 	}
@@ -84,7 +87,7 @@ export const parseMouseEvent = (sequence: string): MouseEvent | undefined => {
 	}
 
 	return {
-		action: match[4] === 'm' ? 'release' : 'press',
+		action: match.groups?.['kind'] === 'm' ? 'release' : 'press',
 		button,
 		x,
 		y,

@@ -33,9 +33,9 @@ import {
 } from '../src/index.js';
 import {type RenderMetrics, homeAndEraseDown} from '../src/ink.js';
 import {bsu, esu} from '../src/write-synchronized.js';
-import {createXtermTerminal} from './helpers/xterm-terminal.js';
 import instances from '../src/instances.js';
 import {type DOMElement} from '../src/dom.js';
+import {createXtermTerminal} from './helpers/xterm-terminal.js';
 import {createStdin, emitReadable} from './helpers/create-stdin.js';
 import createStdout from './helpers/create-stdout.js';
 import {reconstructTerminalLines} from './helpers/reconstruct-terminal.js';
@@ -142,7 +142,7 @@ test('handles input without requiring process ref methods', async (t: TestContex
 	});
 
 	function Test() {
-		useInput(input => {
+		useInput((input) => {
 			receivedInput = input;
 		});
 
@@ -164,7 +164,7 @@ test('handles input without requiring process ref methods', async (t: TestContex
 	t.assert.strictEqual(receivedInput, 'a');
 
 	unmount();
-	await new Promise(resolve => {
+	await new Promise((resolve) => {
 		queueMicrotask(resolve);
 	});
 	await waitUntilExit();
@@ -224,7 +224,7 @@ const term = (
 		},
 	};
 
-	ps.onData(data => {
+	ps.onData((data) => {
 		// Strip Synchronized Update Mode sequences (bsu/esu) so tests
 		// only see the actual content, not the transport wrapper.
 		result.output += data
@@ -362,7 +362,7 @@ test('subprocess example retains recent lines across chunks', async (t: TestCont
 	t.assert.deepStrictEqual(
 		stripAnsi(ps.output)
 			.split(/\r?\n/)
-			.map(line => line.trim())
+			.map((line) => line.trim())
 			.filter(Boolean),
 		['Command output:', 'two', 'three', 'four', 'five', 'six'],
 	);
@@ -489,7 +489,7 @@ test('subprocess example strips ANSI sequences across chunks', async (t: TestCon
 	t.assert.deepStrictEqual(
 		stripAnsi(ps.output)
 			.split(/\r?\n/)
-			.map(line => line.trim())
+			.map((line) => line.trim())
 			.filter(Boolean),
 		['Command output:', 'Red text'],
 	);
@@ -515,7 +515,7 @@ test('subprocess example displays command launch errors', async (t: TestContext)
 	t.assert.deepStrictEqual(
 		stripAnsi(ps.output)
 			.split(/\r?\n/)
-			.map(line => line.trim())
+			.map((line) => line.trim())
 			.filter(Boolean),
 		['Command output:', 'spawn npm ENOENT'],
 	);
@@ -530,7 +530,7 @@ test('subprocess example decodes UTF-8 across chunks', async (t: TestContext) =>
 	t.assert.deepStrictEqual(
 		stripAnsi(ps.output)
 			.split(/\r?\n/)
-			.map(line => line.trim())
+			.map((line) => line.trim())
 			.filter(Boolean),
 		['Command output:', '한🙂'],
 	);
@@ -654,7 +654,7 @@ test('input example handles consecutive movement keys', async (t: TestContext) =
 	t.assert.strictEqual(
 		stripAnsi(ps.output)
 			.split('\n')
-			.findIndex(line => line.includes('^_^')),
+			.findIndex((line) => line.includes('^_^')),
 		4,
 	);
 
@@ -665,7 +665,7 @@ test('input example handles consecutive movement keys', async (t: TestContext) =
 	t.assert.strictEqual(
 		stripAnsi(ps.output)
 			.split('\n')
-			.findIndex(line => line.includes('^_^')),
+			.findIndex((line) => line.includes('^_^')),
 		2,
 	);
 });
@@ -865,7 +865,7 @@ const runNonTtyFixture = async (
 
 	const exitCode = await new Promise<number>((resolve, reject) => {
 		fixtureProcess.on('error', reject);
-		fixtureProcess.on('close', code => {
+		fixtureProcess.on('close', (code) => {
 			resolve(code ?? 0);
 		});
 	});
@@ -1007,7 +1007,7 @@ test('last line of <Static> survives a full-clear accounting frame (related to #
 	// so reconstruct the visible buffer (scrollback + viewport) and assert the
 	// last committed <Static> line is actually still there.
 	const visibleLines = reconstructTerminalLines(ps.output, rows).filter(
-		line => line.length > 0,
+		(line) => line.length > 0,
 	);
 
 	// Positive control: "LIVE-0" only renders on the final live-region update —
@@ -1282,9 +1282,9 @@ test('#935: overflowing rerenders must not erase terminal scrollback', async (t:
 	// anywhere the user can see: frame 7's label is longer than every other
 	// frame's, so a missing or partial clear leaves `STALE-ROW` behind.
 	const viewport = visibleLines.slice(-rows);
-	t.assert.ok(viewport.some(line => line.includes('frame 8')));
+	t.assert.ok(viewport.some((line) => line.includes('frame 8')));
 	t.assert.strictEqual(
-		visibleLines.some(line => line.includes('STALE-ROW')),
+		visibleLines.some((line) => line.includes('STALE-ROW')),
 		false,
 	);
 });
@@ -1554,7 +1554,7 @@ function StaticHistoryApp({
 
 	return (
 		<>
-			<Static items={items}>{item => <Text key={item}>{item}</Text>}</Static>
+			<Static items={items}>{(item) => <Text key={item}>{item}</Text>}</Static>
 			<Box flexDirection="column">{lines}</Box>
 		</>
 	);
@@ -1612,7 +1612,7 @@ for (const mode of ['standard', 'incremental']) {
 		]);
 		for (const item of ['S1', 'S2', 'S3']) {
 			t.assert.strictEqual(
-				terminalLines.filter(line => line === item).length,
+				terminalLines.filter((line) => line === item).length,
 				1,
 				`Expected static item ${item} to be written once`,
 			);
@@ -1713,7 +1713,7 @@ for (const mode of ['standard', 'incremental']) {
 		).filter(Boolean);
 
 		t.assert.deepStrictEqual(
-			terminalLines.filter(line => line.startsWith('S')),
+			terminalLines.filter((line) => line.startsWith('S')),
 			['S1', 'S2', 'S3'],
 			'Expected every static item to be written exactly once, in order',
 		);
@@ -1807,7 +1807,7 @@ for (const mode of ['standard', 'incremental']) {
 		for (const frame of frames) {
 			const staticLines = frame
 				.split('\n')
-				.filter(line => line.startsWith('S'));
+				.filter((line) => line.startsWith('S'));
 			t.assert.deepStrictEqual(
 				staticLines,
 				['S1', 'S2', 'S3'].slice(0, staticLines.length),
@@ -1945,7 +1945,7 @@ test('preserve static history when screen-reader output resizes', async (t: Test
 	const instance = render(
 		<>
 			<Static items={['History']}>
-				{item => <Text key={item}>{item}</Text>}
+				{(item) => <Text key={item}>{item}</Text>}
 			</Static>
 			<Text>{'First line\nSecond line'}</Text>
 		</>,
@@ -2004,7 +2004,7 @@ for (const patchConsoleOption of ['omitted', 'undefined']) {
 
 		const frames = ps.output
 			.split(ansiEscapes.eraseLines(2))
-			.map(line => stripAnsi(line));
+			.map((line) => stripAnsi(line));
 
 		t.assert.deepStrictEqual(frames, [
 			'Hello World\r\n',
@@ -2138,7 +2138,7 @@ test('outputs renderTime when onRender is passed', async (t: TestContext) => {
 	function Test({children}: {readonly children?: ReactNode}) {
 		const [text, setText] = useState('Test');
 
-		useInput(input => {
+		useInput((input) => {
 			setText(input);
 		});
 
@@ -2336,7 +2336,7 @@ test('createDelayedWriteCallbackStdout delays only the first matching chunk', as
 	});
 
 	const writeChunk = async (chunk: string | Uint8Array): Promise<void> =>
-		new Promise<void>(resolve => {
+		new Promise<void>((resolve) => {
 			stdout.write(chunk, () => {
 				resolve();
 			});
@@ -3063,7 +3063,7 @@ test('unmount does not write to ended stdout stream', async (t: TestContext) => 
 	stdout.columns = 100;
 
 	const writeErrors: Error[] = [];
-	stdout.on('error', error => {
+	stdout.on('error', (error) => {
 		writeErrors.push(error);
 	});
 
@@ -3077,7 +3077,7 @@ test('unmount does not write to ended stdout stream', async (t: TestContext) => 
 
 	t.assert.strictEqual(
 		writeErrors.some(
-			error =>
+			(error) =>
 				(error as NodeJS.ErrnoException).code === 'ERR_STREAM_WRITE_AFTER_END',
 		),
 		false,
@@ -3091,7 +3091,7 @@ test('unmount cancels pending throttled log writes when stdout is ended', (t: Te
 		stdout.columns = 100;
 
 		const writeErrors: Error[] = [];
-		stdout.on('error', error => {
+		stdout.on('error', (error) => {
 			writeErrors.push(error);
 		});
 
@@ -3107,7 +3107,7 @@ test('unmount cancels pending throttled log writes when stdout is ended', (t: Te
 
 		t.assert.strictEqual(
 			writeErrors.some(
-				error =>
+				(error) =>
 					(error as NodeJS.ErrnoException).code ===
 					'ERR_STREAM_WRITE_AFTER_END',
 			),
@@ -3183,7 +3183,7 @@ const assertNoBsuEsuForUnchangedTrailingRerender = (
 	t: TestContext,
 	element: React.ReactElement,
 ) => {
-	withFakeClock(clock => {
+	withFakeClock((clock) => {
 		const stdout = createTtyStdout();
 		const writes = captureWrites(stdout);
 		const {unmount, rerender} = render(element, {stdout, maxFps: 1});
@@ -3227,7 +3227,7 @@ test('no bsu/esu when output and cursor are unchanged', (t: TestContext) => {
 });
 
 test('bsu/esu wraps throttledLog trailing call', (t: TestContext) => {
-	withFakeClock(clock => {
+	withFakeClock((clock) => {
 		const stdout = createTtyStdout();
 		const writes = captureWrites(stdout);
 		const {unmount, rerender} = render(<ThrottleTestComponent text="Hello" />, {
@@ -3247,7 +3247,7 @@ test('bsu/esu wraps throttledLog trailing call', (t: TestContext) => {
 			// No immediate write yet (throttled)
 			const midWrites = [...writes];
 			t.assert.strictEqual(
-				midWrites.some(w => w.includes('World')),
+				midWrites.some((w) => w.includes('World')),
 				false,
 				'trailing call should not write immediately',
 			);

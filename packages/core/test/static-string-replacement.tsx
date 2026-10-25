@@ -17,7 +17,7 @@ for (const shouldReplace of [false, true]) {
 							key={updated ? 'new' : 'old'}
 							items={[updated ? 'New' : 'Old']}
 						>
-							{item => <Text key={item}>{item}</Text>}
+							{(item) => <Text key={item}>{item}</Text>}
 						</Static>
 					) : null}
 					<Text>Live</Text>
@@ -40,7 +40,7 @@ test('layout-effect appends to the same Static retain earlier items', (t: TestCo
 		}, []);
 
 		return (
-			<Static items={items}>{item => <Text key={item}>{item}</Text>}</Static>
+			<Static items={items}>{(item) => <Text key={item}>{item}</Text>}</Static>
 		);
 	}
 
@@ -60,7 +60,7 @@ test('replacement Static survives cleanup in static-only output', (t: TestContex
 
 		return (
 			<Static key={String(updated)} items={[updated ? 'New' : 'Old']}>
-				{item => <Text key={item}>{item}</Text>}
+				{(item) => <Text key={item}>{item}</Text>}
 			</Static>
 		);
 	}

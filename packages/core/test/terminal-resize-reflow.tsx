@@ -1,5 +1,5 @@
-import React from 'react';
 import test, {type TestContext} from 'node:test';
+import React from 'react';
 import {Box, Static, Text, render} from '../src/index.js';
 import {createXtermTerminal} from './helpers/xterm-terminal.js';
 
@@ -16,7 +16,7 @@ const Frame = () => (
 );
 
 const countMark = (lines: string[], mark: string): number =>
-	lines.filter(line => line.includes(mark)).length;
+	lines.filter((line) => line.includes(mark)).length;
 
 const countWord = (lines: string[], word: string): number =>
 	lines.join(' ').split(word).length - 1;
@@ -35,14 +35,14 @@ const assertSingleFrame = (
 const renderOn = (
 	terminal: ReturnType<typeof createXtermTerminal>,
 	element: React.ReactNode,
-	alternateScreen = false,
+	isAlternateScreen = false,
 ) =>
 	render(element, {
 		stdout: terminal.stdout,
 		stdin: terminal.stdin,
 		stderr: terminal.stdout,
 		interactive: true,
-		alternateScreen,
+		alternateScreen: isAlternateScreen,
 		exitOnCtrlC: false,
 		patchConsole: false,
 	});
@@ -56,10 +56,15 @@ test('a width change erases the wrapped frame it reflowed, leaving one copy at e
 		assertSingleFrame(t, terminal.screen(), 80);
 
 		for (const columns of widths) {
+			// eslint-disable-next-line no-await-in-loop -- Each resize must settle before the next one starts.
 			await terminal.resize(columns);
 			const lines = terminal.screen();
 			assertSingleFrame(t, lines, columns);
-			t.assert.strictEqual(lines[0], 'HEADER-MARK', `nothing above frame at ${columns}`);
+			t.assert.strictEqual(
+				lines[0],
+				'HEADER-MARK',
+				`nothing above frame at ${columns}`,
+			);
 		}
 	} finally {
 		instance.unmount();
@@ -67,6 +72,7 @@ test('a width change erases the wrapped frame it reflowed, leaving one copy at e
 	}
 });
 
+// eslint-disable-next-line node-test/require-assertion -- The assertions run inside assertSingleFrame, which receives the test context.
 test('alternate screen frames survive width changes without ghost copies', async (t: TestContext) => {
 	const terminal = createXtermTerminal(80, 24);
 	const instance = renderOn(terminal, <Frame />, true);
@@ -75,6 +81,7 @@ test('alternate screen frames survive width changes without ghost copies', async
 		await terminal.settle();
 
 		for (const columns of widths) {
+			// eslint-disable-next-line no-await-in-loop -- Each resize must settle before the next one starts.
 			await terminal.resize(columns);
 			assertSingleFrame(t, terminal.screen(), columns);
 		}
@@ -90,7 +97,7 @@ test('<Static> output stays in scrollback once and is not replayed by a width ch
 		terminal,
 		<Box flexDirection="column">
 			<Static items={['STATIC-MARK']}>
-				{item => <Text key={item}>{item}</Text>}
+				{(item) => <Text key={item}>{item}</Text>}
 			</Static>
 			<Frame />
 		</Box>,
@@ -100,6 +107,7 @@ test('<Static> output stays in scrollback once and is not replayed by a width ch
 		await terminal.settle();
 
 		for (const columns of widths) {
+			// eslint-disable-next-line no-await-in-loop -- Each resize must settle before the next one starts.
 			await terminal.resize(columns);
 			const lines = terminal.screen();
 			assertSingleFrame(t, lines, columns);

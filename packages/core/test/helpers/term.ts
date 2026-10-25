@@ -56,7 +56,7 @@ const term = (fixture: string, args: string[] = []) => {
 		waitForExit: async () => exitPromise,
 	};
 
-	ps.onData(data => {
+	ps.onData((data) => {
 		result.output += data;
 
 		if (result.output.includes('__READY__')) {

@@ -13,7 +13,7 @@ function ChatApp() {
 	}>({input: '', messages: []});
 
 	useInput((character, key) => {
-		setChat(previousChat => {
+		setChat((previousChat) => {
 			if (key.return) {
 				if (previousChat.input !== '') {
 					return {
@@ -46,7 +46,7 @@ function ChatApp() {
 	return (
 		<Box flexDirection="column" padding={1}>
 			<Box flexDirection="column">
-				{chat.messages.map(message => (
+				{chat.messages.map((message) => (
 					<Text key={message.id}>{message.text}</Text>
 				))}
 			</Box>

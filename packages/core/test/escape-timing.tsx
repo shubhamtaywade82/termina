@@ -58,7 +58,11 @@ test('a lone ESC is held for the flush window, then delivered once as the Escape
 
 	stdin.push(esc);
 	await delay(5);
-	t.assert.strictEqual(keys.length, 0, 'ESC must not be delivered before the window closes');
+	t.assert.strictEqual(
+		keys.length,
+		0,
+		'ESC must not be delivered before the window closes',
+	);
 
 	await delay(escapeFlushDelayMilliseconds + 150);
 	t.assert.strictEqual(keys.length, 1);
@@ -88,7 +92,10 @@ test('an ESC whose tail arrives after the window is delivered as Escape and then
 	await delay(150);
 
 	t.assert.strictEqual(keys[0]?.key.escape, true);
-	t.assert.strictEqual(keys.some(({key}) => key.upArrow), false);
+	t.assert.strictEqual(
+		keys.some(({key}) => key.upArrow),
+		false,
+	);
 	// Printable text is one chunk, so the late tail stays literal as a single event.
 	t.assert.deepStrictEqual(
 		keys.slice(1).map(({input}) => input),
@@ -104,7 +111,11 @@ test('a second ESC inside the window restarts the window instead of letting the 
 	stdin.push(esc);
 	// The first timer's deadline is `escapeFlushDelayMilliseconds` after the first push, which is 5 ms before this check. Nothing may be delivered yet.
 	await delay(Math.floor(escapeFlushDelayMilliseconds / 2) + 5);
-	t.assert.strictEqual(keys.length, 0, 'the first timer must be cancelled by the second ESC');
+	t.assert.strictEqual(
+		keys.length,
+		0,
+		'the first timer must be cancelled by the second ESC',
+	);
 
 	await delay(escapeFlushDelayMilliseconds + 150);
 	// Two ESC bytes with nothing after them are one pending unit, so they are delivered once.

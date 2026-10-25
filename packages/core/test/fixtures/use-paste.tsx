@@ -5,7 +5,7 @@ import {render, useApp, useInput, usePaste} from '../../src/index.js';
 function PasteDemo({test}: {readonly test: string | undefined}) {
 	const {exit} = useApp();
 
-	usePaste(text => {
+	usePaste((text) => {
 		if (test === 'basic' && text === 'hello world') {
 			exit();
 			return;
@@ -22,7 +22,7 @@ function PasteDemo({test}: {readonly test: string | undefined}) {
 	});
 
 	useInput(
-		input => {
+		(input) => {
 			throw new Error(
 				`useInput received input during paste: ${JSON.stringify(input)}`,
 			);

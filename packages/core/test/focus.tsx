@@ -755,7 +755,7 @@ test('activeId from useFocusManager reflects currently focused component', async
 	render(
 		<Box flexDirection="column">
 			<ActiveIdReader
-				onActiveId={id => {
+				onActiveId={(id) => {
 					capturedActiveId = id;
 				}}
 			/>
@@ -785,7 +785,7 @@ test('activeId resets to undefined on Esc', async (t: TestContext) => {
 	render(
 		<Box flexDirection="column">
 			<ActiveIdReader
-				onActiveId={id => {
+				onActiveId={(id) => {
 					capturedActiveId = id;
 				}}
 			/>
@@ -812,7 +812,7 @@ test('activeId is set immediately when component uses autoFocus', async (t: Test
 	render(
 		<Box flexDirection="column">
 			<ActiveIdReader
-				onActiveId={id => {
+				onActiveId={(id) => {
 					capturedActiveId = id;
 				}}
 			/>
@@ -841,7 +841,7 @@ test('activeId updates when focus is changed programmatically', async (t: TestCo
 	render(
 		<Box flexDirection="column">
 			<ActiveIdReader
-				onActiveId={id => {
+				onActiveId={(id) => {
 					capturedActiveId = id;
 				}}
 			/>
@@ -907,7 +907,7 @@ test('activeId resets to undefined when focused component unmounts', async (t: T
 	const {rerender} = render(
 		<Box flexDirection="column">
 			<ActiveIdReader
-				onActiveId={id => {
+				onActiveId={(id) => {
 					capturedActiveId = id;
 				}}
 			/>
@@ -923,7 +923,7 @@ test('activeId resets to undefined when focused component unmounts', async (t: T
 	rerender(
 		<Box flexDirection="column">
 			<ActiveIdReader
-				onActiveId={id => {
+				onActiveId={(id) => {
 					capturedActiveId = id;
 				}}
 			/>

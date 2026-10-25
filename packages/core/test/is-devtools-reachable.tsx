@@ -26,7 +26,7 @@ test('resolves true when a WebSocket server accepts the connection', async (t: T
 });
 
 test('resolves false when the connection is refused', async (t: TestContext) => {
-	const server = createServer(socket => {
+	const server = createServer((socket) => {
 		socket.destroy();
 	});
 	const port = await listen(server);
@@ -40,7 +40,7 @@ test('resolves false when the connection is refused', async (t: TestContext) => 
 });
 
 test('resolves false when the server never completes the handshake', async (t: TestContext) => {
-	const server = createServer(socket => {
+	const server = createServer((socket) => {
 		socket.on('error', () => {});
 	});
 	const port = await listen(server);

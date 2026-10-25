@@ -3,7 +3,7 @@ import React, {useEffect, useState} from 'react';
 import {Static, Box, Text, render, useApp} from '../../src/index.js';
 
 const nextMacrotask = async () =>
-	new Promise<void>(resolve => {
+	new Promise<void>((resolve) => {
 		setTimeout(resolve, 0);
 	});
 
@@ -49,7 +49,7 @@ function StaticCommit() {
 	return (
 		<>
 			<Static items={staticItem}>
-				{item => <Text key={item}>{item}</Text>}
+				{(item) => <Text key={item}>{item}</Text>}
 			</Static>
 
 			<Box flexDirection="column">

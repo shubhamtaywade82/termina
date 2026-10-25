@@ -83,8 +83,8 @@ const sanitizeAnsi = (text: string): string => {
 
 		const parameters = token.parameterString
 			.split(';')
-			.map(parameter => normalizeParameter(parameter))
-			.filter(parameter => parameter !== undefined);
+			.map((parameter) => normalizeParameter(parameter))
+			.filter((parameter) => parameter !== undefined);
 
 		if (parameters.length > 0) {
 			pendingStyles += `\u{1B}[${parameters.join(';')}m`;

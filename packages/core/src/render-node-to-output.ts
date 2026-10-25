@@ -66,7 +66,7 @@ export const renderNodeToScreenReaderOutput = (
 				: [...node.childNodes];
 
 		output = childNodes
-			.map(childNode => {
+			.map((childNode) => {
 				const screenReaderOutput = renderNodeToScreenReaderOutput(
 					childNode as DOMElement,
 					{
@@ -85,7 +85,7 @@ export const renderNodeToScreenReaderOutput = (
 
 		if (state) {
 			const stateKeys = Object.keys(state) as Array<keyof typeof state>;
-			const stateDescription = stateKeys.filter(key => state[key]).join(', ');
+			const stateDescription = stateKeys.filter((key) => state[key]).join(', ');
 
 			if (stateDescription !== '') {
 				output = `(${stateDescription}) ${output}`;

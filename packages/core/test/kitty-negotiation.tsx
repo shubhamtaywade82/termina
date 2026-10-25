@@ -26,7 +26,7 @@ test('auto detection consumes responses without duplicating input', async (t: Te
 	const stdout = createStdout();
 	const inputs: string[] = [];
 	function Example() {
-		useInput(input => {
+		useInput((input) => {
 			inputs.push(input);
 		});
 		return null;
@@ -100,11 +100,11 @@ test('unmount while suspended does not pop the primary keyboard stack', async (t
 	app.unmount();
 	await suspension.resume();
 	t.assert.strictEqual(
-		stdout.getWrites().filter(value => value === '\u{1B}[>1u').length,
+		stdout.getWrites().filter((value) => value === '\u{1B}[>1u').length,
 		1,
 	);
 	t.assert.strictEqual(
-		stdout.getWrites().filter(value => value === '\u{1B}[<u').length,
+		stdout.getWrites().filter((value) => value === '\u{1B}[<u').length,
 		1,
 	);
 });
@@ -114,7 +114,7 @@ test('pasted query responses remain input and do not enable the protocol', async
 	const stdout = createStdout();
 	const inputs: string[] = [];
 	function Example() {
-		useInput(input => {
+		useInput((input) => {
 			inputs.push(input);
 		});
 		return null;

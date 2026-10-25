@@ -35,12 +35,12 @@ for (const [name, sequence] of [
 		});
 
 		t.assert.deepStrictEqual(
-			events.map(event => event.isReturn),
+			events.map((event) => event.isReturn),
 			[true],
 		);
 		// Both keys deliver a carriage return as the input value.
 		t.assert.deepStrictEqual(
-			events.map(event => event.input),
+			events.map((event) => event.input),
 			['\r'],
 		);
 	});

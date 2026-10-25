@@ -559,7 +559,7 @@ test('content size updates when content grows', async (t: TestContext) => {
 		const content = useBoxMetrics(contentRef);
 
 		addItem = () => {
-			setItems(previousItems => [
+			setItems((previousItems) => [
 				...previousItems,
 				`item ${previousItems.length}`,
 			]);
@@ -569,7 +569,7 @@ test('content size updates when content grows', async (t: TestContext) => {
 			<Box flexDirection="column">
 				<Box height={2} overflowY="hidden" flexDirection="column">
 					<Box ref={contentRef} flexDirection="column" flexShrink={0}>
-						{items.map(item => (
+						{items.map((item) => (
 							<Text key={item}>{item}</Text>
 						))}
 					</Box>

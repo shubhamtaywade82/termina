@@ -99,7 +99,7 @@ test('don’t exit while raw mode is active', async (t: TestContext) => {
 
 		let output = '';
 
-		term.onData(data => {
+		term.onData((data) => {
 			if (data === 's') {
 				setTimeout(() => {
 					isExitedBeforeQuit = isExited;

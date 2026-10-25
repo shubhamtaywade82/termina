@@ -74,10 +74,10 @@ test('does not emit unhandledRejection when render exits with an error and waitU
 
 		render(<Test />, {stdout});
 
-		await new Promise<void>(resolve => {
+		await new Promise<void>((resolve) => {
 			setImmediate(resolve);
 		});
-		await new Promise<void>(resolve => {
+		await new Promise<void>((resolve) => {
 			setImmediate(resolve);
 		});
 
@@ -231,7 +231,7 @@ test('waitUntilExit preserves the original component error', async (t: TestConte
 	});
 	await t.assert.rejects(
 		app.waitUntilExit(),
-		caughtError => caughtError === error,
+		(caughtError) => caughtError === error,
 	);
 });
 
@@ -252,6 +252,6 @@ test('waitUntilExit preserves a component error from another realm', async (t: T
 	});
 	await t.assert.rejects(
 		app.waitUntilExit(),
-		caughtError => caughtError === error,
+		(caughtError) => caughtError === error,
 	);
 });

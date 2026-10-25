@@ -3,7 +3,7 @@ import React, {useEffect} from 'react';
 import {render, useInput, useApp, Text} from '../../src/index.js';
 
 // Detect MaxListenersExceededWarning
-process.on('warning', warning => {
+process.on('warning', (warning) => {
 	if (warning.name === 'MaxListenersExceededWarning') {
 		console.log('MaxListenersExceededWarning');
 	}

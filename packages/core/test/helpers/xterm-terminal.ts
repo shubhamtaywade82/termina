@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/naming-convention -- The key names mirror the names xterm.js and terminals use. */
 import EventEmitter from 'node:events';
 import {PassThrough} from 'node:stream';
 import headless from '@xterm/headless';
@@ -71,7 +72,7 @@ export type XtermTerminal = {
 	dispose: () => void;
 };
 
-const {Terminal} = headless;
+type HeadlessTerminal = InstanceType<typeof headless.Terminal>;
 
 // Only reached when `cells()` asks past the grid, which the loop bounds rule out. It keeps the matrix rectangular without a non-null assertion.
 const emptyCell: TerminalCell = {
@@ -82,8 +83,8 @@ const emptyCell: TerminalCell = {
 	inverse: false,
 };
 
-const flush = async (term: Terminal): Promise<void> =>
-	new Promise<void>(resolve => {
+const flush = async (term: HeadlessTerminal): Promise<void> =>
+	new Promise<void>((resolve) => {
 		term.write('', resolve);
 	});
 
@@ -91,7 +92,7 @@ export const createXtermTerminal = (
 	columns: number,
 	rows: number,
 ): XtermTerminal => {
-	const term = new Terminal({
+	const term = new headless.Terminal({
 		cols: columns,
 		rows,
 		allowProposedApi: true,
@@ -116,19 +117,20 @@ export const createXtermTerminal = (
 
 	const stdin = new PassThrough() as PassThrough & {
 		isTTY: boolean;
-		setRawMode: (mode: boolean) => void;
+		setRawMode: (isRaw: boolean) => void;
 	};
 	stdin.isTTY = true;
 	stdin.setRawMode = () => {};
 
 	const settle = async () => {
-		await new Promise(resolve => {
+		await new Promise((resolve) => {
 			setTimeout(resolve, 150);
 		});
 		await flush(term);
 	};
 
-	const viewportRow = (row: number): number => term.buffer.active.viewportY + row;
+	const viewportRow = (row: number): number =>
+		term.buffer.active.viewportY + row;
 
 	const cellAt = (row: number, column: number): TerminalCell | undefined => {
 		const cell = term.buffer.active.getLine(viewportRow(row))?.getCell(column);
@@ -148,7 +150,7 @@ export const createXtermTerminal = (
 	return {
 		stdout: stdout as unknown as NodeJS.WriteStream,
 		stdin: stdin as unknown as NodeJS.ReadStream,
-		resize: async (nextColumns, nextRows = rows) => {
+		async resize(nextColumns, nextRows = rows) {
 			term.resize(nextColumns, nextRows);
 			stdout.columns = nextColumns;
 			stdout.rows = nextRows;
@@ -156,7 +158,7 @@ export const createXtermTerminal = (
 			await settle();
 		},
 		settle,
-		screen: () => {
+		screen() {
 			const buffer = term.buffer.active;
 			const lines: string[] = [];
 			for (let index = 0; index < buffer.length; index++) {
@@ -169,12 +171,12 @@ export const createXtermTerminal = (
 
 			return lines;
 		},
-		getLine: (row: number) => {
+		getLine(row: number) {
 			const line = term.buffer.active.getLine(viewportRow(row));
 			return line?.translateToString(true) ?? '';
 		},
 		cellAt,
-		cells: () => {
+		cells() {
 			const matrix: TerminalCell[][] = [];
 			for (let row = 0; row < term.rows; row++) {
 				const cells: TerminalCell[] = [];
@@ -187,12 +189,12 @@ export const createXtermTerminal = (
 
 			return matrix;
 		},
-		emitKey: async (key: KeyName) => {
+		async emitKey(key: KeyName) {
 			stdin.write(keySequences[key]);
 			await delay(key === 'Escape' ? escapeFlushDelayMilliseconds + 30 : 30);
 			await settle();
 		},
-		dispose: () => {
+		dispose() {
 			term.dispose();
 		},
 	};

@@ -2,9 +2,9 @@ import React, {forwardRef, use, type PropsWithChildren} from 'react';
 import {type Except} from 'type-fest';
 import {type Styles} from '../styles.js';
 import {type DOMElement} from '../dom.js';
+import {type MouseEvent} from '../mouse.js';
 import {AccessibilityContext} from './AccessibilityContext.js';
 import {BackgroundContext} from './BackgroundContext.js';
-import {type MouseEvent} from '../mouse.js';
 
 export type Props = Except<Styles, 'textWrap'> & {
 	/**
@@ -110,7 +110,10 @@ const Box = forwardRef<DOMElement, PropsWithChildren<Props>>(
 			backgroundColor || inheritedBackgroundColor;
 
 		const mouseHandlers =
-			onClick || onMouseDown || onMouseUp || onWheel
+			onClick !== undefined ||
+			onMouseDown !== undefined ||
+			onMouseUp !== undefined ||
+			onWheel !== undefined
 				? {onClick, onMouseDown, onMouseUp, onWheel}
 				: undefined;
 

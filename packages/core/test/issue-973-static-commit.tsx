@@ -30,11 +30,11 @@ test('#973: static item taller than viewport keeps its last line', async (t: Tes
 	);
 
 	let output = '';
-	child.onData(data => {
+	child.onData((data) => {
 		output += data;
 	});
 
-	const exitCode = await new Promise<number>(resolve => {
+	const exitCode = await new Promise<number>((resolve) => {
 		child.onExit(({exitCode: code}) => {
 			resolve(code ?? 1);
 		});
@@ -43,7 +43,7 @@ test('#973: static item taller than viewport keeps its last line', async (t: Tes
 	t.assert.strictEqual(exitCode, 0);
 
 	const visibleLines = reconstructTerminalLines(output, rows).filter(
-		line => line.length > 0,
+		(line) => line.length > 0,
 	);
 
 	t.assert.ok(

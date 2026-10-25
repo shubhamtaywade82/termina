@@ -78,7 +78,7 @@ function randomPosition(exclude: Point[]): Point {
 		};
 
 		if (
-			exclude.every(segment => segment.x !== point.x || segment.y !== point.y)
+			exclude.every((segment) => segment.x !== point.x || segment.y !== point.y)
 		) {
 			return point;
 		}
@@ -124,7 +124,7 @@ export function gameReducer(state: GameState, action: Action): GameState {
 
 	if (
 		collisionSegments.some(
-			segment => segment.x === newHead.x && segment.y === newHead.y,
+			(segment) => segment.x === newHead.x && segment.y === newHead.y,
 		)
 	) {
 		return {...state, gameOver: true, won: false};
@@ -159,7 +159,7 @@ export function gameReducer(state: GameState, action: Action): GameState {
 
 function buildBoard(snake: Point[], food: Point): string {
 	const headKey = `${snake[0]!.x},${snake[0]!.y}`;
-	const snakeSet = new Set(snake.map(segment => `${segment.x},${segment.y}`));
+	const snakeSet = new Set(snake.map((segment) => `${segment.x},${segment.y}`));
 
 	const rows: string[] = [borderTop];
 	for (let y = 0; y < boardHeight; y++) {

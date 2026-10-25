@@ -120,10 +120,10 @@ const useBoxMetrics = (
 			};
 		}
 
-		setMetrics(previousMetrics => {
+		setMetrics((previousMetrics) => {
 			const hasChanged = (
 				Object.keys(nextMetrics) as Array<keyof BoxMetrics>
-			).some(key => previousMetrics[key] !== nextMetrics[key]);
+			).some((key) => previousMetrics[key] !== nextMetrics[key]);
 
 			return hasChanged ? nextMetrics : previousMetrics;
 		});

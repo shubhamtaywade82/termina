@@ -104,7 +104,7 @@ export default function ErrorOverview({error}: Props) {
 
 			{stack ? (
 				<Box marginTop={1} flexDirection="column">
-					{stack.map(line => {
+					{stack.map((line) => {
 						const parsedLine = stackUtils.parseLine(line);
 						const lineCount = stackLineCounts.get(line) ?? 0;
 						stackLineCounts.set(line, lineCount + 1);

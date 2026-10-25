@@ -29,14 +29,14 @@ function Example() {
 	const [counter, setCounter] = useState(0);
 	const [status, setStatus] = useState('ready');
 
-	useInput(input => {
+	useInput((input) => {
 		if (input === 'q') {
 			exit();
 			return;
 		}
 
 		if (input === '+') {
-			setCounter(value => value + 1);
+			setCounter((value) => value + 1);
 			return;
 		}
 

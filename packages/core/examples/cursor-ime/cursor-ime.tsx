@@ -19,7 +19,7 @@ function App() {
 
 	useInput((input, key) => {
 		if (key.backspace || key.delete) {
-			setText(previous => {
+			setText((previous) => {
 				const lastGrapheme = segmenter
 					.segment(previous)
 					.containing(previous.length - 1);
@@ -29,7 +29,7 @@ function App() {
 		}
 
 		if (input !== '' && !key.ctrl && !key.meta && !key.return) {
-			setText(previous => previous + input);
+			setText((previous) => previous + input);
 		}
 	});
 

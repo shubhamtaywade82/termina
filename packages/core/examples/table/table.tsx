@@ -25,7 +25,7 @@ function Table() {
 				</Box>
 			</Box>
 
-			{users.map(user => (
+			{users.map((user) => (
 				<Box key={user.id}>
 					<Box width="10%">
 						<Text>{user.id}</Text>

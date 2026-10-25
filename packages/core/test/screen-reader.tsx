@@ -21,7 +21,7 @@ test('omit Static content inside a hidden ancestor from screen-reader output', (
 			<Box display="none">
 				<Box>
 					<Static items={['Hidden']}>
-						{item => <Text key={item}>{item}</Text>}
+						{(item) => <Text key={item}>{item}</Text>}
 					</Static>
 				</Box>
 			</Box>
@@ -62,7 +62,7 @@ test('preserve nested Transform accessibility labels for screen readers', (t: Te
 			Status:{' '}
 			<Transform
 				accessibilityLabel="Ready"
-				transform={text => '*'.repeat(text.length)}
+				transform={(text) => '*'.repeat(text.length)}
 			>
 				<Text>ready</Text>
 			</Transform>
@@ -79,7 +79,7 @@ test('preserve nested Transform accessibility labels for screen readers', (t: Te
 test('honor empty Transform accessibility labels for screen readers', (t: TestContext) => {
 	const element = (
 		<Text>
-			<Transform accessibilityLabel="" transform={text => text.toUpperCase()}>
+			<Transform accessibilityLabel="" transform={(text) => text.toUpperCase()}>
 				<Text>decorative</Text>
 			</Transform>
 			Ready
@@ -185,7 +185,7 @@ test('render accessibilityLabel only Transform for screen readers', (t: TestCont
 	const element = (
 		<Transform
 			accessibilityLabel="Screen-reader only"
-			transform={text => text.toUpperCase()}
+			transform={(text) => text.toUpperCase()}
 		/>
 	);
 
@@ -484,7 +484,7 @@ test('render listbox with multiselectable options', (t: TestContext) => {
 });
 
 const contentWrites = (stdout: ReturnType<typeof createStdout>) =>
-	stdout.getWrites().filter(write => write.length > 0);
+	stdout.getWrites().filter((write) => write.length > 0);
 
 test('restore screen-reader output after stdout writes without touching the cursor', async (t: TestContext) => {
 	const stdout = createStdout(40, true);

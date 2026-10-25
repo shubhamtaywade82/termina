@@ -12,7 +12,7 @@ test('a line that exactly fills the width does not wrap', (t: TestContext) => {
 });
 
 test('SGR styling does not count toward the width', (t: TestContext) => {
-	const styled = `\u001B[31m${'x'.repeat(80)}\u001B[39m`;
+	const styled = `\u{1B}[31m${'x'.repeat(80)}\u{1B}[39m`;
 	t.assert.strictEqual(rowsForLine(styled, 80), 1);
 });
 
@@ -27,7 +27,7 @@ test('a wide character that does not fit at the end of a row wraps whole', (t: T
 
 test('an unknown width falls back to one row per line', (t: TestContext) => {
 	t.assert.strictEqual(rowsForLine('x'.repeat(200), 0), 1);
-	t.assert.strictEqual(rowsForLine('x'.repeat(200), Number.NaN), 1);
+	t.assert.strictEqual(rowsForLine('x'.repeat(200), NaN), 1);
 });
 
 test('an empty frame has nothing to erase', (t: TestContext) => {

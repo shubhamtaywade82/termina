@@ -25,7 +25,7 @@ test('skip Static content inside a hidden ancestor', (t: TestContext) => {
 		<>
 			<Box display="none">
 				<Static items={['Hidden']}>
-					{item => (
+					{(item) => (
 						<Box key={item} borderStyle="single">
 							<Text>{item}</Text>
 						</Box>
@@ -234,7 +234,7 @@ test('custom columns option', (t: TestContext) => {
 
 test('render Transform component', (t: TestContext) => {
 	const output = renderToString(
-		<Transform transform={output => output.toUpperCase()}>
+		<Transform transform={(output) => output.toUpperCase()}>
 			<Text>hello</Text>
 		</Transform>,
 	);
@@ -247,7 +247,7 @@ test('render Static component with items', (t: TestContext) => {
 
 	const output = renderToString(
 		<Box flexDirection="column">
-			<Static items={items}>{item => <Text key={item}>{item}</Text>}</Static>
+			<Static items={items}>{(item) => <Text key={item}>{item}</Text>}</Static>
 			<Text>Dynamic</Text>
 		</Box>,
 	);
@@ -261,7 +261,7 @@ test('Static preserves its margins and all items', (t: TestContext) => {
 			items={['A', 'B']}
 			style={{marginTop: 1, marginBottom: 1, marginLeft: 2}}
 		>
-			{item => <Text key={item}>{item}</Text>}
+			{(item) => <Text key={item}>{item}</Text>}
 		</Static>,
 	);
 
@@ -272,7 +272,7 @@ test('render static-only output has no trailing newline', (t: TestContext) => {
 	const items = ['A', 'B'];
 
 	const output = renderToString(
-		<Static items={items}>{item => <Text key={item}>{item}</Text>}</Static>,
+		<Static items={items}>{(item) => <Text key={item}>{item}</Text>}</Static>,
 	);
 
 	t.assert.strictEqual(output, 'A\nB');
@@ -283,7 +283,7 @@ test('render static + dynamic output has exactly one newline between parts', (t:
 
 	const output = renderToString(
 		<Box flexDirection="column">
-			<Static items={items}>{item => <Text key={item}>{item}</Text>}</Static>
+			<Static items={items}>{(item) => <Text key={item}>{item}</Text>}</Static>
 			<Text>Dynamic</Text>
 		</Box>,
 	);
@@ -369,7 +369,7 @@ test('runs effect cleanup when a transform throws', (t: TestContext) => {
 
 	t.assert.throws(
 		() => renderToString(<Test />),
-		caughtError => caughtError === error,
+		(caughtError) => caughtError === error,
 	);
 	t.assert.strictEqual(setupCount, 1);
 	t.assert.strictEqual(cleanupCount, 1);
@@ -397,7 +397,7 @@ test('preserves component errors from another realm', (t: TestContext) => {
 
 	t.assert.throws(
 		() => renderToString(<Broken />),
-		caughtError => caughtError === error,
+		(caughtError) => caughtError === error,
 	);
 	t.assert.strictEqual(renderToString(<Text>Still works</Text>), 'Still works');
 });

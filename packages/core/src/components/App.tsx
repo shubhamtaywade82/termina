@@ -25,6 +25,11 @@ import {
 } from '../input-parser.js';
 import parseKeypress from '../parse-keypress.js';
 import {getRawModeStream, type OutputStream} from '../stream.js';
+import {
+	mouseTrackingDisable,
+	mouseTrackingEnable,
+	parseMouseEvent,
+} from '../mouse.js';
 import AppContext, {type SuspendTerminal} from './AppContext.js';
 import StdinContext from './StdinContext.js';
 import StdoutContext from './StdoutContext.js';
@@ -34,11 +39,6 @@ import AnimationContext from './AnimationContext.js';
 import CursorContext from './CursorContext.js';
 import CursorShapeContext from './CursorShapeContext.js';
 import ErrorBoundary from './ErrorBoundary.js';
-import {
-	mouseTrackingDisable,
-	mouseTrackingEnable,
-	parseMouseEvent,
-} from '../mouse.js';
 
 type AnimationSubscriber = {
 	readonly callback: (currentTime: number) => void;
@@ -110,7 +110,7 @@ type KeyboardCaptureEntry = {
 const uniqueFocusables = (focusables: Focusable[]): Focusable[] => {
 	const seenIds = new Set<string>();
 
-	return focusables.filter(focusable => {
+	return focusables.filter((focusable) => {
 		if (seenIds.has(focusable.id)) {
 			return false;
 		}
@@ -190,7 +190,7 @@ function App({
 	const isInputPausedRef = useRef(false);
 	// Count how many components enabled bracketed paste mode
 	const bracketedPasteModeEnabledCountRef = useRef(0);
-		const mouseTrackingCountRef = useRef(0);
+	const mouseTrackingCountRef = useRef(0);
 	const eventEmitterRef = useRef(new EventEmitter());
 	// Each useInput hook adds a listener, so the count can legitimately exceed the default limit of 10.
 	eventEmitterRef.current.setMaxListeners(Infinity);
@@ -697,12 +697,12 @@ function App({
 				stdout.write('\u{1B}[?2004h');
 			} catch {}
 		}
+
 		if (mouseTrackingCountRef.current > 0 && stdout.isTTY) {
 			try {
 				stdout.write(mouseTrackingEnable);
 			} catch {}
 		}
-
 	}, [isRawModeSupported, rawModeStdin, stdout, attachReadableListener]);
 
 	// Register input pause/resume in an insertion effect: it runs before every
@@ -720,7 +720,7 @@ function App({
 			currentActiveFocusId: string | undefined,
 		): string | undefined => {
 			const activeIndex = currentFocusables.findIndex(
-				focusable => focusable.id === currentActiveFocusId,
+				(focusable) => focusable.id === currentActiveFocusId,
 			);
 
 			for (
@@ -746,7 +746,7 @@ function App({
 			currentActiveFocusId: string | undefined,
 		): string | undefined => {
 			const activeIndex = currentFocusables.findIndex(
-				focusable => focusable.id === currentActiveFocusId,
+				(focusable) => focusable.id === currentActiveFocusId,
 			);
 
 			for (let index = activeIndex - 1; index >= 0; index--) {
@@ -773,9 +773,9 @@ function App({
 			return;
 		}
 
-		setActiveFocusId(currentActiveFocusId => {
+		setActiveFocusId((currentActiveFocusId) => {
 			const firstFocusableId = currentFocusables.find(
-				focusable => focusable.isActive,
+				(focusable) => focusable.isActive,
 			)?.id;
 			const nextFocusableId = findNextFocusable(
 				currentFocusables,
@@ -797,9 +797,9 @@ function App({
 			return;
 		}
 
-		setActiveFocusId(currentActiveFocusId => {
+		setActiveFocusId((currentActiveFocusId) => {
 			const lastFocusableId = currentFocusables.findLast(
-				focusable => focusable.isActive,
+				(focusable) => focusable.isActive,
 			)?.id;
 			const previousFocusableId = findPreviousFocusable(
 				currentFocusables,
@@ -906,7 +906,7 @@ function App({
 
 	const focus = useCallback((id: string): void => {
 		const hasFocusableId = focusablesRef.current.some(
-			focusable => focusable.id === id && focusable.isActive,
+			(focusable) => focusable.id === id && focusable.isActive,
 		);
 
 		if (hasFocusableId) {
@@ -926,7 +926,7 @@ function App({
 			];
 
 			if (autoFocus && isFocusEnabledRef.current) {
-				setActiveFocusId(currentActiveFocusId => currentActiveFocusId ?? id);
+				setActiveFocusId((currentActiveFocusId) => currentActiveFocusId ?? id);
 			}
 		},
 		[],
@@ -974,23 +974,23 @@ function App({
 		}
 
 		const removedId = removed.id;
-		setActiveFocusId(currentActiveFocusId =>
+		setActiveFocusId((currentActiveFocusId) =>
 			currentActiveFocusId === removedId ? undefined : currentActiveFocusId,
 		);
 	}, []);
 
 	const activateFocusable = useCallback((id: string): void => {
-		focusablesRef.current = focusablesRef.current.map(focusable =>
+		focusablesRef.current = focusablesRef.current.map((focusable) =>
 			focusable.id === id ? {...focusable, isActive: true} : focusable,
 		);
 	}, []);
 
 	const deactivateFocusable = useCallback((id: string): void => {
-		setActiveFocusId(currentActiveFocusId =>
+		setActiveFocusId((currentActiveFocusId) =>
 			currentActiveFocusId === id ? undefined : currentActiveFocusId,
 		);
 
-		focusablesRef.current = focusablesRef.current.map(focusable =>
+		focusablesRef.current = focusablesRef.current.map((focusable) =>
 			focusable.id === id ? {...focusable, isActive: false} : focusable,
 		);
 	}, []);
@@ -1011,7 +1011,11 @@ function App({
 				disableRawMode();
 			}
 
-			if (mouseTrackingCountRef.current > 0 && canWriteToStdout && stdout.isTTY) {
+			if (
+				canWriteToStdout &&
+				mouseTrackingCountRef.current > 0 &&
+				stdout.isTTY
+			) {
 				stdout.write(mouseTrackingDisable);
 			}
 

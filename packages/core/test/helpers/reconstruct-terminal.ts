@@ -13,7 +13,7 @@
 const esc = '\u{1B}';
 
 const parseParameters = (raw: string): number[] =>
-	raw.split(';').map(value => (value === '' ? NaN : Number(value)));
+	raw.split(';').map((value) => (value === '' ? NaN : Number(value)));
 
 // A `{rows}` entry in the output resizes the terminal at that point. Only shrinking is modelled, following xterm.js: rows below the cursor are dropped first, and only once the cursor is on the last row do rows scroll off the top into scrollback.
 export type TerminalChunk = string | {rows: number};
@@ -217,5 +217,5 @@ export const reconstructTerminalLines = (
 		}
 	}
 
-	return [...scrollback, ...screen].map(line => line.trimEnd());
+	return [...scrollback, ...screen].map((line) => line.trimEnd());
 };

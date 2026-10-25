@@ -12,19 +12,19 @@ function Robot() {
 		}
 
 		if (key.leftArrow) {
-			setX(current => Math.max(1, current - 1));
+			setX((current) => Math.max(1, current - 1));
 		}
 
 		if (key.rightArrow) {
-			setX(current => Math.min(20, current + 1));
+			setX((current) => Math.min(20, current + 1));
 		}
 
 		if (key.upArrow) {
-			setY(current => Math.max(1, current - 1));
+			setY((current) => Math.max(1, current - 1));
 		}
 
 		if (key.downArrow) {
-			setY(current => Math.min(10, current + 1));
+			setY((current) => Math.min(10, current + 1));
 		}
 	});
 

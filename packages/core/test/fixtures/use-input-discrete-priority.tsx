@@ -33,9 +33,9 @@ function App() {
 			return;
 		}
 
-		setQuery(previousQuery => previousQuery.slice(0, -1));
+		setQuery((previousQuery) => previousQuery.slice(0, -1));
 		startTransition(() => {
-			setDeferredQuery(previousQuery => previousQuery.slice(0, -1));
+			setDeferredQuery((previousQuery) => previousQuery.slice(0, -1));
 		});
 	});
 

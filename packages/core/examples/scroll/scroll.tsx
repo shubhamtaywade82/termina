@@ -32,23 +32,23 @@ function ScrollView({
 
 	useInput((_input, key) => {
 		if (key.upArrow) {
-			setRequestedScrollTop(current =>
+			setRequestedScrollTop((current) =>
 				Math.max(0, Math.min(current, maxScrollTop) - 1),
 			);
 		}
 
 		if (key.downArrow) {
-			setRequestedScrollTop(current => Math.min(maxScrollTop, current + 1));
+			setRequestedScrollTop((current) => Math.min(maxScrollTop, current + 1));
 		}
 
 		if (key.leftArrow) {
-			setRequestedScrollLeft(current =>
+			setRequestedScrollLeft((current) =>
 				Math.max(0, Math.min(current, maxScrollLeft) - 2),
 			);
 		}
 
 		if (key.rightArrow) {
-			setRequestedScrollLeft(current => Math.min(maxScrollLeft, current + 2));
+			setRequestedScrollLeft((current) => Math.min(maxScrollLeft, current + 2));
 		}
 	});
 
@@ -80,7 +80,7 @@ function ScrollView({
 function Demo() {
 	const {exit} = useApp();
 
-	useInput(input => {
+	useInput((input) => {
 		if (input === 'q') {
 			exit();
 		}

@@ -35,7 +35,7 @@ import MouseRouter from './components/MouseRouter.js';
 const noop = () => {};
 
 const yieldImmediate = async () =>
-	new Promise<void>(resolve => {
+	new Promise<void>((resolve) => {
 		setImmediate(resolve);
 	});
 
@@ -350,7 +350,11 @@ export default class Ink {
 		}
 
 		// A width change reflows the rows on screen before this event fires, so the frame is erased by the rows it now occupies and drawn again in full. Decreasing the height with a cursor shown also drops the frame rows below the cursor, so erase what is left and render the frame again.
-		if (isLive && currentWidth !== this.lastTerminalWidth && !this.options.debug) {
+		if (
+			isLive &&
+			currentWidth !== this.lastTerminalWidth &&
+			!this.options.debug
+		) {
 			this.eraseReflowedFrame(currentWidth);
 		} else if (
 			isLive &&
@@ -1557,7 +1561,7 @@ export default class Ink {
 		settleThrottle(this.throttledLog, canWriteToStdout);
 
 		if (canWriteToStdout) {
-			await new Promise<void>(resolve => {
+			await new Promise<void>((resolve) => {
 				this.options.stdout.write('', () => {
 					resolve();
 				});

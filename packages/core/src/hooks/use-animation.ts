@@ -76,7 +76,7 @@ export default function useAnimation(options?: Options): AnimationResult {
 
 	const reset = useCallback(() => {
 		setAnimState(zeroAnimState);
-		setResetKey(k => k + 1);
+		setResetKey((k) => k + 1);
 	}, []);
 
 	useLayoutEffect(() => {
@@ -93,7 +93,7 @@ export default function useAnimation(options?: Options): AnimationResult {
 		let startTime = 0;
 
 		const {startTime: subscriberStartTime, unsubscribe} = subscribe(
-			currentTime => {
+			(currentTime) => {
 				const isThrottled =
 					renderThrottleMs > 0 && currentTime < nextRenderTimeRef.current;
 

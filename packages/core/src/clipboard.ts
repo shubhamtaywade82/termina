@@ -1,3 +1,6 @@
+import {Buffer} from 'node:buffer';
+import process from 'node:process';
+
 // Terminals commonly cap an OSC 52 payload at about 75 KB of base64. A larger copy is rejected here, because the terminal would otherwise truncate it silently.
 const maxBase64Length = 74_000;
 
@@ -18,6 +21,8 @@ export const clipboardSequence = (text: string): string => {
 /**
 Writes the OSC 52 sequence to `stream`. The sequence moves no cursor and draws nothing, so it is safe to write while Ink owns the screen. Returns `false` without writing when the stream is not a TTY.
 */
+// `copyToClipboard` is public API, and its name describes the action rather than a boolean.
+// eslint-disable-next-line unicorn/consistent-boolean-name -- The exported name is public API.
 export const copyToClipboard = (
 	text: string,
 	stream: {isTTY?: boolean; write: (data: string) => unknown} = process.stdout,

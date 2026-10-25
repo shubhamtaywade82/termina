@@ -43,7 +43,7 @@ for (const columns of [80, 120]) {
 			stdout
 				.getWrites()
 				.slice(before)
-				.some(write => write.includes('hello')),
+				.some((write) => write.includes('hello')),
 		);
 	});
 }

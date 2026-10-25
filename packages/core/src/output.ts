@@ -94,7 +94,7 @@ class OutputCaches {
 		if (cached === undefined) {
 			// Standalone invisible Unicode characters must not occupy terminal cells.
 			cached = styledCharsFromTokens(tokenize(line)).filter(
-				character =>
+				(character) =>
 					!/^\p{Default_Ignorable_Code_Point}+$/u.test(character.value),
 			);
 			this.styledChars.set(line, cached);
@@ -160,7 +160,7 @@ export default class Output {
 			}
 		}
 
-		let lines = characterLines.map(line => styledCharsToString(line));
+		let lines = characterLines.map((line) => styledCharsToString(line));
 
 		if (clip) {
 			// Two nested clips can intersect to nothing. Nothing is visible, so bail out before slicing.
@@ -193,7 +193,7 @@ export default class Output {
 			}
 
 			if (shouldClipHorizontally) {
-				lines = lines.map(line => {
+				lines = lines.map((line) => {
 					const from = x < clip.x1! ? clip.x1! - x : 0;
 					const width = this.caches.getStringWidth(line);
 					const to = x + width > clip.x2! ? clip.x2! - x : width;
@@ -385,9 +385,9 @@ export default class Output {
 		}
 
 		const generatedOutput = output
-			.map(line => {
+			.map((line) => {
 				// See https://github.com/vadimdemedes/ink/pull/564#issuecomment-1637022742
-				const lineWithoutEmptyItems = line.filter(item => item !== undefined);
+				const lineWithoutEmptyItems = line.filter((item) => item !== undefined);
 
 				return styledCharsToString(lineWithoutEmptyItems).trimEnd();
 			})

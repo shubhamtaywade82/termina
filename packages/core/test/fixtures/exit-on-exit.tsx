@@ -9,7 +9,7 @@ function Test() {
 		const exitTimer = setTimeout(exit, 500);
 
 		const timer = setInterval(() => {
-			setCounter(previous => previous + 1);
+			setCounter((previous) => previous + 1);
 		}, 100);
 
 		return () => {

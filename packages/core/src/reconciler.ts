@@ -353,7 +353,7 @@ const hostConfig: HostConfig = {
 	unhideTextInstance(node, text) {
 		setTextNodeValue(node, text);
 	},
-	getPublicInstance: instance => instance,
+	getPublicInstance: (instance) => instance,
 	hideInstance(node) {
 		setNodeHidden(node, true);
 	},

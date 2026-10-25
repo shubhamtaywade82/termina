@@ -8,7 +8,7 @@ import {act} from './helpers/act.js';
 
 const setRawModeArgs = (stdin: NodeJS.WriteStream): boolean[] =>
 	(stdin.setRawMode as unknown as {args: unknown[][]}).args.map(
-		args => args[0] as boolean,
+		(args) => args[0] as boolean,
 	);
 
 test('resuming does not enable raw mode for a disabled input hook', async (t: TestContext) => {
@@ -127,7 +127,7 @@ test('an input hook activated while suspended does not take input until resume',
 	function Example({isActive}: {readonly isActive: boolean}) {
 		app = useApp();
 		useInput(
-			input => {
+			(input) => {
 				inputs.push(input);
 			},
 			{isActive},
@@ -195,7 +195,7 @@ test('a paste hook activated while suspended does not enable bracketed paste unt
 		stdout
 			.getWrites()
 			.slice(writeCount)
-			.filter(write => write.includes('\u{1B}[?2004h')).length;
+			.filter((write) => write.includes('\u{1B}[?2004h')).length;
 
 	await act(async () => {
 		instance.rerender(<Example isActive />);
@@ -259,7 +259,7 @@ test('suspending in the same commit that disables the last input hook disables r
 	await act(async () => {
 		instance.rerender(<Example suspended />);
 	});
-	await new Promise(resolve => {
+	await new Promise((resolve) => {
 		setTimeout(resolve, 0);
 	});
 
@@ -267,7 +267,7 @@ test('suspending in the same commit that disables the last input hook disables r
 	t.assert.strictEqual(stdin.listenerCount('readable'), 0);
 
 	resume();
-	await new Promise(resolve => {
+	await new Promise((resolve) => {
 		setTimeout(resolve, 0);
 	});
 

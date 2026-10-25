@@ -20,9 +20,19 @@ for (const [name, key] of [
 		const enteredAt = ps.output.indexOf(enterAltScreen);
 		const readyAt = ps.output.indexOf(ready);
 		const leftAt = ps.output.lastIndexOf(exitAltScreen);
-		t.assert.ok(enteredAt !== -1, 'the app entered the alternate screen');
-		t.assert.ok(readyAt > enteredAt, 'the app is drawn on the alternate screen');
+		t.assert.notStrictEqual(
+			enteredAt,
+			-1,
+			'the app entered the alternate screen',
+		);
+		t.assert.ok(
+			readyAt > enteredAt,
+			'the app is drawn on the alternate screen',
+		);
 		t.assert.ok(leftAt > readyAt, 'the screen is left only after the key');
-		t.assert.ok(ps.output.lastIndexOf(showCursor) > leftAt, 'the cursor is shown after the screen is left');
+		t.assert.ok(
+			ps.output.lastIndexOf(showCursor) > leftAt,
+			'the cursor is shown after the screen is left',
+		);
 	});
 }

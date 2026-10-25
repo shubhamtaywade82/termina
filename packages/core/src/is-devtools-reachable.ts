@@ -2,7 +2,7 @@ const isDevToolsReachable = async (
 	url = 'ws://localhost:8097',
 	timeoutMs = 2000,
 ): Promise<boolean> =>
-	new Promise(resolve => {
+	new Promise((resolve) => {
 		const socket = new WebSocket(url);
 
 		const timeout = setTimeout(() => {

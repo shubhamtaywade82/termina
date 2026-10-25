@@ -14,7 +14,7 @@ for (const isConcurrent of [false, true]) {
 			function Example({replaceSpaces}: {readonly replaceSpaces: boolean}) {
 				const content = (
 					<Transform
-						transform={text =>
+						transform={(text) =>
 							replaceSpaces ? text.replaceAll(' ', 'x') : text
 						}
 					>

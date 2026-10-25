@@ -4,9 +4,9 @@ import {render, Text, Box, useInput} from '../../src/index.js';
 function AriaExample() {
 	const [checked, setChecked] = useState(false);
 
-	useInput(key => {
+	useInput((key) => {
 		if (key === ' ') {
-			setChecked(previousChecked => !previousChecked);
+			setChecked((previousChecked) => !previousChecked);
 		}
 	});
 

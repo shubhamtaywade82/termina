@@ -106,7 +106,7 @@ function IncrementalRendering() {
 	useEffect(() => {
 		const timer = setInterval(() => {
 			setTimestamp(new Date().toLocaleTimeString());
-			setCounter(previous => previous + 1);
+			setCounter((previous) => previous + 1);
 		}, 1000);
 
 		return () => {
@@ -120,13 +120,13 @@ function IncrementalRendering() {
 		let lastTime = Date.now();
 
 		const timer = setInterval(() => {
-			setProgress1(previous => (previous + 1) % 101);
-			setProgress2(previous => (previous + 2) % 101);
-			setProgress3(previous => (previous + 3) % 101);
+			setProgress1((previous) => (previous + 1) % 101);
+			setProgress2((previous) => (previous + 2) % 101);
+			setProgress3((previous) => (previous + 3) % 101);
 			setRandomValue(Math.floor(Math.random() * 1000));
 
 			// Update only 1-2 log lines each frame (simulating real log updates)
-			setLogLines(previous => {
+			setLogLines((previous) => {
 				const newLines = [...previous];
 				const updateIndex = Math.floor(Math.random() * newLines.length);
 				newLines[updateIndex] = generateLogLine(
@@ -156,12 +156,12 @@ function IncrementalRendering() {
 	useInput((input, key) => {
 		if (key.upArrow) {
 			setSelectedIndex(
-				previousIndex => (previousIndex - 1 + serviceCount) % serviceCount,
+				(previousIndex) => (previousIndex - 1 + serviceCount) % serviceCount,
 			);
 		}
 
 		if (key.downArrow) {
-			setSelectedIndex(previousIndex => (previousIndex + 1) % serviceCount);
+			setSelectedIndex((previousIndex) => (previousIndex + 1) % serviceCount);
 		}
 
 		if (input === 'q') {
@@ -216,7 +216,7 @@ function IncrementalRendering() {
 					<Text bold color="yellow">
 						Live Logs (only 1-2 lines update per frame):
 					</Text>
-					{logLines.map(line => (
+					{logLines.map((line) => (
 						<Text key={line} color="green">
 							{line}
 						</Text>

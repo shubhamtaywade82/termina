@@ -9,7 +9,7 @@ import createStdout from './helpers/create-stdout.js';
 const createInput = (): NodeJS.ReadStream => {
 	const stdin = new PassThrough() as PassThrough & {
 		isTTY: boolean;
-		setRawMode: (mode: boolean) => void;
+		setRawMode: (isRaw: boolean) => void;
 	};
 	stdin.isTTY = true;
 	stdin.setRawMode = () => {};
@@ -30,7 +30,9 @@ test('every interactive frame, including the first, is written between synchroni
 
 	for (let tick = 1; tick <= 3; tick++) {
 		instance.rerender(<Text>{`tick ${tick}`}</Text>);
+		// eslint-disable-next-line no-await-in-loop -- Each tick must flush before the next one is drawn.
 		await instance.waitUntilRenderFlush();
+		// eslint-disable-next-line no-await-in-loop -- Each tick must flush before the next one is drawn.
 		await delay(5);
 	}
 
@@ -44,16 +46,30 @@ test('every interactive frame, including the first, is written between synchroni
 	for (const {index} of frames) {
 		const open = writes.lastIndexOf(bsu, index);
 		const close = writes.indexOf(esu, index);
-		t.assert.notStrictEqual(open, -1, `a BSU must open the frame at write ${index}`);
-		t.assert.notStrictEqual(close, -1, `an ESU must close the frame at write ${index}`);
-		t.assert.ok(writes.slice(open + 1, index).every(isCursorVisibility));
-		t.assert.ok(writes.slice(index + 1, close).every(isCursorVisibility));
+		t.assert.notStrictEqual(
+			open,
+			-1,
+			`a BSU must open the frame at write ${index}`,
+		);
+		t.assert.notStrictEqual(
+			close,
+			-1,
+			`an ESU must close the frame at write ${index}`,
+		);
+		t.assert.ok(
+			writes.slice(open + 1, index).every((write) => isCursorVisibility(write)),
+		);
+		t.assert.ok(
+			writes
+				.slice(index + 1, close)
+				.every((write) => isCursorVisibility(write)),
+		);
 	}
 
 	instance.unmount();
 });
 
-test('a non-interactive render writes no synchronized update markers', async (t: TestContext) => {
+test('a non-interactive render writes no synchronized update markers', (t: TestContext) => {
 	const stdout = createStdout(80, true);
 	const instance = render(<Text>tick 0</Text>, {
 		stdout,

@@ -10,7 +10,7 @@ for (const height of [0, 1, 2]) {
 		const instance = render(
 			<>
 				<Static items={['blank']}>
-					{item => <Box key={item} height={height} />}
+					{(item) => <Box key={item} height={height} />}
 				</Static>
 				<Text>after</Text>
 			</>,
@@ -29,7 +29,7 @@ for (const height of [0, 1, 2]) {
 		const instance = render(
 			<>
 				<Static items={['blank']}>
-					{item => <Box key={item} height={height} />}
+					{(item) => <Box key={item} height={height} />}
 				</Static>
 				<Text>after</Text>
 			</>,
@@ -56,7 +56,7 @@ for (const isIncrementalRendering of [false, true]) {
 		const view = (items: string[], label: string) => (
 			<>
 				<Static items={items}>
-					{item =>
+					{(item) =>
 						item === 'blank' ? (
 							<Box key={item} height={1} />
 						) : (

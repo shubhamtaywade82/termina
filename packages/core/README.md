@@ -25,7 +25,7 @@ function Counter() {
 
 	useEffect(() => {
 		const timer = setInterval(() => {
-			setCount(previous => previous + 1);
+			setCount((previous) => previous + 1);
 		}, 100);
 
 		return () => {
