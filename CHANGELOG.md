@@ -6,10 +6,15 @@ This file starts at 0.2.0. Earlier history is in `git log`, and the release comm
 
 ## [Unreleased]
 
+## [0.3.0] - 2026-10-25
+
+This is a minor release. Before 1.0.0, a minor release may change public API, so the two changes marked **API change** below can break code that depends on the old types. The rest are behavior changes or additions.
+
 ### Added
 
 - Directional focus. `useFocusManager().focusDirection('up' | 'down' | 'left' | 'right')` moves focus to the nearest focusable component on screen. `nearestInDirection()` exposes the same geometry. A component takes part when it passes a `ref` to `useFocus`. Components without one stay in Tab order only.
 - `examples/starter`: a small app built on core and ui. It is not published.
+- Developer tooling in the repository. `pnpm lint` runs xo in each package, and CI runs it. `pnpm docs:check` checks the API pages against the built declarations and the sidebar links. `pnpm release:rehearse` dry-runs the publish and checks each tarball. `pnpm --filter @nemesis-oss/termina-core run bench` writes a JSON render throughput report.
 
 ### Fixed
 
@@ -23,4 +28,11 @@ This file starts at 0.2.0. Earlier history is in `git log`, and the release comm
 
 ### Changed
 
+- **API change (genui):** `GenUIRegistry.toJSONSchema()` returns the `LibraryJSONSchema` type from `@openuidev/lang-core`, not `Record<string, unknown>`. Code that reads a string key from the result needs a cast or a typed access.
+- **API change (genui):** `GenUINode` includes plain objects, which the adapter emits for data such as table rows. Code that switches over `GenUINode` must handle that member.
+- **genui renderer:** each node's props are checked against its component's schema before `render` runs. A node that fails shows an "Invalid props" error box. Components receive the schema's parsed output, so unknown keys are dropped and zod defaults apply.
+- **genui `Table`:** cells that are objects print as JSON instead of `[object Object]`. Rows that are not objects are still skipped.
+- **genui children:** a top-level `0`, `false` or `""` child renders as text, as an array child already did.
+- **genui `TextInput`:** shows its default value when the stored value is not a string.
+- `@openuidev/lang-core` is declared as `^1.0.1`. The lock still pins 1.0.1.
 - Dependency updates from Dependabot: `chalk` 6, `cli-cursor` 5, `p-queue` 10 (dev), and `@xterm/xterm` 6 for the docs site. `typescript` stays pinned to 5.9.3.

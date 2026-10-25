@@ -12,8 +12,8 @@ The base is Ink 8.0.0. Upstream behavior is taken from `docs/research/ink-archit
 
 | Package | Version | Node | Key dependencies |
 | --- | --- | --- | --- |
-| Ink (`packages/core`) | 8.0.0 upstream; manifest version 0.2.0 | `>=22` | React `>=19.3.0` (peer), `react-reconciler ^0.34.0`, `yoga-layout ~3.2.1`, `chalk ^6.0.1`, `string-width ^8.3.0`, `wrap-ansi ^10.0.2`, `@alcalzone/ansi-tokenize ^0.3.1` |
-| ink-ui (`packages/ui`) | 2.0.0 upstream; manifest version 0.2.0 | `>=22` | React `>=19.3.0` (peer), `@nemesis-oss/termina-core` (workspace) |
+| Ink (`packages/core`) | 8.0.0 upstream; manifest version 0.3.0 | `>=22` | React `>=19.3.0` (peer), `react-reconciler ^0.34.0`, `yoga-layout ~3.2.1`, `chalk ^6.0.1`, `string-width ^8.3.0`, `wrap-ansi ^10.0.2`, `@alcalzone/ansi-tokenize ^0.3.1` |
+| ink-ui (`packages/ui`) | 2.0.0 upstream; manifest version 0.3.0 | `>=22` | React `>=19.3.0` (peer), `@nemesis-oss/termina-core` (workspace) |
 
 The dependency ranges above are from the `packages/core/package.json` and `packages/ui/package.json` manifests.
 
