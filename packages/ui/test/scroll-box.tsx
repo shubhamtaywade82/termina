@@ -116,6 +116,34 @@ test('onScroll reports each new offset', async (t: TestContext) => {
 	instance.unmount();
 });
 
+test('a controlled parent that refuses an offset gets the offset it supplied on the next key', async (t: TestContext) => {
+	const offsets: number[] = [];
+	// The parent keeps offset 0 and never re-renders, so every request is refused.
+	const instance = render(
+		<ScrollBox
+			height={5}
+			offset={0}
+			onScroll={(offset) => {
+				offsets.push(offset);
+			}}
+		>
+			{rows.map((line) => (
+				<Text key={line}>{line}</Text>
+			))}
+		</ScrollBox>,
+	);
+	await settle();
+
+	instance.stdin.write(arrowDown);
+	await settle();
+	instance.stdin.write(arrowDown);
+	await settle();
+
+	// Each request starts from the refused offset 0, so both ask for 1 rather than climbing to 2.
+	t.assert.deepStrictEqual(offsets, [1, 1]);
+	instance.unmount();
+});
+
 test('the mouse wheel scrolls only the viewport the pointer is over', async (t: TestContext) => {
 	const instance = render(<Viewport />, {mouse: true});
 	await settle();
