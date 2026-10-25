@@ -25,7 +25,7 @@ Status values: `open`, `in progress`, `done`, `deferred`.
 ## P1: adoption and maintainability
 
 ### R4. Lint is not enforced across the repository
-- Status: `open`
+- Status: `done`. `pnpm lint` (`pnpm -r --filter './packages/*' run lint`) runs `xo` in core, ui and genui and exits 0. The typecheck job in CI runs it after the build, and the `ci` script runs it too. Genui's `GenUI*` names and `toJSONSchema` are public exports, so they keep their spelling behind file-level directives that give the reason. Genui's renderer now validates each node's props against its component schema before it renders, so the default components receive typed props. A node that fails the schema shows an error box. Evidence: `pnpm lint` exits 0 and `pnpm typecheck` exits 0 on the branch. Genui's 45 tests pass.
 - Problem: `xo` reports about 1,000 problems. CI only checks that changed files do not get worse (`scripts/lint-ratchet.mjs`).
 - Acceptance: `pnpm lint` runs in CI and exits 0 across all packages.
 

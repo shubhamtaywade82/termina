@@ -53,6 +53,9 @@ jobs:
       - name: Typecheck
         run: pnpm typecheck
 
+      - name: Lint
+        run: pnpm lint
+
   # Terminal behavior differs by platform, and the pseudo-terminal path is the one most likely to break on Windows. Every platform runs the whole suite, and one failing platform does not cancel the others.
   test:
     name: Test (${{ matrix.os }})
