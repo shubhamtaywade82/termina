@@ -17,7 +17,10 @@ export function OrderedListItem({children}: OrderedListItemProps) {
 
 	return (
 		<Box {...styles.listItem()}>
-			<Text {...styles.marker()}>{marker}</Text>
+			{/* The marker is fixed-width chrome. If it could shrink, Yoga would take a fraction of its column and drop the space after it. */}
+			<Box flexShrink={0}>
+				<Text {...styles.marker()}>{marker}</Text>
+			</Box>
 			<Box {...styles.content()}>{children}</Box>
 		</Box>
 	);
