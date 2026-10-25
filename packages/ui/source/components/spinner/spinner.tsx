@@ -1,5 +1,6 @@
 import React from 'react';
 import {Box, Text} from '@nemesis-oss/termina-core';
+import {isPresent} from '../../lib/is-present.js';
 import {useComponentTheme} from '../../theme.js';
 import {useSpinner, type UseSpinnerProps} from './use-spinner.js';
 import {type Theme} from './theme.js';
@@ -18,7 +19,7 @@ export function Spinner({label, type}: SpinnerProps) {
 	return (
 		<Box {...styles.container()}>
 			<Text {...styles.frame()}>{frame}</Text>
-			{label && <Text {...styles.label()}>{label}</Text>}
+			{isPresent(label) && <Text {...styles.label()}>{label}</Text>}
 		</Box>
 	);
 }

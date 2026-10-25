@@ -1,24 +1,26 @@
+/* eslint-disable @eslint-react/no-array-index-key -- Two siblings can share a path, so the position is the key. */
 import React, {useRef, useState} from 'react';
-import {
-	Box,
-	type Key,
-	Text,
-	useInput,
-} from '@nemesis-oss/termina-core';
+import {Box, type Key, Text, useInput} from '@nemesis-oss/termina-core';
 import figures from 'figures';
 import {useComponentTheme} from '../../theme.js';
 import {type Theme} from './theme.js';
 
 export type TreeViewNode = {
-	/** Text shown for the node. Sibling labels should be unique, because expansion is kept by label path. */
+	/**
+	 * Text shown for the node. Sibling labels should be unique, because expansion is kept by label path.
+	 */
 	readonly label: string;
 
-	/** Child nodes. A node with at least one child is a branch. An empty array makes a leaf. */
+	/**
+	 * Child nodes. A node with at least one child is a branch. An empty array makes a leaf.
+	 */
 	readonly children?: TreeViewNode[];
 };
 
 export type TreeViewProps = {
-	/** Tree data, in display order. */
+	/**
+	 * Tree data, in display order.
+	 */
 	readonly nodes: TreeViewNode[];
 
 	/**
@@ -28,7 +30,9 @@ export type TreeViewProps = {
 	 */
 	readonly defaultExpanded?: boolean;
 
-	/** Called when Enter is pressed on any node. `path` holds the labels from the root to the node, including its own label. */
+	/**
+	 * Called when Enter is pressed on any node. `path` holds the labels from the root to the node, including its own label.
+	 */
 	readonly onSelect?: (label: string, path: string[]) => void;
 
 	/**
@@ -75,16 +79,22 @@ const createRow = (
 	return {
 		label: node.label,
 		path,
-		guide: parent.path.length === 0 ? '' : parent.continuation + guideCellsFor(isLast).connector,
+		guide:
+			parent.path.length === 0
+				? ''
+				: parent.continuation + guideCellsFor(isLast).connector,
 		isBranch: (node.children ?? []).length > 0,
 		isExpanded: context.toggledKeys.has(pathKey) !== context.startsExpanded,
 	};
 };
 
+// The root position is shared, which is safe because the rows only read it and copy its path.
+const rootPosition: ParentPosition = {path: [], continuation: ''};
+
 const collectRows = (
 	nodes: readonly TreeViewNode[],
 	context: RowContext,
-	parent: ParentPosition = {path: [], continuation: ''},
+	parent: ParentPosition = rootPosition,
 ): TreeViewRow[] =>
 	nodes.flatMap((node, index) => {
 		const isLast = index === nodes.length - 1;
@@ -99,7 +109,9 @@ const collectRows = (
 			row,
 			...collectRows(node.children ?? [], context, {
 				path: row.path,
-				continuation: isRoot ? parent.continuation : parent.continuation + continuation,
+				continuation: isRoot
+					? parent.continuation
+					: parent.continuation + continuation,
 			}),
 		];
 	});
@@ -150,7 +162,9 @@ const applyLeftArrow = (
 
 	const parentIndex = rows
 		.slice(0, focusedIndex)
-		.findLastIndex(candidate => candidate.path.length === row.path.length - 1);
+		.findLastIndex(
+			(candidate) => candidate.path.length === row.path.length - 1,
+		);
 
 	return parentIndex === -1 ? state : {...state, focusedIndex: parentIndex};
 };
@@ -185,19 +199,28 @@ const applyKey = (
 	return key.return && row.isBranch ? withToggledRow(state, row) : state;
 };
 
-const useTreeViewState = (nodes: TreeViewNode[], defaultExpanded: boolean, onSelect: TreeViewProps['onSelect'], isActive: boolean) => {
+const useTreeViewState = (
+	nodes: TreeViewNode[],
+	isDefaultExpanded: boolean,
+	onSelect: TreeViewProps['onSelect'],
+	isActive: boolean,
+) => {
 	// Read once, so a later change does not flip branches the user has not toggled.
-	const [startsExpanded] = useState(defaultExpanded);
+	const [startsExpanded] = useState(isDefaultExpanded);
 	const [state, setState] = useState(initialState);
 	// Keys pressed before a render must build on the newest state, not on the state from the last render.
 	const latestStateRef = useRef(state);
 
 	useInput(
 		(_input, key) => {
-			const current = latestStateRef.current;
-			const keyRows = collectRows(nodes, {toggledKeys: current.toggledKeys, startsExpanded});
-			const focusedRow = keyRows[clampIndex(current.focusedIndex, keyRows.length)];
-			if (key.return && focusedRow) {
+			const {current} = latestStateRef;
+			const keyRows = collectRows(nodes, {
+				toggledKeys: current.toggledKeys,
+				startsExpanded,
+			});
+			const focusedRow =
+				keyRows[clampIndex(current.focusedIndex, keyRows.length)];
+			if (focusedRow && key.return) {
 				onSelect?.(focusedRow.label, focusedRow.path);
 			}
 
@@ -207,7 +230,10 @@ const useTreeViewState = (nodes: TreeViewNode[], defaultExpanded: boolean, onSel
 		{isActive},
 	);
 
-	const rows = collectRows(nodes, {toggledKeys: state.toggledKeys, startsExpanded});
+	const rows = collectRows(nodes, {
+		toggledKeys: state.toggledKeys,
+		startsExpanded,
+	});
 	return {rows, focusedIndex: clampIndex(state.focusedIndex, rows.length)};
 };
 
@@ -220,15 +246,21 @@ function TreeViewLine({row, isFocused}: TreeViewLineProps) {
 	const {styles} = useComponentTheme<Theme>('TreeView');
 	const nodeStyle = styles.node({isFocused});
 	// Leaf styles go under node styles, so an unfocused leaf can differ from a branch and focus still wins.
-	const labelStyle = row.isBranch ? nodeStyle : {...styles.leaf(), ...nodeStyle};
+	const labelStyle = row.isBranch
+		? nodeStyle
+		: {...styles.leaf(), ...nodeStyle};
 	const glyph = row.isExpanded ? figures.triangleDown : figures.triangleRight;
 
 	return (
 		<Text>
 			<Text {...styles.guide()}>{row.guide}</Text>
 			{row.isBranch ? (
-				<Text {...styles.branch({isExpanded: row.isExpanded})}>{`${glyph} `}</Text>
-			) : '  '}
+				<Text
+					{...styles.branch({isExpanded: row.isExpanded})}
+				>{`${glyph} `}</Text>
+			) : (
+				'  '
+			)}
 			<Text {...labelStyle}>{row.label}</Text>
 		</Text>
 	);

@@ -1,11 +1,12 @@
 import process from 'node:process';
-import React from 'react';
 import test, {type TestContext} from 'node:test';
-import {render} from './helpers/render.js';
+import React from 'react';
 import chalk from 'chalk';
 import spinners from 'cli-spinners';
 import delay from 'delay';
+import {isPresent} from '../source/lib/is-present.js';
 import {Spinner} from '../source/index.js';
+import {render} from './helpers/render.js';
 
 test('spinner', async (t: TestContext) => {
 	const {frames, unmount} = render(<Spinner label="Loading" />);
@@ -16,12 +17,12 @@ test('spinner', async (t: TestContext) => {
 
 	const uniqueFrames = [...new Set(frames)];
 
-	if (process.env['CI'] && uniqueFrames.at(-1) === '\n') {
+	if (isPresent(process.env['CI']) && uniqueFrames.at(-1) === '\n') {
 		uniqueFrames.pop();
 	}
 
 	t.assert.deepStrictEqual(
 		uniqueFrames,
-		spinner.frames.map(frame => `${chalk.blue(frame)} Loading`),
+		spinner.frames.map((frame) => `${chalk.blue(frame)} Loading`),
 	);
 });

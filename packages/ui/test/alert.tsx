@@ -1,11 +1,11 @@
-import React from 'react';
 import test, {type TestContext} from 'node:test';
-import {render} from './helpers/render.js';
+import React from 'react';
 import {Box} from '@nemesis-oss/termina-core';
 import chalk from 'chalk';
 import figures from 'figures';
 import boxen from 'boxen';
 import {Alert} from '../source/index.js';
+import {render} from './helpers/render.js';
 
 test('success', (t: TestContext) => {
 	const {lastFrame} = render(

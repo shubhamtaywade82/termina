@@ -1,24 +1,21 @@
-/* eslint-disable no-await-in-loop */
-import React from 'react';
+/* eslint-disable no-await-in-loop -- Each step drives the component, and the next step starts only after the last one has rendered. */
 import test, {type TestContext} from 'node:test';
-import {render} from './helpers/render.js';
+import React from 'react';
 import chalk from 'chalk';
 import delay from 'delay';
 import {EmailInput} from '../source/index.js';
+import {render} from './helpers/render.js';
 
 const cursor = (character = ' ') => chalk.inverse(character);
 const enter = '\r';
-const arrowLeft = '\u001B[D';
-const arrowRight = '\u001B[C';
-const del = '\u007F';
+const arrowLeft = '\u{1B}[D';
+const arrowRight = '\u{1B}[C';
+const del = '\u{7F}';
 
-const cursorAt = (input: string, at: number): string => {
-	return [...input]
-		.map((character, index) => {
-			return index === at ? cursor(character) : character;
-		})
+const cursorAt = (input: string, at: number): string =>
+	[...input]
+		.map((character, index) => (index === at ? cursor(character) : character))
 		.join('');
-};
 
 test('placeholder', (t: TestContext) => {
 	const {lastFrame} = render(<EmailInput placeholder="Start typing..." />);
@@ -74,7 +71,7 @@ test('insert character', async (t: TestContext) => {
 	const {lastFrame, stdin} = render(
 		<EmailInput
 			placeholder="Start typing..."
-			onChange={newValue => {
+			onChange={(newValue) => {
 				value = newValue;
 			}}
 		/>,
@@ -94,7 +91,7 @@ test('insert text', async (t: TestContext) => {
 	const {lastFrame, stdin} = render(
 		<EmailInput
 			placeholder="Start typing..."
-			onChange={newValue => {
+			onChange={(newValue) => {
 				value = newValue;
 			}}
 		/>,
@@ -114,7 +111,7 @@ test('prevent two "@" characters', async (t: TestContext) => {
 	const {lastFrame, stdin} = render(
 		<EmailInput
 			placeholder="Start typing..."
-			onChange={newValue => {
+			onChange={(newValue) => {
 				value = newValue;
 			}}
 		/>,
@@ -124,14 +121,20 @@ test('prevent two "@" characters', async (t: TestContext) => {
 	stdin.write('test@');
 	await delay(50);
 
-	t.assert.strictEqual(lastFrame(), `test@${cursor('a')}${chalk.dim('ol.com')}`);
+	t.assert.strictEqual(
+		lastFrame(),
+		`test@${cursor('a')}${chalk.dim('ol.com')}`,
+	);
 	t.assert.strictEqual(value, 'test@');
 
 	await delay(50);
 	stdin.write('@');
 	await delay(50);
 
-	t.assert.strictEqual(lastFrame(), `test@${cursor('a')}${chalk.dim('ol.com')}`);
+	t.assert.strictEqual(
+		lastFrame(),
+		`test@${cursor('a')}${chalk.dim('ol.com')}`,
+	);
 	t.assert.strictEqual(value, 'test@');
 });
 
@@ -142,7 +145,7 @@ test('ignore input when disabled', async (t: TestContext) => {
 		<EmailInput
 			isDisabled
 			placeholder="Start typing..."
-			onChange={newValue => {
+			onChange={(newValue) => {
 				value = newValue;
 			}}
 		/>,
@@ -162,7 +165,7 @@ test('delete character', async (t: TestContext) => {
 	const {lastFrame, stdin} = render(
 		<EmailInput
 			defaultValue={value}
-			onChange={newValue => {
+			onChange={(newValue) => {
 				value = newValue;
 			}}
 		/>,
@@ -183,7 +186,7 @@ test('delete all text', async (t: TestContext) => {
 		<EmailInput
 			defaultValue={value}
 			placeholder="Start typing..."
-			onChange={newValue => {
+			onChange={(newValue) => {
 				value = newValue;
 			}}
 		/>,
@@ -267,7 +270,7 @@ test('insert character in the middle', async (t: TestContext) => {
 	const {lastFrame, stdin} = render(
 		<EmailInput
 			defaultValue={value}
-			onChange={newValue => {
+			onChange={(newValue) => {
 				value = newValue;
 			}}
 		/>,
@@ -297,7 +300,7 @@ test('insert text in the middle', async (t: TestContext) => {
 	const {lastFrame, stdin} = render(
 		<EmailInput
 			defaultValue={value}
-			onChange={newValue => {
+			onChange={(newValue) => {
 				value = newValue;
 			}}
 		/>,
@@ -328,10 +331,10 @@ test('autocomplete domain', async (t: TestContext) => {
 	const {lastFrame, stdin} = render(
 		<EmailInput
 			placeholder="Start typing..."
-			onChange={newValue => {
+			onChange={(newValue) => {
 				value = newValue;
 			}}
-			onSubmit={newValue => {
+			onSubmit={(newValue) => {
 				submittedValue = newValue;
 			}}
 		/>,
@@ -343,21 +346,30 @@ test('autocomplete domain', async (t: TestContext) => {
 	stdin.write('test@');
 	await delay(50);
 
-	t.assert.strictEqual(lastFrame(), `test@${cursor('a')}${chalk.dim('ol.com')}`);
+	t.assert.strictEqual(
+		lastFrame(),
+		`test@${cursor('a')}${chalk.dim('ol.com')}`,
+	);
 	t.assert.strictEqual(value, 'test@');
 
 	await delay(50);
 	stdin.write('a');
 	await delay(50);
 
-	t.assert.strictEqual(lastFrame(), `test@a${cursor('o')}${chalk.dim('l.com')}`);
+	t.assert.strictEqual(
+		lastFrame(),
+		`test@a${cursor('o')}${chalk.dim('l.com')}`,
+	);
 	t.assert.strictEqual(value, 'test@a');
 
 	await delay(50);
 	stdin.write('o');
 	await delay(50);
 
-	t.assert.strictEqual(lastFrame(), `test@ao${cursor('l')}${chalk.dim('.com')}`);
+	t.assert.strictEqual(
+		lastFrame(),
+		`test@ao${cursor('l')}${chalk.dim('.com')}`,
+	);
 	t.assert.strictEqual(value, 'test@ao');
 
 	await delay(50);
@@ -375,7 +387,7 @@ test('submit on enter', async (t: TestContext) => {
 	const {stdin} = render(
 		<EmailInput
 			defaultValue="test"
-			onSubmit={value => {
+			onSubmit={(value) => {
 				submittedValue = value;
 			}}
 		/>,

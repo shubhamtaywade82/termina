@@ -1,5 +1,5 @@
 import {Box, Text} from '@nemesis-oss/termina-core';
-import React, {useContext, type ReactNode} from 'react';
+import React, {use, type ReactNode} from 'react';
 import {useComponentTheme} from '../../theme.js';
 import {OrderedListItemContext} from './ordered-list-item-context.js';
 import {type Theme} from './theme.js';
@@ -12,7 +12,7 @@ export type OrderedListItemProps = {
 };
 
 export function OrderedListItem({children}: OrderedListItemProps) {
-	const {marker} = useContext(OrderedListItemContext);
+	const {marker} = use(OrderedListItemContext);
 	const {styles} = useComponentTheme<Theme>('OrderedList');
 
 	return (

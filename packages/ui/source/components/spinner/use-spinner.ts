@@ -21,7 +21,7 @@ export function useSpinner({type = 'dots'}: UseSpinnerProps): UseSpinnerResult {
 
 	useEffect(() => {
 		const timer = setInterval(() => {
-			setFrame(previousFrame => {
+			setFrame((previousFrame) => {
 				const isLastFrame = previousFrame === spinner.frames.length - 1;
 				return isLastFrame ? 0 : previousFrame + 1;
 			});

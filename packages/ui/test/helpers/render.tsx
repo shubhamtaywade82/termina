@@ -12,7 +12,10 @@ type Options = {
 };
 
 // Mirrors the surface of ink-testing-library, on top of the forked core. `debug` writes each frame in full, so `lastFrame()` is the frame on screen and `frames` is every frame in order.
-export const render = (node: ReactNode, {mouse = false, isStdinPiped = false, columns = 100}: Options = {}) => {
+export const render = (
+	node: ReactNode,
+	{mouse = false, isStdinPiped = false, columns = 100}: Options = {},
+) => {
 	const frames: string[] = [];
 	const stdout = new EventEmitter() as EventEmitter & {
 		isTTY: boolean;
@@ -25,7 +28,7 @@ export const render = (node: ReactNode, {mouse = false, isStdinPiped = false, co
 	stdout.columns = columns;
 	stdout.rows = 24;
 	let isRecording = true;
-	stdout.write = data => {
+	stdout.write = (data) => {
 		if (isRecording) {
 			frames.push(data);
 		}
@@ -35,7 +38,7 @@ export const render = (node: ReactNode, {mouse = false, isStdinPiped = false, co
 
 	const stdin = new PassThrough() as PassThrough & {
 		isTTY: boolean;
-		setRawMode: (mode: boolean) => void;
+		setRawMode: (isRaw: boolean) => void;
 	};
 	if (!isStdinPiped) {
 		stdin.isTTY = true;
@@ -49,25 +52,24 @@ export const render = (node: ReactNode, {mouse = false, isStdinPiped = false, co
 		debug: true,
 		patchConsole: false,
 		exitOnCtrlC: false,
-		...(mouse ? {mouse, alternateScreen: true, interactive: true} : {}),
+		...(mouse && {mouse, alternateScreen: true, interactive: true}),
 	});
 
 	return {
 		lastFrame: (): string | undefined => frames.at(-1),
 		frames,
 		stdin: {
-			write: (data: string) => {
+			write(data: string) {
 				stdin.write(data);
 			},
 		},
-		rerender: (next: ReactNode) => {
+		rerender(next: ReactNode) {
 			instance.rerender(next);
 		},
-		unmount: () => {
+		unmount() {
 			// Ink writes its teardown frame on unmount. ink-testing-library does not record it, so stop recording first.
 			isRecording = false;
 			instance.unmount();
 		},
 	};
 };
-

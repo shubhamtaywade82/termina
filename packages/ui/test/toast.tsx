@@ -1,11 +1,11 @@
-import React from 'react';
 import test, {type TestContext} from 'node:test';
-import {render} from './helpers/render.js';
+import React from 'react';
 import {Text} from '@nemesis-oss/termina-core';
 import chalk from 'chalk';
 import delay from 'delay';
 import figures from 'figures';
 import {Toast} from '../source/components/toast/index.js';
+import {render} from './helpers/render.js';
 
 test('renders the message with the info icon by default', (t: TestContext) => {
 	const {lastFrame, unmount} = render(<Toast>Saved</Toast>);
@@ -42,7 +42,7 @@ test('waits 3000 ms before hiding by default', async (t: TestContext) => {
 	await delay(20);
 	unmount();
 	const scheduledDelays = setTimeoutMock.mock.calls.map(
-		call => call.arguments[1],
+		(call) => call.arguments[1],
 	);
 	t.assert.ok(scheduledDelays.includes(3000));
 });
@@ -109,8 +109,14 @@ test('keeps the toast when durationMs is above the timer limit', async (t: TestC
 	);
 
 	await delay(20);
-	t.assert.strictEqual(infinite.lastFrame(), ` ${chalk.blue(figures.info)} Saved`);
-	t.assert.strictEqual(oversized.lastFrame(), ` ${chalk.blue(figures.info)} Saved`);
+	t.assert.strictEqual(
+		infinite.lastFrame(),
+		` ${chalk.blue(figures.info)} Saved`,
+	);
+	t.assert.strictEqual(
+		oversized.lastFrame(),
+		` ${chalk.blue(figures.info)} Saved`,
+	);
 	t.assert.strictEqual(onDismiss.mock.callCount(), 0);
 	infinite.unmount();
 	oversized.unmount();

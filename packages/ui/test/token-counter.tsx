@@ -1,10 +1,10 @@
-import React from 'react';
 import test, {type TestContext} from 'node:test';
+import React from 'react';
 import chalk from 'chalk';
 import delay from 'delay';
 import stripAnsi from 'strip-ansi';
-import {render} from './helpers/render.js';
 import {TokenCounter} from '../source/components/token-counter/index.js';
+import {render} from './helpers/render.js';
 
 test('without a limit, shows the count in the ok color', (t: TestContext) => {
 	const {lastFrame} = render(<TokenCounter count={1234} />);
@@ -13,7 +13,7 @@ test('without a limit, shows the count in the ok color', (t: TestContext) => {
 });
 
 test('formats counts with thousands separators', (t: TestContext) => {
-	const {lastFrame} = render(<TokenCounter count={1234567} />);
+	const {lastFrame} = render(<TokenCounter count={1_234_567} />);
 
 	t.assert.strictEqual(lastFrame(), `${chalk.green('1,234,567')} tokens`);
 });

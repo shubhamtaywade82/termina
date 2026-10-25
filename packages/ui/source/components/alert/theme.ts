@@ -39,20 +39,30 @@ const theme = {
 	config({variant}) {
 		let icon: string | undefined;
 
-		if (variant === 'info') {
-			icon = figures.info;
-		}
+		switch (variant) {
+			case 'info': {
+				icon = figures.info;
+				break;
+			}
 
-		if (variant === 'success') {
-			icon = figures.tick;
-		}
+			case 'success': {
+				icon = figures.tick;
+				break;
+			}
 
-		if (variant === 'error') {
-			icon = figures.cross;
-		}
+			case 'error': {
+				icon = figures.cross;
+				break;
+			}
 
-		if (variant === 'warning') {
-			icon = figures.warning;
+			case 'warning': {
+				icon = figures.warning;
+				break;
+			}
+
+			default: {
+				break;
+			}
 		}
 
 		return {icon};

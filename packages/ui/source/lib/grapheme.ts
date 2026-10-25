@@ -34,14 +34,14 @@ export const nextBoundary = (value: string, offset: number): number => {
 // Highlighting by code point splits an emoji or a letter with a combining mark, so the cursor is drawn over whole grapheme clusters.
 export const splitFirstGrapheme = (text: string): [string, string] => {
 	const first = segmenter.segment(text)[Symbol.iterator]().next().value;
-	if (first === undefined) {
-		return ['', ''];
-	}
-
-	return [first.segment, text.slice(first.segment.length)];
+	return first === undefined
+		? ['', '']
+		: [first.segment, text.slice(first.segment.length)];
 };
 
-export const graphemes = (text: string): Array<{index: number; segment: string}> =>
+export const graphemes = (
+	text: string,
+): Array<{index: number; segment: string}> =>
 	[...segmenter.segment(text)].map(({index, segment}) => ({index, segment}));
 
 // Snaps an offset that a value changed under onto the nearest boundary at or before it. An offset inside a cluster moves to the cluster's start, and an offset past the end moves to the end.

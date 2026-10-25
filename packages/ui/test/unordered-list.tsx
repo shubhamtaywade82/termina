@@ -1,7 +1,6 @@
-import React from 'react';
 import test, {type TestContext} from 'node:test';
+import React from 'react';
 import {Text} from '@nemesis-oss/termina-core';
-import {render} from './helpers/render.js';
 import chalk from 'chalk';
 import {
 	ThemeProvider,
@@ -9,6 +8,7 @@ import {
 	defaultTheme,
 	extendTheme,
 } from '../source/index.js';
+import {render} from './helpers/render.js';
 
 test('unordered list', (t: TestContext) => {
 	const {lastFrame} = render(
@@ -111,7 +111,7 @@ test('nested list', (t: TestContext) => {
 				`${chalk.dim('─')} Normal`,
 				`${chalk.dim('─')} Dark`,
 			]
-				.map(line => `  ${line}`)
+				.map((line) => `  ${line}`)
 				.join('\n'),
 			`${chalk.dim('─')} Yellow`,
 		].join('\n'),
@@ -169,7 +169,7 @@ test('custom marker in nested list', (t: TestContext) => {
 				`${chalk.dim('+')} Normal`,
 				`${chalk.dim('+')} Dark`,
 			]
-				.map(line => `  ${line}`)
+				.map((line) => `  ${line}`)
 				.join('\n'),
 			`${chalk.dim('+')} Yellow`,
 		].join('\n'),
@@ -227,7 +227,7 @@ test('custom markers in nested lists', (t: TestContext) => {
 				`${chalk.dim('+')} Normal`,
 				`${chalk.dim('+')} Dark`,
 			]
-				.map(line => `  ${line}`)
+				.map((line) => `  ${line}`)
 				.join('\n'),
 			`${chalk.dim('─')} Yellow`,
 		].join('\n'),

@@ -1,3 +1,4 @@
+/* eslint-disable @eslint-react/no-array-index-key -- Steps are fixed in order, and each step is identified by its position. */
 import React from 'react';
 import {Box, Text} from '@nemesis-oss/termina-core';
 import figures from 'figures';
@@ -29,11 +30,7 @@ function getStepStatus(index: number, activeIndex: number): StepperStatus {
 		return 'done';
 	}
 
-	if (index === activeIndex) {
-		return 'current';
-	}
-
-	return 'pending';
+	return index === activeIndex ? 'current' : 'pending';
 }
 
 export function Stepper({steps, current = 0}: StepperProps) {

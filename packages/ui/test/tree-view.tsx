@@ -1,20 +1,20 @@
-/* eslint-disable no-await-in-loop */
-import React from 'react';
+/* eslint-disable no-await-in-loop -- Each step drives the component, and the next step starts only after the last one has rendered. */
 import test, {type TestContext} from 'node:test';
+import React from 'react';
 import chalk from 'chalk';
 import delay from 'delay';
 import figures from 'figures';
-import {render} from './helpers/render.js';
 import {
 	TreeView,
 	type TreeViewNode,
 } from '../source/components/tree-view/index.js';
 import {ThemeProvider, defaultTheme, extendTheme} from '../source/theme.js';
+import {render} from './helpers/render.js';
 
-const down = '\u001B[B';
-const up = '\u001B[A';
-const right = '\u001B[C';
-const left = '\u001B[D';
+const down = '\u{1B}[B';
+const up = '\u{1B}[A';
+const right = '\u{1B}[C';
+const left = '\u{1B}[D';
 const enter = '\r';
 
 const tree: TreeViewNode[] = [
@@ -51,12 +51,10 @@ const branchLine = (
 	{isExpanded, isFocused = false}: {isExpanded: boolean; isFocused?: boolean},
 ): string => {
 	const triangle = `${isExpanded ? figures.triangleDown : figures.triangleRight} `;
-	if (isExpanded) {
-		return `${guide(guideText)}${triangle}${labelText(text, isFocused)}`;
-	}
-
 	// A collapsed triangle is dimmed like the guide, so Ink writes both as one dimmed run.
-	return `${chalk.dim(`${guideText}${triangle}`)}${labelText(text, isFocused)}`;
+	return isExpanded
+		? `${guide(guideText)}${triangle}${labelText(text, isFocused)}`
+		: `${chalk.dim(`${guideText}${triangle}`)}${labelText(text, isFocused)}`;
 };
 
 const frame = (lines: string[]): string => lines.join('\n');
@@ -139,7 +137,10 @@ test('Up and Down stop at the first and last rows instead of wrapping', async (t
 	await press(instance, [up]);
 	t.assert.strictEqual(instance.lastFrame(), frame(fullTreeLines(0)));
 
-	await press(instance, Array(9).fill(down));
+	await press(
+		instance,
+		Array.from({length: 9}, () => down),
+	);
 	t.assert.strictEqual(instance.lastFrame(), frame(fullTreeLines(8)));
 	instance.unmount();
 });
@@ -230,7 +231,7 @@ test('Left on a top-level branch that is collapsed does nothing', async (t: Test
 
 test('Left on a top-level leaf does nothing', async (t: TestContext) => {
 	const instance = render(<TreeView nodes={tree} />);
-	await press(instance, [...Array(8).fill(down), left]);
+	await press(instance, [...Array.from({length: 8}, () => down), left]);
 
 	t.assert.strictEqual(instance.lastFrame(), frame(fullTreeLines(8)));
 	instance.unmount();
@@ -285,7 +286,7 @@ test('arrow keys never call onSelect', async (t: TestContext) => {
 test('any other key is ignored', async (t: TestContext) => {
 	const {selections, onSelect} = recordSelections();
 	const instance = render(<TreeView nodes={tree} onSelect={onSelect} />);
-	await press(instance, ['x', '\u001B']);
+	await press(instance, ['x', '\u{1B}']);
 
 	t.assert.strictEqual(instance.lastFrame(), frame(fullTreeLines(0)));
 	t.assert.deepStrictEqual(selections, []);
@@ -342,7 +343,7 @@ test('a branch with an empty children array renders as a leaf', async (t: TestCo
 
 test('defaultExpanded is read once, so a later change does not flip branches', async (t: TestContext) => {
 	const instance = render(<TreeView nodes={tree} defaultExpanded={false} />);
-	instance.rerender(<TreeView nodes={tree} defaultExpanded />);
+	instance.rerender(<TreeView defaultExpanded nodes={tree} />);
 	await delay(20);
 
 	t.assert.strictEqual(instance.lastFrame(), frame(collapsedLines));
@@ -353,8 +354,8 @@ test('a branch added after mount starts with the mount-time default', async (t: 
 	const instance = render(<TreeView nodes={tree} defaultExpanded={false} />);
 	instance.rerender(
 		<TreeView
-			nodes={[...tree, {label: 'extras', children: [{label: 'todo.md'}]}]}
 			defaultExpanded
+			nodes={[...tree, {label: 'extras', children: [{label: 'todo.md'}]}]}
 		/>,
 	);
 	await delay(20);
@@ -378,7 +379,10 @@ test('expansion survives a rerender that keeps the same label paths', async (t: 
 
 test('focus moves to the last row when nodes shrink past it', async (t: TestContext) => {
 	const instance = render(<TreeView nodes={tree} />);
-	await press(instance, Array(8).fill(down));
+	await press(
+		instance,
+		Array.from({length: 8}, () => down),
+	);
 	instance.rerender(<TreeView nodes={tree.slice(0, 1)} />);
 	await delay(20);
 

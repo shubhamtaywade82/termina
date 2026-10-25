@@ -1,3 +1,4 @@
+/* eslint-disable @eslint-react/no-array-index-key -- Cells are positional within a row, and each column is fixed for the render. */
 import React, {type ReactNode} from 'react';
 import {Box, Text} from '@nemesis-oss/termina-core';
 import figures from 'figures';
@@ -90,7 +91,9 @@ function Line({measure, isFocused, cells}: LineProps) {
 					{...styles.cell()}
 					width={measure.widths[index]}
 					justifyContent={
-						measure.columns[index]?.align === 'right' ? 'flex-end' : 'flex-start'
+						measure.columns[index]?.align === 'right'
+							? 'flex-end'
+							: 'flex-start'
 					}
 				>
 					{cell}
@@ -122,7 +125,13 @@ function HeaderCell({label, isFocused, sortDirection}: HeaderCellProps) {
 	);
 }
 
-function Header({measure, state}: {readonly measure: Measure; readonly state: DataTableState}) {
+function Header({
+	measure,
+	state,
+}: {
+	readonly measure: Measure;
+	readonly state: DataTableState;
+}) {
 	const {styles} = useComponentTheme<Theme>('DataTable');
 
 	return (
@@ -132,6 +141,7 @@ function Header({measure, state}: {readonly measure: Measure; readonly state: Da
 				isFocused={false}
 				cells={measure.columns.map((column, index) => (
 					<HeaderCell
+						key={column.key}
 						label={column.header}
 						isFocused={index === state.focusedColumn}
 						sortDirection={getSortDirection(state.sort, column.key)}
@@ -157,7 +167,10 @@ type BodyProps = {
 
 function Body({measure, rows, state, visibleRowCount}: BodyProps) {
 	const firstRowIndex = state.scrollTop;
-	const visibleRows = rows.slice(firstRowIndex, firstRowIndex + visibleRowCount);
+	const visibleRows = rows.slice(
+		firstRowIndex,
+		firstRowIndex + visibleRowCount,
+	);
 
 	return (
 		<>
@@ -169,8 +182,10 @@ function Body({measure, rows, state, visibleRowCount}: BodyProps) {
 						key={rowIndex}
 						measure={measure}
 						isFocused={rowIndex === state.focusedRow}
-						cells={measure.columns.map(column => (
-							<Text wrap="truncate-end">{getCellText(row, column.key)}</Text>
+						cells={measure.columns.map((column) => (
+							<Text key={column.key} wrap="truncate-end">
+								{getCellText(row, column.key)}
+							</Text>
 						))}
 					/>
 				);
@@ -188,12 +203,18 @@ export function DataTable({
 }: DataTableProps) {
 	// Below one row the focused row would be hidden, and a fraction makes the slice and the scroll math disagree.
 	const windowRowCount = Math.max(Math.floor(visibleRowCount), 1);
-	const state = useDataTableState({columns, rows, visibleRowCount: windowRowCount, isActive, onSelect});
+	const state = useDataTableState({
+		columns,
+		rows,
+		visibleRowCount: windowRowCount,
+		isActive,
+		onSelect,
+	});
 	const {styles} = useComponentTheme<Theme>('DataTable');
 	const gap = styles.row({isFocused: false}).gap ?? 0;
 	// The widest columns shrink until the row fits the container.
 	const {ref: containerRef, widths} = useFittedColumnWidths(
-		columns.map(column => getColumnWidth(column, rows)),
+		columns.map((column) => getColumnWidth(column, rows)),
 		gap,
 	);
 	const measure: Measure = {

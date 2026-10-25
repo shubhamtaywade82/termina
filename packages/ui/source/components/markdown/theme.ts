@@ -7,16 +7,12 @@ const theme = {
 			flexDirection: 'column',
 			gap: 1,
 		}),
-		heading: ({level}: {level: number}): TextProps => {
+		heading({level}: {level: number}): TextProps {
 			if (level === 1) {
 				return {bold: true, underline: true, color: 'cyan'};
 			}
 
-			if (level === 2) {
-				return {bold: true, color: 'cyan'};
-			}
-
-			return {bold: true};
+			return level === 2 ? {bold: true, color: 'cyan'} : {bold: true};
 		},
 		paragraph: (): TextProps => ({}),
 		listBullet: (): TextProps => ({

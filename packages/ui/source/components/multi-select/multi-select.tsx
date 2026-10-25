@@ -1,5 +1,6 @@
 import React, {type ReactNode} from 'react';
 import {Box, Text} from '@nemesis-oss/termina-core';
+import {isPresent} from '../../lib/is-present.js';
 import {useComponentTheme} from '../../theme.js';
 import {type Option} from '../../types.js';
 import {MultiSelectOption} from './multi-select-option.js';
@@ -73,11 +74,11 @@ export function MultiSelect({
 
 	return (
 		<Box {...styles.container()}>
-			{state.visibleOptions.map(option => {
+			{state.visibleOptions.map((option) => {
 				// eslint-disable-next-line prefer-destructuring
 				let label: ReactNode = option.label;
 
-				if (highlightText && option.label.includes(highlightText)) {
+				if (isPresent(highlightText) && option.label.includes(highlightText)) {
 					const index = option.label.indexOf(highlightText);
 
 					label = (

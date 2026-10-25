@@ -1,9 +1,9 @@
-import React from 'react';
 import test, {type TestContext} from 'node:test';
-import {render} from './helpers/render.js';
+import React from 'react';
 import chalk from 'chalk';
 import {Box, Text} from '@nemesis-oss/termina-core';
 import {Divider} from '../source/components/divider/index.js';
+import {render} from './helpers/render.js';
 
 // The render helper reports 100 columns, so a rule at the root is 100 wide.
 const TERMINAL_COLUMNS = 100;

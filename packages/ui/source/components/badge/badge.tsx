@@ -20,11 +20,8 @@ export type BadgeProps = {
 export function Badge({children, color = 'magenta'}: BadgeProps) {
 	const {styles} = useComponentTheme<Theme>('Badge');
 
-	let formattedChildren = children;
-
-	if (typeof children === 'string') {
-		formattedChildren = children.toUpperCase();
-	}
+	const formattedChildren =
+		typeof children === 'string' ? children.toUpperCase() : children;
 
 	return (
 		<Text {...styles.container({color})}>

@@ -1,3 +1,4 @@
+/* eslint-disable @eslint-react/no-array-index-key -- The scrollbar is a fixed list of cells, identified by position. */
 import React, {useEffect, useRef, useState, type ReactNode} from 'react';
 import {
 	Box,
@@ -71,10 +72,10 @@ const scrollbarRows = (
 };
 
 /**
-A fixed-height viewport over taller content. Arrow keys scroll by a row, PageUp and PageDown by a viewport, and Home and End jump to the edges. With `render(..., {mouse: true})`, the mouse wheel scrolls by `wheelStep` rows inside the viewport.
-
-Keys are read only when stdin supports raw mode, so the box also renders under piped stdin and in CI.
-*/
+ * A fixed-height viewport over taller content. Arrow keys scroll by a row, PageUp and PageDown by a viewport, and Home and End jump to the edges. With `render(..., {mouse: true})`, the mouse wheel scrolls by `wheelStep` rows inside the viewport.
+ *
+ * Keys are read only when stdin supports raw mode, so the box also renders under piped stdin and in CI.
+ */
 export const ScrollBox = ({
 	height,
 	children,
@@ -133,9 +134,7 @@ export const ScrollBox = ({
 			releaseRequestRef.current = setTimeout(() => {
 				latestOffsetRef.current = renderedOffsetRef.current;
 			}, 0);
-		}
-
-		if (!isControlled) {
+		} else {
 			setOwnOffset(next);
 		}
 
@@ -173,7 +172,7 @@ export const ScrollBox = ({
 		}
 	};
 
-	const showTrack = showScrollbar && maxOffset > 0;
+	const isTrackShown = showScrollbar && maxOffset > 0;
 
 	return (
 		<Box flexDirection="row" height={height}>
@@ -189,7 +188,7 @@ export const ScrollBox = ({
 					{children}
 				</Box>
 			</Box>
-			{showTrack ? (
+			{isTrackShown ? (
 				<Box flexDirection="column" width={1}>
 					{scrollbarRows(height, contentHeight, currentOffset, maxOffset).map(
 						(row, index) => (

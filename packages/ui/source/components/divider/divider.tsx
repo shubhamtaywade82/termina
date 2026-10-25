@@ -1,5 +1,6 @@
 import React from 'react';
 import {Box, Text} from '@nemesis-oss/termina-core';
+import {isPresent} from '../../lib/is-present.js';
 import {useComponentTheme} from '../../theme.js';
 import {type Theme} from './theme.js';
 
@@ -20,7 +21,7 @@ export function Divider({title}: DividerProps) {
 
 	return (
 		<Box {...styles.container()}>
-			{title ? (
+			{isPresent(title) ? (
 				<>
 					<Box {...styles.line()} width={LEAD_LINE_COLUMNS} />
 					<Text {...styles.title()}>{title}</Text>

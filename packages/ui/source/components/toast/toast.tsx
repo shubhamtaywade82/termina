@@ -42,12 +42,12 @@ type AutoDismissOptions = {
 	readonly onDismiss?: () => void;
 };
 
-// setTimeout fires at once for a negative delay or one above the maximum,
+// SetTimeout fires at once for a negative delay or one above the maximum,
 // so those durations keep the toast like 0.
 const MAX_TIMER_DELAY_MS = 2 ** 31 - 1;
 
-// onDismiss goes through an effect event, so a new inline function on each render does not restart the countdown.
-function useAutoDismiss({durationMs, onDismiss}: AutoDismissOptions): boolean {
+// OnDismiss goes through an effect event, so a new inline function on each render does not restart the countdown.
+function useIsDismissed({durationMs, onDismiss}: AutoDismissOptions): boolean {
 	const [isDismissed, setIsDismissed] = useState(false);
 	const notifyDismissed = useEffectEvent(() => {
 		onDismiss?.();
@@ -79,7 +79,7 @@ export function Toast({
 	onDismiss,
 }: ToastProps) {
 	const {styles} = useComponentTheme<Theme>('Toast');
-	const isDismissed = useAutoDismiss({durationMs, onDismiss});
+	const isDismissed = useIsDismissed({durationMs, onDismiss});
 
 	if (isDismissed) {
 		return null;

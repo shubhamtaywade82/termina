@@ -1,5 +1,7 @@
+/* eslint-disable @eslint-react/no-array-index-key -- Source lines are positional: the same text can repeat, and the line number identifies each one. */
 import React from 'react';
 import {Box, Text} from '@nemesis-oss/termina-core';
+import {isPresent} from '../../lib/is-present.js';
 import {useComponentTheme} from '../../theme.js';
 import {type Theme} from './theme.js';
 
@@ -46,7 +48,8 @@ function CodeRow({
 }: CodeRowProps) {
 	const {styles} = useComponentTheme<Theme>('CodeBlock');
 	// Ink measures an empty Text as zero rows, so a blank line needs a space to keep its row.
-	const text = line.replaceAll('\t', '  ') || ' ';
+	const expanded = line.replaceAll('\t', '  ');
+	const text = expanded === '' ? ' ' : expanded;
 
 	return (
 		<Box>
@@ -62,11 +65,14 @@ function CodeRow({
 	);
 }
 
+// Shared empty default, so the prop has a stable identity from one render to the next.
+const noHighlights: number[] = [];
+
 export function CodeBlock({
 	code,
 	language,
 	showLineNumbers = true,
-	highlightLines = [],
+	highlightLines = noHighlights,
 }: CodeBlockProps) {
 	const {styles} = useComponentTheme<Theme>('CodeBlock');
 	const lines = code.split('\n');
@@ -74,7 +80,7 @@ export function CodeBlock({
 
 	return (
 		<Box {...styles.container()}>
-			{language ? <Text {...styles.label()}>{language}</Text> : null}
+			{isPresent(language) ? <Text {...styles.label()}>{language}</Text> : null}
 			{lines.map((line, index) => (
 				<CodeRow
 					key={index}

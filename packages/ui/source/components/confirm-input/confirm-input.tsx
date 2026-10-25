@@ -24,7 +24,7 @@ export type ConfirmInputProps = {
 	 *
 	 * @default true
 	 */
-	readonly submitOnEnter?: boolean; // eslint-disable-line react/boolean-prop-naming
+	readonly submitOnEnter?: boolean;
 
 	/**
 	 * Callback to trigger on confirmation.
@@ -54,7 +54,7 @@ export function ConfirmInput({
 				onCancel();
 			}
 
-			if (key.return && submitOnEnter) {
+			if (submitOnEnter && key.return) {
 				if (defaultChoice === 'confirm') {
 					onConfirm();
 				} else {

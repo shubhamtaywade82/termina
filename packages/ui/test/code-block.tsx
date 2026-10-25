@@ -1,9 +1,9 @@
-import React from 'react';
 import test, {type TestContext} from 'node:test';
+import React from 'react';
 import chalk from 'chalk';
 import delay from 'delay';
-import {render} from './helpers/render.js';
 import {CodeBlock} from '../source/components/code-block/index.js';
+import {render} from './helpers/render.js';
 
 const demoCode = `import express from 'express';
 
@@ -27,7 +27,9 @@ const renderFrame = (
 };
 
 const stripAnsi = (text: string): string =>
-	text.replaceAll(/\u001B\[[\d;]*m/g, '');
+	// ESC starts every SGR sequence this helper removes.
+	// eslint-disable-next-line no-control-regex, regexp/no-control-character -- ESC starts every SGR sequence this helper removes.
+	text.replaceAll(/\u{1B}\[[\d;]*m/gu, '');
 
 test('shows the language above numbered rows with a rule', (t: TestContext) => {
 	const frame = renderFrame(
@@ -52,7 +54,9 @@ test('shows the language above numbered rows with a rule', (t: TestContext) => {
 });
 
 test('right-aligns line numbers to the width of the largest one', (t: TestContext) => {
-	const code = Array.from({length: 10}, (_, index) => `l${index + 1}`).join('\n');
+	const code = Array.from({length: 10}, (_, index) => `l${index + 1}`).join(
+		'\n',
+	);
 
 	t.assert.strictEqual(
 		stripAnsi(renderFrame(<CodeBlock code={code} />)),
@@ -99,7 +103,9 @@ test('dims the label and gutter and highlights nothing by default', (t: TestCont
 });
 
 test('ignores highlight numbers that match no line', (t: TestContext) => {
-	const frame = renderFrame(<CodeBlock code={'a\nb'} highlightLines={[0, 9]} />);
+	const frame = renderFrame(
+		<CodeBlock code={'a\nb'} highlightLines={[0, 9]} />,
+	);
 
 	t.assert.strictEqual(
 		frame,
@@ -119,7 +125,9 @@ test('hides the gutter and rule when line numbers are off, and still highlights'
 });
 
 test('keeps a blank line as a row when line numbers are off', (t: TestContext) => {
-	const frame = renderFrame(<CodeBlock code={'a\n\nb'} showLineNumbers={false} />);
+	const frame = renderFrame(
+		<CodeBlock code={'a\n\nb'} showLineNumbers={false} />,
+	);
 
 	t.assert.strictEqual(stripAnsi(frame), 'a\n\nb');
 });
@@ -142,11 +150,17 @@ test('shows empty code as one numbered row', (t: TestContext) => {
 });
 
 test('adds an empty last row for a trailing newline', (t: TestContext) => {
-	t.assert.strictEqual(stripAnsi(renderFrame(<CodeBlock code={'a\n'} />)), '1 │ a\n2 │');
+	t.assert.strictEqual(
+		stripAnsi(renderFrame(<CodeBlock code={'a\n'} />)),
+		'1 │ a\n2 │',
+	);
 });
 
 test('replaces each tab with two spaces', (t: TestContext) => {
-	t.assert.strictEqual(stripAnsi(renderFrame(<CodeBlock code={'\tx'} />)), '1 │   x');
+	t.assert.strictEqual(
+		stripAnsi(renderFrame(<CodeBlock code={'\tx'} />)),
+		'1 │   x',
+	);
 });
 
 test('shows no label line when language is an empty string', (t: TestContext) => {
@@ -162,12 +176,14 @@ test('wraps a long line inside the code column and numbers only its first row', 
 
 	t.assert.ok(rows.length > 1);
 	t.assert.ok(rows[0]?.startsWith('1 │ '));
-	t.assert.ok(rows.slice(1).every(row => row.startsWith('  │ ')));
-	t.assert.strictEqual(rows.map(row => row.slice(4)).join(' '), code);
+	t.assert.ok(rows.slice(1).every((row) => row.startsWith('  │ ')));
+	t.assert.strictEqual(rows.map((row) => row.slice(4)).join(' '), code);
 });
 
 test('renders every line, even when the block is taller than the terminal', (t: TestContext) => {
-	const code = Array.from({length: 30}, (_, index) => `l${index + 1}`).join('\n');
+	const code = Array.from({length: 30}, (_, index) => `l${index + 1}`).join(
+		'\n',
+	);
 	const rows = stripAnsi(renderFrame(<CodeBlock code={code} />)).split('\n');
 
 	t.assert.strictEqual(rows.length, 30);
@@ -179,7 +195,7 @@ test('ignores keyboard input', async (t: TestContext) => {
 	const frameBefore = instance.lastFrame();
 
 	instance.stdin.write('j');
-	instance.stdin.write('\u001B[B');
+	instance.stdin.write('\u{1B}[B');
 	await delay(20);
 	const frameAfter = instance.lastFrame();
 	instance.unmount();

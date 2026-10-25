@@ -29,11 +29,7 @@ const spanStyle = (span: MarkdownInlineSpan, styles: Styles): TextProps => {
 		return styles.italic();
 	}
 
-	if (span.kind === 'code') {
-		return styles.code();
-	}
-
-	return {};
+	return span.kind === 'code' ? styles.code() : {};
 };
 
 // Each leaf carries its block's whole style, since an outer style would lose its bold after a
@@ -51,7 +47,7 @@ const renderSpan = (
 				<Text {...base} {...styles.link()}>
 					{span.value}
 				</Text>
-				<Text {...base} bold={false} dimColor>{` (${span.url ?? ''})`}</Text>
+				<Text {...base} dimColor bold={false}>{` (${span.url ?? ''})`}</Text>
 			</Fragment>
 		);
 	}
@@ -70,6 +66,8 @@ const renderSpans = (
 	styles: Styles,
 	base: TextProps,
 ): ReactNode[] =>
+	// Children are rendered as elements, so the callback never returns a promise. ReactNode includes Promise only as a type.
+	// eslint-disable-next-line @typescript-eslint/promise-function-async -- ReactNode includes Promise in its type, but this callback returns elements.
 	spans.map((span, index) => renderSpan(span, index, styles, base));
 
 const renderListItem = (
@@ -77,7 +75,8 @@ const renderListItem = (
 	index: number,
 	styles: Styles,
 ): ReactNode => {
-	const glyph = item.ordinal === undefined ? figures.bullet : `${item.ordinal}.`;
+	const glyph =
+		item.ordinal === undefined ? figures.bullet : `${item.ordinal}.`;
 	const marker = `${' '.repeat(item.depth * NESTED_INDENT_WIDTH)}${glyph} `;
 
 	return (
@@ -99,6 +98,7 @@ const renderList = (
 	styles: Styles,
 ): ReactNode => (
 	<Box key={index} flexDirection="column">
+		{/* eslint-disable-next-line @typescript-eslint/promise-function-async -- ReactNode includes Promise in its type, but this callback returns elements. */}
 		{items.map((item, itemIndex) => renderListItem(item, itemIndex, styles))}
 	</Box>
 );
@@ -147,7 +147,9 @@ const renderBlock = (
 	}
 
 	return (
-		<Text key={index}>{renderSpans(block.spans, styles, styles.paragraph())}</Text>
+		<Text key={index}>
+			{renderSpans(block.spans, styles, styles.paragraph())}
+		</Text>
 	);
 };
 
@@ -157,6 +159,7 @@ export function Markdown({children}: MarkdownProps) {
 
 	return (
 		<Box {...styles.container()}>
+			{/* eslint-disable-next-line @typescript-eslint/promise-function-async -- ReactNode includes Promise in its type, but this callback returns elements. */}
 			{blocks.map((block, index) => renderBlock(block, index, styles))}
 		</Box>
 	);

@@ -1,12 +1,12 @@
-import React from 'react';
 import test, {type TestContext} from 'node:test';
-import {render} from './helpers/render.js';
+import React from 'react';
 import {Box, Text} from '@nemesis-oss/termina-core';
 import chalk from 'chalk';
 import delay from 'delay';
 import figures from 'figures';
 import {Stepper} from '../source/components/stepper/index.js';
 import {ThemeProvider, defaultTheme, extendTheme} from '../source/theme.js';
+import {render} from './helpers/render.js';
 
 const steps = [
 	'Install dependencies',
@@ -20,7 +20,7 @@ const currentRow = (label: string) =>
 	`${chalk.blue(figures.circleFilled)} ${chalk.bold(label)}`;
 const pendingRow = (label: string) => `${chalk.dim(figures.circle)} ${label}`;
 
-const arrowDown = '\u001B[B';
+const arrowDown = '\u{1B}[B';
 const enter = '\r';
 
 test('render one row per step with its state', (t: TestContext) => {
@@ -137,7 +137,11 @@ test('ignore key presses and never advance on their own', async (t: TestContext)
 });
 
 test('a style key replaced through ThemeProvider receives the step status', (t: TestContext) => {
-	const iconColors = {done: 'magenta', current: 'yellow', pending: 'cyan'} as const;
+	const iconColors = {
+		done: 'magenta',
+		current: 'yellow',
+		pending: 'cyan',
+	} as const;
 	const theme = extendTheme(defaultTheme, {
 		components: {
 			Stepper: {

@@ -1,30 +1,30 @@
-/* eslint-disable no-await-in-loop */
+/* eslint-disable no-await-in-loop -- Each step drives the component, and the next step starts only after the last one has rendered. */
 import test, {type TestContext} from 'node:test';
 import React, {useState} from 'react';
-import {render} from './helpers/render.js';
 import chalk from 'chalk';
 import delay from 'delay';
 import stripAnsi from 'strip-ansi';
 import {PasswordInput} from '../source/index.js';
+import {render} from './helpers/render.js';
 
 const cursor = (character = ' ') => chalk.inverse(character);
 const enter = '\r';
-const arrowLeft = '\u001B[D';
-const arrowRight = '\u001B[C';
-const del = '\u007F';
+const arrowLeft = '\u{1B}[D';
+const arrowRight = '\u{1B}[C';
+const del = '\u{7F}';
 
-const cursorAt = (input: string, at: number): string => {
-	return [...input]
-		.map((character, index) => {
-			return index === at ? cursor(character) : character;
-		})
+const cursorAt = (input: string, at: number): string =>
+	[...input]
+		.map((character, index) => (index === at ? cursor(character) : character))
 		.join('');
-};
 
 test('placeholder', (t: TestContext) => {
 	const {lastFrame} = render(<PasswordInput placeholder="Enter password..." />);
 
-	t.assert.strictEqual(lastFrame(), cursor('E') + chalk.dim('nter password...'));
+	t.assert.strictEqual(
+		lastFrame(),
+		cursor('E') + chalk.dim('nter password...'),
+	);
 });
 
 test("cursor can't be moved in placeholder", async (t: TestContext) => {
@@ -36,13 +36,19 @@ test("cursor can't be moved in placeholder", async (t: TestContext) => {
 	stdin.write(arrowLeft);
 	await delay(50);
 
-	t.assert.strictEqual(lastFrame(), cursor('E') + chalk.dim('nter password...'));
+	t.assert.strictEqual(
+		lastFrame(),
+		cursor('E') + chalk.dim('nter password...'),
+	);
 
 	await delay(50);
 	stdin.write(arrowRight);
 	await delay(50);
 
-	t.assert.strictEqual(lastFrame(), cursor('E') + chalk.dim('nter password...'));
+	t.assert.strictEqual(
+		lastFrame(),
+		cursor('E') + chalk.dim('nter password...'),
+	);
 });
 
 test('hide cursor in placeholder when disabled', (t: TestContext) => {
@@ -59,7 +65,7 @@ test('insert character', async (t: TestContext) => {
 	const {lastFrame, stdin} = render(
 		<PasswordInput
 			placeholder="Enter password..."
-			onChange={newValue => {
+			onChange={(newValue) => {
 				value = newValue;
 			}}
 		/>,
@@ -79,7 +85,7 @@ test('insert text', async (t: TestContext) => {
 	const {lastFrame, stdin} = render(
 		<PasswordInput
 			placeholder="Enter password..."
-			onChange={newValue => {
+			onChange={(newValue) => {
 				value = newValue;
 			}}
 		/>,
@@ -100,7 +106,7 @@ test('ignore input when disabled', async (t: TestContext) => {
 		<PasswordInput
 			isDisabled
 			placeholder="Enter password..."
-			onChange={newValue => {
+			onChange={(newValue) => {
 				value = newValue;
 			}}
 		/>,
@@ -119,7 +125,7 @@ test('delete character', async (t: TestContext) => {
 
 	const {lastFrame, stdin} = render(
 		<PasswordInput
-			onChange={newValue => {
+			onChange={(newValue) => {
 				value = newValue;
 			}}
 		/>,
@@ -145,7 +151,7 @@ test('delete all text', async (t: TestContext) => {
 	const {lastFrame, stdin} = render(
 		<PasswordInput
 			placeholder="Enter password..."
-			onChange={newValue => {
+			onChange={(newValue) => {
 				value = newValue;
 			}}
 		/>,
@@ -163,7 +169,10 @@ test('delete all text', async (t: TestContext) => {
 		await delay(50);
 	}
 
-	t.assert.strictEqual(lastFrame(), cursor('E') + chalk.dim('nter password...'));
+	t.assert.strictEqual(
+		lastFrame(),
+		cursor('E') + chalk.dim('nter password...'),
+	);
 	t.assert.strictEqual(value, '');
 });
 
@@ -252,7 +261,7 @@ test('insert character in the middle', async (t: TestContext) => {
 
 	const {lastFrame, stdin} = render(
 		<PasswordInput
-			onChange={newValue => {
+			onChange={(newValue) => {
 				value = newValue;
 			}}
 		/>,
@@ -285,7 +294,7 @@ test('insert text in the middle', async (t: TestContext) => {
 
 	const {lastFrame, stdin} = render(
 		<PasswordInput
-			onChange={newValue => {
+			onChange={(newValue) => {
 				value = newValue;
 			}}
 		/>,
@@ -318,7 +327,7 @@ test('submit on enter', async (t: TestContext) => {
 
 	const {stdin} = render(
 		<PasswordInput
-			onSubmit={value => {
+			onSubmit={(value) => {
 				submittedValue = value;
 			}}
 		/>,
@@ -336,7 +345,10 @@ test('submit on enter', async (t: TestContext) => {
 });
 
 // Types each piece of text in order, pausing so each one is its own input event.
-const typeText = async (stdin: {write: (data: string) => void}, ...pieces: string[]) => {
+const typeText = async (
+	stdin: {write: (data: string) => void},
+	...pieces: string[]
+) => {
 	for (const piece of pieces) {
 		stdin.write(piece);
 		await delay(20);
@@ -383,7 +395,7 @@ test('the submitted value keeps the emoji intact while the display stays masked'
 	let submitted: string | undefined;
 	const {lastFrame, stdin, unmount} = render(
 		<PasswordInput
-			onSubmit={value => {
+			onSubmit={(value) => {
 				submitted = value;
 			}}
 		/>,

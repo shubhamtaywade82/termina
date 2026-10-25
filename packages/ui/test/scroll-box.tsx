@@ -1,27 +1,31 @@
-import React from 'react';
 import test, {type TestContext} from 'node:test';
+import React from 'react';
 import delay from 'delay';
 import stripAnsi from 'strip-ansi';
 import {Box, Text} from '@nemesis-oss/termina-core';
-import {render} from './helpers/render.js';
 import {ScrollBox} from '../source/index.js';
+import {render} from './helpers/render.js';
 
 const rows = Array.from(
 	{length: 30},
 	(_, index) => `line ${String(index).padStart(2, '0')}`,
 );
 
-const arrowDown = '\u001B[B';
-const arrowUp = '\u001B[A';
-const pageDown = '\u001B[6~';
-const home = '\u001B[H';
-const end = '\u001B[F';
+const arrowDown = '\u{1B}[B';
+const arrowUp = '\u{1B}[A';
+const pageDown = '\u{1B}[6~';
+const home = '\u{1B}[H';
+const end = '\u{1B}[F';
 
-const wheelDown = (x: number, y: number) => `\u001B[<65;${x};${y}M`;
+const wheelDown = (x: number, y: number) => `\u{1B}[<65;${x};${y}M`;
 
-const Viewport = ({onScroll}: {readonly onScroll?: (offset: number) => void}) => (
+const Viewport = ({
+	onScroll,
+}: {
+	readonly onScroll?: (offset: number) => void;
+}) => (
 	<ScrollBox height={5} onScroll={onScroll}>
-		{rows.map(row => (
+		{rows.map((row) => (
 			<Text key={row}>{row}</Text>
 		))}
 	</ScrollBox>
@@ -48,6 +52,7 @@ test('arrow keys scroll one row at a time', async (t: TestContext) => {
 
 	for (let press = 0; press < 3; press++) {
 		instance.stdin.write(arrowDown);
+		// eslint-disable-next-line no-await-in-loop -- Each step must finish before the next one starts, so the steps stay in order.
 		await delay(15);
 	}
 
@@ -104,7 +109,13 @@ test('the offset is clamped at the top and the bottom', async (t: TestContext) =
 
 test('onScroll reports each new offset', async (t: TestContext) => {
 	const offsets: number[] = [];
-	const instance = render(<Viewport onScroll={offset => offsets.push(offset)} />);
+	const instance = render(
+		<Viewport
+			onScroll={(offset) => {
+				offsets.push(offset);
+			}}
+		/>,
+	);
 	await settle();
 
 	instance.stdin.write(arrowDown);
@@ -180,7 +191,7 @@ test('the wheel does nothing over a ScrollBox that is clipped out of view', asyn
 	const instance = render(
 		<Box flexDirection="column" height={2} overflow="hidden">
 			<ScrollBox height={5}>
-				{rows.map(row => (
+				{rows.map((row) => (
 					<Text key={row}>{row}</Text>
 				))}
 			</ScrollBox>
@@ -202,13 +213,19 @@ test('the wheel does nothing over a ScrollBox that is clipped out of view', asyn
 });
 
 // The thumb is the last column of each viewport row, so the track is read from the end of every line.
-const trackOf = (frame: string, rows: number): string[] =>
+const trackOf = (frame: string, visibleRows: number): string[] =>
 	stripAnsi(frame)
 		.split('\n')
-		.slice(0, rows)
-		.map(line => line.at(-1) ?? '');
+		.slice(0, visibleRows)
+		.map((line) => line.at(-1) ?? '');
 
-const Tall = ({rows: count, showScrollbar}: {readonly rows: number; readonly showScrollbar?: boolean}) => (
+const Tall = ({
+	rows: count,
+	showScrollbar,
+}: {
+	readonly rows: number;
+	readonly showScrollbar?: boolean;
+}) => (
 	<ScrollBox height={5} showScrollbar={showScrollbar}>
 		{Array.from({length: count}, (_, index) => (
 			<Text key={index}>{`row ${index}`}</Text>
@@ -219,16 +236,34 @@ const Tall = ({rows: count, showScrollbar}: {readonly rows: number; readonly sho
 test('the thumb sits at the top, moves with the scroll position, and reaches the bottom at the end', async (t: TestContext) => {
 	const instance = render(<Viewport />);
 	await settle();
-	t.assert.deepStrictEqual(trackOf(instance.lastFrame() ?? '', 5), ['█', '│', '│', '│', '│']);
+	t.assert.deepStrictEqual(trackOf(instance.lastFrame() ?? '', 5), [
+		'█',
+		'│',
+		'│',
+		'│',
+		'│',
+	]);
 
 	// One page of 25 rows of scroll range over 4 track gaps: a 5-row offset lands on the second row.
 	instance.stdin.write(pageDown);
 	await settle();
-	t.assert.deepStrictEqual(trackOf(instance.lastFrame() ?? '', 5), ['│', '█', '│', '│', '│']);
+	t.assert.deepStrictEqual(trackOf(instance.lastFrame() ?? '', 5), [
+		'│',
+		'█',
+		'│',
+		'│',
+		'│',
+	]);
 
 	instance.stdin.write(end);
 	await settle();
-	t.assert.deepStrictEqual(trackOf(instance.lastFrame() ?? '', 5), ['│', '│', '│', '│', '█']);
+	t.assert.deepStrictEqual(trackOf(instance.lastFrame() ?? '', 5), [
+		'│',
+		'│',
+		'│',
+		'│',
+		'█',
+	]);
 	instance.unmount();
 });
 
@@ -236,11 +271,23 @@ test('the thumb is sized by the visible fraction of the content', async (t: Test
 	// 5 visible rows of 6: the thumb is round(25 / 6) = 4 rows tall.
 	const instance = render(<Tall rows={6} />);
 	await settle();
-	t.assert.deepStrictEqual(trackOf(instance.lastFrame() ?? '', 5), ['█', '█', '█', '█', '│']);
+	t.assert.deepStrictEqual(trackOf(instance.lastFrame() ?? '', 5), [
+		'█',
+		'█',
+		'█',
+		'█',
+		'│',
+	]);
 
 	instance.stdin.write(end);
 	await settle();
-	t.assert.deepStrictEqual(trackOf(instance.lastFrame() ?? '', 5), ['│', '█', '█', '█', '█']);
+	t.assert.deepStrictEqual(trackOf(instance.lastFrame() ?? '', 5), [
+		'│',
+		'█',
+		'█',
+		'█',
+		'█',
+	]);
 	instance.unmount();
 });
 

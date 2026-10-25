@@ -1,8 +1,9 @@
 import {useMemo} from 'react';
 import {useInput, usePaste} from '@nemesis-oss/termina-core';
 import chalk from 'chalk';
-import {type TextInputState} from './use-text-input-state.js';
+import {isPresent} from '../../lib/is-present.js';
 import {graphemes, splitFirstGrapheme} from '../../lib/grapheme.js';
+import {type TextInputState} from './use-text-input-state.js';
 
 export type UseTextInputProps = {
 	/**
@@ -38,10 +39,10 @@ export const useTextInput = ({
 }: UseTextInputProps): UseTextInputResult => {
 	const renderedPlaceholder = useMemo(() => {
 		if (isDisabled) {
-			return placeholder ? chalk.dim(placeholder) : '';
+			return isPresent(placeholder) ? chalk.dim(placeholder) : '';
 		}
 
-		if (!placeholder) {
+		if (!isPresent(placeholder)) {
 			return cursor;
 		}
 
@@ -60,7 +61,7 @@ export const useTextInput = ({
 			result += index === state.cursorOffset ? chalk.inverse(segment) : segment;
 		}
 
-		if (state.suggestion) {
+		if (isPresent(state.suggestion)) {
 			if (state.cursorOffset === state.value.length) {
 				const [first, rest] = splitFirstGrapheme(state.suggestion);
 				result += chalk.inverse(first) + chalk.dim(rest);
@@ -80,11 +81,12 @@ export const useTextInput = ({
 
 	useInput(
 		(input, key) => {
+			const isCtrlC = key.ctrl && input === 'c';
 			if (
+				isCtrlC ||
+				key.tab ||
 				key.upArrow ||
 				key.downArrow ||
-				(key.ctrl && input === 'c') ||
-				key.tab ||
 				(key.shift && key.tab)
 			) {
 				return;
@@ -105,7 +107,6 @@ export const useTextInput = ({
 				state.deleteForward();
 			} else if (key.ctrl || key.meta) {
 				// Ctrl and Alt chords are commands, not text. Ctrl+A must not type an "a".
-				return;
 			} else {
 				state.insert(input);
 			}

@@ -1,5 +1,5 @@
 import {Box} from '@nemesis-oss/termina-core';
-import React, {useMemo, type ReactNode, useContext} from 'react';
+import React, {useMemo, type ReactNode, use} from 'react';
 import {useComponentTheme} from '../../theme.js';
 import {UnorderedListItem} from './unordered-list-item.js';
 import {UnorderedListContext} from './unordered-list-context.js';
@@ -15,7 +15,7 @@ export type UnorderedListProps = {
 };
 
 export function UnorderedList({children}: UnorderedListProps) {
-	const {depth} = useContext(UnorderedListContext);
+	const {depth} = use(UnorderedListContext);
 	const {styles, config} = useComponentTheme<Theme>('UnorderedList');
 
 	const listContext = useMemo(
@@ -44,11 +44,11 @@ export function UnorderedList({children}: UnorderedListProps) {
 	}, [config, depth]);
 
 	return (
-		<UnorderedListContext.Provider value={listContext}>
-			<UnorderedListItemContext.Provider value={listItemContext}>
+		<UnorderedListContext value={listContext}>
+			<UnorderedListItemContext value={listItemContext}>
 				<Box {...styles.list()}>{children}</Box>
-			</UnorderedListItemContext.Provider>
-		</UnorderedListContext.Provider>
+			</UnorderedListItemContext>
+		</UnorderedListContext>
 	);
 }
 

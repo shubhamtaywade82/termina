@@ -24,7 +24,7 @@ const BLOCKS = '▁▂▃▄▅▆▇█';
 const toFiniteValue = (value: number): number =>
 	Number.isFinite(value) ? value : 0;
 
-// slice(-width) returns every value when width is 0, so the start index is
+// Slice(-width) returns every value when width is 0, so the start index is
 // computed from the length instead.
 const takeLast = (values: number[], count: number): number[] =>
 	values.slice(Math.max(0, values.length - count));
@@ -41,19 +41,21 @@ const toBlock = (value: number, min: number, max: number): string => {
 };
 
 const toBlocks = (values: number[]): string => {
-	const min = values.reduce((lowest, value) => Math.min(lowest, value));
-	const max = values.reduce((highest, value) => Math.max(highest, value));
+	let min = Infinity;
+	let max = -Infinity;
+	for (const value of values) {
+		min = Math.min(min, value);
+		max = Math.max(max, value);
+	}
 
-	return values.map(value => toBlock(value, min, max)).join('');
+	return values.map((value) => toBlock(value, min, max)).join('');
 };
 
 export function Sparkline({data, width = data.length}: SparklineProps) {
 	const {styles} = useComponentTheme<Theme>('Sparkline');
-	const values = takeLast(data, width).map(toFiniteValue);
+	const values = takeLast(data, width).map((value) => toFiniteValue(value));
 
-	if (values.length === 0) {
-		return null;
-	}
-
-	return <Text {...styles.bars()}>{toBlocks(values)}</Text>;
+	return values.length === 0 ? null : (
+		<Text {...styles.bars()}>{toBlocks(values)}</Text>
+	);
 }

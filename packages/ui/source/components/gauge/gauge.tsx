@@ -1,6 +1,7 @@
 import React from 'react';
 import {Box, Text} from '@nemesis-oss/termina-core';
 import figures from 'figures';
+import {isPresent} from '../../lib/is-present.js';
 import {useComponentTheme} from '../../theme.js';
 import {type Theme} from './theme.js';
 
@@ -38,7 +39,12 @@ export type GaugeProps = {
 const clampPercent = (value: number): number =>
 	Number.isNaN(value) ? 0 : Math.min(100, Math.max(0, value));
 
-export function Gauge({value, label, width = 20, showValue = true}: GaugeProps) {
+export function Gauge({
+	value,
+	label,
+	width = 20,
+	showValue = true,
+}: GaugeProps) {
 	const {styles, config} = useComponentTheme<Theme>('Gauge');
 	const percent = clampPercent(value);
 	const {color} = config({value: percent});
@@ -46,7 +52,7 @@ export function Gauge({value, label, width = 20, showValue = true}: GaugeProps) 
 
 	return (
 		<Box {...styles.container()}>
-			{label ? <Text {...styles.label()}>{label}</Text> : null}
+			{isPresent(label) ? <Text {...styles.label()}>{label}</Text> : null}
 			<Text>
 				<Text color={color} {...styles.filled()}>
 					{figures.square.repeat(filledCount)}

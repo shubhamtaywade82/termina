@@ -1,12 +1,12 @@
-import React from 'react';
 import test, {type TestContext} from 'node:test';
+import React from 'react';
 import chalk from 'chalk';
 import delay from 'delay';
 import stripAnsi from 'strip-ansi';
 import {Box, Text} from '@nemesis-oss/termina-core';
-import {render} from './helpers/render.js';
 import {KeyHint} from '../source/components/key-hint/index.js';
 import {ThemeProvider, defaultTheme, extendTheme} from '../source/theme.js';
+import {render} from './helpers/render.js';
 
 const shortcuts = [
 	{keys: '↑↓', label: 'navigate'},
@@ -79,7 +79,10 @@ test('renders under piped stdin and ignores key presses', async (t: TestContext)
 	stdin.write('q');
 	await delay(20);
 
-	t.assert.strictEqual(lastFrame(), `${chalk.inverse(' q ')} ${chalk.dim('quit')}`);
+	t.assert.strictEqual(
+		lastFrame(),
+		`${chalk.inverse(' q ')} ${chalk.dim('quit')}`,
+	);
 });
 
 test('renders the demo layout as a list above a row of hints', (t: TestContext) => {
@@ -88,11 +91,12 @@ test('renders the demo layout as a list above a row of hints', (t: TestContext) 
 			<Box flexDirection="column">
 				<Text bold>Restart services</Text>
 				<Text>› [x] api</Text>
-				<Text>  [ ] worker</Text>
-				<Text>  [x] web</Text>
+				{/* The leading spaces are part of the text, so they are written as strings. */}
+				<Text>{'  [ ] worker'}</Text>
+				<Text>{'  [x] web'}</Text>
 			</Box>
 			<Box gap={2}>
-				{shortcuts.map(shortcut => (
+				{shortcuts.map((shortcut) => (
 					<KeyHint
 						key={shortcut.keys}
 						keys={shortcut.keys}
@@ -135,7 +139,10 @@ test('reads the key style from the KeyHint entry of a theme override', (t: TestC
 		</ThemeProvider>,
 	);
 
-	t.assert.strictEqual(lastFrame(), `${chalk.bold(' Ctrl+C ')} ${chalk.dim('quit')}`);
+	t.assert.strictEqual(
+		lastFrame(),
+		`${chalk.bold(' Ctrl+C ')} ${chalk.dim('quit')}`,
+	);
 });
 
 test('wraps a label that does not fit beside the key block, and drops the gap', (t: TestContext) => {

@@ -7,8 +7,8 @@ import {
 import {fitColumnWidths} from './fit-column-widths.js';
 
 /**
-Fits `naturalWidths` to the box that the returned `ref` is attached to. Until that box is measured, the terminal width stands in for it, so the first frame of a table that fills the screen is already fitted.
-*/
+ * Fits `naturalWidths` to the box that the returned `ref` is attached to. Until that box is measured, the terminal width stands in for it, so the first frame of a table that fills the screen is already fitted.
+ */
 export const useFittedColumnWidths = (
 	naturalWidths: readonly number[],
 	gap: number,

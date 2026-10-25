@@ -53,15 +53,17 @@ type CompletionOptions = {
 
 // A tick from the previous text can land before its cleanup runs, so it only advances the text it was started for.
 function advanceReveal(current: Reveal, text: string): Reveal {
-	if (current.text !== text) {
-		return current;
-	}
-
-	return {...current, revealedCount: current.revealedCount + 1};
+	return current.text === text
+		? {...current, revealedCount: current.revealedCount + 1}
+		: current;
 }
 
 // The reset runs during render, so the frame for a new text never shows the previous reveal.
-function useRevealedCount({text, characterCount, speed}: RevealOptions): number {
+function useRevealedCount({
+	text,
+	characterCount,
+	speed,
+}: RevealOptions): number {
 	const [reveal, setReveal] = useState<Reveal>({text, revealedCount: 0});
 
 	if (reveal.text !== text) {
@@ -80,9 +82,12 @@ function useRevealedCount({text, characterCount, speed}: RevealOptions): number 
 		// Keyed on text so a new text waits a full interval before its first character.
 		// ponytail: the period truncates to whole milliseconds, so the rate rounds up (60 runs at 62.5, 300 at 333)
 		// and anything above 500 runs at 1000. Exact pacing needs a clock-based scheduler.
-		const timer = setInterval(() => {
-			setReveal(current => advanceReveal(current, text));
-		}, Math.min(1000 / speed, MAX_TIMER_DELAY_MS));
+		const timer = setInterval(
+			() => {
+				setReveal((current) => advanceReveal(current, text));
+			},
+			Math.min(1000 / speed, MAX_TIMER_DELAY_MS),
+		);
 
 		return () => {
 			clearInterval(timer);
@@ -92,13 +97,17 @@ function useRevealedCount({text, characterCount, speed}: RevealOptions): number 
 	return reveal.revealedCount;
 }
 
-function useNotifyOnComplete({isComplete, text, onComplete}: CompletionOptions): void {
+function useNotifyOnComplete({
+	isComplete,
+	text,
+	onComplete,
+}: CompletionOptions): void {
 	// The effect event keeps onComplete out of the dependencies, so a new inline function does not notify again.
 	const notifyComplete = useEffectEvent(() => {
 		onComplete?.();
 	});
 
-	// text is a dependency so empty text, which is complete at once, still notifies for each new text.
+	// Text is a dependency so empty text, which is complete at once, still notifies for each new text.
 	useEffect(() => {
 		if (isComplete) {
 			notifyComplete();
@@ -106,17 +115,28 @@ function useNotifyOnComplete({isComplete, text, onComplete}: CompletionOptions):
 	}, [isComplete, text]);
 }
 
-export function Typewriter({text, speed = 30, cursor = true, onComplete}: TypewriterProps) {
+export function Typewriter({
+	text,
+	speed = 30,
+	cursor = true,
+	onComplete,
+}: TypewriterProps) {
 	const {styles} = useComponentTheme<Theme>('Typewriter');
-	const characters = Array.from(text);
-	const revealedCount = useRevealedCount({text, characterCount: characters.length, speed});
+	const characters = [...text];
+	const revealedCount = useRevealedCount({
+		text,
+		characterCount: characters.length,
+		speed,
+	});
 	const isComplete = revealedCount >= characters.length;
 	useNotifyOnComplete({isComplete, text, onComplete});
 
 	return (
 		<Text {...styles.text()}>
 			{characters.slice(0, revealedCount).join('')}
-			{cursor && !isComplete && <Text {...styles.cursor()}>{CURSOR_GLYPH}</Text>}
+			{cursor && !isComplete && (
+				<Text {...styles.cursor()}>{CURSOR_GLYPH}</Text>
+			)}
 		</Text>
 	);
 }

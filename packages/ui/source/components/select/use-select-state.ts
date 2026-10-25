@@ -1,5 +1,6 @@
 import {isDeepStrictEqual} from 'node:util';
 import {type Reducer, useCallback, useMemo, useState} from 'react';
+import {isPresent} from '../../lib/is-present.js';
 import {type Option} from '../../types.js';
 import OptionMap from '../../lib/option-map.js';
 import {useSyncedReducer} from '../../lib/use-synced-reducer.js';
@@ -61,7 +62,7 @@ export type ListFocusState = {
 };
 
 export const focusNext = <S extends ListFocusState>(state: S): S => {
-	if (!state.focusedValue) {
+	if (!isPresent(state.focusedValue)) {
 		return state;
 	}
 
@@ -78,9 +79,9 @@ export const focusNext = <S extends ListFocusState>(state: S): S => {
 		return state;
 	}
 
-	const needsToScroll = next.index >= state.visibleToIndex;
+	const shouldScroll = next.index >= state.visibleToIndex;
 
-	if (!needsToScroll) {
+	if (!shouldScroll) {
 		return {
 			...state,
 			focusedValue: next.value,
@@ -103,7 +104,7 @@ export const focusNext = <S extends ListFocusState>(state: S): S => {
 };
 
 export const focusPrevious = <S extends ListFocusState>(state: S): S => {
-	if (!state.focusedValue) {
+	if (!isPresent(state.focusedValue)) {
 		return state;
 	}
 
@@ -121,9 +122,9 @@ export const focusPrevious = <S extends ListFocusState>(state: S): S => {
 	}
 
 	// Scrolls only when the previous option is above the window, as focusNext scrolls only below it. Focus may rest on the top visible row.
-	const needsToScroll = previous.index < state.visibleFromIndex;
+	const shouldScroll = previous.index < state.visibleFromIndex;
 
-	if (!needsToScroll) {
+	if (!shouldScroll) {
 		return {
 			...state,
 			focusedValue: previous.value,
@@ -258,13 +259,13 @@ export const useSelectState = ({
 		dispatch({
 			type: 'focus-next-option',
 		});
-	}, []);
+	}, [dispatch]);
 
 	const focusPreviousOption = useCallback(() => {
 		dispatch({
 			type: 'focus-previous-option',
 		});
-	}, []);
+	}, [dispatch]);
 
 	// Notifies from the selection itself, not from an effect. Re-selecting the current option is not a change.
 	const selectFocusedOption = useCallback(() => {
@@ -281,14 +282,16 @@ export const useSelectState = ({
 		}
 	}, [dispatch, onChange]);
 
-	const visibleOptions = useMemo(() => {
-		return options
-			.map((option, index) => ({
-				...option,
-				index,
-			}))
-			.slice(state.visibleFromIndex, state.visibleToIndex);
-	}, [options, state.visibleFromIndex, state.visibleToIndex]);
+	const visibleOptions = useMemo(
+		() =>
+			options
+				.map((option, index) => ({
+					...option,
+					index,
+				}))
+				.slice(state.visibleFromIndex, state.visibleToIndex),
+		[options, state.visibleFromIndex, state.visibleToIndex],
+	);
 
 	return {
 		focusedValue: state.focusedValue,

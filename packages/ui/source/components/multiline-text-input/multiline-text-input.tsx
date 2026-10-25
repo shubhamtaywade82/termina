@@ -16,41 +16,41 @@ import defaultTheme, {type Theme} from './theme.js';
 
 export type MultilineTextInputProps = {
 	/**
-	 When disabled, user input and paste are ignored.
-
-	 @default false
+	 * When disabled, user input and paste are ignored.
+	 *
+	 * @default false
 	 */
 	readonly isDisabled?: boolean;
 
 	/**
-	 Text to display when input is empty.
+	 * Text to display when input is empty.
 	 */
 	readonly placeholder?: string;
 
 	/**
-	 Default input value.
+	 * Default input value.
 	 */
 	readonly defaultValue?: string;
 
 	/**
-	 Controlled input value. When set, the parent owns the value: each edit is reported through `onChange`, and the input shows this value until the parent changes it. `defaultValue` is ignored. An input with `value` and no `onChange` is read-only.
+	 * Controlled input value. When set, the parent owns the value: each edit is reported through `onChange`, and the input shows this value until the parent changes it. `defaultValue` is ignored. An input with `value` and no `onChange` is read-only.
 	 */
 	readonly value?: string;
 
 	/**
-	 Callback when input value changes.
+	 * Callback when input value changes.
 	 */
 	readonly onChange?: (value: string) => void;
 
 	/**
-	 Callback when Ctrl+D is pressed. First argument is input value.
+	 * Callback when Ctrl+D is pressed. First argument is input value.
 	 */
 	readonly onSubmit?: (value: string) => void;
 
 	/**
-	 Number of rows the editor shows. The value scrolls vertically to keep the caret visible.
-
-	 @default 5
+	 * Number of rows the editor shows. The value scrolls vertically to keep the caret visible.
+	 *
+	 * @default 5
 	 */
 	readonly rows?: number;
 };

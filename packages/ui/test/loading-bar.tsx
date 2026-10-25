@@ -1,13 +1,15 @@
-import React from 'react';
 import test, {type TestContext} from 'node:test';
+import React from 'react';
 import chalk from 'chalk';
 import figures from 'figures';
 import delay from 'delay';
 import {renderToString} from '@nemesis-oss/termina-core';
-import {render} from './helpers/render.js';
 import {LoadingBar} from '../source/components/loading-bar/index.js';
 import theme from '../source/components/loading-bar/theme.js';
 import {ThemeProvider, defaultTheme, extendTheme} from '../source/theme.js';
+import {render} from './helpers/render.js';
+import {waitForFrame} from './helpers/wait-for-frame.js';
+import {enableIntervalClock} from './helpers/mock-clock.js';
 
 const BLOCK_CELLS = 4;
 
@@ -22,36 +24,19 @@ const drawTrack = (width: number, start: number): string => {
 	);
 };
 
-// React commits a state update in a later task. A fixed 20 ms wait can end before the frame lands, as it did for the first update after mount in a cold process. The tests wait, bounded to one second, for the frame they expect, and then assert it.
-const waitForFrame = async (
-	lastFrame: () => string | undefined,
-	expected: string,
-): Promise<void> => {
-	await new Promise<void>((resolve) => {
-		const deadline = Date.now() + 1000;
-		const check = () => {
-			if (lastFrame() === expected || Date.now() >= deadline) {
-				resolve();
-				return;
-			}
-
-			setTimeout(check, 1);
-		};
-
-		check();
-	});
-};
-
 test('draws a 20 cell track with the block at the start by default', (t: TestContext) => {
-	t.mock.timers.enable({apis: ['setInterval']});
+	enableIntervalClock(t);
 	const {lastFrame, unmount} = render(<LoadingBar />);
 
-	t.assert.strictEqual(lastFrame(), chalk.magenta('████') + chalk.dim('░'.repeat(16)));
+	t.assert.strictEqual(
+		lastFrame(),
+		chalk.magenta('████') + chalk.dim('░'.repeat(16)),
+	);
 	unmount();
 });
 
 test('bounces the block between the ends of the track', async (t: TestContext) => {
-	t.mock.timers.enable({apis: ['setInterval']});
+	enableIntervalClock(t);
 	const {lastFrame, unmount} = render(<LoadingBar width={6} interval={12} />);
 	const expected = [1, 2, 1, 0, 1, 2, 1, 0].map((start) => drawTrack(6, start));
 
@@ -77,7 +62,7 @@ test('bounces the block between the ends of the track', async (t: TestContext) =
 });
 
 test('moves one cell every 80 ms by default', async (t: TestContext) => {
-	t.mock.timers.enable({apis: ['setInterval']});
+	enableIntervalClock(t);
 	const {lastFrame, unmount} = render(<LoadingBar width={10} />);
 
 	t.mock.timers.tick(79);
@@ -91,8 +76,10 @@ test('moves one cell every 80 ms by default', async (t: TestContext) => {
 });
 
 test('returns the block to the start when isActive turns false mid-sweep', async (t: TestContext) => {
-	t.mock.timers.enable({apis: ['setInterval']});
-	const {lastFrame, rerender, unmount} = render(<LoadingBar width={10} interval={12} />);
+	enableIntervalClock(t);
+	const {lastFrame, rerender, unmount} = render(
+		<LoadingBar width={10} interval={12} />,
+	);
 
 	t.mock.timers.tick(36);
 	await waitForFrame(lastFrame, drawTrack(10, 3));
@@ -106,16 +93,20 @@ test('returns the block to the start when isActive turns false mid-sweep', async
 });
 
 test('draws the block at the start when isActive is false from mount', (t: TestContext) => {
-	t.mock.timers.enable({apis: ['setInterval']});
-	const {lastFrame, unmount} = render(<LoadingBar width={10} isActive={false} />);
+	enableIntervalClock(t);
+	const {lastFrame, unmount} = render(
+		<LoadingBar width={10} isActive={false} />,
+	);
 
 	t.assert.strictEqual(lastFrame(), drawTrack(10, 0));
 	unmount();
 });
 
 test('starts the sweep from the start when isActive turns true again', async (t: TestContext) => {
-	t.mock.timers.enable({apis: ['setInterval']});
-	const {lastFrame, rerender, unmount} = render(<LoadingBar width={10} interval={12} />);
+	enableIntervalClock(t);
+	const {lastFrame, rerender, unmount} = render(
+		<LoadingBar width={10} interval={12} />,
+	);
 
 	t.mock.timers.tick(36);
 	await waitForFrame(lastFrame, drawTrack(10, 3));
@@ -132,7 +123,7 @@ test('starts the sweep from the start when isActive turns true again', async (t:
 });
 
 test('clears its timer when isActive turns false', async (t: TestContext) => {
-	t.mock.timers.enable({apis: ['setInterval']});
+	enableIntervalClock(t);
 	const setIntervalMock = t.mock.method(globalThis, 'setInterval');
 	const clearIntervalMock = t.mock.method(globalThis, 'clearInterval');
 	const {rerender, unmount} = render(<LoadingBar interval={1234} />);
@@ -141,9 +132,11 @@ test('clears its timer when isActive turns false', async (t: TestContext) => {
 	await delay(20);
 
 	const loadingBarTimers = setIntervalMock.mock.calls
-		.filter(call => call.arguments[1] === 1234)
-		.map(call => call.result);
-	const clearedTimers = clearIntervalMock.mock.calls.map(call => call.arguments[0]);
+		.filter((call) => call.arguments[1] === 1234)
+		.map((call) => call.result);
+	const clearedTimers = clearIntervalMock.mock.calls.map(
+		(call) => call.arguments[0],
+	);
 
 	t.assert.strictEqual(loadingBarTimers.length, 1);
 	t.assert.ok(clearedTimers.includes(loadingBarTimers[0]));
@@ -151,7 +144,7 @@ test('clears its timer when isActive turns false', async (t: TestContext) => {
 });
 
 test('clears its timer on unmount', async (t: TestContext) => {
-	t.mock.timers.enable({apis: ['setInterval']});
+	enableIntervalClock(t);
 	const setIntervalMock = t.mock.method(globalThis, 'setInterval');
 	const clearIntervalMock = t.mock.method(globalThis, 'clearInterval');
 	const {unmount} = render(<LoadingBar interval={1234} />);
@@ -160,17 +153,21 @@ test('clears its timer on unmount', async (t: TestContext) => {
 	await delay(20);
 
 	const loadingBarTimers = setIntervalMock.mock.calls
-		.filter(call => call.arguments[1] === 1234)
-		.map(call => call.result);
-	const clearedTimers = clearIntervalMock.mock.calls.map(call => call.arguments[0]);
+		.filter((call) => call.arguments[1] === 1234)
+		.map((call) => call.result);
+	const clearedTimers = clearIntervalMock.mock.calls.map(
+		(call) => call.arguments[0],
+	);
 
 	t.assert.strictEqual(loadingBarTimers.length, 1);
 	t.assert.ok(clearedTimers.includes(loadingBarTimers[0]));
 });
 
 test('redraws the track at a new width and keeps the animation running', async (t: TestContext) => {
-	t.mock.timers.enable({apis: ['setInterval']});
-	const {lastFrame, rerender, unmount} = render(<LoadingBar width={10} interval={12} />);
+	enableIntervalClock(t);
+	const {lastFrame, rerender, unmount} = render(
+		<LoadingBar width={10} interval={12} />,
+	);
 
 	t.mock.timers.tick(36);
 	await waitForFrame(lastFrame, drawTrack(10, 3));
@@ -187,8 +184,10 @@ test('redraws the track at a new width and keeps the animation running', async (
 });
 
 test('fills a track narrower than the block without moving it', async (t: TestContext) => {
-	t.mock.timers.enable({apis: ['setInterval']});
-	const {lastFrame, rerender, unmount} = render(<LoadingBar width={3} interval={12} />);
+	enableIntervalClock(t);
+	const {lastFrame, rerender, unmount} = render(
+		<LoadingBar width={3} interval={12} />,
+	);
 
 	t.mock.timers.tick(48);
 	await waitForFrame(lastFrame, chalk.magenta('███'));
@@ -202,14 +201,16 @@ test('fills a track narrower than the block without moving it', async (t: TestCo
 });
 
 test('draws nothing for a zero or negative width without throwing', (t: TestContext) => {
-	t.mock.timers.enable({apis: ['setInterval']});
+	enableIntervalClock(t);
 	t.assert.strictEqual(renderToString(<LoadingBar width={0} />), '');
 	t.assert.strictEqual(renderToString(<LoadingBar width={-5} />), '');
 });
 
 test('rounds a fractional width down to whole cells', async (t: TestContext) => {
-	t.mock.timers.enable({apis: ['setInterval']});
-	const {lastFrame, rerender, unmount} = render(<LoadingBar width={10.9} interval={12} />);
+	enableIntervalClock(t);
+	const {lastFrame, rerender, unmount} = render(
+		<LoadingBar width={10.9} interval={12} />,
+	);
 
 	t.assert.strictEqual(lastFrame(), drawTrack(10, 0));
 
@@ -221,15 +222,17 @@ test('rounds a fractional width down to whole cells', async (t: TestContext) => 
 });
 
 test('renders when stdin is piped', (t: TestContext) => {
-	t.mock.timers.enable({apis: ['setInterval']});
-	const {lastFrame, unmount} = render(<LoadingBar width={10} />, {isStdinPiped: true});
+	enableIntervalClock(t);
+	const {lastFrame, unmount} = render(<LoadingBar width={10} />, {
+		isStdinPiped: true,
+	});
 
 	t.assert.strictEqual(lastFrame(), drawTrack(10, 0));
 	unmount();
 });
 
 test('takes its block colour from a ThemeProvider override', (t: TestContext) => {
-	t.mock.timers.enable({apis: ['setInterval']});
+	enableIntervalClock(t);
 	const overriddenTheme = extendTheme(defaultTheme, {
 		components: {
 			LoadingBar: {
@@ -245,7 +248,10 @@ test('takes its block colour from a ThemeProvider override', (t: TestContext) =>
 		</ThemeProvider>,
 	);
 
-	t.assert.strictEqual(lastFrame(), chalk.cyan('████') + chalk.dim('░'.repeat(6)));
+	t.assert.strictEqual(
+		lastFrame(),
+		chalk.cyan('████') + chalk.dim('░'.repeat(6)),
+	);
 	unmount();
 });
 
@@ -257,8 +263,10 @@ test('theme keys return the documented props and there are no config keys', (t: 
 });
 
 test('draws nothing for an infinite or NaN width, without throwing', (t: TestContext) => {
-	for (const width of [Infinity, Number.NaN]) {
-		const {lastFrame, unmount} = render(<LoadingBar width={width} isActive={false} />);
+	for (const width of [Infinity, NaN]) {
+		const {lastFrame, unmount} = render(
+			<LoadingBar width={width} isActive={false} />,
+		);
 		t.assert.strictEqual(lastFrame() ?? '', '');
 		unmount();
 	}

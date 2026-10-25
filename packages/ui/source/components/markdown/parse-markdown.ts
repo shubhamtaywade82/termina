@@ -12,7 +12,11 @@ export type MarkdownListItem = {
 
 export type MarkdownBlock =
 	| {readonly kind: 'code'; readonly text: string}
-	| {readonly kind: 'heading'; readonly level: number; readonly spans: MarkdownInlineSpan[]}
+	| {
+			readonly kind: 'heading';
+			readonly level: number;
+			readonly spans: MarkdownInlineSpan[];
+	  }
 	| {readonly kind: 'list'; readonly items: MarkdownListItem[]}
 	| {readonly kind: 'paragraph'; readonly spans: MarkdownInlineSpan[]}
 	| {readonly kind: 'quote'; readonly spans: MarkdownInlineSpan[]};
@@ -24,9 +28,9 @@ type ReadResult = {
 
 export const NESTED_INDENT_WIDTH = 2;
 
-const headingPattern = /^(#{1,3}) (.+)$/;
-const listPattern = /^( *)([-*]|\d+\.) +(.*)$/;
-const quotePattern = /^>/;
+const headingPattern = /^(?<hashes>#{1,3}) (?<text>.+)$/;
+// eslint-disable-next-line regexp/no-super-linear-backtracking -- The greedy spaces match once, and `(?<text>.*)$` always matches the rest of the line, so the engine never backtracks.
+const listPattern = /^(?<indent> *)(?<marker>[*-]|\d+\.) +(?<text>.*)$/;
 const fenceOpenPattern = /^\s*```/;
 const fenceClosePattern = /^\s*```\s*$/;
 
@@ -34,15 +38,16 @@ const fenceClosePattern = /^\s*```\s*$/;
 // and `snake_case_name` stay literal. Each alternative consumes its whole span, so code and link
 // URLs are never scanned again for emphasis.
 const inlinePattern =
-	/`(?<code>[^`]+)`|\*\*(?!\s)(?<bold>[^*]*[^*\s])\*\*|(?<![\p{L}\p{N}])_(?!\s)(?<underscoreItalic>[^_]*[^_\s])_(?![\p{L}\p{N}])|\*(?!\s)(?<italic>[^*]*[^*\s])\*|(?<!!)\[(?<linkText>[^\]]+)\]\((?<url>[^)\s]+)\)/gu;
+	// eslint-disable-next-line regexp/no-super-linear-move -- Each alternative consumes its whole span, so no alternative rescans text another one has consumed.
+	/`(?<code>[^`]+)`|\*\*(?!\s)(?<bold>[^*]*[^\s*])\*\*|(?<![\p{Letter}\p{Number}])_(?!\s)(?<underscoreItalic>[^_]*[^\s_])_(?![\p{Letter}\p{Number}])|\*(?!\s)(?<italic>[^*]*[^\s*])\*|(?<!!)\[(?<linkText>[^\]]+)\]\((?<url>[^\s)]+)\)/gu;
 
 const isBlank = (line: string): boolean => line.trim() === '';
 
-const startsBlock = (line: string): boolean =>
+const isBlockStart = (line: string): boolean =>
 	fenceOpenPattern.test(line) ||
 	headingPattern.test(line) ||
 	listPattern.test(line) ||
-	quotePattern.test(line);
+	line.startsWith('>');
 
 const endOfRun = (
 	lines: string[],
@@ -58,7 +63,9 @@ const endOfRun = (
 	return end;
 };
 
-const toInlineSpan = (groups: Record<string, string | undefined>): MarkdownInlineSpan => {
+const toInlineSpan = (
+	groups: Record<string, string | undefined>,
+): MarkdownInlineSpan => {
 	const {code, bold, italic, underscoreItalic, linkText, url} = groups;
 
 	if (code !== undefined) {
@@ -71,11 +78,9 @@ const toInlineSpan = (groups: Record<string, string | undefined>): MarkdownInlin
 
 	const emphasis = italic ?? underscoreItalic;
 
-	if (emphasis !== undefined) {
-		return {kind: 'italic', value: emphasis};
-	}
-
-	return {kind: 'link', value: linkText ?? '', url: url ?? ''};
+	return emphasis === undefined
+		? {kind: 'link', value: linkText ?? '', url: url ?? ''}
+		: {kind: 'italic', value: emphasis};
 };
 
 const parseInline = (text: string): MarkdownInlineSpan[] => {
@@ -101,7 +106,11 @@ const parseInline = (text: string): MarkdownInlineSpan[] => {
 };
 
 const parseListItem = (line: string): MarkdownListItem => {
-	const [, indent = '', marker = '', text = ''] = listPattern.exec(line) ?? [];
+	const {
+		indent = '',
+		marker = '',
+		text = '',
+	} = listPattern.exec(line)?.groups ?? {};
 
 	return {
 		depth: Math.floor(indent.length / NESTED_INDENT_WIDTH),
@@ -123,7 +132,7 @@ const readFence = (lines: string[], start: number): ReadResult => {
 };
 
 const readHeading = (line: string, start: number): ReadResult => {
-	const [, hashes = '', text = ''] = headingPattern.exec(line) ?? [];
+	const {hashes = '', text = ''} = headingPattern.exec(line)?.groups ?? {};
 
 	return {
 		block: {kind: 'heading', level: hashes.length, spans: parseInline(text)},
@@ -132,19 +141,22 @@ const readHeading = (line: string, start: number): ReadResult => {
 };
 
 const readList = (lines: string[], start: number): ReadResult => {
-	const end = endOfRun(lines, start, line => listPattern.test(line));
+	const end = endOfRun(lines, start, (line) => listPattern.test(line));
 
 	return {
-		block: {kind: 'list', items: lines.slice(start, end).map(parseListItem)},
+		block: {
+			kind: 'list',
+			items: lines.slice(start, end).map((line) => parseListItem(line)),
+		},
 		next: end,
 	};
 };
 
 const readQuote = (lines: string[], start: number): ReadResult => {
-	const end = endOfRun(lines, start, line => quotePattern.test(line));
+	const end = endOfRun(lines, start, (line) => line.startsWith('>'));
 	const text = lines
 		.slice(start, end)
-		.map(line => line.replace(/^> ?/, ''))
+		.map((line) => line.replace(/^> ?/, ''))
 		.join('\n');
 
 	return {
@@ -157,7 +169,7 @@ const readParagraph = (lines: string[], start: number): ReadResult => {
 	const end = endOfRun(
 		lines,
 		start,
-		line => !isBlank(line) && !startsBlock(line),
+		(line) => !isBlank(line) && !isBlockStart(line),
 	);
 
 	return {
@@ -188,11 +200,9 @@ const readBlock = (lines: string[], start: number): ReadResult => {
 		return readList(lines, start);
 	}
 
-	if (quotePattern.test(line)) {
-		return readQuote(lines, start);
-	}
-
-	return readParagraph(lines, start);
+	return line.startsWith('>')
+		? readQuote(lines, start)
+		: readParagraph(lines, start);
 };
 
 export const parseMarkdown = (source: string): MarkdownBlock[] => {

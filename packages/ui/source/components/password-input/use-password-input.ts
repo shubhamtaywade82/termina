@@ -1,6 +1,7 @@
 import {useMemo} from 'react';
 import {useInput, usePaste} from '@nemesis-oss/termina-core';
 import chalk from 'chalk';
+import {isPresent} from '../../lib/is-present.js';
 import {graphemes, splitFirstGrapheme} from '../../lib/grapheme.js';
 import {type PasswordInputState} from './use-password-input-state.js';
 
@@ -41,10 +42,10 @@ export const usePasswordInput = ({
 }: UsePasswordInputProps): UsePasswordInputResult => {
 	const renderedPlaceholder = useMemo(() => {
 		if (isDisabled) {
-			return placeholder ? chalk.dim(placeholder) : '';
+			return isPresent(placeholder) ? chalk.dim(placeholder) : '';
 		}
 
-		if (!placeholder) {
+		if (!isPresent(placeholder)) {
 			return cursor;
 		}
 
@@ -75,11 +76,12 @@ export const usePasswordInput = ({
 
 	useInput(
 		(input, key) => {
+			const isCtrlC = key.ctrl && input === 'c';
 			if (
+				isCtrlC ||
+				key.tab ||
 				key.upArrow ||
 				key.downArrow ||
-				(key.ctrl && input === 'c') ||
-				key.tab ||
 				(key.shift && key.tab)
 			) {
 				return;
@@ -100,7 +102,6 @@ export const usePasswordInput = ({
 				state.deleteForward();
 			} else if (key.ctrl || key.meta) {
 				// Ctrl and Alt chords are commands, not text.
-				return;
 			} else {
 				state.insert(input);
 			}

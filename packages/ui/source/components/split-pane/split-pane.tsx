@@ -13,53 +13,53 @@ import {type SplitPaneLayout, useSplitPaneLayout} from './use-split-pane.js';
 
 export type SplitPaneProps = {
 	/**
-	How the two panes are laid out. `'row'` places them side by side, and `'column'` stacks them.
-
-	@default 'row'
-	*/
+	 * How the two panes are laid out. `'row'` places them side by side, and `'column'` stacks them.
+	 *
+	 * @default 'row'
+	 */
 	readonly direction?: 'row' | 'column';
 
 	/**
-	Share of the length that the first pane takes, from 0 to 1. The length is the width when the panes sit side by side, and the height when they stack. The one-cell divider is counted in the length. Setting it makes the ratio controlled: a resize key calls `onRatioChange`, and the divider moves only when the parent passes a new `ratio`.
-	*/
+	 * Share of the length that the first pane takes, from 0 to 1. The length is the width when the panes sit side by side, and the height when they stack. The one-cell divider is counted in the length. Setting it makes the ratio controlled: a resize key calls `onRatioChange`, and the divider moves only when the parent passes a new `ratio`.
+	 */
 	readonly ratio?: number;
 
 	/**
-	Starting ratio when the ratio is not controlled. Resize keys then move the divider without any parent.
-
-	@default 0.5
-	*/
+	 * Starting ratio when the ratio is not controlled. Resize keys then move the divider without any parent.
+	 *
+	 * @default 0.5
+	 */
 	readonly defaultRatio?: number;
 
 	/**
-	Called with the new ratio after a resize key moves the divider.
-	*/
+	 * Called with the new ratio after a resize key moves the divider.
+	 */
 	readonly onRatioChange?: (ratio: number) => void;
 
 	/**
-	Fewest cells that either pane may take when the panes sit side by side. A resize key stops at this size. Stacked panes are not clamped.
-
-	@default 10
-	*/
+	 * Fewest cells that either pane may take when the panes sit side by side. A resize key stops at this size. Stacked panes are not clamped.
+	 *
+	 * @default 10
+	 */
 	readonly minSize?: number;
 
 	/**
-	Width below which a `'row'` layout stacks the panes as a column. The panes also stack when the width cannot hold both minimum sizes.
-
-	@default 60
-	*/
+	 * Width below which a `'row'` layout stacks the panes as a column. The panes also stack when the width cannot hold both minimum sizes.
+	 *
+	 * @default 60
+	 */
 	readonly breakpoint?: number;
 
 	/**
-	Whether the pane takes focus with Tab, and whether Ctrl+Left and Ctrl+Right move the divider while it has focus.
-
-	@default false
-	*/
+	 * Whether the pane takes focus with Tab, and whether Ctrl+Left and Ctrl+Right move the divider while it has focus.
+	 *
+	 * @default false
+	 */
 	readonly resizable?: boolean;
 
 	/**
-	Exactly two elements, the first pane and the second pane. Any other count throws.
-	*/
+	 * Exactly two elements, the first pane and the second pane. Any other count throws.
+	 */
 	readonly children: ReactNode;
 };
 
@@ -73,24 +73,24 @@ function firstPaneBox(layout: SplitPaneLayout): BoxProps {
 }
 
 /**
-Two panes split by a one-cell divider. The panes sit side by side when the width allows, and stack below the breakpoint.
-
-With `resizable`, the pane takes focus with Tab. While it has focus and the panes sit side by side, Ctrl+Left and Ctrl+Right move the divider one cell, and neither pane goes below `minSize`.
-
-A stacked first pane takes its share of the height as a percentage, so the parent must give the split pane a height when the panes may stack.
-
-```
-import {Text} from '@nemesis-oss/termina-core';
-import {SplitPane} from '@nemesis-oss/termina-ui';
-
-const Example = () => (
-	<SplitPane defaultRatio={0.3} resizable>
-		<Text>Files</Text>
-		<Text>Editor</Text>
-	</SplitPane>
-);
-```
-*/
+ * Two panes split by a one-cell divider. The panes sit side by side when the width allows, and stack below the breakpoint.
+ *
+ * With `resizable`, the pane takes focus with Tab. While it has focus and the panes sit side by side, Ctrl+Left and Ctrl+Right move the divider one cell, and neither pane goes below `minSize`.
+ *
+ * A stacked first pane takes its share of the height as a percentage, so the parent must give the split pane a height when the panes may stack.
+ *
+ * ```
+ * import {Text} from '@nemesis-oss/termina-core';
+ * import {SplitPane} from '@nemesis-oss/termina-ui';
+ *
+ * const Example = () => (
+ * <SplitPane defaultRatio={0.3} resizable>
+ * <Text>Files</Text>
+ * <Text>Editor</Text>
+ * </SplitPane>
+ * );
+ * ```
+ */
 export function SplitPane({
 	direction = 'row',
 	ratio,
