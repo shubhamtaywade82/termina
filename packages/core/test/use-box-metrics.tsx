@@ -251,19 +251,28 @@ test('updates when tracked ref attaches after initial render and component is me
 
 	const {waitUntilRenderFlush} = render(<Test />, {stdout, debug: true});
 	await waitUntilRenderFlush();
-	await delay(50);
+	await waitFor(
+		() => stripAnsi(stdout.get()).includes('Top: 0'),
+		'the untracked ref to render Top: 0',
+	);
 
 	t.assert.ok(stripAnsi(stdout.get()).includes('Top: 0'));
 
 	externalSetIsTrackedElementMounted(true);
 	await waitUntilRenderFlush();
-	await delay(50);
+	await waitFor(
+		() => stripAnsi(stdout.get()).includes('Top: 1'),
+		'the tracked ref to attach and report Top: 1',
+	);
 
 	t.assert.ok(stripAnsi(stdout.get()).includes('Top: 1'));
 
 	externalSetSiblingText('line 1\nline 2\nline 3');
 	await waitUntilRenderFlush();
-	await delay(50);
+	await waitFor(
+		() => stripAnsi(stdout.get()).includes('Top: 3'),
+		'the tracked ref to report Top: 3 after the sibling grows',
+	);
 
 	t.assert.ok(stripAnsi(stdout.get()).includes('Top: 3'));
 });
