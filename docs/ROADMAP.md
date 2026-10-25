@@ -45,7 +45,7 @@ Status values: `open`, `in progress`, `done`, `deferred`.
 - Acceptance: a benchmark script reports frames per second and bytes written for a fixed scenario (for example, 1,000 streamed log lines). It writes a JSON report that CI keeps as an artifact.
 
 ### R8. Release process is not documented or rehearsed
-- Status: `open`
+- Status: `done`. `CHANGELOG.md` covers 0.2.0 onward, and `docs/RELEASING.md` gives the versioning policy and the steps. `pnpm release:rehearse` (`scripts/rehearse-release.mjs`) runs `pnpm publish --dry-run` for every package, packs each one, and checks its tarball. A `release-rehearsal` CI job runs it. The acceptance said "both packages", but the workspace has three public packages (core, ui, genui), so all three are rehearsed. Evidence: the rehearsal passes on the repo, and it fails with exit 1 when `packages/ui/build/index.d.ts` is missing. A plain `publish --dry-run` skipped core and ui, because npm already has 0.2.0. That is why the rehearsal passes `--force`.
 - Problem: there is no changelog, no versioning policy, and no dry-run of the publish step in CI.
 - Acceptance: `CHANGELOG.md` exists, `docs/RELEASING.md` describes the process, and CI runs `pnpm publish --dry-run` for both packages.
 

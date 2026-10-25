@@ -75,6 +75,33 @@ jobs:
       - name: Test
         run: pnpm test
 
+  # Rehearses the publish step without uploading: a dry-run publish, then a pack of each package checked for its entry, declarations and resolved dependency ranges.
+  release-rehearsal:
+    name: Release rehearsal
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v6
+
+      - name: Setup Node
+        uses: actions/setup-node@v7
+        with:
+          node-version-file: .node-version
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build
+        run: pnpm build
+
+      - name: Rehearse the release
+        run: pnpm release:rehearse
+
   lint-ratchet:
     name: Lint ratchet
     if: github.event_name == 'pull_request'
