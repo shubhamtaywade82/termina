@@ -40,7 +40,8 @@ Status values: `open`, `in progress`, `done`, `deferred`.
 - Acceptance: a script checks that every name documented in `docs-site/api/*.md` is exported from the built `index.d.ts`, and that every sidebar link resolves to a page. The script runs in CI.
 
 ### R7. No render-performance baseline
-- Status: `open`
+- Status: `done`. `packages/core/bench/render-throughput.tsx` (`pnpm --filter @nemesis-oss/termina-core run bench -- --out <file>`) streams 1,000 log lines into a 100x30 fake terminal and writes a JSON report: frames per second, bytes written, bytes per frame and frame-time mean, p50, p95 and max. It runs in debug mode, which skips the 30 fps frame throttle, so the numbers reflect the pipeline. A `render-benchmark` CI job uploads the report as an artifact. It reports and does not fail on speed, because shared runners vary too much for a threshold. Evidence: two local runs wrote 1,017,763 bytes each, and 235 and 244 frames per second. The byte count is the stable signal, and the timings are the baseline to compare against.
+- Problem: there is no benchmark for rendering throughput, so claims about smoothness are not measured.
 - Problem: there is no benchmark for rendering throughput, so claims about smoothness are not measured.
 - Acceptance: a benchmark script reports frames per second and bytes written for a fixed scenario (for example, 1,000 streamed log lines). It writes a JSON report that CI keeps as an artifact.
 

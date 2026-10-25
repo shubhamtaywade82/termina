@@ -44,7 +44,8 @@
   "scripts": {
     "build": "tsc",
     "dev": "tsc --watch",
-    "typecheck": "tsc --noEmit",
+    "typecheck": "tsc --noEmit && tsc -p bench/tsconfig.json",
+    "bench": "node --import=tsx bench/render-throughput.tsx",
     "lint": "xo",
     "test": "env -u CI -u CONTINUOUS_INTEGRATION TERM=xterm NO_COLOR= FORCE_COLOR=true node --import=tsx --test --test-concurrency=1 \"test/*.{ts,tsx}\"",
     "pretest": "tsc"
