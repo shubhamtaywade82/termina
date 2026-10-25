@@ -137,6 +137,18 @@ test('an existing file passes when it loses errors', () => {
 	assert.match(result.stdout, /ok\s+2\s+1\s+packages\/app\/src\/index\.ts/);
 });
 
+test('an existing file with no errors at head passes without linting its base copy', () => {
+	const root = createRepo({
+		base: {'packages/app/src/index.ts': oneError},
+		change: {'packages/app/src/index.ts': clean},
+	});
+
+	const result = runRatchet(root);
+
+	assert.equal(result.status, 0, result.stdout);
+	assert.match(result.stdout, /ok\s+-\s+0\s+packages\/app\/src\/index\.ts/);
+});
+
 test('an existing file passes when its error count is unchanged', () => {
 	const root = createRepo({
 		base: {'packages/app/src/index.ts': oneError},
