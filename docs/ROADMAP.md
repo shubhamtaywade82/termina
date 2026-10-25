@@ -7,7 +7,8 @@ Status values: `open`, `in progress`, `done`, `deferred`.
 ## P0: correctness
 
 ### R1. Text in a shrinking box overflows its row
-- Status: `open`
+- Status: `done`. Core rounds the measured width down to whole columns and caps the render-time wrap width at the parent's content width. The `ui` list markers are wrapped in `Box flexShrink={0}`, which is what lets the `flexBasis={0}` workarounds go. Removing the workarounds alone changed list output (the marker lost its trailing space at narrow widths), so the marker guard is part of the fix. Evidence: `packages/core/test/text-in-shrinking-box.tsx` passes, including the acceptance shape at 16 columns. Two `ui` regression tests (ordered list, markdown bullet) fail without the marker guard and pass with it. Against the old output, every list shape probed is identical at widths 10 to 60, except a markdown list beside a sibling `Text`, which used to overflow and now wraps. The full core and `ui` suites pass.
+- Open edge (outside this acceptance): a sibling `Text` that ends in a space can lose it when its row shrinks, for example `<Text>x </Text>` beside a wrapping box at 10 columns. Fixed-width chrome must sit in a `Box flexShrink={0}`.
 - Problem: a `Box` holding wrapped `Text` that sits beside a sibling in a row overflows when it shrinks. Yoga measures the text at the wrapped width during the flex-basis pass and does not re-measure it after the shrink. Components work around this with `flexBasis={0}`. Users have to know about the workaround.
 - Acceptance: a core test renders `<Box><Text>- </Text><Box><Text>{LONG}</Text></Box></Box>` at 16 columns, with no `flexBasis` set, and every line is at most 16 columns wide. The `flexBasis={0}` workarounds in `ui` can then be removed without changing output.
 
