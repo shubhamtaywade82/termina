@@ -120,7 +120,8 @@ export const focusPrevious = <S extends ListFocusState>(state: S): S => {
 		return state;
 	}
 
-	const needsToScroll = previous.index <= state.visibleFromIndex;
+	// Scrolls only when the previous option is above the window, as focusNext scrolls only below it. Focus may rest on the top visible row.
+	const needsToScroll = previous.index < state.visibleFromIndex;
 
 	if (!needsToScroll) {
 		return {

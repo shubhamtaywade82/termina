@@ -179,7 +179,7 @@ test('renders a blank line for a row with no values', (t: TestContext) => {
 	);
 });
 
-test('keeps a table wider than its parent on one line', (t: TestContext) => {
+test('fits a table wider than its parent to the parent width, one line per row', async (t: TestContext) => {
 	const {lastFrame} = render(
 		<Box width={10}>
 			<Table
@@ -191,13 +191,16 @@ test('keeps a table wider than its parent on one line', (t: TestContext) => {
 			/>
 		</Box>,
 	);
+	// The container is measured after the first layout, and the fitted frame follows the throttled render.
+	await delay(100);
 
+	// The natural row is 18 cells. The widest column gives up cells until the row is 10, so `Beta` keeps its width.
 	t.assert.strictEqual(
 		lastFrame(),
 		[
-			`${chalk.bold('Alpha')}         ${chalk.bold('Beta')}`,
-			chalk.dim('─'.repeat(18)),
-			'twelve chars  x',
+			`${chalk.bold('Alp…')}  ${chalk.bold('Beta')}`,
+			chalk.dim('─'.repeat(10)),
+			'twe…  x',
 		].join('\n'),
 	);
 });

@@ -23,6 +23,11 @@ type Output = {
 	focusPrevious: Props['focusPrevious'];
 
 	/**
+	Switch focus to the nearest focusable component in `direction` from the focused one. Distance is measured between the centers of the components' on-screen rectangles, with a terminal row counting as two columns. Only components that are active, in reach, and at least partly drawn can take focus, so a component clipped out of a scroll view is skipped. A component takes part only when it passes a `ref` to `useFocus`. When no component lies that way, or none is focused, focus does not change. The function reads no keys, so pair it with `useInput`.
+	*/
+	focusDirection: Props['focusDirection'];
+
+	/**
 	Switch focus to the element with provided `id`. If there's no element with that `id`, focus is not changed.
 	*/
 	focus: Props['focus'];
@@ -55,6 +60,7 @@ const useFocusManager = (): Output => {
 		disableFocus: focusContext.disableFocus,
 		focusNext: focusContext.focusNext,
 		focusPrevious: focusContext.focusPrevious,
+		focusDirection: focusContext.focusDirection,
 		focus: focusContext.focus,
 		activeId: focusContext.activeId,
 	};

@@ -303,7 +303,7 @@ test('theme keys return the props the docs list', (t: TestContext) => {
 	t.assert.deepStrictEqual(theme.styles.headerCell({isFocused: true}), {bold: true, underline: true});
 	t.assert.deepStrictEqual(theme.styles.row({isFocused: true}), {flexDirection: 'row', gap: 2, minHeight: 1, backgroundColor: 'blue'});
 	t.assert.strictEqual(theme.styles.row({isFocused: false}).backgroundColor, undefined);
-	t.assert.deepStrictEqual(theme.styles.cell(), {flexShrink: 0});
+	t.assert.deepStrictEqual(theme.styles.cell(), {flexShrink: 1, minWidth: 1});
 	t.assert.deepStrictEqual(theme.styles.separator(), {dimColor: true});
 	t.assert.deepStrictEqual(theme.styles.sortIndicator(), {color: 'cyan'});
 });

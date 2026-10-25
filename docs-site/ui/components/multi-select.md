@@ -73,7 +73,7 @@ render(<Order />);
 | Key | Effect |
 | --- | --- |
 | Down | Focuses the next option. When focus moves past the last visible row, the list scrolls down by one row. |
-| Up | Focuses the previous option. When focus moves onto the first visible row, the list scrolls up by one row, unless it is already at the top. |
+| Up | Focuses the previous option. When focus moves above the first visible row, the list scrolls up by one row, unless it is already at the top. Focus can rest on the first visible row without scrolling. |
 | Space | Toggles the focused option. |
 | Enter | Calls `onSubmit` with the selection. |
 | Any other key | Ignored. |

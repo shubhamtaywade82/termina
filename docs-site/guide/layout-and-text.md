@@ -167,6 +167,7 @@ Mouse handlers receive events only when the app is rendered with `mouse: true`. 
 - Children of a column container stretch to the container's width by default, because `alignItems` defaults to `'stretch'`.
 - The root of a render has no style of its own. Its top-level elements stack vertically and, because of the stretch default, span the terminal width.
 - Because `flexShrink` is `1` by default, children of a fixed-size container shrink to fit. A child can lose rows or columns. Set `flexShrink={0}` on a child to keep its natural size.
+- A `Box` that holds wrapped text and sits beside a sibling in a row needs `flexBasis={0}` and `flexGrow={1}`. With an auto basis, the box takes its width from the text measured at the full row width, so the text can wrap wider than the space the row leaves it and push past the row's edge. A bare `Text` child does not need this. `OrderedList`, `UnorderedList`, and `Markdown` use this pattern for their item text.
 
 ```tsx
 import {Box, Spacer, Text, render} from '@nemesis-oss/termina-core';
@@ -346,7 +347,7 @@ Any other string is ignored, and the text is drawn without that color. Hex, `ans
 
 | `wrap` | Behavior |
 | --- | --- |
-| `'wrap'` (default) | Wraps at spaces to fit the element's width. A word wider than the element is broken. |
+| `'wrap'` (default) | Wraps at spaces to fit the element's width. The space a line breaks on belongs to the break, so it is dropped and neither line keeps it. A line keeps its leading indentation on its first row only. A word wider than the element is broken. |
 | `'hard'` | Fills each line to the full width and breaks at the column edge, ignoring word boundaries. |
 | `'truncate-end'` | Keeps one line for each line of the text and cuts the end with `…`. |
 | `'truncate'` | Same as `'truncate-end'`. |

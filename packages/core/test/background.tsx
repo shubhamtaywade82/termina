@@ -84,7 +84,7 @@ for (const initialBackgroundColor of [undefined, 'red']) {
 test('Static background color is inherited by its text', (t: TestContext) => {
 	const output = renderToString(
 		<Static items={['A']} style={{width: 3, backgroundColor: 'blue'}}>
-			{item => <Text key={item}>{item}</Text>}
+			{(item) => <Text key={item}>{item}</Text>}
 		</Static>,
 	);
 
@@ -552,9 +552,9 @@ test('Text-only backgroundColor colors text content but does not fill Box width'
 		</Box>,
 	);
 
-	// Text-only bg colors just the text, not the remaining space to fill Box width
+	// Text-only bg colors just the text, not the remaining space to fill Box width. The space the line breaks on is not painted, as with a collapsible space in CSS.
 	t.assert.strictEqual(
 		output,
-		`${ansi.bgRed}Hello ${ansi.bgReset}\n${ansi.bgRed}World!!${ansi.bgReset}`,
+		`${ansi.bgRed}Hello${ansi.bgReset}\n${ansi.bgRed}World!!${ansi.bgReset}`,
 	);
 });

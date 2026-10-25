@@ -89,7 +89,7 @@ These questions are not closed by any source.
 
 - **Cell-level back and front buffer renderer.** Status: not built, and no decision to build or to reject it is recorded. The research document says: "A cell-level back/front buffer could go lower again, but this measurement shows the cheap win is already in upstream and off by default." The measured figures are 21,588 bytes per update in the default writer and 701 bytes with incremental rendering. The question is therefore open, and the sources do not settle it.
 - **Cursor position after a reflow.** Status: open. The research document says: "Cursor position after a reflow is not reliably defined across terminals." When a `useCursor()` position is active, the fork falls back to the line-count erase.
-- **Spatial focus wired into `useFocus`.** Status: not built. `nearestInDirection` is a pure function, and `FORK.md` says it "is not wired into focus management."
+- **Spatial focus wired into `useFocus`.** Status: built. `nearestInDirection` is the pure geometry. `focusDirection` in `useFocusManager` calls it with each focusable's visible rectangle, and `useFocus({ref})` supplies the rectangle. `cae5ff6` had removed an earlier helper that nothing called.
 - **Components not yet built.** Status: not built. These are the OSC 8 and OSC 52 helpers as Ink components. DataTable, Tabs, the multi-line editor (`MultilineTextInput`), Modal, and SplitPane were built later. Dialog covers a modal's content without a focus trap.
 
 ## Recorded without a stated reason
@@ -98,7 +98,6 @@ The sources record these states but give no reason for them.
 
 - Incremental rendering is off by default in upstream (ink-architecture, section 2).
 - Upstream history is not carried over, and re-syncing means diffing against the recorded commits (`FORK.md`).
-- The spatial focus helper is not wired into focus management (`FORK.md`).
 - The choice of `ScrollBox` and `LogStream` for the kit has no reason beyond the review's verdicts.
 
 ## Decisions recorded in source comments

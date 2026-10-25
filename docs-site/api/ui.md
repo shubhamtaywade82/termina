@@ -86,18 +86,6 @@ const extendTheme: (originalTheme: Theme, newTheme: Theme) => Theme
 
 `extendTheme` returns `deepmerge(originalTheme, newTheme)` and changes neither argument. The merge rules are described on the [Theming](/ui/theming) page.
 
-## Spatial geometry
-
-```ts
-const nearestInDirection: (
-	origin: Rect,
-	candidates: readonly FocusCandidate[],
-	direction: Direction,
-) => string | undefined
-```
-
-`nearestInDirection` is pure. It is not connected to focus management. See [Spatial Focus Geometry](/ui/spatial).
-
 ## Types
 
 | Type | Definition |
@@ -128,4 +116,3 @@ These exist in the source but are not part of the entry. Do not import them from
 - `SelectOption` and `MultiSelectOption`, the row components inside `Select` and `MultiSelect`.
 - `StatusMessageVariant`, the union of `info`, `success`, `error`, and `warning`. Use `StatusMessageProps['variant']` instead.
 - The internal state and input hooks, such as `useTextInputState`, `useEmailInput`, and `usePasswordInput`.
-- `cellAspectRatio` in `lib/spatial.ts`, which is a module constant.

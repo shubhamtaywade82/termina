@@ -7,10 +7,12 @@ type Options = {
 	readonly mouse?: boolean;
 	// Piped stdin is not a TTY and has no setRawMode, as in CI.
 	readonly isStdinPiped?: boolean;
+	// Terminal width in columns.
+	readonly columns?: number;
 };
 
 // Mirrors the surface of ink-testing-library, on top of the forked core. `debug` writes each frame in full, so `lastFrame()` is the frame on screen and `frames` is every frame in order.
-export const render = (node: ReactNode, {mouse = false, isStdinPiped = false}: Options = {}) => {
+export const render = (node: ReactNode, {mouse = false, isStdinPiped = false, columns = 100}: Options = {}) => {
 	const frames: string[] = [];
 	const stdout = new EventEmitter() as EventEmitter & {
 		isTTY: boolean;
@@ -20,7 +22,7 @@ export const render = (node: ReactNode, {mouse = false, isStdinPiped = false}: O
 	};
 	// Mouse routing runs only on the alternate screen, which requires a TTY.
 	stdout.isTTY = mouse;
-	stdout.columns = 100;
+	stdout.columns = columns;
 	stdout.rows = 24;
 	let isRecording = true;
 	stdout.write = data => {

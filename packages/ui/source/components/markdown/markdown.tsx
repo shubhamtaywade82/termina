@@ -83,7 +83,8 @@ const renderListItem = (
 	return (
 		<Box key={index}>
 			<Text {...styles.listBullet()}>{marker}</Text>
-			<Box flexGrow={1}>
+			{/* A zero basis makes the body take the width the marker leaves, so its text wraps inside the row. An auto basis would measure the text at full width and overflow. */}
+			<Box flexBasis={0} flexGrow={1} flexShrink={1}>
 				<Text>{renderSpans(item.spans, styles, styles.paragraph())}</Text>
 			</Box>
 		</Box>

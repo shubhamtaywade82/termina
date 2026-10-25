@@ -112,7 +112,6 @@ export default defineConfig({
         items: [
           { text: 'Overview', link: '/ui/overview' },
           { text: 'Theming', link: '/ui/theming' },
-          { text: 'Spatial Focus Geometry', link: '/ui/spatial' },
           {
             text: 'Components',
             collapsed: false,

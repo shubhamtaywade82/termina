@@ -4,7 +4,7 @@ outline: [2, 3]
 
 # Table
 
-`Table` shows rows of values in aligned columns. Use it to show data you already have, such as a list of processes or the rows of a query result. It is display only: it has no focus and reads no keys, so the user cannot pick a row. To let the user choose one value from a list, use [Select](/ui/components/select). To let the user move through rows and pick one, use [DataTable](/ui/components/data-table). Each column is as wide as its widest cell, header included, and cells in a row are separated by two spaces. A table wider than its container is not truncated; it overflows.
+`Table` shows rows of values in aligned columns. Use it to show data you already have, such as a list of processes or the rows of a query result. It is display only: it has no focus and reads no keys, so the user cannot pick a row. To let the user choose one value from a list, use [Select](/ui/components/select). To let the user move through rows and pick one, use [DataTable](/ui/components/data-table). Each column is as wide as its widest cell, header included, and cells in a row are separated by two spaces. A table wider than its container shrinks its widest columns until it fits, and cuts their cells with `…`.
 
 `Table` is exported from `@nemesis-oss/termina-ui`. Install it with `npm install @nemesis-oss/termina-ui @nemesis-oss/termina-core react`. For the full component list, read the [UI Kit overview](/ui/overview).
 
@@ -57,7 +57,7 @@ The component reads the `Table` entry of the theme. To change a key, pass a them
 | `styles.container` | none | Box props: `flexDirection: 'column'`. |
 | `styles.header` | none | Text props: `bold: true`. Applied to the header cells. |
 | `styles.row` | none | Box props: `flexDirection: 'row'`, `gap: 2`, and `minHeight: 1`. The gap separates the cells, and the rule is sized to match it. |
-| `styles.cell` | `{align}` | Box props: `flexShrink: 0`, and `justifyContent: 'flex-end'` when `align` is `'right'`, otherwise `'flex-start'`. Applied to every header and data cell, and to the box around the rule. |
+| `styles.cell` | `{align}` | Box props: `flexShrink: 1`, `minWidth: 1`, and `justifyContent: 'flex-end'` when `align` is `'right'`, otherwise `'flex-start'`. Applied to every header and data cell. The component sets each cell's width, so `flexShrink` only applies when a row is still wider than the container at one cell per column. |
 | `styles.separator` | none | Text props: `dimColor: true`. Applied to the rule. |
 
 The rule's `─` glyph is set in the component, so the theme controls only its style.
@@ -73,5 +73,6 @@ The rule's `─` glyph is set in the component, so the theme controls only its s
 - Values are shown with `String(value)`, so `0` shows as `0` and `1.50` shows as `1.5`.
 - CJK characters and most emoji count as two cells each, as `string-width` measures them, so they stay aligned with the rest of the column.
 - The header of a right-aligned column is right-aligned too.
-- A table wider than its container is not truncated or wrapped. Its lines overflow the container.
+- A table wider than its container shrinks its widest columns one cell at a time until the row fits, so short columns keep their width. Each cell that no longer fits is cut with `…`, and every row stays one line. A column is never narrower than one cell, so a container narrower than one cell per column still overflows.
+- The rule under the header is one row, clipped to the table's width, so it never wraps.
 - Widths are recomputed on every render, so changing `rows` after mount reflows the table.

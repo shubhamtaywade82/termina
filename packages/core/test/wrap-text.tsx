@@ -30,7 +30,50 @@ test('changing text wrapping recalculates the container height', async (t: TestC
 });
 
 test('wraps text', (t: TestContext) => {
-	t.assert.strictEqual(wrapText('hello world', 5, 'wrap'), 'hello\n \nworld');
+	t.assert.strictEqual(wrapText('hello world', 5, 'wrap'), 'hello\nworld');
+});
+
+test('drops the space a soft wrap breaks on, so no continuation line starts with it', (t: TestContext) => {
+	t.assert.strictEqual(
+		wrapText('The quick brown fox jumps over the lazy dog', 16, 'wrap'),
+		'The quick brown\nfox jumps over\nthe lazy dog',
+	);
+	t.assert.strictEqual(
+		wrapText('aaaa bbbb cccc', 9, 'wrap'),
+		'aaaa bbbb\ncccc',
+	);
+});
+
+test('a break space that fills a row alone adds no row', (t: TestContext) => {
+	// "hello " fills five columns, so the space would have been a sixth-row orphan.
+	t.assert.strictEqual(
+		wrapText('hello world', 5, 'wrap').split('\n').length,
+		2,
+	);
+});
+
+test('keeps the leading indentation of the first line of each input line', (t: TestContext) => {
+	t.assert.strictEqual(wrapText('  hi there', 5, 'wrap'), '  hi\nthere');
+	t.assert.strictEqual(wrapText('a\n  b c', 3, 'wrap'), 'a\n  b\nc');
+});
+
+test('wraps each input line on its own and keeps the line breaks', (t: TestContext) => {
+	t.assert.strictEqual(
+		wrapText('hello world\nfoo bar', 5, 'wrap'),
+		'hello\nworld\nfoo\nbar',
+	);
+	t.assert.strictEqual(wrapText('ab\n\ncd', 5, 'wrap'), 'ab\n\ncd');
+});
+
+test('keeps the styles of a wrapped line when a break space is dropped', (t: TestContext) => {
+	t.assert.strictEqual(
+		wrapText('\u{1B}[31mhello world\u{1B}[39m', 5, 'wrap'),
+		'\u{1B}[31mhello\u{1B}[39m\n\u{1B}[31mworld\u{1B}[39m',
+	);
+});
+
+test('hard wrapping fills each row and keeps every space', (t: TestContext) => {
+	t.assert.strictEqual(wrapText('hello world', 5, 'hard'), 'hello\n worl\nd');
 });
 
 test('truncates text at the end', (t: TestContext) => {

@@ -106,6 +106,6 @@ test('should break a title mid-word when the row is narrower than the title', (t
 
 	t.assert.strictEqual(
 		stripAnsi(lastFrame() ?? ''),
-		'Deploye Targeting: \nr       production',
+		'Deploye Targeting:\nr       production',
 	);
 });

@@ -193,6 +193,50 @@ test('focus previous option and scroll up', async (t: TestContext) => {
 	);
 });
 
+test('focus rests on the top visible row before the list scrolls up', async (t: TestContext) => {
+	const {lastFrame, stdin} = render(<Select options={options} />);
+
+	for (let press = 0; press < 6; press++) {
+		await delay(50);
+		stdin.write(arrowDown);
+		await delay(50);
+	}
+
+	// Focus moves up onto the top visible row, Yellow. The window does not move.
+	for (let press = 0; press < 4; press++) {
+		await delay(50);
+		stdin.write(arrowUp);
+		await delay(50);
+	}
+
+	t.assert.strictEqual(
+		lastFrame(),
+		[
+			`${chalk.blue(figures.pointer)} ${chalk.blue('Yellow')}`,
+			'  Blue',
+			'  Magenta',
+			'  Cyan',
+			'  White',
+		].join('\n'),
+	);
+
+	// One more step moves focus above the window, so the list scrolls up by one row.
+	await delay(50);
+	stdin.write(arrowUp);
+	await delay(50);
+
+	t.assert.strictEqual(
+		lastFrame(),
+		[
+			`${chalk.blue(figures.pointer)} ${chalk.blue('Green')}`,
+			'  Yellow',
+			'  Blue',
+			'  Magenta',
+			'  Cyan',
+		].join('\n'),
+	);
+});
+
 test("don't scroll up when focused option is the first one", async (t: TestContext) => {
 	const {lastFrame, stdin} = render(<Select options={options} />);
 
