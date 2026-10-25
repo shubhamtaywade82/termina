@@ -1,14 +1,25 @@
-import {Buffer} from 'node:buffer';
 import process from 'node:process';
 
 // Terminals commonly cap an OSC 52 payload at about 75 KB of base64. A larger copy is rejected here, because the terminal would otherwise truncate it silently.
 const maxBase64Length = 74_000;
 
+// Encodes UTF-8 with web-standard globals. `node:buffer` cannot be bundled for the browser, and the docs site bundles this module.
+const toBase64Utf8 = (text: string): string => {
+	const bytes = new TextEncoder().encode(text);
+	let binary = '';
+	for (const byte of bytes) {
+		binary += String.fromCodePoint(byte);
+	}
+
+	// eslint-disable-next-line no-restricted-globals -- btoa is the base64 encoder that both the browser bundle and Node provide. The payload is capped at 74 KB, and the xo suggestion is a dependency.
+	return btoa(binary);
+};
+
 /**
 Builds an OSC 52 sequence that asks the terminal to place `text` on the system clipboard. It works over SSH without pbcopy, xclip or wl-copy, and only where the terminal allows clipboard writes.
 */
 export const clipboardSequence = (text: string): string => {
-	const payload = Buffer.from(text, 'utf8').toString('base64');
+	const payload = toBase64Utf8(text);
 	if (payload.length > maxBase64Length) {
 		throw new RangeError(
 			`clipboard payload is ${payload.length} base64 characters; the limit is ${maxBase64Length}`,
