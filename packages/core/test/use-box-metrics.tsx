@@ -465,13 +465,19 @@ test('hasMeasured becomes true after the tracked element is measured', async (t:
 
 	const {waitUntilRenderFlush} = render(<Test />, {stdout, debug: true});
 	await waitUntilRenderFlush();
-	await delay(50);
+	await waitFor(
+		() => stripAnsi(stdout.get()).includes('Has measured: false'),
+		'the untracked element to report Has measured: false',
+	);
 
 	t.assert.ok(stripAnsi(stdout.get()).includes('Has measured: false'));
 
 	mountTrackedElement();
 	await waitUntilRenderFlush();
-	await delay(50);
+	await waitFor(
+		() => stripAnsi(stdout.get()).includes('Has measured: true'),
+		'the tracked element to be measured',
+	);
 
 	t.assert.ok(stripAnsi(stdout.get()).includes('Has measured: true'));
 });
@@ -506,13 +512,19 @@ test('resets metrics when tracked element unmounts', async (t: TestContext) => {
 
 	const {waitUntilRenderFlush} = render(<Test />, {stdout, debug: true});
 	await waitUntilRenderFlush();
-	await delay(50);
+	await waitFor(
+		() => stripAnsi(stdout.get()).includes('Metrics: 10,1,0,0,true'),
+		'the tracked element to be measured before unmounting',
+	);
 
 	t.assert.ok(stripAnsi(stdout.get()).includes('Metrics: 10,1,0,0,true'));
 
 	unmountTrackedElement();
 	await waitUntilRenderFlush();
-	await delay(50);
+	await waitFor(
+		() => stripAnsi(stdout.get()).includes('Metrics: 0,0,0,0,false'),
+		'the metrics to reset after the tracked element unmounts',
+	);
 
 	t.assert.ok(stripAnsi(stdout.get()).includes('Metrics: 0,0,0,0,false'));
 });

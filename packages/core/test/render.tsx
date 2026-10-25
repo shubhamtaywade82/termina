@@ -743,8 +743,8 @@ test('snake ignores a reversal queued between ticks', async (t: TestContext) => 
 	ps.write('\u{1B}[A\u{1B}[D');
 	await ps.waitForOutput('Score:');
 
+	// The hint was checked before the clear. The output after it holds only what the game redraws, so checking the hint again races that redraw.
 	t.assert.strictEqual(ps.output.includes('Game Over!'), false);
-	t.assert.ok(ps.output.includes('Arrow keys: move'));
 });
 
 const isWriteBarrierChunk = (chunk: string | Uint8Array): boolean =>
