@@ -44,7 +44,7 @@
   "scripts": {
     "build": "tsc -p tsconfig.build.json",
     "typecheck": "tsc --noEmit",
-    "test": "env -u CI -u CONTINUOUS_INTEGRATION TERM=xterm NO_COLOR= FORCE_COLOR=true node --import=tsx --test --test-concurrency=1 \"test/*.test.{ts,tsx}\""
+    "test": "node ../../scripts/run-node-tests.mjs \"test/*.test.{ts,tsx}\""
   },
   "dependencies": {
     "@nemesis-oss/termina-core": "workspace:*",

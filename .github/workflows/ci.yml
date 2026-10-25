@@ -5,6 +5,8 @@ on:
     branches: [main]
   pull_request:
     branches: [main]
+  # Runs the workflow on any branch on request, so a branch can be checked on every platform before a pull request exists.
+  workflow_dispatch:
 
 # A newer push to the same PR cancels the older run. Pushes to main keep their own run per commit.
 concurrency:
@@ -51,10 +53,15 @@ jobs:
       - name: Typecheck
         run: pnpm typecheck
 
+  # Terminal behavior differs by platform, and the pseudo-terminal path is the one most likely to break on Windows. Every platform runs the whole suite, and one failing platform does not cancel the others.
   test:
-    name: Test
-    runs-on: ubuntu-latest
+    name: Test (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
     timeout-minutes: 45
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
     steps:
       - name: Checkout repository
         uses: actions/checkout@v7
