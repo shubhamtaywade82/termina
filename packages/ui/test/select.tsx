@@ -1,11 +1,11 @@
-/* eslint-disable no-await-in-loop */
-import React from 'react';
+/* eslint-disable no-await-in-loop -- Each step drives the component, and the next step starts only after the last one has rendered. */
 import test, {type TestContext} from 'node:test';
-import {render} from './helpers/render.js';
+import React from 'react';
 import chalk from 'chalk';
 import figures from 'figures';
 import delay from 'delay';
 import {Select} from '../source/index.js';
+import {render} from './helpers/render.js';
 
 const options = [
 	{
@@ -38,8 +38,8 @@ const options = [
 	},
 ];
 
-const arrowDown = '\u001B[B';
-const arrowUp = '\u001B[A';
+const arrowDown = '\u{1B}[B';
+const arrowUp = '\u{1B}[A';
 const enter = '\r';
 
 test('limit number of visible options', (t: TestContext) => {
@@ -282,7 +282,7 @@ test('ignore input when disabled', async (t: TestContext) => {
 		<Select
 			isDisabled
 			options={options}
-			onChange={newValue => {
+			onChange={(newValue) => {
 				value = newValue;
 			}}
 		/>,
@@ -335,7 +335,7 @@ test('select focused option', async (t: TestContext) => {
 	const {lastFrame, stdin} = render(
 		<Select
 			options={options}
-			onChange={newValue => {
+			onChange={(newValue) => {
 				value = newValue;
 			}}
 		/>,

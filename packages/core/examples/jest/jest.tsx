@@ -30,7 +30,7 @@ function Jest() {
 	const [runningTests, setRunningTests] = useState<TestResult[]>([]);
 
 	const runTest = useCallback(async (path: string) => {
-		setRunningTests(previous => [
+		setRunningTests((previous) => [
 			...previous,
 			{
 				status: 'runs',
@@ -40,8 +40,10 @@ function Jest() {
 
 		await delay(1000 * Math.random());
 
-		setRunningTests(previous => previous.filter(test => test.path !== path));
-		setCompletedTests(previous => [
+		setRunningTests((previous) =>
+			previous.filter((test) => test.path !== path),
+		);
+		setCompletedTests((previous) => [
 			...previous,
 			{
 				status: Math.random() < 0.5 ? 'pass' : 'fail',
@@ -61,12 +63,14 @@ function Jest() {
 	return (
 		<Box flexDirection="column">
 			<Static items={completedTests}>
-				{test => <Test key={test.path} status={test.status} path={test.path} />}
+				{(test) => (
+					<Test key={test.path} status={test.status} path={test.path} />
+				)}
 			</Static>
 
 			{runningTests.length > 0 && (
 				<Box flexDirection="column" marginTop={1}>
-					{runningTests.map(test => (
+					{runningTests.map((test) => (
 						<Test key={test.path} status={test.status} path={test.path} />
 					))}
 				</Box>
@@ -74,8 +78,8 @@ function Jest() {
 
 			<Summary
 				isFinished={completedTests.length === paths.length}
-				passed={completedTests.filter(test => test.status === 'pass').length}
-				failed={completedTests.filter(test => test.status === 'fail').length}
+				passed={completedTests.filter((test) => test.status === 'pass').length}
+				failed={completedTests.filter((test) => test.status === 'fail').length}
 				time={ms(Date.now() - startTime)}
 			/>
 		</Box>

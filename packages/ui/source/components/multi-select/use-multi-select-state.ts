@@ -1,12 +1,10 @@
 import {isDeepStrictEqual} from 'node:util';
 import {type Reducer, useCallback, useMemo, useState} from 'react';
+import {isPresent} from '../../lib/is-present.js';
 import OptionMap from '../../lib/option-map.js';
 import {type Option} from '../../types.js';
 import {useSyncedReducer} from '../../lib/use-synced-reducer.js';
-import {
-	focusNext,
-	focusPrevious,
-} from '../select/use-select-state.js';
+import {focusNext, focusPrevious} from '../select/use-select-state.js';
 
 type State = {
 	/**
@@ -66,7 +64,7 @@ const reducer: Reducer<State, Action> = (state, action) => {
 		}
 
 		case 'toggle-focused-option': {
-			if (!state.focusedValue) {
+			if (!isPresent(state.focusedValue)) {
 				return state;
 			}
 
@@ -198,13 +196,13 @@ export const useMultiSelectState = ({
 		dispatch({
 			type: 'focus-next-option',
 		});
-	}, []);
+	}, [dispatch]);
 
 	const focusPreviousOption = useCallback(() => {
 		dispatch({
 			type: 'focus-previous-option',
 		});
-	}, []);
+	}, [dispatch]);
 
 	// Notifies from the toggle itself, not from an effect. A toggle with nothing focused changes nothing.
 	const toggleFocusedOption = useCallback(() => {
@@ -222,14 +220,16 @@ export const useMultiSelectState = ({
 		onSubmit?.(latest.current.value);
 	}, [latest, onSubmit]);
 
-	const visibleOptions = useMemo(() => {
-		return options
-			.map((option, index) => ({
-				...option,
-				index,
-			}))
-			.slice(state.visibleFromIndex, state.visibleToIndex);
-	}, [options, state.visibleFromIndex, state.visibleToIndex]);
+	const visibleOptions = useMemo(
+		() =>
+			options
+				.map((option, index) => ({
+					...option,
+					index,
+				}))
+				.slice(state.visibleFromIndex, state.visibleToIndex),
+		[options, state.visibleFromIndex, state.visibleToIndex],
+	);
 
 	return {
 		focusedValue: state.focusedValue,

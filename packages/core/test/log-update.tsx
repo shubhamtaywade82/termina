@@ -334,7 +334,7 @@ for (const {name, incremental} of renderingModes) {
 			render('Line 1\nLine 2\nLine 3\n');
 			render.clear();
 
-			const writes = ((stdout.write as any).args as string[][]).map(args =>
+			const writes = ((stdout.write as any).args as string[][]).map((args) =>
 				args[0]!.replaceAll('\n', '\r\n'),
 			);
 			t.assert.ok(writes[1]!.startsWith(hideCursorEscape));

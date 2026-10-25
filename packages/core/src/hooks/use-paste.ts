@@ -41,14 +41,18 @@ const usePaste = (
 	handler: (text: string) => void,
 	options: Options = {},
 ): void => {
-	// eslint-disable-next-line @typescript-eslint/naming-convention
-	const {setRawMode, isRawModeSupported, setBracketedPasteMode, internal_eventEmitter, canReceive} =
-		useStdinContext();
+	const {
+		setRawMode,
+		isRawModeSupported,
+		setBracketedPasteMode,
+		internal_eventEmitter: eventEmitter,
+		canReceive,
+	} = useStdinContext();
 	const keyboardCapture = use(KeyboardCaptureContext);
 
 	useEffect(() => {
 		// Piped stdin cannot enter raw mode, so the hook stays idle there instead of throwing.
-		if (options.isActive === false || !isRawModeSupported) {
+		if (!isRawModeSupported || options.isActive === false) {
 			return;
 		}
 
@@ -80,12 +84,12 @@ const usePaste = (
 			return;
 		}
 
-		internal_eventEmitter.on('paste', handlePaste);
+		eventEmitter.on('paste', handlePaste);
 
 		return () => {
-			internal_eventEmitter.removeListener('paste', handlePaste);
+			eventEmitter.removeListener('paste', handlePaste);
 		};
-	}, [options.isActive, internal_eventEmitter]);
+	}, [options.isActive, eventEmitter]);
 };
 
 export default usePaste;

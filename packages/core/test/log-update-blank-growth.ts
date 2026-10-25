@@ -28,7 +28,7 @@ for (const rows of [4, 6, 10]) {
 			'history3',
 			'B',
 		]);
-		t.assert.ok(lines.slice(4).every(line => line === ''));
+		t.assert.ok(lines.slice(4).every((line) => line === ''));
 	});
 }
 

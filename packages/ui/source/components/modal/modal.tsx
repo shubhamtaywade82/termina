@@ -12,30 +12,30 @@ import {type Theme} from './theme.js';
 
 export type ModalProps = {
 	/**
-	Whether the modal is shown. While it is `false`, the modal renders nothing and the content behind it receives input as usual.
-	*/
+	 * Whether the modal is shown. While it is `false`, the modal renders nothing and the content behind it receives input as usual.
+	 */
 	readonly isOpen: boolean;
 
 	/**
-	Called when the user presses Escape while the modal is open. The modal does not close itself, so the parent should set `isOpen` to `false`.
-	*/
+	 * Called when the user presses Escape while the modal is open. The modal does not close itself, so the parent should set `isOpen` to `false`.
+	 */
 	readonly onClose: () => void;
 
 	/**
-	Title, shown on the first line inside the border.
-	*/
+	 * Title, shown on the first line inside the border.
+	 */
 	readonly title?: string;
 
 	/**
-	Width in columns, including the border. The height follows the content.
-
-	@default Fits the content
-	*/
+	 * Width in columns, including the border. The height follows the content.
+	 *
+	 * @default Fits the content
+	 */
 	readonly width?: number;
 
 	/**
-	Content, stacked in one column below the title. Only the focusable components inside the modal can take focus while it is open.
-	*/
+	 * Content, stacked in one column below the title. Only the focusable components inside the modal can take focus while it is open.
+	 */
 	readonly children?: ReactNode;
 };
 
@@ -86,24 +86,24 @@ function ModalLayer({onClose, title, width, children}: LayerProps) {
 }
 
 /**
-A dialog layered over the content of the container it is rendered in. While it is open, the keys, paste and `useMouse` reports for the content behind it are not delivered, and Tab moves only between the focusable components inside it. `Box` mouse handlers such as `onClick` are found by hit testing and are not gated, so a handler on a covered element does not run only because the modal is above it.
-
-Render it as the last child of the container it covers. It is an absolute overlay sized to that container, so later siblings draw over it.
-
-```
-import {Box, Text} from '@nemesis-oss/termina-core';
-import {Modal, Select} from '@nemesis-oss/termina-ui';
-
-const Example = ({isOpen, onClose}: {isOpen: boolean; onClose: () => void}) => (
-	<Box flexDirection="column" width={40} height={10}>
-		<Select options={[{label: 'Red', value: 'red'}]} />
-		<Modal isOpen={isOpen} onClose={onClose} title="Details" width={30}>
-			<Text>Press Escape to close.</Text>
-		</Modal>
-	</Box>
-);
-```
-*/
+ * A dialog layered over the content of the container it is rendered in. While it is open, the keys, paste and `useMouse` reports for the content behind it are not delivered, and Tab moves only between the focusable components inside it. `Box` mouse handlers such as `onClick` are found by hit testing and are not gated, so a handler on a covered element does not run only because the modal is above it.
+ *
+ * Render it as the last child of the container it covers. It is an absolute overlay sized to that container, so later siblings draw over it.
+ *
+ * ```
+ * import {Box, Text} from '@nemesis-oss/termina-core';
+ * import {Modal, Select} from '@nemesis-oss/termina-ui';
+ *
+ * const Example = ({isOpen, onClose}: {isOpen: boolean; onClose: () => void}) => (
+ * <Box flexDirection="column" width={40} height={10}>
+ * <Select options={[{label: 'Red', value: 'red'}]} />
+ * <Modal isOpen={isOpen} onClose={onClose} title="Details" width={30}>
+ * <Text>Press Escape to close.</Text>
+ * </Modal>
+ * </Box>
+ * );
+ * ```
+ */
 export function Modal({isOpen, onClose, title, width, children}: ModalProps) {
 	if (!isOpen) {
 		return null;

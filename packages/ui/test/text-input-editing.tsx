@@ -1,13 +1,13 @@
-import React from 'react';
 import test, {type TestContext} from 'node:test';
+import React from 'react';
 import delay from 'delay';
-import {render} from './helpers/render.js';
 import {TextInput} from '../source/index.js';
+import {render} from './helpers/render.js';
 
 const enter = '\r';
-const left = '\u001B[D';
-const backspace = '\u007F';
-const forwardDelete = '\u001B[3~';
+const left = '\u{1B}[D';
+const backspace = '\u{7F}';
+const forwardDelete = '\u{1B}[3~';
 
 // Types each key, submits, and returns the value Enter delivered.
 const submitAfter = async (
@@ -18,7 +18,7 @@ const submitAfter = async (
 	const instance = render(
 		<TextInput
 			defaultValue={defaultValue}
-			onSubmit={value => {
+			onSubmit={(value) => {
 				submitted.push(value);
 			}}
 		/>,
@@ -27,6 +27,7 @@ const submitAfter = async (
 	await delay(20);
 	for (const key of [...keys, enter]) {
 		instance.stdin.write(key);
+		// eslint-disable-next-line no-await-in-loop -- Each step must finish before the next one starts, so the steps stay in order.
 		await delay(15);
 	}
 
@@ -35,11 +36,17 @@ const submitAfter = async (
 };
 
 test('backspace at the start of the input deletes nothing', async (t: TestContext) => {
-	t.assert.strictEqual(await submitAfter([left, left, left, backspace], 'abc'), 'abc');
+	t.assert.strictEqual(
+		await submitAfter([left, left, left, backspace], 'abc'),
+		'abc',
+	);
 });
 
 test('forward delete removes the character under the cursor', async (t: TestContext) => {
-	t.assert.strictEqual(await submitAfter([left, left, forwardDelete], 'abc'), 'ac');
+	t.assert.strictEqual(
+		await submitAfter([left, left, forwardDelete], 'abc'),
+		'ac',
+	);
 });
 
 test('backspace removes a whole emoji, not half of its surrogate pair', async (t: TestContext) => {
@@ -60,7 +67,7 @@ test('backspace removes a combining mark together with its base letter', async (
 });
 
 test('ctrl+letter does not insert the letter', async (t: TestContext) => {
-	t.assert.strictEqual(await submitAfter(['\u0001'], 'abc'), 'abc');
+	t.assert.strictEqual(await submitAfter(['\u{1}'], 'abc'), 'abc');
 });
 
 test('control characters in pasted text are not inserted', async (t: TestContext) => {
@@ -73,7 +80,7 @@ test('accepting a suggestion with the cursor mid-value appends it to the end', a
 		<TextInput
 			defaultValue="ap"
 			suggestions={['apple']}
-			onChange={value => {
+			onChange={(value) => {
 				changes.push(value);
 			}}
 		/>,

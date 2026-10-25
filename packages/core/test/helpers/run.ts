@@ -39,7 +39,7 @@ export const run: Run = async (fixture, props) => {
 
 		let output = '';
 
-		term.onData(data => {
+		term.onData((data) => {
 			output += data;
 		});
 

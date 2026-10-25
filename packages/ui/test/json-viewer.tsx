@@ -1,12 +1,12 @@
-import React from 'react';
 import test, {type TestContext} from 'node:test';
+import React from 'react';
 import chalk from 'chalk';
 import delay from 'delay';
 import stripAnsi from 'strip-ansi';
 import {Box, Text} from '@nemesis-oss/termina-core';
-import {render} from './helpers/render.js';
 import {JSONViewer} from '../source/components/json-viewer/index.js';
 import {ThemeProvider, defaultTheme, extendTheme} from '../source/theme.js';
+import {render} from './helpers/render.js';
 
 const frameOf = (data: unknown, maxDepth?: number): string => {
 	const instance = render(<JSONViewer data={data} maxDepth={maxDepth} />);
@@ -47,7 +47,14 @@ test('prints JSON-safe data the way JSON.stringify does', (t: TestContext) => {
 test('colors keys, strings, numbers, booleans, null, undefined and punctuation', (t: TestContext) => {
 	const {lastFrame, unmount} = render(
 		<JSONViewer
-			data={{text: 'a', count: 1, flag: true, empty: null, missing: undefined, big: 2n}}
+			data={{
+				text: 'a',
+				count: 1,
+				flag: true,
+				empty: null,
+				missing: undefined,
+				big: 2n,
+			}}
 		/>,
 	);
 
@@ -94,7 +101,9 @@ test('colors the ..., [Circular], [Function] and Symbol markers as punctuation',
 
 	t.assert.strictEqual(
 		shallow.lastFrame(),
-		[chalk.dim('{'), `  ${key('a')}${chalk.dim(': ...')}`, chalk.dim('}')].join('\n'),
+		[chalk.dim('{'), `  ${key('a')}${chalk.dim(': ...')}`, chalk.dim('}')].join(
+			'\n',
+		),
 	);
 	shallow.unmount();
 });
@@ -162,6 +171,7 @@ test('replaces objects deeper than the default maxDepth of 8 with ...', (t: Test
 	for (let level = 0; level < 10; level++) {
 		nested = {next: nested};
 	}
+
 	const frame = frameOf(nested);
 
 	t.assert.ok(frame.includes('"next": ...'));
@@ -230,6 +240,8 @@ test('prints only own enumerable string keys, so Date, Map and Set print as {}',
 
 test('reads colors from a JSONViewer theme override, and undefined uses the null style', (t: TestContext) => {
 	const theme = extendTheme(defaultTheme, {
+		// The key is the component name, which the theme is looked up by.
+		// eslint-disable-next-line @typescript-eslint/naming-convention -- The key is the component name, which the theme is looked up by.
 		components: {JSONViewer: {styles: {null: () => ({bold: true})}}},
 	});
 	const {lastFrame, unmount} = render(
@@ -264,7 +276,7 @@ test('ignores keyboard input', async (t: TestContext) => {
 	const frameBefore = lastFrame();
 
 	stdin.write('x');
-	stdin.write('\u001B[B');
+	stdin.write('\u{1B}[B');
 	await delay(20);
 
 	t.assert.strictEqual(lastFrame(), frameBefore);

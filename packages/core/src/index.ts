@@ -28,7 +28,10 @@ export {default as usePaste} from './hooks/use-paste.js';
 export {hyperlink} from './hyperlink.js';
 export {clipboardSequence, copyToClipboard} from './clipboard.js';
 export {detectTerminalCapabilities} from './terminal-capabilities.js';
-export type {ColorLevel, TerminalCapabilities} from './terminal-capabilities.js';
+export type {
+	ColorLevel,
+	TerminalCapabilities,
+} from './terminal-capabilities.js';
 export type {
 	SuspendTerminal,
 	TerminalSuspension,

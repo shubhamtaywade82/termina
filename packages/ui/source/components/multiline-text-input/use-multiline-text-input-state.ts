@@ -10,34 +10,34 @@ import {useSyncedReducer} from '../../lib/use-synced-reducer.js';
 
 export type UseMultilineTextInputStateProps = {
 	/**
-	 Default input value.
+	 * Default input value.
 	 */
 	defaultValue?: string;
 
 	/**
-	 Controlled input value. When set, the parent owns the value: edits are reported through `onChange`, and the input shows this value until the parent changes it.
+	 * Controlled input value. When set, the parent owns the value: edits are reported through `onChange`, and the input shows this value until the parent changes it.
 	 */
 	value?: string;
 
 	/**
-	 Callback when input value changes.
+	 * Callback when input value changes.
 	 */
 	onChange?: (value: string) => void;
 
 	/**
-	 Callback when Ctrl+D is pressed. First argument is input value.
+	 * Callback when Ctrl+D is pressed. First argument is input value.
 	 */
 	onSubmit?: (value: string) => void;
 };
 
 export type MultilineTextInputState = MultilineEditState & {
 	/**
-	 Applies an edit or a move. An edit that changes the value is reported through `onChange`. A move changes only the caret.
+	 * Applies an edit or a move. An edit that changes the value is reported through `onChange`. A move changes only the caret.
 	 */
 	commit: (action: MultilineEditAction) => void;
 
 	/**
-	 Submit input value.
+	 * Submit input value.
 	 */
 	submit: () => void;
 };

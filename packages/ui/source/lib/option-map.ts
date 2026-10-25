@@ -27,7 +27,7 @@ export default class OptionMap extends Map<string, OptionMapItem> {
 				previous.next = item;
 			}
 
-			firstItem ||= item;
+			firstItem ??= item;
 
 			items.push([option.value, item]);
 			index++;

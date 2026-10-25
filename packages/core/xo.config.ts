@@ -49,6 +49,8 @@ const xoConfig: FlatXoConfig = [
 					exceptions: ['yoga-layout'],
 				},
 			],
+			// `main` and `types` stay next to `exports` for TypeScript's node10 resolution, which ignores `exports`.
+			'package-json/prefer-exports': 'off',
 		},
 	},
 	{
@@ -58,6 +60,7 @@ const xoConfig: FlatXoConfig = [
 				'error',
 				{
 					checkThenables: true,
+
 					// eslint-disable-next-line @typescript-eslint/naming-convention -- Option name from typescript-eslint.
 					ignoreIIFE: true,
 					allowForKnownSafeCalls: [

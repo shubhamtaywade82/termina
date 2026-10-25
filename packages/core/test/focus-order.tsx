@@ -19,7 +19,7 @@ test('focus navigation keeps registration order after keyed reordering', async (
 		manager = useFocusManager();
 		return (
 			<Box flexDirection="column">
-				{order.map(id => (
+				{order.map((id) => (
 					<Field key={id} id={id} />
 				))}
 			</Box>

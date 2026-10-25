@@ -36,13 +36,18 @@ const useMouse = (
 	handler: (event: MouseEvent) => void,
 	options: Options = {},
 ): void => {
-	// eslint-disable-next-line @typescript-eslint/naming-convention
-	const {setRawMode, isRawModeSupported, setMouseTracking, internal_eventEmitter, canReceive} = useStdinContext();
+	const {
+		setRawMode,
+		isRawModeSupported,
+		setMouseTracking,
+		internal_eventEmitter: eventEmitter,
+		canReceive,
+	} = useStdinContext();
 	const keyboardCapture = use(KeyboardCaptureContext);
 
 	useEffect(() => {
 		// Piped stdin cannot enter raw mode, so the hook stays idle there instead of throwing.
-		if (options.isActive === false || !isRawModeSupported) {
+		if (!isRawModeSupported || options.isActive === false) {
 			return;
 		}
 
@@ -74,12 +79,12 @@ const useMouse = (
 			return;
 		}
 
-		internal_eventEmitter.on('mouse', handleMouse);
+		eventEmitter.on('mouse', handleMouse);
 
 		return () => {
-			internal_eventEmitter.removeListener('mouse', handleMouse);
+			eventEmitter.removeListener('mouse', handleMouse);
 		};
-	}, [options.isActive, internal_eventEmitter]);
+	}, [options.isActive, eventEmitter]);
 };
 
 export default useMouse;

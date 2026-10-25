@@ -17,16 +17,10 @@ const theme = {
 		}),
 		value: (): TextProps => ({}),
 	},
-	config: ({value}: {value: number}) => {
-		if (value >= RED_FROM_PERCENT) {
-			return {color: 'red'};
-		}
-
-		if (value >= YELLOW_FROM_PERCENT) {
-			return {color: 'yellow'};
-		}
-
-		return {color: 'green'};
+	config({value}: {value: number}) {
+		return value >= RED_FROM_PERCENT
+			? {color: 'red'}
+			: {color: value >= YELLOW_FROM_PERCENT ? 'yellow' : 'green'};
 	},
 } satisfies ComponentTheme;
 

@@ -1,10 +1,10 @@
-import React from 'react';
 import test, {type TestContext} from 'node:test';
+import React from 'react';
 import {Box} from '@nemesis-oss/termina-core';
-import {render} from './helpers/render.js';
 import chalk from 'chalk';
 import figures from 'figures';
 import {ProgressBar} from '../source/index.js';
+import {render} from './helpers/render.js';
 
 test('progress bar', (t: TestContext) => {
 	const {lastFrame, rerender} = render(
@@ -13,7 +13,10 @@ test('progress bar', (t: TestContext) => {
 		</Box>,
 	);
 
-	t.assert.strictEqual(lastFrame(), chalk.dim(figures.squareLightShade.repeat(20)));
+	t.assert.strictEqual(
+		lastFrame(),
+		chalk.dim(figures.squareLightShade.repeat(20)),
+	);
 
 	rerender(
 		<Box width={20}>

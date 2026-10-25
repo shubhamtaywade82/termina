@@ -1,26 +1,30 @@
-/* eslint-disable no-await-in-loop */
-import React from 'react';
+/* eslint-disable no-await-in-loop -- Each step drives the component, and the next step starts only after the last one has rendered. */
 import test, {type TestContext} from 'node:test';
+import React from 'react';
 import chalk from 'chalk';
 import delay from 'delay';
 import stripAnsi from 'strip-ansi';
 import {Box, Text, useInput} from '@nemesis-oss/termina-core';
-import {render} from './helpers/render.js';
 import {Dialog} from '../source/components/dialog/index.js';
 import {ThemeProvider, defaultTheme, extendTheme} from '../source/theme.js';
+import {render} from './helpers/render.js';
 
-const escape = '\u001B';
+const escape = '\u{1B}';
 // The core input parser holds a lone ESC for 40 ms to see whether it starts a sequence, so waiting for 20 ms would miss it.
 const escapeWaitMs = 100;
 
 const plain = (frame: string | undefined): string => stripAnsi(frame ?? '');
 
 const uniqueLineWidths = (frame: string | undefined): number[] => [
-	...new Set(plain(frame).split('\n').map(line => line.length)),
+	...new Set(
+		plain(frame)
+			.split('\n')
+			.map((line) => line.length),
+	),
 ];
 
 const confirmDialog = (onClose?: () => void, width?: number) => (
-	<Dialog title="Confirm" onClose={onClose} width={width}>
+	<Dialog title="Confirm" width={width} onClose={onClose}>
 		<Text>Delete 3 files?</Text>
 	</Dialog>
 );
@@ -86,7 +90,8 @@ test('applies the default theme: blue border, bold title, dim footer', (t: TestC
 	const {lastFrame} = render(confirmDialog(() => {}, 30));
 
 	const frame = lastFrame() ?? '';
-	t.assert.ok(frame.includes(chalk.blue(`╭${'─'.repeat(28)}╮`)));
+	const border = chalk.blue(`╭${'─'.repeat(28)}╮`);
+	t.assert.ok(frame.includes(border));
 	t.assert.ok(frame.includes(chalk.bold('Confirm')));
 	t.assert.ok(frame.includes(chalk.dim('Esc to close')));
 });
@@ -138,7 +143,7 @@ test('keys other than Escape do not call onClose', async (t: TestContext) => {
 	);
 	const frameBefore = lastFrame();
 
-	for (const key of ['x', '\r', '\u001B[A', '\u001B[B']) {
+	for (const key of ['x', '\r', '\u{1B}[A', '\u{1B}[B']) {
 		await pressKey(stdin, key);
 	}
 
@@ -171,6 +176,7 @@ test('adding or removing onClose after mount toggles the footer and Escape', asy
 	const handleClose = () => {
 		closeCount++;
 	};
+
 	const {lastFrame, rerender, stdin} = render(confirmDialog());
 
 	rerender(confirmDialog(handleClose));

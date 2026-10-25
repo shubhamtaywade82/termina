@@ -21,7 +21,7 @@ const enterAltScreen = '[?1049h';
 const exitAltScreen = '[?1049l';
 
 const delay = async (ms: number) =>
-	new Promise(resolve => {
+	new Promise((resolve) => {
 		setTimeout(resolve, ms);
 	});
 
@@ -89,8 +89,8 @@ test('suspendTerminal hands the terminal to the callback, then restores Ink', as
 	t.assert.strictEqual(rawModeDuringCallback, false);
 	t.assert.ok(rawModeAfterCallback);
 	// Cursor shown for the child, then hidden again by the forced redraw.
-	t.assert.ok(stdout.getWrites().some(write => write.includes(showCursor)));
-	t.assert.ok(stdout.getWrites().some(write => write.includes(hideCursor)));
+	t.assert.ok(stdout.getWrites().some((write) => write.includes(showCursor)));
+	t.assert.ok(stdout.getWrites().some((write) => write.includes(hideCursor)));
 });
 
 test('suspendTerminal restores the terminal even if the callback throws', async (t: TestContext) => {
@@ -219,7 +219,7 @@ test('suspendTerminal runs the callback but skips the handoff when not interacti
 	// reveal) in non-interactive mode.
 	t.assert.ok(didRunCallback);
 	t.assert.strictEqual(
-		stdout.getWrites().some(write => write.includes(showCursor)),
+		stdout.getWrites().some((write) => write.includes(showCursor)),
 		false,
 	);
 });
@@ -227,7 +227,7 @@ test('suspendTerminal runs the callback but skips the handoff when not interacti
 test('suspendTerminal rejects a nested suspend while already suspended', async (t: TestContext) => {
 	let wasNestedRejected = false;
 
-	await renderWithSuspend(async suspendTerminal => {
+	await renderWithSuspend(async (suspendTerminal) => {
 		await suspendTerminal(async () => {
 			await t.assert.rejects(
 				suspendTerminal(async () => {}),
@@ -281,13 +281,13 @@ test('suspendTerminal exits and re-enters the alternate screen', async (t: TestC
 					await suspendTerminal(async () => {
 						exitedAltDuringSuspend = stdout
 							.getWrites()
-							.some(write => write.includes(exitAltScreen));
+							.some((write) => write.includes(exitAltScreen));
 						writesAtCallbackEnd = stdout.getWrites().length;
 					});
 					reEnteredAltAfterResume = stdout
 						.getWrites()
 						.slice(writesAtCallbackEnd)
-						.some(write => write.includes(enterAltScreen));
+						.some((write) => write.includes(enterAltScreen));
 				} finally {
 					finished();
 				}
@@ -342,7 +342,7 @@ for (const [mode, options] of Object.entries({
 			return (
 				<>
 					<Static items={['S1', 'S2', 'S3']}>
-						{item => <Text key={item}>{item}</Text>}
+						{(item) => <Text key={item}>{item}</Text>}
 					</Static>
 					<Text>live</Text>
 				</>

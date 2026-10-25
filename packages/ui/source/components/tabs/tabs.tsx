@@ -53,12 +53,23 @@ type ActiveTabOptions = {
 	readonly isActive: boolean;
 };
 
-function findActiveIndex(tabs: TabsItem[], activeId: string | undefined): number {
-	return Math.max(0, tabs.findIndex(tab => tab.id === activeId));
+function findActiveIndex(
+	tabs: TabsItem[],
+	activeId: string | undefined,
+): number {
+	return Math.max(
+		0,
+		tabs.findIndex((tab) => tab.id === activeId),
+	);
 }
 
 // Keeps the id, not an index: removing the active tab then falls back to the first tab instead of pointing past the end.
-function useActiveTabIndex({tabs, defaultTabId, onChange, isActive}: ActiveTabOptions): number {
+function useActiveTabIndex({
+	tabs,
+	defaultTabId,
+	onChange,
+	isActive,
+}: ActiveTabOptions): number {
 	const [activeId, setActiveId] = useState(defaultTabId);
 	// A ref, not the rendered id: one input chunk can hold two key presses, and both run before React re-renders.
 	const activeIdRef = useRef(defaultTabId);
@@ -88,15 +99,29 @@ function useActiveTabIndex({tabs, defaultTabId, onChange, isActive}: ActiveTabOp
 	return findActiveIndex(tabs, activeId);
 }
 
-export function Tabs({tabs, defaultTabId, onChange, isActive = true}: TabsProps) {
-	const activeIndex = useActiveTabIndex({tabs, defaultTabId, onChange, isActive});
+export function Tabs({
+	tabs,
+	defaultTabId,
+	onChange,
+	isActive = true,
+}: TabsProps) {
+	const activeIndex = useActiveTabIndex({
+		tabs,
+		defaultTabId,
+		onChange,
+		isActive,
+	});
 	const {styles} = useComponentTheme<Theme>('Tabs');
 	const activeTab = tabs.at(activeIndex);
 
 	// Keyed by id so switching tabs remounts the content. Without the key, two tabs holding the same component would share its state.
 	const panel = activeTab && (
 		<Box key={activeTab.id} {...styles.panel()}>
-			{typeof activeTab.content === 'string' ? <Text>{activeTab.content}</Text> : activeTab.content}
+			{typeof activeTab.content === 'string' ? (
+				<Text>{activeTab.content}</Text>
+			) : (
+				activeTab.content
+			)}
 		</Box>
 	);
 
@@ -104,10 +129,7 @@ export function Tabs({tabs, defaultTabId, onChange, isActive = true}: TabsProps)
 		<Box flexDirection="column">
 			<Box {...styles.tabBar()}>
 				{tabs.map((tab, index) => (
-					<Text
-						key={tab.id}
-						{...styles.tab({isActive: index === activeIndex})}
-					>
+					<Text key={tab.id} {...styles.tab({isActive: index === activeIndex})}>
 						{tab.label}
 					</Text>
 				))}

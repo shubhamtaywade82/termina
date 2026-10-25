@@ -1,5 +1,6 @@
 import React from 'react';
 import {Box, Text} from '@nemesis-oss/termina-core';
+import {isPresent} from '../../lib/is-present.js';
 import {useComponentTheme} from '../../theme.js';
 import {type Theme} from './theme.js';
 
@@ -24,7 +25,9 @@ export function Header({title, subtitle}: HeaderProps) {
 	return (
 		<Box {...styles.container()}>
 			<Text {...styles.title()}>{title}</Text>
-			{subtitle ? <Text {...styles.subtitle()}>{subtitle}</Text> : null}
+			{isPresent(subtitle) ? (
+				<Text {...styles.subtitle()}>{subtitle}</Text>
+			) : null}
 		</Box>
 	);
 }

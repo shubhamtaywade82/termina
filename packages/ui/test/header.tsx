@@ -1,11 +1,11 @@
-import React from 'react';
 import test, {type TestContext} from 'node:test';
+import React from 'react';
 import chalk from 'chalk';
 import delay from 'delay';
 import stripAnsi from 'strip-ansi';
 import {Box, Text} from '@nemesis-oss/termina-core';
-import {render} from './helpers/render.js';
 import {Header} from '../source/components/header/index.js';
+import {render} from './helpers/render.js';
 
 test('should draw only the bold title when no subtitle is given', (t: TestContext) => {
 	const {lastFrame} = render(<Header title="Deploy Dashboard" />);
@@ -58,7 +58,7 @@ test('should wrap the title and subtitle onto more rows when the row is too narr
 	const rows = (lastFrame() ?? '').split('\n');
 
 	t.assert.ok(rows.length > 1);
-	t.assert.ok(rows.every(row => !row.includes('Deployer')));
+	t.assert.ok(rows.every((row) => !row.includes('Deployer')));
 });
 
 test('should wrap a title wider than the row onto more rows', (t: TestContext) => {
@@ -74,7 +74,10 @@ test('should wrap a title wider than the row onto more rows', (t: TestContext) =
 test('should draw the demo layout with the header above a status list', (t: TestContext) => {
 	const {lastFrame} = render(
 		<Box flexDirection="column" gap={1}>
-			<Header title="Deployer" subtitle="Targeting: production · Region: us-east-1" />
+			<Header
+				title="Deployer"
+				subtitle="Targeting: production · Region: us-east-1"
+			/>
 			<Box flexDirection="column">
 				<Text>Deploying 3 services</Text>
 				<Text color="green">api: done</Text>

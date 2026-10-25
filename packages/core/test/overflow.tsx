@@ -17,7 +17,7 @@ const box = (text: string, options?: Options): string =>
 const clipX = (text: string, columns: number): string =>
 	text
 		.split('\n')
-		.map(line => sliceAnsi(line, 0, columns).trim())
+		.map((line) => sliceAnsi(line, 0, columns).trim())
 		.join('\n');
 
 test('vertical clipping preserves Transform line indices', (t: TestContext) => {

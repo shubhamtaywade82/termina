@@ -6,7 +6,7 @@ function Test() {
 
 	useEffect(() => {
 		const timer = setInterval(() => {
-			setCounter(previous => previous + 1);
+			setCounter((previous) => previous + 1);
 		}, 100);
 
 		return () => {

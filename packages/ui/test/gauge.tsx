@@ -1,12 +1,12 @@
-import React from 'react';
 import test, {type TestContext} from 'node:test';
+import React from 'react';
 import chalk from 'chalk';
 import delay from 'delay';
 import {Box, Text, renderToString} from '@nemesis-oss/termina-core';
 import stripAnsi from 'strip-ansi';
-import {render} from './helpers/render.js';
 import {Gauge} from '../source/components/gauge/index.js';
 import {ThemeProvider, defaultTheme, extendTheme} from '../source/theme.js';
+import {render} from './helpers/render.js';
 
 type Color = 'green' | 'yellow' | 'red' | 'blue';
 
@@ -55,7 +55,7 @@ test('draws an empty bar and 0% for values below 0', (t: TestContext) => {
 });
 
 test('draws NaN as 0', (t: TestContext) => {
-	const {lastFrame} = render(<Gauge value={Number.NaN} />);
+	const {lastFrame} = render(<Gauge value={NaN} />);
 
 	t.assert.strictEqual(lastFrame(), `${bar(0, 'green')} 0%`);
 });
@@ -169,5 +169,8 @@ test('throws a RangeError when the width is negative', (t: TestContext) => {
 });
 
 test('a width of 0 draws no bar, so the row starts with the gap before the percent', (t: TestContext) => {
-	t.assert.strictEqual(stripAnsi(renderToString(<Gauge value={50} width={0} />)), ' 50%');
+	t.assert.strictEqual(
+		stripAnsi(renderToString(<Gauge value={50} width={0} />)),
+		' 50%',
+	);
 });

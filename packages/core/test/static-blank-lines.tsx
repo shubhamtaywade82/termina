@@ -7,7 +7,7 @@ for (const height of [0, 1, 2, 3]) {
 		const output = renderToString(
 			<>
 				<Static items={['blank']}>
-					{item => <Box key={item} height={height} />}
+					{(item) => <Box key={item} height={height} />}
 				</Static>
 				<Text>after</Text>
 			</>,
@@ -29,7 +29,7 @@ for (const content of [undefined, '', ' ', '\n']) {
 		const item = <Text>{content}</Text>;
 		const output = renderToString(
 			<>
-				<Static items={['item']}>{key => <Box key={key}>{item}</Box>}</Static>
+				<Static items={['item']}>{(key) => <Box key={key}>{item}</Box>}</Static>
 				<Text>after</Text>
 			</>,
 		);
@@ -47,7 +47,7 @@ for (const content of [undefined, '', ' ', '\n']) {
 test('empty Static does not insert a blank row', (t: TestContext) => {
 	const output = renderToString(
 		<>
-			<Static items={[]}>{item => <Text key={item}>{item}</Text>}</Static>
+			<Static items={[]}>{(item) => <Text key={item}>{item}</Text>}</Static>
 			<Text>after</Text>
 		</>,
 	);

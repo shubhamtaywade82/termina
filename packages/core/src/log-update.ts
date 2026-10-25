@@ -145,9 +145,7 @@ const createStandard = (
 			return;
 		}
 
-		stream.write(
-			ansiEscapes.eraseLines(rowsToErase(previousOutput, columns)),
-		);
+		stream.write(ansiEscapes.eraseLines(rowsToErase(previousOutput, columns)));
 		previousOutput = '';
 		previousLineCount = 0;
 		wasCursorShown = false;
@@ -326,7 +324,7 @@ const createIncremental = (
 		}
 
 		// Rows can be reused only while they still show their previous content. A previous block taller than the viewport has lost its top rows to scrollback, and the erase above reaches the top of the screen. Every row is then rewritten, and no line is diffed against content that is no longer on screen.
-		const previousScrolledPastTop =
+		const isPreviousScrolledPastTop =
 			typeof stream.rows === 'number' && previousVisible > stream.rows;
 
 		for (let i = 0; i < visibleCount; i++) {
@@ -335,7 +333,7 @@ const createIncremental = (
 			// We do not write lines if the contents are the same. This prevents flickering during renders.
 			// New blank rows need a line feed to scroll at the terminal bottom; the trailing split entry is not a visible row.
 			if (
-				!previousScrolledPastTop &&
+				!isPreviousScrolledPastTop &&
 				i < previousVisible &&
 				nextLines[i] === previousLines[i]
 			) {
@@ -351,7 +349,7 @@ const createIncremental = (
 			const nextLine = nextLines[i]!;
 			const changedLine =
 				areColumnsUnchanged &&
-				!previousScrolledPastTop &&
+				!isPreviousScrolledPastTop &&
 				nextLines.length === previousLines.length
 					? lineUpdate(previousLines[i]!, nextLine, stream.columns)
 					: ansiEscapes.cursorTo(0) + ansiEscapes.eraseEndLine + nextLine;
@@ -391,9 +389,7 @@ const createIncremental = (
 			return;
 		}
 
-		stream.write(
-			ansiEscapes.eraseLines(rowsToErase(previousOutput, columns)),
-		);
+		stream.write(ansiEscapes.eraseLines(rowsToErase(previousOutput, columns)));
 		previousOutput = '';
 		previousLines = [];
 		wasCursorShown = false;

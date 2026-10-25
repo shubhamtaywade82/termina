@@ -1,4 +1,4 @@
-import React, {type ReactNode, createContext, useContext} from 'react';
+import React, {type ReactNode, createContext, use} from 'react';
 import deepmerge from 'deepmerge';
 import alertTheme from './components/alert/theme.js';
 import badgeTheme from './components/badge/theme.js';
@@ -75,6 +75,7 @@ export const defaultTheme: Theme = {
 		Divider: dividerTheme,
 		Gauge: gaugeTheme,
 		Header: headerTheme,
+		// eslint-disable-next-line @typescript-eslint/naming-convention -- The key is the component name, which the theme is looked up by.
 		JSONViewer: jsonviewerTheme,
 		KeyHint: keyhintTheme,
 		LoadingBar: loadingbarTheme,
@@ -101,18 +102,15 @@ export type ThemeProviderProps = {
 };
 
 export function ThemeProvider({children, theme}: ThemeProviderProps) {
-	return (
-		<ThemeContext.Provider value={theme}>{children}</ThemeContext.Provider>
-	);
+	return <ThemeContext value={theme}>{children}</ThemeContext>;
 }
 
-export const extendTheme = (originalTheme: Theme, newTheme: Theme) => {
-	return deepmerge(originalTheme, newTheme);
-};
+export const extendTheme = (originalTheme: Theme, newTheme: Theme) =>
+	deepmerge(originalTheme, newTheme);
 
-export const useComponentTheme = <Theme extends ComponentTheme>(
+export const useComponentTheme = <ThemeShape extends ComponentTheme>(
 	component: string,
-): Theme => {
-	const theme = useContext(ThemeContext);
-	return theme.components[component] as Theme;
+): ThemeShape => {
+	const theme = use(ThemeContext);
+	return theme.components[component] as ThemeShape;
 };

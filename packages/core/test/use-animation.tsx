@@ -109,7 +109,9 @@ test('multiple animations with the same interval share one timer', async (t: Tes
 		});
 
 		t.assert.ok(mocks.setTimeoutCallCount >= 1);
-		t.assert.ok(mocks.timeoutDelays.every(timeoutDelay => timeoutDelay === 50));
+		t.assert.ok(
+			mocks.timeoutDelays.every((timeoutDelay) => timeoutDelay === 50),
+		);
 
 		await clock.tickAsync(100);
 		const output = (stdout.write as any).lastCall.args[0] as string;
@@ -145,7 +147,9 @@ test('animations with different intervals still use the shared timer', async (t:
 			debug: true,
 		});
 
-		t.assert.ok(mocks.timeoutDelays.every(timeoutDelay => timeoutDelay >= 50));
+		t.assert.ok(
+			mocks.timeoutDelays.every((timeoutDelay) => timeoutDelay >= 50),
+		);
 
 		await clock.tickAsync(170);
 		const output = (stdout.write as any).lastCall.args[0] as string;
@@ -1323,7 +1327,7 @@ test('reset() clears paused animation values without resuming', async (t: TestCo
 				.get()
 				.split(',')
 				.map(Number)
-				.every(value => value > 0),
+				.every((value) => value > 0),
 		);
 
 		// Pause the animation
@@ -1347,7 +1351,7 @@ test('reset() clears paused animation values without resuming', async (t: TestCo
 				.get()
 				.split(',')
 				.map(Number)
-				.every(value => value > 0),
+				.every((value) => value > 0),
 		);
 
 		unmount();

@@ -4,19 +4,19 @@ import {type MultilineTextInputState} from './use-multiline-text-input-state.js'
 
 export type UseMultilineTextInputProps = {
 	/**
-	 When disabled, user input and paste are ignored.
-
-	 @default false
+	 * When disabled, user input and paste are ignored.
+	 *
+	 * @default false
 	 */
 	isDisabled?: boolean;
 
 	/**
-	 Multiline text input state.
+	 * Multiline text input state.
 	 */
 	state: MultilineTextInputState;
 
 	/**
-	 Number of rows the editor shows. Every edit and move carries it, so the viewport follows the caret.
+	 * Number of rows the editor shows. Every edit and move carries it, so the viewport follows the caret.
 	 */
 	rows: number;
 };

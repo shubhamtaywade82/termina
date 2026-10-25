@@ -124,13 +124,13 @@ export const useEmailInputState = ({
 		dispatch({
 			type: 'move-cursor-left',
 		});
-	}, []);
+	}, [dispatch]);
 
 	const moveCursorRight = useCallback(() => {
 		dispatch({
 			type: 'move-cursor-right',
 		});
-	}, []);
+	}, [dispatch]);
 
 	// Notifies from the edit itself, not from an effect. Effects are keyed to the callback and to the last edit, which repeats calls on re-render and merges edits in one drain.
 	const notify = useChangeNotifier(onChange);

@@ -1,78 +1,77 @@
 {
-  "name": "@nemesis-oss/termina-ui",
-  "version": "0.2.0",
-  "private": false,
-  "description": "Fork of vadimdemedes/ink-ui@2.0.0 (component kit) ported onto @nemesis-oss/termina-core.",
-  "keywords": [
-    "react",
-    "terminal",
-    "tui",
-    "cli",
-    "components",
-    "ink",
-    "ink-ui"
-  ],
-  "author": "Shubham Taywade <shubhamtaywade82@gmail.com>",
-  "license": "MIT",
-  "homepage": "https://github.com/shubhamtaywade82/termina/tree/main/packages/ui#readme",
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/shubhamtaywade82/termina.git",
-    "directory": "packages/ui"
-  },
-  "bugs": {
-    "url": "https://github.com/shubhamtaywade82/termina/issues"
-  },
-  "type": "module",
-  "main": "./build/index.js",
-  "types": "./build/index.d.ts",
-  "exports": {
-    "types": "./build/index.d.ts",
-    "default": "./build/index.js"
-  },
-  "files": [
-    "build"
-  ],
-  "engines": {
-    "node": ">=22"
-  },
-  "publishConfig": {
-    "access": "public",
-    "provenance": true
-  },
-  "scripts": {
-    "build": "tsc -p tsconfig.build.json",
-    "typecheck": "tsc --noEmit",
-    "lint": "xo",
-    "test": "env -u CI -u CONTINUOUS_INTEGRATION TERM=xterm NO_COLOR= FORCE_COLOR=true node --import=tsx --test --test-concurrency=1 \"test/*.{ts,tsx}\""
-  },
-  "dependencies": {
-    "@nemesis-oss/termina-core": "workspace:*",
-    "chalk": "^6.0.1",
-    "cli-spinners": "^3.0.0",
-    "deepmerge": "^4.3.1",
-    "figures": "^6.1.0",
-    "string-width": "^8.3.0"
-  },
-  "peerDependencies": {
-    "react": ">=19.3.0"
-  },
-  "devDependencies": {
-    "@sindresorhus/tsconfig": "^8.1.0",
-    "@types/node": "^26.6.3",
-    "@types/react": "^19.3.0",
-    "@vdemedes/prettier-config": "^2.0.1",
-    "boxen": "^9.0.0",
-    "cat-names": "^4.0.0",
-    "delay": "^7.0.0",
-    "eslint-config-xo-react": "^0.32.0",
-    "node-pty": "^1.2.0-beta.12",
-    "prettier": "^3.9.9",
-    "react": "^19.3.1",
-    "sinon": "^22.1.0",
-    "strip-ansi": "^7.2.0",
-    "tsx": "^4.23.15",
-    "typescript": "^7.0.2",
-    "xo": "^5.0.1"
-  }
+	"name": "@nemesis-oss/termina-ui",
+	"version": "0.2.0",
+	"private": false,
+	"description": "Fork of vadimdemedes/ink-ui@2.0.0 (component kit) ported onto @nemesis-oss/termina-core.",
+	"license": "MIT",
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/shubhamtaywade82/termina.git",
+		"directory": "packages/ui"
+	},
+	"homepage": "https://github.com/shubhamtaywade82/termina/tree/main/packages/ui#readme",
+	"bugs": "https://github.com/shubhamtaywade82/termina/issues",
+	"author": "Shubham Taywade <shubhamtaywade82@gmail.com>",
+	"type": "module",
+	"exports": {
+		"types": "./build/index.d.ts",
+		"default": "./build/index.js"
+	},
+	"main": "./build/index.js",
+	"types": "./build/index.d.ts",
+	"sideEffects": true,
+	"engines": {
+		"node": ">=22"
+	},
+	"publishConfig": {
+		"access": "public",
+		"provenance": true
+	},
+	"scripts": {
+		"build": "tsc -p tsconfig.build.json",
+		"typecheck": "tsc --noEmit",
+		"lint": "xo",
+		"test": "node ../../scripts/run-node-tests.mjs \"test/*.{ts,tsx}\""
+	},
+	"files": [
+		"build"
+	],
+	"keywords": [
+		"react",
+		"terminal",
+		"tui",
+		"cli",
+		"components",
+		"ink",
+		"ink-ui"
+	],
+	"dependencies": {
+		"@nemesis-oss/termina-core": "workspace:*",
+		"chalk": "^6.0.1",
+		"cli-spinners": "^3.0.0",
+		"deepmerge": "^4.3.1",
+		"figures": "^6.1.0",
+		"string-width": "^8.3.0"
+	},
+	"devDependencies": {
+		"@sindresorhus/tsconfig": "^8.1.0",
+		"@types/node": "^26.6.3",
+		"@types/react": "^19.3.0",
+		"@vdemedes/prettier-config": "^2.0.1",
+		"boxen": "^9.0.0",
+		"cat-names": "^4.0.0",
+		"delay": "^7.0.0",
+		"eslint-config-xo-react": "^0.32.0",
+		"node-pty": "^1.2.0-beta.12",
+		"prettier": "^3.9.9",
+		"react": "^19.3.1",
+		"sinon": "^22.1.0",
+		"strip-ansi": "^7.2.0",
+		"tsx": "^4.23.15",
+		"typescript": "^7.0.2",
+		"xo": "^5.0.1"
+	},
+	"peerDependencies": {
+		"react": ">=19.3.0"
+	}
 }

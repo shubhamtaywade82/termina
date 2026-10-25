@@ -7,7 +7,7 @@ import {MouseDispatcher} from '../mouse-dispatch.js';
 const MouseRouter = ({root}: {readonly root: DOMElement}) => {
 	const [dispatcher] = useState(() => new MouseDispatcher());
 
-	useMouse(event => {
+	useMouse((event) => {
 		dispatcher.dispatch(root, event);
 	});
 

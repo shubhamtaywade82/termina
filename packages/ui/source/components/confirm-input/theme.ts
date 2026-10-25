@@ -3,7 +3,7 @@ import {type ComponentTheme} from '../../theme.js';
 
 const theme = {
 	styles: {
-		input: ({isFocused}): TextProps => ({
+		input: ({isFocused}: {readonly isFocused: boolean}): TextProps => ({
 			dimColor: !isFocused,
 		}),
 	},

@@ -1,4 +1,4 @@
-import type { GenUIAction, GenUIActionDispatcher } from './types.js';
+import type {GenUIAction, GenUIActionDispatcher} from './types.js';
 
 export class ActionNotFoundError extends Error {
 	readonly actionName: string;
@@ -15,7 +15,9 @@ export class ActionValidationError extends Error {
 	readonly validationError: string;
 
 	constructor(actionName: string, validationError: string) {
-		super(`Action "${actionName}" payload failed validation: ${validationError}`);
+		super(
+			`Action "${actionName}" payload failed validation: ${validationError}`,
+		);
 		this.name = 'ActionValidationError';
 		this.actionName = actionName;
 		this.validationError = validationError;
@@ -23,7 +25,7 @@ export class ActionValidationError extends Error {
 }
 
 export function createActionDispatcher(
-	initialActions: readonly GenUIAction<any>[] = [],
+	initialActions: ReadonlyArray<GenUIAction<any>> = [],
 ): GenUIActionDispatcher {
 	const actions = new Map<string, GenUIAction<any>>();
 
@@ -31,6 +33,7 @@ export function createActionDispatcher(
 		if (actions.has(action.name)) {
 			throw new Error(`Action "${action.name}" is already registered.`);
 		}
+
 		actions.set(action.name, action);
 	}
 
@@ -53,7 +56,8 @@ export function createActionDispatcher(
 
 			const validation = action.schema.safeParse(payload);
 			if (!validation.success) {
-				const message = validation.error.issues[0]?.message ?? 'Validation failed';
+				const message =
+					validation.error.issues[0]?.message ?? 'Validation failed';
 				throw new ActionValidationError(name, message);
 			}
 

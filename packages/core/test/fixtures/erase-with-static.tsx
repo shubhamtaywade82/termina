@@ -6,7 +6,7 @@ function EraseWithStatic() {
 	return (
 		<>
 			<Static items={['A', 'B', 'C']}>
-				{item => <Text key={item}>{item}</Text>}
+				{(item) => <Text key={item}>{item}</Text>}
 			</Static>
 
 			<Box flexDirection="column">

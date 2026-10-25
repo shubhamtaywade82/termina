@@ -140,6 +140,11 @@ async function checkFile(repoRoot, base, file) {
 		return {file, baseErrors: undefined, headErrors, failed: headErrors > 0};
 	}
 
+	// A file with no errors at head cannot gain any, so its base copy is not linted. Linting every base copy is the slow part, and a changed file with no errors is the common case.
+	if (headErrors === 0) {
+		return {file, baseErrors: null, headErrors, failed: false};
+	}
+
 	const baseErrors = countBaseErrors(packageAbs, fileAbs, baseText);
 	return {file, baseErrors, headErrors, failed: headErrors > baseErrors};
 }
@@ -153,7 +158,10 @@ function printTable(base, rows) {
 		return row.failed ? 'FAIL' : 'ok';
 	};
 	const cell = value => (value === undefined ? 'new' : String(value));
-	const baseCells = rows.map(row => (row.skipped ? '-' : cell(row.baseErrors)));
+	// A null base count means the base copy was not linted, because the head file has no errors.
+	const baseCells = rows.map(row =>
+		row.skipped || row.baseErrors === null ? '-' : cell(row.baseErrors),
+	);
 	const headCells = rows.map(row => (row.skipped ? '-' : cell(row.headErrors)));
 	const width = values => Math.max(4, ...values.map(value => value.length));
 	const baseWidth = width(baseCells);

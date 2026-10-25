@@ -6,7 +6,7 @@ import {render, Text, useApp, useInput} from '../../src/index.js';
 function Screen() {
 	const {exit} = useApp();
 
-	useInput(input => {
+	useInput((input) => {
 		if (input === 'q') {
 			exit();
 		}

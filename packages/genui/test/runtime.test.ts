@@ -1,9 +1,9 @@
-import test, { type TestContext } from 'node:test';
-import { z } from 'zod';
-import { createGenUIRuntime } from '../source/runtime.js';
+import test, {type TestContext} from 'node:test';
+import {z} from 'zod';
+import {createGenUIRuntime} from '../source/runtime.js';
 
 test('initializes with default values and reads them', (t: TestContext) => {
-	const runtime = createGenUIRuntime({ username: 'alice', active: true });
+	const runtime = createGenUIRuntime({username: 'alice', active: true});
 	t.assert.strictEqual(runtime.getValue('username'), 'alice');
 	t.assert.strictEqual(runtime.getValue('active'), true);
 	t.assert.strictEqual(runtime.getValue('nonexistent'), undefined);
@@ -39,7 +39,7 @@ test('returns a snapshot of all values', (t: TestContext) => {
 });
 
 test('resets runtime state to initial values', (t: TestContext) => {
-	const runtime = createGenUIRuntime({ filter: 'default' });
+	const runtime = createGenUIRuntime({filter: 'default'});
 	runtime.setValue('filter', 'modified');
 	runtime.setValue('extra', 'temp');
 
@@ -49,15 +49,15 @@ test('resets runtime state to initial values', (t: TestContext) => {
 });
 
 test('validates field value against schema', (t: TestContext) => {
-	const runtime = createGenUIRuntime({ email: 'bad-email' });
-	const schema = z.string().email();
+	const runtime = createGenUIRuntime({email: 'bad-email'});
+	const schema = z.email();
 
-	const res1 = runtime.validate('email', schema);
-	t.assert.strictEqual(res1.success, false);
-	t.assert.ok(res1.error);
+	const invalidResult = runtime.validate('email', schema);
+	t.assert.strictEqual(invalidResult.success, false);
+	t.assert.strictEqual(typeof invalidResult.error, 'string');
 
 	runtime.setValue('email', 'alice@example.com');
-	const res2 = runtime.validate('email', schema);
-	t.assert.strictEqual(res2.success, true);
-	t.assert.strictEqual(res2.error, undefined);
+	const validResult = runtime.validate('email', schema);
+	t.assert.strictEqual(validResult.success, true);
+	t.assert.strictEqual(validResult.error, undefined);
 });

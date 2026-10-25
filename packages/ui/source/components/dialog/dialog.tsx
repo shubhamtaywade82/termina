@@ -45,9 +45,7 @@ export function Dialog({title, children, onClose, width}: DialogProps) {
 			<Box {...styles.body()}>
 				{typeof children === 'string' ? <Text>{children}</Text> : children}
 			</Box>
-			{onClose !== undefined && (
-				<Text {...styles.footer()}>Esc to close</Text>
-			)}
+			{onClose !== undefined && <Text {...styles.footer()}>Esc to close</Text>}
 		</Box>
 	);
 }

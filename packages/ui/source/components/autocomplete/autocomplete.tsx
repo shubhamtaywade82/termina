@@ -1,3 +1,4 @@
+/* eslint-disable @eslint-react/no-array-index-key -- The rows are the current options in order, and the highlight index identifies each one. */
 import React from 'react';
 import {Box, Text, useInput, useStdin} from '@nemesis-oss/termina-core';
 import figures from 'figures';
@@ -73,7 +74,7 @@ type UseHighlightKeysProps = {
 	commit: (action: AutocompleteAction) => AutocompleteState;
 };
 
-// useTextInput ignores Up and Down, so the highlight keys are handled here.
+// UseTextInput ignores Up and Down, so the highlight keys are handled here.
 const useHighlightKeys = ({
 	isActive,
 	rowCount,
@@ -81,10 +82,12 @@ const useHighlightKeys = ({
 }: UseHighlightKeysProps) => {
 	useInput(
 		(_input, key) => {
-			if (key.upArrow || key.downArrow) {
-				const step = key.upArrow ? -1 : 1;
-				commit({type: 'move-highlight', step, rowCount});
+			if (!key.upArrow && !key.downArrow) {
+				return;
 			}
+
+			const step = key.upArrow ? -1 : 1;
+			commit({type: 'move-highlight', step, rowCount});
 		},
 		{isActive},
 	);
@@ -102,7 +105,10 @@ const useAutocomplete = ({
 	// Piped stdin takes no keys, so the input is drawn without a cursor there, as when disabled.
 	const {isRawModeSupported} = useStdin();
 	const isInteractive = !isDisabled && isRawModeSupported;
-	const {state, latest, commit} = useAutocompleteState({defaultValue, onChange});
+	const {state, latest, commit} = useAutocompleteState({
+		defaultValue,
+		onChange,
+	});
 	const {rows, highlightIndex, showNoMatches} = getSuggestions(
 		state,
 		options,

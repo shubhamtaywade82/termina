@@ -1,5 +1,6 @@
 import React from 'react';
 import {Box, Text} from '@nemesis-oss/termina-core';
+import {isPresent} from '../../lib/is-present.js';
 import {useComponentTheme} from '../../theme.js';
 import {type Theme, type TokenCounterStatus} from './theme.js';
 
@@ -28,11 +29,9 @@ const OVER_FROM_RATIO = 1;
 const formatNumber = (value: number): string => value.toLocaleString('en-US');
 
 function formatUsage(count: number, limit: number | undefined): string {
-	if (limit === undefined) {
-		return formatNumber(count);
-	}
-
-	return `${formatNumber(count)} / ${formatNumber(limit)}`;
+	return limit === undefined
+		? formatNumber(count)
+		: `${formatNumber(count)} / ${formatNumber(limit)}`;
 }
 
 // Uses the exact ratio: a rounded percent would turn 99.9% usage red.
@@ -65,7 +64,7 @@ export function TokenCounter({
 	return (
 		<Box {...styles.container()}>
 			<Text {...styles.count({status})}>{formatUsage(count, limit)}</Text>
-			{label ? <Text {...styles.label()}>{label}</Text> : null}
+			{isPresent(label) ? <Text {...styles.label()}>{label}</Text> : null}
 			{limit !== undefined && (
 				<Text {...styles.count({status})}>
 					({Math.round((count / limit) * 100)}%)

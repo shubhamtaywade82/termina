@@ -26,7 +26,7 @@ function Test() {
 
 const {unmount, waitUntilExit} = render(<Test />);
 
-process.stdin.on('data', data => {
+process.stdin.on('data', (data) => {
 	if (String(data) === 'q') {
 		unmount();
 	}

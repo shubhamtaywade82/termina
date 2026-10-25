@@ -1,25 +1,22 @@
-/* eslint-disable no-await-in-loop */
+/* eslint-disable no-await-in-loop -- Each step drives the component, and the next step starts only after the last one has rendered. */
 import test, {type TestContext} from 'node:test';
 import React, {useState} from 'react';
-import {render} from './helpers/render.js';
 import chalk from 'chalk';
 import delay from 'delay';
 import {catNames} from 'cat-names';
 import {TextInput} from '../source/index.js';
+import {render} from './helpers/render.js';
 
 const cursor = (character = ' ') => chalk.inverse(character);
 const enter = '\r';
-const arrowLeft = '\u001B[D';
-const arrowRight = '\u001B[C';
-const del = '\u007F';
+const arrowLeft = '\u{1B}[D';
+const arrowRight = '\u{1B}[C';
+const del = '\u{7F}';
 
-const cursorAt = (input: string, at: number): string => {
-	return [...input]
-		.map((character, index) => {
-			return index === at ? cursor(character) : character;
-		})
+const cursorAt = (input: string, at: number): string =>
+	[...input]
+		.map((character, index) => (index === at ? cursor(character) : character))
 		.join('');
-};
 
 test('placeholder', (t: TestContext) => {
 	const {lastFrame} = render(<TextInput placeholder="Start typing..." />);
@@ -75,7 +72,7 @@ test('insert character', async (t: TestContext) => {
 	const {lastFrame, stdin} = render(
 		<TextInput
 			placeholder="Start typing..."
-			onChange={newValue => {
+			onChange={(newValue) => {
 				value = newValue;
 			}}
 		/>,
@@ -95,7 +92,7 @@ test('insert text', async (t: TestContext) => {
 	const {lastFrame, stdin} = render(
 		<TextInput
 			placeholder="Start typing..."
-			onChange={newValue => {
+			onChange={(newValue) => {
 				value = newValue;
 			}}
 		/>,
@@ -116,7 +113,7 @@ test('ignore input when disabled', async (t: TestContext) => {
 		<TextInput
 			isDisabled
 			placeholder="Start typing..."
-			onChange={newValue => {
+			onChange={(newValue) => {
 				value = newValue;
 			}}
 		/>,
@@ -136,7 +133,7 @@ test('delete character', async (t: TestContext) => {
 	const {lastFrame, stdin} = render(
 		<TextInput
 			defaultValue={value}
-			onChange={newValue => {
+			onChange={(newValue) => {
 				value = newValue;
 			}}
 		/>,
@@ -157,7 +154,7 @@ test('delete all text', async (t: TestContext) => {
 		<TextInput
 			defaultValue={value}
 			placeholder="Start typing..."
-			onChange={newValue => {
+			onChange={(newValue) => {
 				value = newValue;
 			}}
 		/>,
@@ -241,7 +238,7 @@ test('insert character in the middle', async (t: TestContext) => {
 	const {lastFrame, stdin} = render(
 		<TextInput
 			defaultValue={value}
-			onChange={newValue => {
+			onChange={(newValue) => {
 				value = newValue;
 			}}
 		/>,
@@ -271,7 +268,7 @@ test('insert text in the middle', async (t: TestContext) => {
 	const {lastFrame, stdin} = render(
 		<TextInput
 			defaultValue={value}
-			onChange={newValue => {
+			onChange={(newValue) => {
 				value = newValue;
 			}}
 		/>,
@@ -303,10 +300,10 @@ test('autocomplete', async (t: TestContext) => {
 		<TextInput
 			placeholder="Start typing..."
 			suggestions={catNames as string[]}
-			onChange={newValue => {
+			onChange={(newValue) => {
 				value = newValue;
 			}}
-			onSubmit={newValue => {
+			onSubmit={(newValue) => {
 				submittedValue = newValue;
 			}}
 		/>,
@@ -350,7 +347,7 @@ test('submit on enter', async (t: TestContext) => {
 	const {stdin} = render(
 		<TextInput
 			defaultValue="Test"
-			onSubmit={value => {
+			onSubmit={(value) => {
 				submittedValue = value;
 			}}
 		/>,
@@ -366,7 +363,12 @@ test('submit on enter', async (t: TestContext) => {
 test('shows the value and ignores keys when stdin is piped', async (t: TestContext) => {
 	const submitted: string[] = [];
 	const {lastFrame, stdin, unmount} = render(
-		<TextInput defaultValue="deploy" onSubmit={value => submitted.push(value)} />,
+		<TextInput
+			defaultValue="deploy"
+			onSubmit={(value) => {
+				submitted.push(value);
+			}}
+		/>,
 		{isStdinPiped: true},
 	);
 

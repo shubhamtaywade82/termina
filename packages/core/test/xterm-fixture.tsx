@@ -1,5 +1,5 @@
-import React from 'react';
 import test, {type TestContext} from 'node:test';
+import React from 'react';
 import {Box, Text, render, useFocus, useFocusManager} from '../src/index.js';
 import {createXtermTerminal} from './helpers/xterm-terminal.js';
 
@@ -14,7 +14,13 @@ const createFocusProbe = () => {
 	return {FocusProbe, focusedId: () => activeId};
 };
 
-function Field({id, autoFocus}: {readonly id: string; readonly autoFocus?: boolean}) {
+function Field({
+	id,
+	autoFocus,
+}: {
+	readonly id: string;
+	readonly autoFocus?: boolean;
+}) {
 	const {isFocused} = useFocus({id, autoFocus});
 	return <Text>{isFocused ? `${id} <` : id}</Text>;
 }
@@ -59,7 +65,7 @@ test('getLine, cellAt and cells expose the rendered text and its style', async (
 
 		const matrix = terminal.cells();
 		t.assert.strictEqual(matrix.length, 5);
-		t.assert.ok(matrix.every(row => row.length === 20));
+		t.assert.ok(matrix.every((row) => row.length === 20));
 		t.assert.strictEqual(matrix[1]?.[0]?.char, 'G');
 	} finally {
 		instance.unmount();
@@ -73,7 +79,7 @@ test('emitKey delivers Tab and Escape to the app, and the focus probe reports th
 	const instance = renderOn(
 		terminal,
 		<>
-			<Field id="first" autoFocus />
+			<Field autoFocus id="first" />
 			<Field id="second" />
 			<probe.FocusProbe />
 		</>,

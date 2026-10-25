@@ -1,15 +1,15 @@
-import React, {useState} from 'react';
 import test, {type TestContext} from 'node:test';
+import React, {useState} from 'react';
 import chalk from 'chalk';
 import delay from 'delay';
 import stripAnsi from 'strip-ansi';
 import {Text} from '@nemesis-oss/termina-core';
-import {render} from './helpers/render.js';
 import {Tabs, type TabsItem} from '../source/components/tabs/index.js';
+import {render} from './helpers/render.js';
 
-const right = '\u001B[C';
-const left = '\u001B[D';
-const down = '\u001B[B';
+const right = '\u{1B}[C';
+const left = '\u{1B}[D';
+const down = '\u{1B}[B';
 const enter = '\r';
 
 const active = (label: string) => chalk.bold(chalk.blue(label));
@@ -47,7 +47,9 @@ test('right arrow activates the next tab and shows its content', async (t: TestC
 
 	t.assert.strictEqual(
 		lastFrame(),
-		[`Files  ${active('Logs')}  Config`, 'No errors in the last hour'].join('\n'),
+		[`Files  ${active('Logs')}  Config`, 'No errors in the last hour'].join(
+			'\n',
+		),
 	);
 });
 
@@ -64,7 +66,9 @@ test('left arrow activates the previous tab and reports each change to onChange'
 
 	t.assert.strictEqual(
 		lastFrame(),
-		[`Files  ${active('Logs')}  Config`, 'No errors in the last hour'].join('\n'),
+		[`Files  ${active('Logs')}  Config`, 'No errors in the last hour'].join(
+			'\n',
+		),
 	);
 	t.assert.deepStrictEqual(changes, ['logs', 'config', 'logs']);
 });
@@ -150,7 +154,9 @@ test('defaultTabId is read once at mount, and rendering does not call onChange',
 
 	t.assert.strictEqual(
 		instance.lastFrame(),
-		[`Files  ${active('Logs')}  Config`, 'No errors in the last hour'].join('\n'),
+		[`Files  ${active('Logs')}  Config`, 'No errors in the last hour'].join(
+			'\n',
+		),
 	);
 	t.assert.deepStrictEqual(changes, []);
 });
@@ -176,7 +182,12 @@ test('keys other than Left and Right are ignored', async (t: TestContext) => {
 test('isActive false ignores Left and Right and still renders the active content', async (t: TestContext) => {
 	const {changes, onChange} = recordChanges();
 	const {lastFrame, stdin} = render(
-		<Tabs tabs={tabs} defaultTabId="logs" isActive={false} onChange={onChange} />,
+		<Tabs
+			tabs={tabs}
+			defaultTabId="logs"
+			isActive={false}
+			onChange={onChange}
+		/>,
 	);
 	await delay(20);
 	stdin.write(right);
@@ -186,7 +197,9 @@ test('isActive false ignores Left and Right and still renders the active content
 
 	t.assert.strictEqual(
 		lastFrame(),
-		[`Files  ${active('Logs')}  Config`, 'No errors in the last hour'].join('\n'),
+		[`Files  ${active('Logs')}  Config`, 'No errors in the last hour'].join(
+			'\n',
+		),
 	);
 	t.assert.deepStrictEqual(changes, []);
 });
@@ -201,21 +214,31 @@ test('each tab mounts its own content, so leaving a tab discards its state', asy
 
 		return <Text>mount {mountNumber}</Text>;
 	};
+
 	const sameComponentTabs: TabsItem[] = [
 		{id: 'first', label: 'First', content: <MountNumber />},
 		{id: 'second', label: 'Second', content: <MountNumber />},
 	];
 	const {lastFrame, stdin} = render(<Tabs tabs={sameComponentTabs} />);
 	await delay(20);
-	t.assert.strictEqual(lastFrame(), [`${active('First')}  Second`, 'mount 1'].join('\n'));
+	t.assert.strictEqual(
+		lastFrame(),
+		[`${active('First')}  Second`, 'mount 1'].join('\n'),
+	);
 
 	stdin.write(right);
 	await delay(20);
-	t.assert.strictEqual(lastFrame(), [`First  ${active('Second')}`, 'mount 2'].join('\n'));
+	t.assert.strictEqual(
+		lastFrame(),
+		[`First  ${active('Second')}`, 'mount 2'].join('\n'),
+	);
 
 	stdin.write(left);
 	await delay(20);
-	t.assert.strictEqual(lastFrame(), [`${active('First')}  Second`, 'mount 3'].join('\n'));
+	t.assert.strictEqual(
+		lastFrame(),
+		[`${active('First')}  Second`, 'mount 3'].join('\n'),
+	);
 });
 
 test('content with several elements stacks them vertically', (t: TestContext) => {
@@ -258,7 +281,7 @@ test('removing the active tab shows the first tab, and adding it back makes it a
 	await delay(20);
 	instance.rerender(
 		<Tabs
-			tabs={tabs.filter(tab => tab.id !== 'logs')}
+			tabs={tabs.filter((tab) => tab.id !== 'logs')}
 			defaultTabId="logs"
 			onChange={onChange}
 		/>,
@@ -271,7 +294,9 @@ test('removing the active tab shows the first tab, and adding it back makes it a
 	);
 	t.assert.deepStrictEqual(changes, []);
 
-	instance.rerender(<Tabs tabs={tabs} defaultTabId="logs" onChange={onChange} />);
+	instance.rerender(
+		<Tabs tabs={tabs} defaultTabId="logs" onChange={onChange} />,
+	);
 	await delay(20);
 	t.assert.ok((instance.lastFrame() ?? '').includes(active('Logs')));
 });
@@ -286,7 +311,9 @@ test('reordering tabs keeps the same tab active', async (t: TestContext) => {
 
 	t.assert.strictEqual(
 		lastFrame(),
-		[`Config  ${active('Logs')}  Files`, 'No errors in the last hour'].join('\n'),
+		[`Config  ${active('Logs')}  Files`, 'No errors in the last hour'].join(
+			'\n',
+		),
 	);
 });
 

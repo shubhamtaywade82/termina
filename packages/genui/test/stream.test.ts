@@ -1,20 +1,22 @@
-import test, { type TestContext } from 'node:test';
-import { z } from 'zod';
-import { defineGenUIComponent, createGenUIRegistry } from '../source/registry.js';
-import { createLanguageAdapter } from '../source/adapter.js';
-import { createStreamCoordinator } from '../source/stream.js';
+import test, {type TestContext} from 'node:test';
+import {z} from 'zod';
+import {defineGenUIComponent, createGenUIRegistry} from '../source/registry.js';
+import {createLanguageAdapter} from '../source/adapter.js';
+import {createStreamCoordinator} from '../source/stream.js';
 
-const Card = defineGenUIComponent({
+const childrenSchema = z.array(z.unknown()).optional();
+
+const cardComponent = defineGenUIComponent({
 	name: 'Card',
 	description: 'Card component',
 	schema: z.object({
 		title: z.string(),
-		children: z.array(z.any()).optional(),
+		children: childrenSchema,
 	}),
 	render: () => null,
 });
 
-const Item = defineGenUIComponent({
+const itemComponent = defineGenUIComponent({
 	name: 'Item',
 	description: 'Item component',
 	schema: z.object({
@@ -23,17 +25,19 @@ const Item = defineGenUIComponent({
 	render: () => null,
 });
 
-const registry = createGenUIRegistry([Card, Item]);
+const registry = createGenUIRegistry([cardComponent, itemComponent]);
 const adapter = createLanguageAdapter(registry);
 
 test('streaming character by character yields exact same final tree as one-shot parse', (t: TestContext) => {
-	const code = `root = Card("Dashboard", [i1, i2])\ni1 = Item("First")\ni2 = Item("Second")\n`;
+	const code =
+		'root = Card("Dashboard", [i1, i2])\ni1 = Item("First")\ni2 = Item("Second")\n';
 	const oneShot = adapter.parse(code);
 
 	const coordinator = createStreamCoordinator(adapter);
 	for (const char of code) {
 		coordinator.append(char);
 	}
+
 	const finalUpdate = coordinator.complete();
 
 	t.assert.strictEqual(finalUpdate.status, 'completed');
@@ -53,12 +57,16 @@ test('exhaustive single-character step splits of short program produce consisten
 		coordinator.append(chunk2);
 		const update = coordinator.complete();
 
-		t.assert.deepStrictEqual(update.tree, expected, `Failed at split index ${splitIndex}`);
+		t.assert.deepStrictEqual(
+			update.tree,
+			expected,
+			`Failed at split index ${splitIndex}`,
+		);
 	}
 });
 
 test('streams with irregular chunk sizes', (t: TestContext) => {
-	const code = `root = Card("App", [item])\nitem = Item("Active")\n`;
+	const code = 'root = Card("App", [item])\nitem = Item("Active")\n';
 	const expected = adapter.parse(code).root;
 
 	const chunkSizes = [1, 3, 5, 2, 7, 4];
@@ -82,7 +90,7 @@ test('notifies subscribers on each chunk update', (t: TestContext) => {
 	const coordinator = createStreamCoordinator(adapter);
 	const updates: string[] = [];
 
-	const unsubscribe = coordinator.subscribe(update => {
+	const unsubscribe = coordinator.subscribe((update) => {
 		updates.push(update.rawText);
 	});
 

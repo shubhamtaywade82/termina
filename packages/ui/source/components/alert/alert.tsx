@@ -1,5 +1,6 @@
 import React, {type ReactNode} from 'react';
 import {Box, Text} from '@nemesis-oss/termina-core';
+import {isPresent} from '../../lib/is-present.js';
 import {useComponentTheme} from '../../theme.js';
 import {type Theme} from './theme.js';
 
@@ -30,7 +31,7 @@ export function Alert({children, variant, title}: AlertProps) {
 			</Box>
 
 			<Box {...styles.content()}>
-				{title && <Text {...styles.title()}>{title}</Text>}
+				{isPresent(title) && <Text {...styles.title()}>{title}</Text>}
 				<Text {...styles.message()}>{children}</Text>
 			</Box>
 		</Box>

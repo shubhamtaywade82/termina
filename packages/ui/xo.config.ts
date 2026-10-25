@@ -8,6 +8,8 @@ const xoConfig: FlatXoConfig = [
 		semicolon: true,
 		rules: {
 			'react/no-unescaped-entities': 'off',
+			// The sources write JSDoc with a leading asterisk on each line, which editors and TypeDoc read. The xo default removes it.
+			'jsdoc/require-asterisk-prefix': ['error', 'always'],
 			'unicorn/import-index': 'off',
 			'import-x/no-useless-path-segments': 'off',
 			complexity: 'off',
@@ -37,12 +39,22 @@ const xoConfig: FlatXoConfig = [
 		},
 	},
 	{
+		files: ['package.json'],
+		rules: {
+			// `main` and `types` stay next to `exports` for TypeScript's node10 resolution, which ignores `exports`.
+			'package-json/prefer-exports': 'off',
+			// Pnpm rewrites `workspace:` ranges when it publishes. scripts/rehearse-release.mjs checks the packed manifests for any that remain.
+			'package-json/no-workspace-protocol-in-published-package': 'off',
+		},
+	},
+	{
 		files: ['test/**/*.{ts,tsx}'],
 		rules: {
 			'@typescript-eslint/no-floating-promises': [
 				'error',
 				{
 					checkThenables: true,
+
 					// eslint-disable-next-line @typescript-eslint/naming-convention -- Option name from typescript-eslint.
 					ignoreIIFE: true,
 					allowForKnownSafeCalls: [

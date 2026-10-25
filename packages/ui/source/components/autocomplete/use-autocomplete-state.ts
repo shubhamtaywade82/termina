@@ -123,20 +123,33 @@ const reducer = (
 	action: AutocompleteAction,
 ): AutocompleteState => {
 	switch (action.type) {
-		case 'move-cursor-left':
+		case 'move-cursor-left': {
 			return moveCursor(state, previousBoundary);
-		case 'move-cursor-right':
+		}
+
+		case 'move-cursor-right': {
 			return moveCursor(state, nextBoundary);
-		case 'insert':
+		}
+
+		case 'insert': {
 			return insertText(state, action.text);
-		case 'delete':
+		}
+
+		case 'delete': {
 			return deleteBeforeCursor(state);
-		case 'delete-forward':
+		}
+
+		case 'delete-forward': {
 			return deleteAfterCursor(state);
-		case 'accept':
+		}
+
+		case 'accept': {
 			return acceptRow(state, action.text);
-		case 'move-highlight':
+		}
+
+		case 'move-highlight': {
 			return moveHighlight(state, action.step, action.rowCount);
+		}
 	}
 };
 
@@ -178,7 +191,7 @@ export const getSuggestions = (
 	const isListOpen = state.value.length > 0 && !state.isDismissed;
 	const query = state.value.toLowerCase();
 	const matches = isListOpen
-		? options.filter(option => option.toLowerCase().includes(query))
+		? options.filter((option) => option.toLowerCase().includes(query))
 		: [];
 	const rows = matches.slice(0, limit);
 
@@ -207,9 +220,9 @@ export const createTextInputState = ({
 	limit,
 	onSubmit,
 }: CreateTextInputStateProps) => {
-	// useTextInput submits on Enter, so this override decides what Enter means here. It reads the latest state, not the render's, so Enter after a burst acts on what the burst produced.
+	// UseTextInput submits on Enter, so this override decides what Enter means here. It reads the latest state, not the render's, so Enter after a burst acts on what the burst produced.
 	const submit = () => {
-		const current = latest.current;
+		const {current} = latest;
 		const {rows, highlightIndex} = getSuggestions(current, options, limit);
 		const highlighted = rows[highlightIndex];
 		if (highlighted === undefined) {

@@ -1,36 +1,44 @@
-import type { GenUIRegistry, GenUIComponent } from './types.js';
+/* eslint-disable @typescript-eslint/naming-convention -- generateGenUIPrompt is a public export, so it keeps its spelling. */
+import type {z} from 'zod';
+import {hasText, isRecord} from './guards.js';
+import type {GenUIRegistry, GenUIComponent} from './types.js';
 
 export type PromptOptions = {
 	readonly preamble?: string;
 	readonly examples?: readonly string[];
 };
 
+// Only object schemas have a shape. Any other schema lists no arguments.
+function argumentNames(schema: z.ZodType): string[] {
+	return 'shape' in schema && isRecord(schema.shape)
+		? Object.keys(schema.shape)
+		: [];
+}
+
 function formatComponentSignature(component: GenUIComponent<any>): string {
-	const jsonSchema = (component.schema as any)._def
-		? (component.schema as any)
-		: null;
+	const argumentList = argumentNames(component.schema).join(', ');
 
-	const keys = jsonSchema && 'shape' in jsonSchema ? Object.keys(jsonSchema.shape) : [];
-	const argsStr = keys.length > 0 ? keys.join(', ') : '';
-
-	return `- ${component.name}(${argsStr}): ${component.description}`;
+	return `- ${component.name}(${argumentList}): ${component.description}`;
 }
 
 export function generateGenUIPrompt(
 	registry: GenUIRegistry,
 	options: PromptOptions = {},
 ): string {
-	const components = registry.getAll().slice().sort((a, b) => a.name.localeCompare(b.name));
-	const signatures = components.map(formatComponentSignature).join('\n');
+	const components = registry
+		.getAll()
+		.toSorted((a, b) => a.name.localeCompare(b.name));
+	const signatures = components
+		.map((component) => formatComponentSignature(component))
+		.join('\n');
 
-	const preamble = options.preamble
-		? `${options.preamble}\n\n`
-		: '';
+	const preamble = hasText(options.preamble) ? `${options.preamble}\n\n` : '';
 
 	const firstComp = components[0]?.name ?? 'Widget';
-	const examples = options.examples && options.examples.length > 0
-		? `\n## Examples\n\n${options.examples.join('\n\n')}\n`
-		: `
+	const examples =
+		options.examples && options.examples.length > 0
+			? `\n## Examples\n\n${options.examples.join('\n\n')}\n`
+			: `
 ## Example
 
 \`\`\`openui-lang

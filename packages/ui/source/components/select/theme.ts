@@ -6,7 +6,7 @@ const theme = {
 		container: (): BoxProps => ({
 			flexDirection: 'column',
 		}),
-		option: ({isFocused}): BoxProps => ({
+		option: ({isFocused}: {readonly isFocused: boolean}): BoxProps => ({
 			gap: 1,
 			paddingLeft: isFocused ? 0 : 2,
 		}),
@@ -16,7 +16,13 @@ const theme = {
 		focusIndicator: (): TextProps => ({
 			color: 'blue',
 		}),
-		label({isFocused, isSelected}): TextProps {
+		label({
+			isFocused,
+			isSelected,
+		}: {
+			readonly isFocused: boolean;
+			readonly isSelected: boolean;
+		}): TextProps {
 			let color: string | undefined;
 
 			if (isSelected) {

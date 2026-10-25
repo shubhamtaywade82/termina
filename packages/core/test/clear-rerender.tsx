@@ -76,6 +76,6 @@ for (const mode of ['standard', 'incremental', 'screen-reader'] as const) {
 			stdout.getWrites().join('').replaceAll('\n', '\r\n'),
 			8,
 		);
-		t.assert.ok(lines.every(line => line === ''));
+		t.assert.ok(lines.every((line) => line === ''));
 	});
 }

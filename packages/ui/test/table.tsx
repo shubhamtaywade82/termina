@@ -1,5 +1,5 @@
-import React from 'react';
 import test, {type TestContext} from 'node:test';
+import React from 'react';
 import chalk from 'chalk';
 import delay from 'delay';
 import {Box, Text} from '@nemesis-oss/termina-core';
@@ -10,6 +10,7 @@ import {
 } from '../source/components/table/index.js';
 import {ThemeProvider, defaultTheme, extendTheme} from '../source/theme.js';
 import {render} from './helpers/render.js';
+import {waitForFrame} from './helpers/wait-for-frame.js';
 
 const processColumns: TableColumn[] = [
 	{key: 'name', header: 'Name'},
@@ -191,18 +192,16 @@ test('fits a table wider than its parent to the parent width, one line per row',
 			/>
 		</Box>,
 	);
-	// The container is measured after the first layout, and the fitted frame follows the throttled render.
-	await delay(100);
-
 	// The natural row is 18 cells. The widest column gives up cells until the row is 10, so `Beta` keeps its width.
-	t.assert.strictEqual(
-		lastFrame(),
-		[
-			`${chalk.bold('Alp…')}  ${chalk.bold('Beta')}`,
-			chalk.dim('─'.repeat(10)),
-			'twe…  x',
-		].join('\n'),
-	);
+	const fitted = [
+		`${chalk.bold('Alp…')}  ${chalk.bold('Beta')}`,
+		chalk.dim('─'.repeat(10)),
+		'twe…  x',
+	].join('\n');
+
+	// The container is measured after the first layout, and the fitted frame follows the throttled render, so wait for it rather than for a fixed delay.
+	await waitForFrame(lastFrame, fitted);
+	t.assert.strictEqual(lastFrame(), fitted);
 });
 
 test('recomputes widths when rows change', async (t: TestContext) => {
@@ -256,7 +255,10 @@ test('sizes the rule from the gap of a replaced row style', (t: TestContext) => 
 			},
 		},
 	});
-	const columns = [{key: 'a', header: 'A'}, {key: 'b', header: 'Bb'}];
+	const columns = [
+		{key: 'a', header: 'A'},
+		{key: 'b', header: 'Bb'},
+	];
 	const {lastFrame} = render(
 		<ThemeProvider theme={theme}>
 			<Table columns={columns} rows={[{a: 'x', b: 'y'}]} />
@@ -265,7 +267,11 @@ test('sizes the rule from the gap of a replaced row style', (t: TestContext) => 
 
 	t.assert.strictEqual(
 		lastFrame(),
-		[`${chalk.bold('A')}    ${chalk.bold('Bb')}`, chalk.dim('─'.repeat(7)), 'x    y'].join('\n'),
+		[
+			`${chalk.bold('A')}    ${chalk.bold('Bb')}`,
+			chalk.dim('─'.repeat(7)),
+			'x    y',
+		].join('\n'),
 	);
 });
 

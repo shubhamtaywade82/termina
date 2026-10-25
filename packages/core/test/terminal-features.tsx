@@ -1,5 +1,6 @@
-import React from 'react';
+/* eslint-disable @typescript-eslint/naming-convention -- Environment variable names are UPPER_CASE, and isTTY is a Node stream property. */
 import test, {type TestContext} from 'node:test';
+import React from 'react';
 import stripAnsi from 'strip-ansi';
 import {
 	Box,
@@ -11,6 +12,7 @@ import {
 	render,
 	renderToString,
 } from '../src/index.js';
+import {setEnv} from './helpers/env.js';
 import createStdout from './helpers/create-stdout.js';
 
 const esc = '\u{1B}';
@@ -39,10 +41,7 @@ test('a hyperlink lays out at the width of its label, not its escape bytes', (t:
 
 test('clipboardSequence encodes UTF-8 text as OSC 52 base64 with a BEL terminator', (t: TestContext) => {
 	t.assert.strictEqual(clipboardSequence('hi'), `${esc}]52;c;aGk=\u{7}`);
-	t.assert.strictEqual(
-		clipboardSequence('é'),
-		`${esc}]52;c;w6k=\u{7}`,
-	);
+	t.assert.strictEqual(clipboardSequence('é'), `${esc}]52;c;w6k=\u{7}`);
 });
 
 test('clipboardSequence refuses payloads the terminal would truncate', (t: TestContext) => {
@@ -51,8 +50,18 @@ test('clipboardSequence refuses payloads the terminal would truncate', (t: TestC
 
 test('copyToClipboard writes only to a TTY', (t: TestContext) => {
 	const written: string[] = [];
-	const tty = {isTTY: true, write: (data: string) => written.push(data)};
-	const pipe = {isTTY: false, write: (data: string) => written.push(data)};
+	const tty = {
+		isTTY: true,
+		write(data: string) {
+			written.push(data);
+		},
+	};
+	const pipe = {
+		isTTY: false,
+		write(data: string) {
+			written.push(data);
+		},
+	};
 
 	t.assert.strictEqual(copyToClipboard('hi', tty), true);
 	t.assert.strictEqual(copyToClipboard('hi', pipe), false);
@@ -71,7 +80,12 @@ const cases: Case[] = [
 		name: 'modern truecolor terminal',
 		environment: {TERM: 'xterm-256color', COLORTERM: 'truecolor'},
 		isTty: true,
-		expected: {interactive: true, colorLevel: 'truecolor', synchronizedOutput: true, hyperlinks: true},
+		expected: {
+			interactive: true,
+			colorLevel: 'truecolor',
+			synchronizedOutput: true,
+			hyperlinks: true,
+		},
 	},
 	{
 		name: '256-color terminal without COLORTERM',
@@ -83,7 +97,12 @@ const cases: Case[] = [
 		name: 'Linux console has no synchronized output or hyperlinks',
 		environment: {TERM: 'linux'},
 		isTty: true,
-		expected: {interactive: true, colorLevel: 'ansi16', synchronizedOutput: false, hyperlinks: false},
+		expected: {
+			interactive: true,
+			colorLevel: 'ansi16',
+			synchronizedOutput: false,
+			hyperlinks: false,
+		},
 	},
 	{
 		name: 'dumb terminal is never interactive and has no color',
@@ -95,7 +114,12 @@ const cases: Case[] = [
 		name: 'piped output is never interactive',
 		environment: {TERM: 'xterm-256color', COLORTERM: 'truecolor'},
 		isTty: false,
-		expected: {interactive: false, colorLevel: 'none', alternateScreen: false, hyperlinks: false},
+		expected: {
+			interactive: false,
+			colorLevel: 'none',
+			alternateScreen: false,
+			hyperlinks: false,
+		},
 	},
 	{
 		name: 'CI disables interactive rendering even on a TTY',
@@ -143,40 +167,34 @@ const cases: Case[] = [
 
 for (const testCase of cases) {
 	test(`capabilities: ${testCase.name}`, (t: TestContext) => {
-		const capabilities = detectTerminalCapabilities(
-			testCase.environment,
-			{isTTY: testCase.isTty},
-		);
+		const capabilities = detectTerminalCapabilities(testCase.environment, {
+			isTTY: testCase.isTty,
+		});
 		for (const [key, value] of Object.entries(testCase.expected)) {
-			t.assert.strictEqual(capabilities[key as keyof typeof capabilities], value, key);
+			t.assert.strictEqual(
+				capabilities[key as keyof typeof capabilities],
+				value,
+				key,
+			);
 		}
 	});
 }
 
 test('render() defaults to non-interactive on a dumb terminal', (t: TestContext) => {
-	const previous = process.env['TERM'];
-	process.env['TERM'] = 'dumb';
+	setEnv(t, {TERM: 'dumb'});
 	const stdout = createStdout(80, true);
 
-	try {
-		const instance = render(<Text>dumb</Text>, {
-			stdout,
-			patchConsole: false,
-		});
-		t.after(() => {
-			instance.unmount();
-		});
+	const instance = render(<Text>dumb</Text>, {
+		stdout,
+		patchConsole: false,
+	});
+	t.after(() => {
+		instance.unmount();
+	});
 
-		// Interactive rendering hides the cursor and erases frames. A dumb terminal gets neither.
-		t.assert.strictEqual(
-			stdout.getWrites().some(write => write.includes('\u{1B}[?25l')),
-			false,
-		);
-	} finally {
-		if (previous === undefined) {
-			delete process.env['TERM'];
-		} else {
-			process.env['TERM'] = previous;
-		}
-	}
+	// Interactive rendering hides the cursor and erases frames. A dumb terminal gets neither.
+	t.assert.strictEqual(
+		stdout.getWrites().some((write) => write.includes('\u{1B}[?25l')),
+		false,
+	);
 });

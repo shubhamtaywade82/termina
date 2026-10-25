@@ -11,6 +11,7 @@ import {
 } from '../src/index.js';
 import createStdout from './helpers/create-stdout.js';
 import {act} from './helpers/act.js';
+import {waitFor} from './helpers/wait-for.js';
 
 test('returns correct size on first render', async (t: TestContext) => {
 	const stdout = createStdout(100);
@@ -250,19 +251,28 @@ test('updates when tracked ref attaches after initial render and component is me
 
 	const {waitUntilRenderFlush} = render(<Test />, {stdout, debug: true});
 	await waitUntilRenderFlush();
-	await delay(50);
+	await waitFor(
+		() => stripAnsi(stdout.get()).includes('Top: 0'),
+		'the untracked ref to render Top: 0',
+	);
 
 	t.assert.ok(stripAnsi(stdout.get()).includes('Top: 0'));
 
 	externalSetIsTrackedElementMounted(true);
 	await waitUntilRenderFlush();
-	await delay(50);
+	await waitFor(
+		() => stripAnsi(stdout.get()).includes('Top: 1'),
+		'the tracked ref to attach and report Top: 1',
+	);
 
 	t.assert.ok(stripAnsi(stdout.get()).includes('Top: 1'));
 
 	externalSetSiblingText('line 1\nline 2\nline 3');
 	await waitUntilRenderFlush();
-	await delay(50);
+	await waitFor(
+		() => stripAnsi(stdout.get()).includes('Top: 3'),
+		'the tracked ref to report Top: 3 after the sibling grows',
+	);
 
 	t.assert.ok(stripAnsi(stdout.get()).includes('Top: 3'));
 });
@@ -406,21 +416,23 @@ test('hasMeasured resets when tracked ref switches to a detached element', async
 		);
 	}
 
-	const {waitUntilRenderFlush} = render(<Test />, {stdout, debug: true});
-	await waitUntilRenderFlush();
-	await delay(50);
-
-	t.assert.ok(stripAnsi(stdout.get()).includes('Has measured: true'));
+	render(<Test />, {stdout, debug: true});
+	await waitFor(
+		() => stripAnsi(stdout.get()).includes('Has measured: true'),
+		'the first ref to be measured',
+	);
 
 	trackSecondRef();
-	await waitUntilRenderFlush();
-	await delay(50);
-
-	t.assert.ok(stripAnsi(stdout.get()).includes('Has measured: false'));
+	await waitFor(
+		() => stripAnsi(stdout.get()).includes('Has measured: false'),
+		'hasMeasured to reset',
+	);
 
 	mountSecondRef();
-	await waitUntilRenderFlush();
-	await delay(50);
+	await waitFor(
+		() => stripAnsi(stdout.get()).includes('Has measured: true'),
+		'the second ref to be measured',
+	);
 
 	t.assert.ok(stripAnsi(stdout.get()).includes('Has measured: true'));
 });
@@ -453,13 +465,19 @@ test('hasMeasured becomes true after the tracked element is measured', async (t:
 
 	const {waitUntilRenderFlush} = render(<Test />, {stdout, debug: true});
 	await waitUntilRenderFlush();
-	await delay(50);
+	await waitFor(
+		() => stripAnsi(stdout.get()).includes('Has measured: false'),
+		'the untracked element to report Has measured: false',
+	);
 
 	t.assert.ok(stripAnsi(stdout.get()).includes('Has measured: false'));
 
 	mountTrackedElement();
 	await waitUntilRenderFlush();
-	await delay(50);
+	await waitFor(
+		() => stripAnsi(stdout.get()).includes('Has measured: true'),
+		'the tracked element to be measured',
+	);
 
 	t.assert.ok(stripAnsi(stdout.get()).includes('Has measured: true'));
 });
@@ -494,13 +512,19 @@ test('resets metrics when tracked element unmounts', async (t: TestContext) => {
 
 	const {waitUntilRenderFlush} = render(<Test />, {stdout, debug: true});
 	await waitUntilRenderFlush();
-	await delay(50);
+	await waitFor(
+		() => stripAnsi(stdout.get()).includes('Metrics: 10,1,0,0,true'),
+		'the tracked element to be measured before unmounting',
+	);
 
 	t.assert.ok(stripAnsi(stdout.get()).includes('Metrics: 10,1,0,0,true'));
 
 	unmountTrackedElement();
 	await waitUntilRenderFlush();
-	await delay(50);
+	await waitFor(
+		() => stripAnsi(stdout.get()).includes('Metrics: 0,0,0,0,false'),
+		'the metrics to reset after the tracked element unmounts',
+	);
 
 	t.assert.ok(stripAnsi(stdout.get()).includes('Metrics: 0,0,0,0,false'));
 });
@@ -556,7 +580,7 @@ test('content size updates when content grows', async (t: TestContext) => {
 		const content = useBoxMetrics(contentRef);
 
 		addItem = () => {
-			setItems(previousItems => [
+			setItems((previousItems) => [
 				...previousItems,
 				`item ${previousItems.length}`,
 			]);
@@ -566,7 +590,7 @@ test('content size updates when content grows', async (t: TestContext) => {
 			<Box flexDirection="column">
 				<Box height={2} overflowY="hidden" flexDirection="column">
 					<Box ref={contentRef} flexDirection="column" flexShrink={0}>
-						{items.map(item => (
+						{items.map((item) => (
 							<Text key={item}>{item}</Text>
 						))}
 					</Box>

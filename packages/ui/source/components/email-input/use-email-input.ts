@@ -1,6 +1,7 @@
 import {useMemo} from 'react';
 import {useInput} from '@nemesis-oss/termina-core';
 import chalk from 'chalk';
+import {isPresent} from '../../lib/is-present.js';
 import {type EmailInputState} from './use-email-input-state.js';
 
 export type UseEmailInputProps = {
@@ -40,10 +41,10 @@ export const useEmailInput = ({
 }: UseEmailInputProps): UseTextInputResult => {
 	const renderedPlaceholder = useMemo(() => {
 		if (isDisabled) {
-			return placeholder ? chalk.dim(placeholder) : '';
+			return isPresent(placeholder) ? chalk.dim(placeholder) : '';
 		}
 
-		return placeholder && placeholder.length > 0
+		return isPresent(placeholder) && placeholder.length > 0
 			? chalk.inverse(placeholder[0]) + chalk.dim(placeholder.slice(1))
 			: cursor;
 	}, [isDisabled, placeholder]);
@@ -62,7 +63,7 @@ export const useEmailInput = ({
 			index++;
 		}
 
-		if (state.suggestion) {
+		if (isPresent(state.suggestion)) {
 			if (state.cursorOffset === state.value.length) {
 				result +=
 					chalk.inverse(state.suggestion[0]) +
@@ -83,11 +84,12 @@ export const useEmailInput = ({
 
 	useInput(
 		(input, key) => {
+			const isCtrlC = key.ctrl && input === 'c';
 			if (
+				isCtrlC ||
+				key.tab ||
 				key.upArrow ||
 				key.downArrow ||
-				(key.ctrl && input === 'c') ||
-				key.tab ||
 				(key.shift && key.tab)
 			) {
 				return;

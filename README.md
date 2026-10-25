@@ -12,6 +12,7 @@ components.
   streams a declarative UI description that is parsed incrementally and rendered as native
   terminal components.
 - `examples/turnstream`: a three-column agentic-loop dashboard built on both packages.
+- `examples/starter`: a small app built on both packages. Copy it to start a new app.
 
 Provenance and every local change: [`FORK.md`](FORK.md). The verified architecture
 of upstream and the measurements behind the design: [`docs/research/ink-architecture.md`](docs/research/ink-architecture.md).

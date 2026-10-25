@@ -1,4 +1,5 @@
 import {useCallback, useMemo} from 'react';
+import {isPresent} from '../../lib/is-present.js';
 import {
 	reduceTextEdit,
 	type TextEditAction,
@@ -83,7 +84,7 @@ const findSuggestion = (
 
 	return suggestions
 		?.find(
-			suggestion =>
+			(suggestion) =>
 				suggestion.length > value.length && suggestion.startsWith(value),
 		)
 		?.slice(value.length);
@@ -180,10 +181,10 @@ export const useTextInputState = ({
 
 	const submit = useCallback(() => {
 		// Read the latest value, not the render's closure, so Enter after a burst submits what the burst produced.
-		const current = latest.current;
+		const {current} = latest;
 		const completion = findSuggestion(current.value, suggestions);
 
-		if (completion) {
+		if (isPresent(completion)) {
 			const next = commit({type: 'append', text: completion});
 			onSubmit?.(next.value);
 			return;

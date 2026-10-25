@@ -48,7 +48,7 @@ function Issue450RerenderFixtureComponent({
 		}
 
 		const timer = setTimeout(() => {
-			setFrameCount(previousFrameCount => previousFrameCount + 1);
+			setFrameCount((previousFrameCount) => previousFrameCount + 1);
 		}, 100);
 
 		return () => {
@@ -60,7 +60,7 @@ function Issue450RerenderFixtureComponent({
 		<>
 			{includeStaticLine ? (
 				<Static items={['#450 static line']}>
-					{item => <Text key={item}>{item}</Text>}
+					{(item) => <Text key={item}>{item}</Text>}
 				</Static>
 			) : null}
 			<Box height={targetHeight} flexDirection="column">

@@ -1,3 +1,4 @@
+/* eslint-disable @eslint-react/no-array-index-key -- Keyed by position in the full log, so dropping the oldest entry does not shift every key. */
 import React from 'react';
 import {Text} from '@nemesis-oss/termina-core';
 import {ScrollBox} from '../scroll-box/scroll-box.js';
@@ -27,8 +28,8 @@ export type LogStreamProps = {
 };
 
 /**
-A tail-following log viewer. It stays pinned to the newest entry until the user scrolls up, and it re-pins when the user scrolls back to the bottom.
-*/
+ * A tail-following log viewer. It stays pinned to the newest entry until the user scrolls up, and it re-pins when the user scrolls back to the bottom.
+ */
 export const LogStream = ({
 	lines,
 	height,
@@ -39,7 +40,7 @@ export const LogStream = ({
 	const visible = lines.slice(firstIndex);
 
 	return (
-		<ScrollBox height={height} followTail isActive={isActive}>
+		<ScrollBox followTail height={height} isActive={isActive}>
 			{/* Keyed by position in the full log, so dropping the oldest entry does not shift every key and re-render every row. */}
 			{visible.map((line, index) => (
 				<Text key={firstIndex + index}>{line}</Text>

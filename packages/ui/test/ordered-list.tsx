@@ -1,9 +1,9 @@
-import React from 'react';
 import test, {type TestContext} from 'node:test';
+import React from 'react';
 import {Text} from '@nemesis-oss/termina-core';
-import {render} from './helpers/render.js';
 import chalk from 'chalk';
 import {OrderedList} from '../source/index.js';
+import {render} from './helpers/render.js';
 
 test('ordered list', (t: TestContext) => {
 	const {lastFrame} = render(
@@ -69,7 +69,7 @@ test('nested ordered list', (t: TestContext) => {
 				`${chalk.dim('2.2.')} Normal`,
 				`${chalk.dim('2.3.')} Dark`,
 			]
-				.map(line => `   ${line}`)
+				.map((line) => `   ${line}`)
 				.join('\n'),
 			`${chalk.dim('3.')} Yellow`,
 		].join('\n'),

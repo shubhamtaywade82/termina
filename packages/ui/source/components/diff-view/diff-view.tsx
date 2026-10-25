@@ -1,3 +1,4 @@
+/* eslint-disable @eslint-react/no-array-index-key -- Lines can repeat, such as blank context lines, so the position is the key. */
 import React from 'react';
 import {Box, Text, type TextProps} from '@nemesis-oss/termina-core';
 import {useComponentTheme} from '../../theme.js';
@@ -12,17 +13,12 @@ export type DiffViewProps = {
 
 const fileHeaderPrefixes = ['diff', 'index', '---', '+++'];
 
-const splitPatchLines = (patch: string): string[] => {
-	if (patch === '') {
-		return [];
-	}
-
+const splitPatchLines = (patch: string): string[] =>
 	// Git ends the patch with a newline, which would otherwise leave an empty row after the last line.
-	return patch.replace(/\n$/, '').split('\n');
-};
+	patch === '' ? [] : patch.replace(/\n$/, '').split('\n');
 
 const styleForLine = (line: string, styles: Theme['styles']): TextProps => {
-	if (fileHeaderPrefixes.some(prefix => line.startsWith(prefix))) {
+	if (fileHeaderPrefixes.some((prefix) => line.startsWith(prefix))) {
 		return styles.header();
 	}
 
@@ -34,11 +30,7 @@ const styleForLine = (line: string, styles: Theme['styles']): TextProps => {
 		return styles.added();
 	}
 
-	if (line.startsWith('-')) {
-		return styles.removed();
-	}
-
-	return styles.context();
+	return line.startsWith('-') ? styles.removed() : styles.context();
 };
 
 export function DiffView({patch}: DiffViewProps) {
@@ -55,7 +47,7 @@ export function DiffView({patch}: DiffViewProps) {
 			{lines.map((line, index) => (
 				<Text key={index} {...styleForLine(line, styles)}>
 					{/* Ink drops a Text with no characters, which would collapse a blank line. */}
-					{line || ' '}
+					{line === '' ? ' ' : line}
 				</Text>
 			))}
 		</Box>

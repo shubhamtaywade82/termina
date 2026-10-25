@@ -1,17 +1,19 @@
-import React from 'react';
 import test, {type TestContext} from 'node:test';
+import React from 'react';
 import chalk from 'chalk';
 import delay from 'delay';
 import figures from 'figures';
 import {Box} from '@nemesis-oss/termina-core';
-import {render} from './helpers/render.js';
 import {Markdown} from '../source/components/markdown/index.js';
 import {ThemeProvider, defaultTheme, extendTheme} from '../source/theme.js';
+import {render} from './helpers/render.js';
 
 const stripAnsi = (text: string | undefined): string =>
-	(text ?? '').replace(/\u001B\[[0-9;]*m/g, '');
+	// eslint-disable-next-line no-control-regex, regexp/no-control-character -- ESC starts every SGR sequence this helper removes.
+	(text ?? '').replaceAll(/\u{1B}\[[0-9;]*m/gu, '');
 
 test('headings use one style per level and drop the hash marks', (t: TestContext) => {
+	const styledTitle = chalk.underline(chalk.bold(chalk.cyan('Title')));
 	const {lastFrame} = render(
 		<Markdown>{'# Title\n\n## Section\n\n### Subsection'}</Markdown>,
 	);
@@ -19,7 +21,7 @@ test('headings use one style per level and drop the hash marks', (t: TestContext
 	t.assert.strictEqual(
 		lastFrame(),
 		[
-			chalk.underline(chalk.bold(chalk.cyan('Title'))),
+			styledTitle,
 			'',
 			chalk.bold(chalk.cyan('Section')),
 			'',
@@ -51,7 +53,7 @@ test('consecutive blank lines collapse into one blank row between blocks', (t: T
 test('paragraphs wrap to the width of their container', (t: TestContext) => {
 	const {lastFrame} = render(
 		<Box width={12}>
-			<Markdown>{'alpha beta gamma'}</Markdown>
+			<Markdown>alpha beta gamma</Markdown>
 		</Box>,
 	);
 
@@ -102,16 +104,24 @@ test('three spaces of indentation count as one nested level', (t: TestContext) =
 });
 
 test('an indented line under a list item starts a paragraph and splits the list', (t: TestContext) => {
-	const {lastFrame} = render(<Markdown>{'- first item\n  continues here\n- second'}</Markdown>);
+	const {lastFrame} = render(
+		<Markdown>{'- first item\n  continues here\n- second'}</Markdown>,
+	);
 
 	t.assert.strictEqual(
 		stripAnsi(lastFrame()),
-		[`${figures.bullet} first item`, '', '  continues here', '', `${figures.bullet} second`].join('\n'),
+		[
+			`${figures.bullet} first item`,
+			'',
+			'  continues here',
+			'',
+			`${figures.bullet} second`,
+		].join('\n'),
 	);
 });
 
 test('a line that starts with ** is not a list item', (t: TestContext) => {
-	const {lastFrame} = render(<Markdown>{'**Note:** read this'}</Markdown>);
+	const {lastFrame} = render(<Markdown>**Note:** read this</Markdown>);
 
 	t.assert.strictEqual(lastFrame(), `${chalk.bold('Note:')} read this`);
 });
@@ -168,12 +178,12 @@ test('the bar is drawn on every wrapped line of a block quote', (t: TestContext)
 	const lines = stripAnsi(lastFrame()).split('\n');
 
 	t.assert.strictEqual(lines.length, 2);
-	t.assert.ok(lines.every(line => line.startsWith('│')));
+	t.assert.ok(lines.every((line) => line.startsWith('│')));
 });
 
 test('bold, italic, underscore italic and inline code are styled', (t: TestContext) => {
 	const {lastFrame} = render(
-		<Markdown>{'**bold** *italic* _under_ `code`'}</Markdown>,
+		<Markdown>**bold** *italic* _under_ `code`</Markdown>,
 	);
 
 	t.assert.strictEqual(
@@ -188,9 +198,7 @@ test('bold, italic, underscore italic and inline code are styled', (t: TestConte
 });
 
 test('links show the link text followed by the dimmed URL', (t: TestContext) => {
-	const {lastFrame} = render(
-		<Markdown>{'[docs](https://x.dev/a_b_c)'}</Markdown>,
-	);
+	const {lastFrame} = render(<Markdown>[docs](https://x.dev/a_b_c)</Markdown>);
 
 	t.assert.strictEqual(
 		lastFrame(),
@@ -225,7 +233,7 @@ test('inline markers still apply inside table rows', (t: TestContext) => {
 
 test('emphasis markers that do not close, or touch whitespace, stay literal', (t: TestContext) => {
 	const {lastFrame} = render(
-		<Markdown>{'snake_case_name and 2 * 3 * 4 and **open'}</Markdown>,
+		<Markdown>snake_case_name and 2 * 3 * 4 and **open</Markdown>,
 	);
 
 	t.assert.strictEqual(lastFrame(), 'snake_case_name and 2 * 3 * 4 and **open');
@@ -276,27 +284,30 @@ test('a README excerpt renders each block in order', (t: TestContext) => {
 });
 
 test('takes no keyboard input, so it renders with piped stdin and ignores keys', async (t: TestContext) => {
-	const {lastFrame, stdin} = render(<Markdown>{'- one'}</Markdown>, {
+	const {lastFrame, stdin} = render(<Markdown>- one</Markdown>, {
 		isStdinPiped: true,
 	});
 
 	await delay(20);
-	stdin.write('\u001B[B');
+	stdin.write('\u{1B}[B');
 	await delay(20);
 
 	t.assert.strictEqual(stripAnsi(lastFrame()), `${figures.bullet} one`);
 });
 
 test('a new source replaces the output on rerender', (t: TestContext) => {
-	const {lastFrame, rerender} = render(<Markdown>{'first'}</Markdown>);
+	const {lastFrame, rerender} = render(<Markdown>first</Markdown>);
 
-	rerender(<Markdown>{'second'}</Markdown>);
+	rerender(<Markdown>second</Markdown>);
 
 	t.assert.strictEqual(lastFrame(), 'second');
 });
 
 test('a long source is not clipped to the terminal height', (t: TestContext) => {
-	const source = Array.from({length: 40}, (_, index) => `line ${index + 1}`).join('\n\n');
+	const source = Array.from(
+		{length: 40},
+		(_, index) => `line ${index + 1}`,
+	).join('\n\n');
 	const {lastFrame} = render(<Markdown>{source}</Markdown>);
 
 	t.assert.strictEqual(lastFrame()?.split('\n').at(-1), 'line 40');
@@ -331,7 +342,7 @@ test('a theme paragraph color applies to paragraphs, list items and block quotes
 });
 
 test('bold and link text do not nest other spans', (t: TestContext) => {
-	const {lastFrame} = render(<Markdown>{'**Run `x`** and [**a**](u)'}</Markdown>);
+	const {lastFrame} = render(<Markdown>**Run `x`** and [**a**](u)</Markdown>);
 
 	t.assert.strictEqual(
 		lastFrame(),
@@ -340,15 +351,17 @@ test('bold and link text do not nest other spans', (t: TestContext) => {
 });
 
 test('a link URL in a heading is dim and not bold, so the text after it stays bold', (t: TestContext) => {
-	const {lastFrame} = render(<Markdown>{'## See [docs](u) now'}</Markdown>);
+	const {lastFrame} = render(<Markdown>## See [docs](u) now</Markdown>);
 
 	t.assert.strictEqual(
 		lastFrame(),
-		'\u001B[1m\u001B[36mSee \u001B[4m\u001B[34mdocs\u001B[24m\u001B[22m\u001B[36m\u001B[2m (u)\u001B[22m\u001B[1m now\u001B[22m\u001B[39m',
+		'\u{1B}[1m\u{1B}[36mSee \u{1B}[4m\u{1B}[34mdocs\u{1B}[24m\u{1B}[22m\u{1B}[36m\u{1B}[2m (u)\u{1B}[22m\u{1B}[1m now\u{1B}[22m\u{1B}[39m',
 	);
 });
 
 test('an empty source renders nothing', (t: TestContext) => {
+	// The empty string is the child, so the expression form is required: `children` must be present.
+	// eslint-disable-next-line @stylistic/jsx-curly-brace-presence -- An element with no children would leave the required `children` prop unset.
 	const {lastFrame} = render(<Markdown>{''}</Markdown>);
 
 	t.assert.strictEqual(lastFrame(), '');

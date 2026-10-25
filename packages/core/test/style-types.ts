@@ -15,7 +15,7 @@ test('Box width constraints only accept numbers', (t: TestContext) => {
 
 	const diagnostics = ts.getPreEmitDiagnostics(program);
 	t.assert.deepStrictEqual(
-		diagnostics.map(diagnostic =>
+		diagnostics.map((diagnostic) =>
 			ts.flattenDiagnosticMessageText(diagnostic.messageText, '\n'),
 		),
 		[],

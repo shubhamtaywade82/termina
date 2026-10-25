@@ -15,12 +15,18 @@ export type StreamCoordinator = {
 	readonly complete: () => GenUIStreamUpdate;
 	readonly reset: () => void;
 	readonly getState: () => GenUIStreamUpdate;
-	readonly subscribe: (listener: (update: GenUIStreamUpdate) => void) => () => void;
+	readonly subscribe: (
+		listener: (update: GenUIStreamUpdate) => void,
+	) => () => void;
 };
 
-export function createStreamCoordinator(adapter: LanguageAdapterLike): StreamCoordinator {
+export function createStreamCoordinator(
+	adapter: LanguageAdapterLike,
+): StreamCoordinator {
 	let rawText = '';
 	let status: GenUIStreamStatus = 'streaming';
+	// Null until the first parse that produced a root, matching GenUIStreamUpdate.tree.
+	// eslint-disable-next-line @typescript-eslint/no-restricted-types -- The null is the public tree value, not an absent one that undefined could replace.
 	let lastValidTree: GenUIElementNode | null = null;
 	let lastParseResult: GenUIParseResult = {
 		root: null,
@@ -45,6 +51,7 @@ export function createStreamCoordinator(adapter: LanguageAdapterLike): StreamCoo
 		for (const listener of listeners) {
 			listener(update);
 		}
+
 		return update;
 	}
 

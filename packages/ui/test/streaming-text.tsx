@@ -1,11 +1,11 @@
-import React from 'react';
 import test, {type TestContext} from 'node:test';
+import React from 'react';
 import {Box, Text} from '@nemesis-oss/termina-core';
 import chalk from 'chalk';
 import delay from 'delay';
-import {render} from './helpers/render.js';
 import {ThemeProvider, defaultTheme, extendTheme} from '../source/theme.js';
 import {StreamingText} from '../source/components/streaming-text/index.js';
+import {render} from './helpers/render.js';
 
 const cursor = chalk.blue('▋');
 
@@ -19,7 +19,9 @@ test('shows a cursor after the text by default', (t: TestContext) => {
 });
 
 test('hides the cursor when isStreaming is false', (t: TestContext) => {
-	const {lastFrame} = render(<StreamingText text="Hello" isStreaming={false} />);
+	const {lastFrame} = render(
+		<StreamingText text="Hello" isStreaming={false} />,
+	);
 
 	t.assert.strictEqual(lastFrame(), 'Hello');
 });

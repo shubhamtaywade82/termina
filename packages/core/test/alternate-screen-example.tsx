@@ -67,12 +67,12 @@ test('snake ends with a win when it fills the board', async (t: TestContext) => 
 			resolve({timedOut: true});
 		}, 10_000);
 
-		childProcess.on('error', error => {
+		childProcess.on('error', (error) => {
 			clearTimeout(timeout);
 			reject(error);
 		});
 
-		childProcess.on('close', exitCode => {
+		childProcess.on('close', (exitCode) => {
 			clearTimeout(timeout);
 			resolve({timedOut: false, exitCode: exitCode ?? 0});
 		});

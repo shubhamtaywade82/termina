@@ -1,14 +1,15 @@
-import React, {act, useLayoutEffect} from 'react';
 import test, {type TestContext} from 'node:test';
+import React, {act, useLayoutEffect} from 'react';
 import chalk from 'chalk';
-import {render} from './helpers/render.js';
 import {Typewriter} from '../source/components/typewriter/index.js';
+import {render} from './helpers/render.js';
+import {enableIntervalClock} from './helpers/mock-clock.js';
 
 const cursor = chalk.blue('▋');
 const FAST_SPEED = 50;
 const STEP_MS = 20;
 
-// act() drains the renders and effects that a tick schedules before it resolves. A delay cannot promise that under load.
+// Act() drains the renders and effects that a tick schedules before it resolves. A delay cannot promise that under load.
 const runInAct = async (callback: () => void) => {
 	const environment = globalThis as Record<string, unknown>;
 	environment['IS_REACT_ACT_ENVIRONMENT'] = true;
@@ -28,7 +29,13 @@ const advance = async (t: TestContext, ms: number) => {
 };
 
 // Ticks in the commit, before the Typewriter's effects run, which is where a timer from the old text can still fire.
-function TickOnCommit({isActive, tick}: {readonly isActive: boolean; readonly tick: () => void}) {
+function TickOnCommit({
+	isActive,
+	tick,
+}: {
+	readonly isActive: boolean;
+	readonly tick: () => void;
+}) {
 	useLayoutEffect(() => {
 		if (isActive) {
 			tick();
@@ -39,15 +46,17 @@ function TickOnCommit({isActive, tick}: {readonly isActive: boolean; readonly ti
 }
 
 test('shows only the cursor before the first character', (t: TestContext) => {
-	t.mock.timers.enable({apis: ['setInterval']});
-	const {lastFrame, unmount} = render(<Typewriter text="ab" speed={FAST_SPEED} />);
+	enableIntervalClock(t);
+	const {lastFrame, unmount} = render(
+		<Typewriter text="ab" speed={FAST_SPEED} />,
+	);
 
 	t.assert.strictEqual(lastFrame(), cursor);
 	unmount();
 });
 
 test('reveals one character per interval and hides the cursor when done', async (t: TestContext) => {
-	t.mock.timers.enable({apis: ['setInterval']});
+	enableIntervalClock(t);
 	const {frames, unmount} = render(<Typewriter text="ab" speed={FAST_SPEED} />);
 
 	await advance(t, STEP_MS);
@@ -58,7 +67,7 @@ test('reveals one character per interval and hides the cursor when done', async 
 });
 
 test('reveals 30 characters per second by default', async (t: TestContext) => {
-	t.mock.timers.enable({apis: ['setInterval']});
+	enableIntervalClock(t);
 	const text = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMN';
 	const {lastFrame, unmount} = render(<Typewriter text={text} />);
 
@@ -69,15 +78,16 @@ test('reveals 30 characters per second by default', async (t: TestContext) => {
 });
 
 test('starts no timer when speed is not a positive number', async (t: TestContext) => {
-	t.mock.timers.enable({apis: ['setInterval']});
+	enableIntervalClock(t);
 	const setIntervalMock = t.mock.method(globalThis, 'setInterval');
 	const onComplete = t.mock.fn();
 
-	for (const speed of [0, -5, Number.NaN]) {
+	for (const speed of [0, -5, NaN]) {
 		const {lastFrame, unmount} = render(
 			<Typewriter text="ab" speed={speed} onComplete={onComplete} />,
 		);
-		await advance(t, 60000);
+		// eslint-disable-next-line no-await-in-loop -- Each step must finish before the next one starts, so the steps stay in order.
+		await advance(t, 60_000);
 		t.assert.strictEqual(lastFrame(), cursor);
 		unmount();
 	}
@@ -87,20 +97,26 @@ test('starts no timer when speed is not a positive number', async (t: TestContex
 });
 
 test('caps a very slow speed at the longest delay Node accepts', (t: TestContext) => {
-	t.mock.timers.enable({apis: ['setInterval']});
+	enableIntervalClock(t);
 	const setIntervalMock = t.mock.method(globalThis, 'setInterval');
 	const {lastFrame, unmount} = render(<Typewriter text="ab" speed={1e-9} />);
 
-	t.assert.strictEqual(setIntervalMock.mock.calls[0]?.arguments[1], 2_147_483_647);
+	t.assert.strictEqual(
+		setIntervalMock.mock.calls[0]?.arguments[1],
+		2_147_483_647,
+	);
 	t.assert.strictEqual(lastFrame(), cursor);
 	unmount();
 });
 
 test('reveals text by code point so an emoji is never split', async (t: TestContext) => {
-	t.mock.timers.enable({apis: ['setInterval']});
-	const {frames, unmount} = render(<Typewriter text="😀👍🏽" speed={FAST_SPEED} />);
+	enableIntervalClock(t);
+	const {frames, unmount} = render(
+		<Typewriter text="😀👍🏽" speed={FAST_SPEED} />,
+	);
 
 	for (let step = 0; step < 3; step++) {
+		// eslint-disable-next-line no-await-in-loop -- Each step must finish before the next one starts, so the steps stay in order.
 		await advance(t, STEP_MS);
 	}
 
@@ -112,8 +128,10 @@ test('reveals text by code point so an emoji is never split', async (t: TestCont
 });
 
 test('restarts the reveal when text changes', async (t: TestContext) => {
-	t.mock.timers.enable({apis: ['setInterval']});
-	const {lastFrame, rerender, unmount} = render(<Typewriter text="ab" speed={FAST_SPEED} />);
+	enableIntervalClock(t);
+	const {lastFrame, rerender, unmount} = render(
+		<Typewriter text="ab" speed={FAST_SPEED} />,
+	);
 
 	await advance(t, STEP_MS * 2);
 	t.assert.strictEqual(lastFrame(), 'ab');
@@ -129,10 +147,11 @@ test('restarts the reveal when text changes', async (t: TestContext) => {
 });
 
 test('ignores a tick from the previous text that fires before the new text takes effect', async (t: TestContext) => {
-	t.mock.timers.enable({apis: ['setInterval']});
+	enableIntervalClock(t);
 	const tickPreviousTimer = () => {
 		t.mock.timers.tick(STEP_MS);
 	};
+
 	const {lastFrame, rerender, unmount} = render(
 		<>
 			<Typewriter text="ab" speed={FAST_SPEED} />
@@ -154,8 +173,10 @@ test('ignores a tick from the previous text that fires before the new text takes
 });
 
 test('applies a new speed from the next character without restarting the reveal', async (t: TestContext) => {
-	t.mock.timers.enable({apis: ['setInterval']});
-	const {lastFrame, rerender, unmount} = render(<Typewriter text="abc" speed={FAST_SPEED} />);
+	enableIntervalClock(t);
+	const {lastFrame, rerender, unmount} = render(
+		<Typewriter text="abc" speed={FAST_SPEED} />,
+	);
 
 	await advance(t, STEP_MS);
 	await runInAct(() => {
@@ -170,7 +191,7 @@ test('applies a new speed from the next character without restarting the reveal'
 });
 
 test('calls onComplete once for each text', async (t: TestContext) => {
-	t.mock.timers.enable({apis: ['setInterval']});
+	enableIntervalClock(t);
 	const onComplete = t.mock.fn();
 	const {rerender, unmount} = render(
 		<Typewriter text="ab" speed={FAST_SPEED} onComplete={onComplete} />,
@@ -181,7 +202,9 @@ test('calls onComplete once for each text', async (t: TestContext) => {
 	t.assert.strictEqual(onComplete.mock.callCount(), 1);
 
 	await runInAct(() => {
-		rerender(<Typewriter text="xy" speed={FAST_SPEED} onComplete={onComplete} />);
+		rerender(
+			<Typewriter text="xy" speed={FAST_SPEED} onComplete={onComplete} />,
+		);
 	});
 	await advance(t, STEP_MS * 2);
 	t.assert.strictEqual(onComplete.mock.callCount(), 2);
@@ -194,7 +217,7 @@ test('calls onComplete once for each text', async (t: TestContext) => {
 });
 
 test('keeps the reveal going when re-rendered with the same text and calls the latest onComplete once', async (t: TestContext) => {
-	t.mock.timers.enable({apis: ['setInterval']});
+	enableIntervalClock(t);
 	const firstOnComplete = t.mock.fn();
 	const latestOnComplete = t.mock.fn();
 	const newestOnComplete = t.mock.fn();
@@ -204,13 +227,17 @@ test('keeps the reveal going when re-rendered with the same text and calls the l
 
 	await advance(t, STEP_MS);
 	await runInAct(() => {
-		rerender(<Typewriter text="ab" speed={FAST_SPEED} onComplete={latestOnComplete} />);
+		rerender(
+			<Typewriter text="ab" speed={FAST_SPEED} onComplete={latestOnComplete} />,
+		);
 	});
 	await advance(t, STEP_MS);
 	t.assert.strictEqual(lastFrame(), 'ab');
 
 	await runInAct(() => {
-		rerender(<Typewriter text="ab" speed={FAST_SPEED} onComplete={newestOnComplete} />);
+		rerender(
+			<Typewriter text="ab" speed={FAST_SPEED} onComplete={newestOnComplete} />,
+		);
 	});
 	await advance(t, STEP_MS * 5);
 	t.assert.strictEqual(firstOnComplete.mock.callCount(), 0);
@@ -219,10 +246,12 @@ test('keeps the reveal going when re-rendered with the same text and calls the l
 	unmount();
 });
 
-test('treats empty text as complete at once', async (t: TestContext) => {
-	t.mock.timers.enable({apis: ['setInterval']});
+test('treats empty text as complete at once', (t: TestContext) => {
+	enableIntervalClock(t);
 	const onComplete = t.mock.fn();
-	const {lastFrame, unmount} = render(<Typewriter text="" onComplete={onComplete} />);
+	const {lastFrame, unmount} = render(
+		<Typewriter text="" onComplete={onComplete} />,
+	);
 
 	t.assert.strictEqual(onComplete.mock.callCount(), 1);
 	t.assert.strictEqual(lastFrame(), '');
@@ -230,7 +259,7 @@ test('treats empty text as complete at once', async (t: TestContext) => {
 });
 
 test('hides the cursor when cursor is false', async (t: TestContext) => {
-	t.mock.timers.enable({apis: ['setInterval']});
+	enableIntervalClock(t);
 	const {frames, unmount} = render(
 		<Typewriter text="ab" cursor={false} speed={FAST_SPEED} />,
 	);
@@ -243,7 +272,7 @@ test('hides the cursor when cursor is false', async (t: TestContext) => {
 });
 
 test('calls onComplete after the last character is rendered', async (t: TestContext) => {
-	t.mock.timers.enable({apis: ['setInterval']});
+	enableIntervalClock(t);
 	let frameAtComplete: string | undefined;
 	const view = render(
 		<Typewriter
@@ -262,7 +291,7 @@ test('calls onComplete after the last character is rendered', async (t: TestCont
 });
 
 test('does not call onComplete when unmounted before the text is shown', async (t: TestContext) => {
-	t.mock.timers.enable({apis: ['setInterval']});
+	enableIntervalClock(t);
 	const onComplete = t.mock.fn();
 	const {unmount} = render(
 		<Typewriter text="ab" speed={FAST_SPEED} onComplete={onComplete} />,
@@ -276,7 +305,7 @@ test('does not call onComplete when unmounted before the text is shown', async (
 });
 
 test('clears its timer on unmount', async (t: TestContext) => {
-	t.mock.timers.enable({apis: ['setInterval']});
+	enableIntervalClock(t);
 	const setIntervalMock = t.mock.method(globalThis, 'setInterval');
 	const clearIntervalMock = t.mock.method(globalThis, 'clearInterval');
 	const {unmount} = render(<Typewriter text="abc" speed={FAST_SPEED} />);
@@ -286,9 +315,11 @@ test('clears its timer on unmount', async (t: TestContext) => {
 	});
 
 	const typewriterTimers = setIntervalMock.mock.calls
-		.filter(call => call.arguments[1] === 1000 / FAST_SPEED)
-		.map(call => call.result);
-	const clearedTimers = clearIntervalMock.mock.calls.map(call => call.arguments[0]);
+		.filter((call) => call.arguments[1] === 1000 / FAST_SPEED)
+		.map((call) => call.result);
+	const clearedTimers = clearIntervalMock.mock.calls.map(
+		(call) => call.arguments[0],
+	);
 
 	t.assert.strictEqual(typewriterTimers.length, 1);
 	t.assert.ok(clearedTimers.includes(typewriterTimers[0]));

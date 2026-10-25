@@ -1123,7 +1123,7 @@ Places the terminal cursor at a position relative to the app's output origin, so
 
 See [Resize and Reflow](/guide/resize) (the primary-screen limitation of useCursor).
 
-### suspendTerminal
+### useApp().suspendTerminal
 
 ```ts
 type SuspendTerminal = {

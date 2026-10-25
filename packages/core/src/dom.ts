@@ -267,6 +267,10 @@ export const createTextNode = (text: string): TextNode => {
 	return node;
 };
 
+// Flex shrink can leave a fractional width, such as 14.22. Yoga rounds a text node up to the next column, so wrapping at the fraction lets a 15-column line into a 14-column box. Wrapping at whole columns keeps the rounded width inside the space.
+const wholeColumns = (width: number): number =>
+	Number.isFinite(width) && width >= 1 ? Math.floor(width) : width;
+
 const measureTextNode = function (
 	node: DOMNode,
 	width: number,
@@ -284,7 +288,7 @@ const measureTextNode = function (
 	}
 
 	const textWrap = node.style?.textWrap ?? 'wrap';
-	const wrappedText = wrapText(text, width, textWrap);
+	const wrappedText = wrapText(text, wholeColumns(width), textWrap);
 	const wrappedDimensions = measureText(wrappedText);
 
 	// Reserve the truncation width so rendering does not truncate again at a narrower width when a wide character leaves an unused column.

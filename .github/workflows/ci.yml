@@ -5,6 +5,8 @@ on:
     branches: [main]
   pull_request:
     branches: [main]
+  # Runs the workflow on any branch on request, so a branch can be checked on every platform before a pull request exists.
+  workflow_dispatch:
 
 # A newer push to the same PR cancels the older run. Pushes to main keep their own run per commit.
 concurrency:
@@ -51,10 +53,18 @@ jobs:
       - name: Typecheck
         run: pnpm typecheck
 
+      - name: Lint
+        run: pnpm lint
+
+  # Terminal behavior differs by platform, and the pseudo-terminal path is the one most likely to break on Windows. Every platform runs the whole suite, and one failing platform does not cancel the others.
   test:
-    name: Test
-    runs-on: ubuntu-latest
+    name: Test (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
     timeout-minutes: 45
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
     steps:
       - name: Checkout repository
         uses: actions/checkout@v7
@@ -74,6 +84,64 @@ jobs:
       # Builds both packages, then runs the core and UI suites with their pseudo-terminal and emulator fixtures.
       - name: Test
         run: pnpm test
+
+  # Rehearses the publish step without uploading: a dry-run publish, then a pack of each package checked for its entry, declarations and resolved dependency ranges.
+  release-rehearsal:
+    name: Release rehearsal
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v6
+
+      - name: Setup Node
+        uses: actions/setup-node@v7
+        with:
+          node-version-file: .node-version
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build
+        run: pnpm build
+
+      - name: Rehearse the release
+        run: pnpm release:rehearse
+
+  # Streams a fixed 1,000-line log through the renderer and keeps the JSON report. It does not fail on speed, because shared runners vary too much for a hard threshold. Compare the artifacts across runs instead.
+  render-benchmark:
+    name: Render benchmark
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v6
+
+      - name: Setup Node
+        uses: actions/setup-node@v7
+        with:
+          node-version-file: .node-version
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Run the render benchmark
+        run: pnpm --filter @nemesis-oss/termina-core run bench -- --out "$RUNNER_TEMP/render-benchmark.json"
+
+      - name: Keep the benchmark report
+        uses: actions/upload-artifact@v4
+        with:
+          name: render-benchmark
+          path: ${{ runner.temp }}/render-benchmark.json
+          if-no-files-found: error
 
   lint-ratchet:
     name: Lint ratchet
@@ -136,6 +204,10 @@ jobs:
 
       - name: Check committed previews are current
         run: pnpm docs:previews:check
+
+      # Every API name the docs document must be exported by the built declarations, and every sidebar link must resolve to a page.
+      - name: Check docs against the built packages
+        run: pnpm docs:check
 
       - name: Install docs-site dependencies
         run: npm ci

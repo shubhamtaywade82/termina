@@ -28,7 +28,7 @@ function Deploy() {
 		<Box flexDirection="column" gap={1}>
 			<Spinner label="Fetching targets" />
 			<Text>Deploy to:</Text>
-			<Select options={environments} onChange={value => console.log(value)} />
+			<Select options={environments} onChange={(value) => console.log(value)} />
 		</Box>
 	);
 }

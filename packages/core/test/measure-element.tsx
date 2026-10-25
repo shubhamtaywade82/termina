@@ -62,7 +62,7 @@ test('measure element after state update', async (t: TestContext) => {
 		return (
 			<Box flexDirection="column">
 				<Box ref={ref} flexDirection="column">
-					{items.map(item => (
+					{items.map((item) => (
 						<Text key={item}>{item}</Text>
 					))}
 				</Box>
@@ -105,7 +105,7 @@ test('measure element after multiple state updates', async (t: TestContext) => {
 		return (
 			<Box flexDirection="column">
 				<Box ref={ref} flexDirection="column">
-					{items.map(item => (
+					{items.map((item) => (
 						<Text key={item}>{item}</Text>
 					))}
 				</Box>
@@ -151,7 +151,7 @@ test('measure element in useLayoutEffect after state update', async (t: TestCont
 		return (
 			<Box flexDirection="column">
 				<Box ref={ref} flexDirection="column">
-					{items.map(item => (
+					{items.map((item) => (
 						<Text key={item}>{item}</Text>
 					))}
 				</Box>
@@ -328,7 +328,7 @@ test('Static does not affect layout-tree coordinates', async (t: TestContext) =>
 		return (
 			<Box flexDirection="column">
 				<Static items={['Static A', 'Static B']}>
-					{item => <Text key={item}>{item}</Text>}
+					{(item) => <Text key={item}>{item}</Text>}
 				</Static>
 				<Box ref={ref}>
 					<Text>Live: {result}</Text>
@@ -391,7 +391,7 @@ test('calculate layout while rendering is throttled', async (t: TestContext) => 
 	const {rerender} = render(null, {stdout, patchConsole: false});
 	rerender(<Test />);
 
-	// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call
+	/* eslint-disable @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-return -- Sinon's spy types are loose, so the calls are typed by hand here. */
 	const contentWrites = (): string[] =>
 		(stdout.write as any)
 			.getCalls()
@@ -400,6 +400,7 @@ test('calculate layout while rendering is throttled', async (t: TestContext) => 
 				(w: string) =>
 					!w.startsWith('\u{1B}[?25') && !w.startsWith('\u{1B}[?2026'),
 			);
+	/* eslint-enable @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-return */
 	const lastContent = (): string =>
 		stripAnsi(contentWrites().at(-1) ?? '').trim();
 

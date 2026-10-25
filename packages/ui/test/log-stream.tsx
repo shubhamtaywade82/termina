@@ -1,14 +1,14 @@
-import React from 'react';
 import test, {type TestContext} from 'node:test';
+import React from 'react';
 import delay from 'delay';
-import {render} from './helpers/render.js';
 import {LogStream} from '../source/index.js';
+import {render} from './helpers/render.js';
 
 const entries = (count: number) =>
 	Array.from({length: count}, (_, index) => `entry ${index}`);
 
-const arrowUp = '\u001B[A';
-const end = '\u001B[F';
+const arrowUp = '\u{1B}[A';
+const end = '\u{1B}[F';
 
 test('a log stays pinned to the newest entry as lines arrive', async (t: TestContext) => {
 	const instance = render(<LogStream lines={entries(10)} height={3} />);

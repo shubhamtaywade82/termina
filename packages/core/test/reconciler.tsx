@@ -486,7 +486,7 @@ test('support suspense', async (t: TestContext) => {
 
 	const read = () => {
 		if (!promise) {
-			promise = new Promise(resolve => {
+			promise = new Promise((resolve) => {
 				setTimeout(resolve, 100);
 			});
 

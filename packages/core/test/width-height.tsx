@@ -71,7 +71,7 @@ test('set min width', (t: TestContext) => {
 	t.assert.strictEqual(largerOutput, 'AAAAAB');
 });
 
-// TODO: Use `{expectFailure: '…'}` instead of `skip` when we target Node.js 24.
+// Once Node.js 24 is the target, use `{expectFailure: '…'}` in place of `skip`.
 test(
 	'set min width in percent',
 	// eslint-disable-next-line node-test/no-skip-test -- Known failure. Node.js 22 does not support `expectFailure`.
@@ -422,7 +422,7 @@ test('clears aspectRatio on rerender', (t: TestContext) => {
 	);
 });
 
-// TODO: Use `{expectFailure: '…'}` instead of `skip` when we target Node.js 24.
+// Once Node.js 24 is the target, use `{expectFailure: '…'}` in place of `skip`.
 test(
 	'set max width in percent',
 	// eslint-disable-next-line node-test/no-skip-test -- Known failure. Node.js 22 does not support `expectFailure`.

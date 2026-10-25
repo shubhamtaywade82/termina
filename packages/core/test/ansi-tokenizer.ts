@@ -11,7 +11,7 @@ test('tokenize ESC CSI SGR sequence', (t: TestContext) => {
 	const tokens = tokenizeAnsi('A\u{1B}[31mB');
 
 	t.assert.deepStrictEqual(
-		tokens.map(token => token.type),
+		tokens.map((token) => token.type),
 		['text', 'csi', 'text'],
 	);
 	t.assert.deepStrictEqual(tokens[0], {type: 'text', value: 'A'});
@@ -49,7 +49,7 @@ test('tokenize OSC control string with ST terminator', (t: TestContext) => {
 	const oscToken = tokens[1];
 
 	t.assert.deepStrictEqual(
-		tokens.map(token => token.type),
+		tokens.map((token) => token.type),
 		['text', 'osc', 'text'],
 	);
 	if (oscToken?.type !== 'osc') {
@@ -67,7 +67,7 @@ test('tokenize tmux DCS passthrough as one control string token', (t: TestContex
 	const dcsToken = tokens[1];
 
 	t.assert.deepStrictEqual(
-		tokens.map(token => token.type),
+		tokens.map((token) => token.type),
 		['text', 'dcs', 'text'],
 	);
 	if (dcsToken?.type !== 'dcs') {
@@ -111,7 +111,7 @@ test('tokenize ESC ST sequence as ESC token', (t: TestContext) => {
 	const escToken = tokens[1];
 
 	t.assert.deepStrictEqual(
-		tokens.map(token => token.type),
+		tokens.map((token) => token.type),
 		['text', 'esc', 'text'],
 	);
 	if (escToken?.type !== 'esc') {
@@ -129,7 +129,7 @@ test('tokenize C1 OSC with C1 ST terminator', (t: TestContext) => {
 	const oscToken = tokens[1];
 
 	t.assert.deepStrictEqual(
-		tokens.map(token => token.type),
+		tokens.map((token) => token.type),
 		['text', 'osc', 'text'],
 	);
 	if (oscToken?.type !== 'osc') {
@@ -145,7 +145,7 @@ test('tokenize C1 OSC with ESC ST terminator', (t: TestContext) => {
 	const oscToken = tokens[1];
 
 	t.assert.deepStrictEqual(
-		tokens.map(token => token.type),
+		tokens.map((token) => token.type),
 		['text', 'osc', 'text'],
 	);
 	if (oscToken?.type !== 'osc') {
@@ -161,7 +161,7 @@ test('tokenize C1 SGR CSI sequence', (t: TestContext) => {
 	const csiToken = tokens[1];
 
 	t.assert.deepStrictEqual(
-		tokens.map(token => token.type),
+		tokens.map((token) => token.type),
 		['text', 'csi', 'text'],
 	);
 	if (csiToken?.type !== 'csi') {
@@ -198,7 +198,7 @@ test('tokenize DCS with BEL in payload until ST terminator', (t: TestContext) =>
 	const dcsToken = tokens[1];
 
 	t.assert.deepStrictEqual(
-		tokens.map(token => token.type),
+		tokens.map((token) => token.type),
 		['text', 'dcs', 'text'],
 	);
 	if (dcsToken?.type !== 'dcs') {
@@ -215,7 +215,7 @@ test('tokenize C1 OSC control string with BEL terminator', (t: TestContext) => {
 	const oscToken = tokens[1];
 
 	t.assert.deepStrictEqual(
-		tokens.map(token => token.type),
+		tokens.map((token) => token.type),
 		['text', 'osc', 'text'],
 	);
 	if (oscToken?.type !== 'osc') {
@@ -231,7 +231,7 @@ test('tokenize ESC SOS control string with ST terminator', (t: TestContext) => {
 	const sosToken = tokens[1];
 
 	t.assert.deepStrictEqual(
-		tokens.map(token => token.type),
+		tokens.map((token) => token.type),
 		['text', 'sos', 'text'],
 	);
 	if (sosToken?.type !== 'sos') {
@@ -247,7 +247,7 @@ test('tokenize ESC SOS control string with C1 ST terminator', (t: TestContext) =
 	const sosToken = tokens[1];
 
 	t.assert.deepStrictEqual(
-		tokens.map(token => token.type),
+		tokens.map((token) => token.type),
 		['text', 'sos', 'text'],
 	);
 	if (sosToken?.type !== 'sos') {
@@ -263,7 +263,7 @@ test('tokenize C1 SOS control string with C1 ST terminator', (t: TestContext) =>
 	const sosToken = tokens[1];
 
 	t.assert.deepStrictEqual(
-		tokens.map(token => token.type),
+		tokens.map((token) => token.type),
 		['text', 'sos', 'text'],
 	);
 	if (sosToken?.type !== 'sos') {
@@ -279,7 +279,7 @@ test('tokenize C1 SOS control string with ESC ST terminator', (t: TestContext) =
 	const sosToken = tokens[1];
 
 	t.assert.deepStrictEqual(
-		tokens.map(token => token.type),
+		tokens.map((token) => token.type),
 		['text', 'sos', 'text'],
 	);
 	if (sosToken?.type !== 'sos') {
@@ -331,7 +331,7 @@ test('tokenize SOS with escaped ESC in payload until final ST terminator', (t: T
 	const sosToken = tokens[1];
 
 	t.assert.deepStrictEqual(
-		tokens.map(token => token.type),
+		tokens.map((token) => token.type),
 		['text', 'sos', 'text'],
 	);
 	if (sosToken?.type !== 'sos') {
@@ -349,7 +349,7 @@ test('tokenize standalone C1 controls as c1 tokens', (t: TestContext) => {
 	const c1Token2 = tokens[3];
 
 	t.assert.deepStrictEqual(
-		tokens.map(token => token.type),
+		tokens.map((token) => token.type),
 		['text', 'c1', 'text', 'c1', 'text'],
 	);
 	if (c1Token1?.type !== 'c1') {

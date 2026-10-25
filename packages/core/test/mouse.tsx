@@ -1,6 +1,6 @@
 import {PassThrough} from 'node:stream';
-import React, {useState} from 'react';
 import test, {type TestContext} from 'node:test';
+import React, {useState} from 'react';
 import delay from 'delay';
 import {
 	type MouseEvent,
@@ -44,12 +44,44 @@ test('modifier bits are decoded independently of the button', (t: TestContext) =
 
 test('wheel steps decode to wheel buttons, not presses', (t: TestContext) => {
 	t.assert.deepStrictEqual(
-		[64, 65, 66, 67].map(code => parseMouseEvent(`${esc}[<${code};5;6M`)),
+		[64, 65, 66, 67].map((code) => parseMouseEvent(`${esc}[<${code};5;6M`)),
 		[
-			{action: 'wheel', button: 'wheelUp', x: 5, y: 6, shift: false, meta: false, ctrl: false},
-			{action: 'wheel', button: 'wheelDown', x: 5, y: 6, shift: false, meta: false, ctrl: false},
-			{action: 'wheel', button: 'wheelLeft', x: 5, y: 6, shift: false, meta: false, ctrl: false},
-			{action: 'wheel', button: 'wheelRight', x: 5, y: 6, shift: false, meta: false, ctrl: false},
+			{
+				action: 'wheel',
+				button: 'wheelUp',
+				x: 5,
+				y: 6,
+				shift: false,
+				meta: false,
+				ctrl: false,
+			},
+			{
+				action: 'wheel',
+				button: 'wheelDown',
+				x: 5,
+				y: 6,
+				shift: false,
+				meta: false,
+				ctrl: false,
+			},
+			{
+				action: 'wheel',
+				button: 'wheelLeft',
+				x: 5,
+				y: 6,
+				shift: false,
+				meta: false,
+				ctrl: false,
+			},
+			{
+				action: 'wheel',
+				button: 'wheelRight',
+				x: 5,
+				y: 6,
+				shift: false,
+				meta: false,
+				ctrl: false,
+			},
 		],
 	);
 });
@@ -93,7 +125,7 @@ test('tracking sequences are the byte-exact DECSET/DECRST contract', (t: TestCon
 const createInput = (): NodeJS.ReadStream => {
 	const stdin = new PassThrough() as PassThrough & {
 		isTTY: boolean;
-		setRawMode: (mode: boolean) => void;
+		setRawMode: (isRaw: boolean) => void;
 	};
 	stdin.isTTY = true;
 	stdin.setRawMode = () => {};
@@ -105,10 +137,10 @@ test('useMouse receives reports, useInput never does, and tracking follows mount
 	const keys: string[] = [];
 
 	function Probe() {
-		useMouse(event => {
+		useMouse((event) => {
 			events.push(event);
 		});
-		useInput(input => {
+		useInput((input) => {
 			keys.push(input);
 		});
 		return <Text>probe</Text>;
@@ -133,7 +165,7 @@ test('useMouse receives reports, useInput never does, and tracking follows mount
 	await delay(50);
 
 	t.assert.deepStrictEqual(
-		events.map(event => [event.action, event.button, event.x, event.y]),
+		events.map((event) => [event.action, event.button, event.x, event.y]),
 		[
 			['press', 'left', 24, 12],
 			['wheel', 'wheelUp', 5, 6],
@@ -168,11 +200,15 @@ test('mouse tracking is shared by mounted hooks and released with the last one',
 	);
 
 	await instance.waitUntilRenderFlush();
-	const enables = stdout.getWrites().filter(write => write === mouseTrackingEnable);
+	const enables = stdout
+		.getWrites()
+		.filter((write) => write === mouseTrackingEnable);
 	t.assert.strictEqual(enables.length, 1);
 
 	instance.unmount();
-	const disables = stdout.getWrites().filter(write => write === mouseTrackingDisable);
+	const disables = stdout
+		.getWrites()
+		.filter((write) => write === mouseTrackingDisable);
 	t.assert.strictEqual(disables.length, 1);
 });
 
@@ -180,7 +216,7 @@ test('a component that uses only useMouse still receives reports', async (t: Tes
 	const events: MouseEvent[] = [];
 
 	function MouseOnly() {
-		useMouse(event => {
+		useMouse((event) => {
 			events.push(event);
 		});
 		return <Text>mouse only</Text>;
@@ -202,7 +238,7 @@ test('a component that uses only useMouse still receives reports', async (t: Tes
 	await delay(50);
 
 	t.assert.deepStrictEqual(
-		events.map(event => [event.action, event.x, event.y]),
+		events.map((event) => [event.action, event.x, event.y]),
 		[['press', 24, 12]],
 	);
 	instance.unmount();
@@ -241,12 +277,16 @@ test('unmounting one of two useMouse listeners keeps tracking on until the last 
 	});
 	await instance.waitUntilRenderFlush();
 	const count = (sequence: string) =>
-		stdout.getWrites().filter(write => write === sequence).length;
+		stdout.getWrites().filter((write) => write === sequence).length;
 	t.assert.strictEqual(count(mouseTrackingEnable), 1);
 
 	instance.rerender(<Listeners count={1} />);
 	await instance.waitUntilRenderFlush();
-	t.assert.strictEqual(count(mouseTrackingDisable), 0, 'one listener is still mounted');
+	t.assert.strictEqual(
+		count(mouseTrackingDisable),
+		0,
+		'one listener is still mounted',
+	);
 
 	instance.rerender(<Listeners count={0} />);
 	await instance.waitUntilRenderFlush();
@@ -274,11 +314,15 @@ test('suspending releases mouse tracking and resuming restores it for mounted li
 	});
 	await instance.waitUntilRenderFlush();
 	const count = (sequence: string) =>
-		stdout.getWrites().filter(write => write === sequence).length;
+		stdout.getWrites().filter((write) => write === sequence).length;
 	t.assert.strictEqual(count(mouseTrackingEnable), 1);
 
 	const suspension = await suspendTerminal();
-	t.assert.strictEqual(count(mouseTrackingDisable), 1, 'the child process must not inherit mouse reports');
+	t.assert.strictEqual(
+		count(mouseTrackingDisable),
+		1,
+		'the child process must not inherit mouse reports',
+	);
 
 	await suspension.resume();
 	t.assert.strictEqual(count(mouseTrackingEnable), 2);
@@ -288,7 +332,7 @@ test('suspending releases mouse tracking and resuming restores it for mounted li
 
 test('a listener that mounts while suspended leaves tracking off until resume', async (t: TestContext) => {
 	let suspendTerminal!: ReturnType<typeof useApp>['suspendTerminal'];
-	let setShowListener!: (show: boolean) => void;
+	let setShowListener!: (isShown: boolean) => void;
 
 	function Host() {
 		const [show, setShow] = useState(false);
@@ -314,11 +358,15 @@ test('a listener that mounts while suspended leaves tracking off until resume', 
 	await instance.waitUntilRenderFlush();
 
 	const suspension = await suspendTerminal();
-	act(() => {
+	await act(() => {
 		setShowListener(true);
 	});
 	await instance.waitUntilRenderFlush();
-	t.assert.strictEqual(stdout.getWrites().includes(mouseTrackingEnable), false, 'enabling while suspended must not write to the child terminal');
+	t.assert.strictEqual(
+		stdout.getWrites().includes(mouseTrackingEnable),
+		false,
+		'enabling while suspended must not write to the child terminal',
+	);
 
 	await suspension.resume();
 	t.assert.strictEqual(stdout.getWrites().includes(mouseTrackingEnable), true);

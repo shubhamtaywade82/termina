@@ -2,12 +2,12 @@ import test, {type TestContext} from 'node:test';
 import React from 'react';
 import FakeTimers from '@sinonjs/fake-timers';
 import {render, useInput, usePaste, Text} from '../src/index.js';
-import createStdout from './helpers/create-stdout.js';
-import {createStdin, emitReadable} from './helpers/create-stdin.js';
 import {
 	escapeFlushDelayMilliseconds,
 	pasteFlushDelayMilliseconds,
 } from '../src/input-parser.js';
+import createStdout from './helpers/create-stdout.js';
+import {createStdin, emitReadable} from './helpers/create-stdin.js';
 
 test('rerender() keeps a pending Escape keypress', async (t: TestContext) => {
 	const clock = FakeTimers.install({
@@ -70,10 +70,10 @@ test('rerender() keeps a bracketed paste that spans two reads', (t: TestContext)
 	const inputs: string[] = [];
 	const pastes: string[] = [];
 	function Example({label}: {readonly label: string}) {
-		useInput(input => {
+		useInput((input) => {
 			inputs.push(input);
 		});
-		usePaste(text => {
+		usePaste((text) => {
 			pastes.push(text);
 		});
 		return <Text>{label}</Text>;
@@ -94,7 +94,7 @@ test('rerender() does not detach and reattach the stdin readable listener', (t: 
 	const stdin = createStdin();
 	const stdout = createStdout();
 	let removed = 0;
-	stdin.on('removeListener', event => {
+	stdin.on('removeListener', (event) => {
 		if (event === 'readable') {
 			removed++;
 		}

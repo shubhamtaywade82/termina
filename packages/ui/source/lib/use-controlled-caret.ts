@@ -42,7 +42,8 @@ export const useControlledCaret = ({
 	// The controlled value at the previous commit. A changed value means the parent stored an edit, even one it transformed.
 	const committedValueRef = useRef<string | undefined>(undefined);
 
-	// Runs after every commit, once the parent has answered the last edit. An edit is accepted when the parent stored its value and dropped otherwise. Either way the next key starts from what the parent holds, not from the refused edit.
+	// Runs after every commit, once the parent has answered the last edit.
+	// eslint-disable-next-line react-hooks/exhaustive-deps -- The effect must run after every commit, so it has no dependency list. An edit is accepted when the parent stored its value and dropped otherwise. Either way the next key starts from what the parent holds, not from the refused edit.
 	useLayoutEffect(() => {
 		if (value === undefined) {
 			return;

@@ -1,3 +1,4 @@
+/* eslint-disable @eslint-react/no-array-index-key -- Columns and rows are positional, and a row can repeat the same values. */
 import React from 'react';
 import {Box, Text, type TextProps} from '@nemesis-oss/termina-core';
 import stringWidth from 'string-width';
@@ -93,7 +94,7 @@ export function Table({columns, rows}: TableProps) {
 	const gap = styles.row().gap ?? 0;
 	// The widest columns shrink until the row fits the container.
 	const {ref: containerRef, widths} = useFittedColumnWidths(
-		columns.map(column => getColumnWidth(column, rows)),
+		columns.map((column) => getColumnWidth(column, rows)),
 		gap,
 	);
 	const ruleWidth = getRuleWidth(widths, gap);
@@ -103,7 +104,7 @@ export function Table({columns, rows}: TableProps) {
 			<TableLine
 				columns={columns}
 				widths={widths}
-				values={columns.map(column => column.header)}
+				values={columns.map((column) => column.header)}
 				textStyle={styles.header()}
 			/>
 			{ruleWidth > 0 && (
@@ -117,7 +118,7 @@ export function Table({columns, rows}: TableProps) {
 					key={index}
 					columns={columns}
 					widths={widths}
-					values={columns.map(column => getCellText(row, column.key))}
+					values={columns.map((column) => getCellText(row, column.key))}
 				/>
 			))}
 		</Box>

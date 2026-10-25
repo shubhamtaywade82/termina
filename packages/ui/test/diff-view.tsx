@@ -1,10 +1,10 @@
-import React from 'react';
 import test, {type TestContext} from 'node:test';
+import React from 'react';
 import chalk from 'chalk';
 import {Box, Text} from '@nemesis-oss/termina-core';
-import {render} from './helpers/render.js';
 import {DiffView} from '../source/components/diff-view/index.js';
 import {ThemeProvider, defaultTheme, extendTheme} from '../source/theme.js';
+import {render} from './helpers/render.js';
 
 const demoPatch = [
 	'diff --git a/src/server.ts b/src/server.ts',
@@ -80,7 +80,9 @@ test('a blank line between lines keeps its row', (t: TestContext) => {
 });
 
 test('a removed or added line whose text begins with -- or ++ is styled as a file header', (t: TestContext) => {
-	const {lastFrame} = render(<DiffView patch={'--- old comment\n+++ new text'} />);
+	const {lastFrame} = render(
+		<DiffView patch={'--- old comment\n+++ new text'} />,
+	);
 
 	t.assert.strictEqual(
 		lastFrame(),
@@ -100,7 +102,9 @@ test('the no-newline marker is styled as context', (t: TestContext) => {
 });
 
 test('a line that begins with an ANSI color code is treated as context', (t: TestContext) => {
-	const coloredPatch = [chalk.green('+added'), chalk.red('-removed')].join('\n');
+	const coloredPatch = [chalk.green('+added'), chalk.red('-removed')].join(
+		'\n',
+	);
 	const {lastFrame} = render(<DiffView patch={coloredPatch} />);
 
 	t.assert.strictEqual(lastFrame(), coloredPatch);

@@ -58,17 +58,16 @@ const cellRank = (text: string, number: number | undefined): number => {
 const compareCells = (left: string, right: string): number => {
 	const leftNumber = parseNumber(left);
 	const rightNumber = parseNumber(right);
-	const rankDifference = cellRank(left, leftNumber) - cellRank(right, rightNumber);
+	const rankDifference =
+		cellRank(left, leftNumber) - cellRank(right, rightNumber);
 
 	if (rankDifference !== 0) {
 		return rankDifference;
 	}
 
-	if (leftNumber !== undefined && rightNumber !== undefined) {
-		return leftNumber - rightNumber;
-	}
-
-	return left.toLowerCase().localeCompare(right.toLowerCase());
+	return leftNumber !== undefined && rightNumber !== undefined
+		? leftNumber - rightNumber
+		: left.toLowerCase().localeCompare(right.toLowerCase());
 };
 
 // The sign goes on the comparator, not on the sorted result, so equal rows keep their order in both directions.
@@ -99,10 +98,17 @@ const clamp = (value: number, maxValue: number): number =>
 	Math.min(Math.max(value, 0), Math.max(maxValue, 0));
 
 // Rows, columns and the window can shrink after mount, so stored positions are clamped to what exists now.
-const clampScrollTop = (scrollTop: number, focusedRow: number, layout: Layout): number => {
+const clampScrollTop = (
+	scrollTop: number,
+	focusedRow: number,
+	layout: Layout,
+): number => {
 	// The window must still hold the focused row, or a shrink would hide it.
 	const lowestScrollTop = Math.max(focusedRow - layout.visibleRowCount + 1, 0);
-	const highestScrollTop = Math.min(focusedRow, Math.max(layout.rowCount - layout.visibleRowCount, 0));
+	const highestScrollTop = Math.min(
+		focusedRow,
+		Math.max(layout.rowCount - layout.visibleRowCount, 0),
+	);
 
 	return Math.min(Math.max(scrollTop, lowestScrollTop), highestScrollTop);
 };
@@ -161,11 +167,9 @@ const sortByFocusedColumn = (
 ): DataTableState => {
 	const column = layout.columns.at(state.focusedColumn);
 
-	if (column === undefined) {
-		return state;
-	}
-
-	return {...state, sort: getNextSort(state.sort, column.key)};
+	return column === undefined
+		? state
+		: {...state, sort: getNextSort(state.sort, column.key)};
 };
 
 const applyKey = (
@@ -195,7 +199,7 @@ const selectFocusedRow = (
 	rows: TableRow[],
 	onSelect?: (row: TableRow) => void,
 ): void => {
-	// toSorted copies the array, not the row objects, so onSelect receives the object from `rows`.
+	// ToSorted copies the array, not the row objects, so onSelect receives the object from `rows`.
 	const row = sortRows(rows, state.sort).at(state.focusedRow);
 
 	if (row !== undefined) {
@@ -211,7 +215,13 @@ export type UseDataTableStateProps = {
 	readonly onSelect?: (row: TableRow) => void;
 };
 
-export function useDataTableState({columns, rows, visibleRowCount, isActive, onSelect}: UseDataTableStateProps): DataTableState {
+export function useDataTableState({
+	columns,
+	rows,
+	visibleRowCount,
+	isActive,
+	onSelect,
+}: UseDataTableStateProps): DataTableState {
 	const [state, setState] = useState(INITIAL_STATE);
 	// Key events can outpace renders, so each one reads the newest state, not the one from the last render.
 	const latestStateRef = useRef(state);

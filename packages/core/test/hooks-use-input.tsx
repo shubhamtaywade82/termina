@@ -26,7 +26,7 @@ test('useInput - discrete priority keeps states in sync with useTransition durin
 	// State starts pre-populated with "abcde". Send 5 rapid deletes
 	// to clear it, then wait for transitions to settle and check state.
 	const delay = async (ms: number) =>
-		new Promise(resolve => {
+		new Promise((resolve) => {
 			setTimeout(resolve, ms);
 		});
 	const pressDeleteKey = () => {

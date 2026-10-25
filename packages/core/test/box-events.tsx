@@ -1,6 +1,6 @@
 import {PassThrough} from 'node:stream';
-import React from 'react';
 import test, {type TestContext} from 'node:test';
+import React from 'react';
 import delay from 'delay';
 import {Box, Text, render} from '../src/index.js';
 import {mouseTrackingEnable} from '../src/mouse.js';
@@ -16,7 +16,7 @@ const wheelDown = (x: number, y: number) => `${esc}[<65;${x};${y}M`;
 const createInput = (): NodeJS.ReadStream => {
 	const stdin = new PassThrough() as PassThrough & {
 		isTTY: boolean;
-		setRawMode: (mode: boolean) => void;
+		setRawMode: (isRaw: boolean) => void;
 	};
 	stdin.isTTY = true;
 	stdin.setRawMode = () => {};
@@ -24,7 +24,11 @@ const createInput = (): NodeJS.ReadStream => {
 };
 
 // Mounts on the alternate screen with mouse tracking on, unless told otherwise. Positions in the tests are 1-based, as the terminal reports them.
-const mount = async (element: React.ReactElement, mouse = true, alternateScreen = true) => {
+const mount = async (
+	element: React.ReactElement,
+	isMouse = true,
+	isAlternateScreen = true,
+) => {
 	const stdout = createStdout(40, true);
 	const stdin = createInput();
 	const instance = render(element, {
@@ -32,8 +36,8 @@ const mount = async (element: React.ReactElement, mouse = true, alternateScreen 
 		stdin,
 		stderr: stdout,
 		interactive: true,
-		alternateScreen,
-		mouse,
+		alternateScreen: isAlternateScreen,
+		mouse: isMouse,
 		exitOnCtrlC: false,
 		patchConsole: false,
 	});
@@ -45,6 +49,7 @@ const mount = async (element: React.ReactElement, mouse = true, alternateScreen 
 const send = async (stdin: NodeJS.ReadStream, ...sequences: string[]) => {
 	for (const sequence of sequences) {
 		(stdin as unknown as PassThrough).write(sequence);
+		// eslint-disable-next-line no-await-in-loop -- Each sequence must reach the parser before the next one is written.
 		await delay(10);
 	}
 
@@ -54,7 +59,13 @@ const send = async (stdin: NodeJS.ReadStream, ...sequences: string[]) => {
 test('a press and release in place fires onClick once', async (t: TestContext) => {
 	const clicks: string[] = [];
 	const {instance, stdin} = await mount(
-		<Box width={10} height={3} onClick={() => clicks.push('box')}>
+		<Box
+			width={10}
+			height={3}
+			onClick={() => {
+				clicks.push('box');
+			}}
+		>
 			<Text>button</Text>
 		</Box>,
 	);
@@ -67,7 +78,13 @@ test('a press and release in place fires onClick once', async (t: TestContext) =
 test('a press that is released elsewhere is not a click', async (t: TestContext) => {
 	const clicks: string[] = [];
 	const {instance, stdin} = await mount(
-		<Box width={10} height={3} onClick={() => clicks.push('box')}>
+		<Box
+			width={10}
+			height={3}
+			onClick={() => {
+				clicks.push('box');
+			}}
+		>
 			<Text>button</Text>
 		</Box>,
 	);
@@ -80,7 +97,13 @@ test('a press that is released elsewhere is not a click', async (t: TestContext)
 test('a click on an element without its own handler bubbles to its ancestor', async (t: TestContext) => {
 	const clicks: string[] = [];
 	const {instance, stdin} = await mount(
-		<Box width={10} height={3} onClick={() => clicks.push('outer')}>
+		<Box
+			width={10}
+			height={3}
+			onClick={() => {
+				clicks.push('outer');
+			}}
+		>
 			<Box width={4} height={1}>
 				<Text>inner</Text>
 			</Box>
@@ -95,8 +118,20 @@ test('a click on an element without its own handler bubbles to its ancestor', as
 test('the closest handler wins, and ancestors do not also fire', async (t: TestContext) => {
 	const clicks: string[] = [];
 	const {instance, stdin} = await mount(
-		<Box width={10} height={3} onClick={() => clicks.push('outer')}>
-			<Box width={4} height={1} onClick={() => clicks.push('inner')}>
+		<Box
+			width={10}
+			height={3}
+			onClick={() => {
+				clicks.push('outer');
+			}}
+		>
+			<Box
+				width={4}
+				height={1}
+				onClick={() => {
+					clicks.push('inner');
+				}}
+			>
 				<Text>inner</Text>
 			</Box>
 		</Box>,
@@ -110,7 +145,13 @@ test('the closest handler wins, and ancestors do not also fire', async (t: TestC
 test('the mouse wheel reaches onWheel only over the element', async (t: TestContext) => {
 	const wheel: string[] = [];
 	const {instance, stdin} = await mount(
-		<Box width={10} height={3} onWheel={event => wheel.push(event.button)}>
+		<Box
+			width={10}
+			height={3}
+			onWheel={(event) => {
+				wheel.push(event.button);
+			}}
+		>
 			<Text>scroll me</Text>
 		</Box>,
 	);
@@ -124,7 +165,14 @@ test('an overflow-hidden ancestor clips hits to the visible area', async (t: Tes
 	const clicks: string[] = [];
 	const {instance, stdin} = await mount(
 		<Box width={10} height={3} overflow="hidden" flexDirection="column">
-			<Box width={10} height={6} flexShrink={0} onClick={() => clicks.push('tall')} />
+			<Box
+				width={10}
+				height={6}
+				flexShrink={0}
+				onClick={() => {
+					clicks.push('tall');
+				}}
+			/>
 		</Box>,
 	);
 
@@ -140,14 +188,27 @@ test('an overflow-hidden ancestor clips hits to the visible area', async (t: Tes
 test('contentOffsetY shifts hit targets with the rendered content', async (t: TestContext) => {
 	const clicks: string[] = [];
 	const row = (name: string) => (
-		<Box key={name} height={1} flexShrink={0} onClick={() => clicks.push(name)}>
+		<Box
+			key={name}
+			height={1}
+			flexShrink={0}
+			onClick={() => {
+				clicks.push(name);
+			}}
+		>
 			<Text>{name}</Text>
 		</Box>
 	);
 
 	const {instance, stdin} = await mount(
-		<Box width={10} height={3} overflow="hidden" contentOffsetY={2} flexDirection="column">
-			{['row0', 'row1', 'row2', 'row3'].map(row)}
+		<Box
+			width={10}
+			height={3}
+			overflow="hidden"
+			contentOffsetY={2}
+			flexDirection="column"
+		>
+			{['row0', 'row1', 'row2', 'row3'].map((name) => row(name))}
 		</Box>,
 	);
 
@@ -160,7 +221,13 @@ test('contentOffsetY shifts hit targets with the rendered content', async (t: Te
 test('without the mouse option nothing enables tracking and nothing is dispatched', async (t: TestContext) => {
 	const clicks: string[] = [];
 	const {instance, stdin, stdout} = await mount(
-		<Box width={10} height={3} onClick={() => clicks.push('box')}>
+		<Box
+			width={10}
+			height={3}
+			onClick={() => {
+				clicks.push('box');
+			}}
+		>
 			<Text>button</Text>
 		</Box>,
 		false,
@@ -178,8 +245,12 @@ test('a right-button press and release is not a click', async (t: TestContext) =
 		<Box
 			width={10}
 			height={3}
-			onClick={() => events.push('click')}
-			onMouseDown={() => events.push('down')}
+			onClick={() => {
+				events.push('click');
+			}}
+			onMouseDown={() => {
+				events.push('down');
+			}}
 		>
 			<Text>button</Text>
 		</Box>,
@@ -193,7 +264,13 @@ test('a right-button press and release is not a click', async (t: TestContext) =
 test('on the primary screen the mouse option enables nothing, since hits would be offset', async (t: TestContext) => {
 	const clicks: string[] = [];
 	const {instance, stdin, stdout} = await mount(
-		<Box width={10} height={3} onClick={() => clicks.push('box')}>
+		<Box
+			width={10}
+			height={3}
+			onClick={() => {
+				clicks.push('box');
+			}}
+		>
 			<Text>button</Text>
 		</Box>,
 		true,
@@ -212,9 +289,15 @@ test('onMouseDown fires on press and onMouseUp on release, before the click they
 		<Box
 			width={10}
 			height={3}
-			onMouseDown={() => log.push('down')}
-			onMouseUp={() => log.push('up')}
-			onClick={() => log.push('click')}
+			onMouseDown={() => {
+				log.push('down');
+			}}
+			onMouseUp={() => {
+				log.push('up');
+			}}
+			onClick={() => {
+				log.push('click');
+			}}
 		>
 			<Text>button</Text>
 		</Box>,
@@ -234,9 +317,15 @@ test('a press without a release fires onMouseDown only, never onClick', async (t
 		<Box
 			width={10}
 			height={3}
-			onMouseDown={() => log.push('down')}
-			onMouseUp={() => log.push('up')}
-			onClick={() => log.push('click')}
+			onMouseDown={() => {
+				log.push('down');
+			}}
+			onMouseUp={() => {
+				log.push('up');
+			}}
+			onClick={() => {
+				log.push('click');
+			}}
 		>
 			<Text>button</Text>
 		</Box>,
@@ -250,7 +339,13 @@ test('a press without a release fires onMouseDown only, never onClick', async (t
 test('a release with no earlier press over a clickable element is not a click', async (t: TestContext) => {
 	const clicks: string[] = [];
 	const {instance, stdin} = await mount(
-		<Box width={10} height={3} onClick={() => clicks.push('box')}>
+		<Box
+			width={10}
+			height={3}
+			onClick={() => {
+				clicks.push('box');
+			}}
+		>
 			<Text>button</Text>
 		</Box>,
 	);
@@ -264,10 +359,22 @@ test('a press on one clickable sibling released over another clicks neither', as
 	const clicks: string[] = [];
 	const {instance, stdin} = await mount(
 		<Box flexDirection="row">
-			<Box width={10} height={3} onClick={() => clicks.push('left')}>
+			<Box
+				width={10}
+				height={3}
+				onClick={() => {
+					clicks.push('left');
+				}}
+			>
 				<Text>left</Text>
 			</Box>
-			<Box width={10} height={3} onClick={() => clicks.push('right')}>
+			<Box
+				width={10}
+				height={3}
+				onClick={() => {
+					clicks.push('right');
+				}}
+			>
 				<Text>right</Text>
 			</Box>
 		</Box>,

@@ -56,7 +56,7 @@ const useFrameCounter = ({isActive, interval}: FrameCounterOptions): number => {
 		}
 
 		const timer = setInterval(() => {
-			setFrame(previousFrame => previousFrame + 1);
+			setFrame((previousFrame) => previousFrame + 1);
 		}, interval);
 
 		return () => {
@@ -67,12 +67,18 @@ const useFrameCounter = ({isActive, interval}: FrameCounterOptions): number => {
 	return frame;
 };
 
-export function LoadingBar({width = 20, isActive = true, interval = 80}: LoadingBarProps) {
+export function LoadingBar({
+	width = 20,
+	isActive = true,
+	interval = 80,
+}: LoadingBarProps) {
 	const frame = useFrameCounter({isActive, interval});
 	const {styles} = useComponentTheme<Theme>('LoadingBar');
 
-	// repeat() throws on a negative or infinite count, so those widths draw an empty track.
-	const trackCells = Number.isFinite(width) ? Math.max(0, Math.floor(width)) : 0;
+	// Repeat() throws on a negative or infinite count, so those widths draw an empty track.
+	const trackCells = Number.isFinite(width)
+		? Math.max(0, Math.floor(width))
+		: 0;
 	const blockCells = Math.min(BLOCK_CELLS, trackCells);
 	const maxPosition = trackCells - blockCells;
 
@@ -83,9 +89,13 @@ export function LoadingBar({width = 20, isActive = true, interval = 80}: Loading
 	return (
 		<Box {...styles.container()}>
 			<Text>
-				<Text {...styles.track()}>{figures.squareLightShade.repeat(blockStart)}</Text>
+				<Text {...styles.track()}>
+					{figures.squareLightShade.repeat(blockStart)}
+				</Text>
 				<Text {...styles.block()}>{figures.square.repeat(blockCells)}</Text>
-				<Text {...styles.track()}>{figures.squareLightShade.repeat(trailingCells)}</Text>
+				<Text {...styles.track()}>
+					{figures.squareLightShade.repeat(trailingCells)}
+				</Text>
 			</Text>
 		</Box>
 	);

@@ -287,3 +287,38 @@ test('a markdown list item wraps inside its marker', async (t: TestContext) => {
 	);
 	unmount();
 });
+
+// At 9 columns the body is 6 wide. A marker that Yoga shrinks by a fraction of a column loses the space after it, so the first line reads "1.The".
+test('an ordered list marker keeps the space after it when the row is narrow', async (t: TestContext) => {
+	const {lastFrame, unmount} = render(
+		<OrderedList>
+			<OrderedList.Item>
+				<Text>The quick brown fox jumps over</Text>
+			</OrderedList.Item>
+		</OrderedList>,
+		{columns: 9},
+	);
+	await settle();
+
+	t.assert.strictEqual(
+		stripAnsi(lastFrame() ?? ''),
+		['1. The', '   quick', '   brown', '   fox', '   jumps', '   over'].join(
+			'\n',
+		),
+	);
+	unmount();
+});
+
+// The markdown bullet carries its own trailing space, so it breaks at a width where a shrunk marker would lose that space.
+test('a markdown list item keeps the space after its bullet when the row is narrow', async (t: TestContext) => {
+	const {lastFrame, unmount} = render(<Markdown>- alpha beta gamma</Markdown>, {
+		columns: 5,
+	});
+	await settle();
+
+	t.assert.strictEqual(
+		stripAnsi(lastFrame() ?? ''),
+		['● alp', '  ha', '  bet', '  a', '  gam', '  ma'].join('\n'),
+	);
+	unmount();
+});

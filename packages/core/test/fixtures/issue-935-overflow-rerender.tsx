@@ -13,9 +13,9 @@ runIssue450RerenderFixture({
 	// Overflow by exactly one row: only the top row scrolls into scrollback per
 	// frame, so the label row below it stays in the viewport, where a full clear
 	// erases it before the next frame is written.
-	heightForFrame: terminalRows => terminalRows + 1,
+	heightForFrame: (terminalRows) => terminalRows + 1,
 	// One frame's label is longer than the others, so an incomplete clear leaves
 	// its tail behind (`#450 topSTALE-ROW`) instead of being overwritten.
-	labelForFrame: frameCount =>
+	labelForFrame: (frameCount) =>
 		frameCount === 7 ? 'frame 7 STALE-ROW' : `frame ${frameCount}`,
 });

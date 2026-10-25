@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/naming-convention -- Environment variable names are UPPER_CASE, and isTTY is a Node stream property. */
+import process from 'node:process';
 import {spawnSync} from 'node:child_process';
 import test, {type TestContext} from 'node:test';
 

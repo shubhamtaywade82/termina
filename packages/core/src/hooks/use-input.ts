@@ -158,14 +158,18 @@ const UserInput = () => {
 ```
 */
 const useInput = (inputHandler: Handler, options: Options = {}) => {
-	// eslint-disable-next-line @typescript-eslint/naming-convention
-	const {setRawMode, isRawModeSupported, internal_exitOnCtrlC, internal_eventEmitter, canReceive} =
-		useStdinContext();
+	const {
+		setRawMode,
+		isRawModeSupported,
+		internal_exitOnCtrlC: exitOnCtrlC,
+		internal_eventEmitter: eventEmitter,
+		canReceive,
+	} = useStdinContext();
 	const keyboardCapture = use(KeyboardCaptureContext);
 
 	useEffect(() => {
 		// Piped stdin cannot enter raw mode, so the hook stays idle there instead of throwing.
-		if (options.isActive === false || !isRawModeSupported) {
+		if (!isRawModeSupported || options.isActive === false) {
 			return;
 		}
 
@@ -247,7 +251,7 @@ const useInput = (inputHandler: Handler, options: Options = {}) => {
 
 		// If app is supposed to exit on Ctrl+C, skip input listeners.
 		if (
-			internal_exitOnCtrlC &&
+			exitOnCtrlC &&
 			keypress.name === 'c' &&
 			key.ctrl &&
 			keypress.eventType !== 'release'
@@ -269,12 +273,12 @@ const useInput = (inputHandler: Handler, options: Options = {}) => {
 			return;
 		}
 
-		internal_eventEmitter.on('input', handleData);
+		eventEmitter.on('input', handleData);
 
 		return () => {
-			internal_eventEmitter.removeListener('input', handleData);
+			eventEmitter.removeListener('input', handleData);
 		};
-	}, [options.isActive, internal_eventEmitter]);
+	}, [options.isActive, eventEmitter]);
 };
 
 export default useInput;

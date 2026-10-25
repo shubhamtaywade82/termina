@@ -15,7 +15,7 @@ function Test() {
 
 			counterRef.current += 1;
 			setCounter(counterRef.current);
-			setItems(previousItems => [...previousItems, `#${counterRef.current}`]);
+			setItems((previousItems) => [...previousItems, `#${counterRef.current}`]);
 			timerRef.current = setTimeout(onTimeout, 20);
 		};
 
@@ -28,7 +28,7 @@ function Test() {
 
 	return (
 		<>
-			<Static items={items}>{item => <Text key={item}>{item}</Text>}</Static>
+			<Static items={items}>{(item) => <Text key={item}>{item}</Text>}</Static>
 
 			<Text>Counter: {counter}</Text>
 		</>

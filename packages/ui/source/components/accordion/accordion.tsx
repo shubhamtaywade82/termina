@@ -1,10 +1,5 @@
 import React, {useRef, useState, type ReactNode} from 'react';
-import {
-	Box,
-	type Key,
-	Text,
-	useInput,
-} from '@nemesis-oss/termina-core';
+import {Box, type Key, Text, useInput} from '@nemesis-oss/termina-core';
 import figures from 'figures';
 import {useComponentTheme} from '../../theme.js';
 import {type Theme} from './theme.js';
@@ -74,13 +69,13 @@ type KeyPress = {
 const toggleOpenIds = (
 	openIds: string[],
 	id: string,
-	multiple: boolean,
+	isMultiple: boolean,
 ): string[] => {
 	if (openIds.includes(id)) {
-		return openIds.filter(openId => openId !== id);
+		return openIds.filter((openId) => openId !== id);
 	}
 
-	return multiple ? [...openIds, id] : [id];
+	return isMultiple ? [...openIds, id] : [id];
 };
 
 const nextFocusIndex = (
@@ -92,11 +87,11 @@ const nextFocusIndex = (
 	// Items can shrink between key presses, so the focus is clamped before it moves.
 	const currentIndex = Math.min(focusedIndex, lastIndex);
 
-	if (key.upArrow || input === 'k') {
+	if (input === 'k' || key.upArrow) {
 		return Math.max(0, currentIndex - 1);
 	}
 
-	if (key.downArrow || input === 'j') {
+	if (input === 'j' || key.downArrow) {
 		return Math.min(lastIndex, currentIndex + 1);
 	}
 
@@ -104,11 +99,7 @@ const nextFocusIndex = (
 		return 0;
 	}
 
-	if (input === 'G') {
-		return lastIndex;
-	}
-
-	return currentIndex;
+	return input === 'G' ? lastIndex : currentIndex;
 };
 
 const applyKey = (
@@ -148,8 +139,17 @@ type UseAccordionStateProps = {
 	readonly onChange?: (openIds: string[]) => void;
 };
 
-const useAccordionState = ({items, defaultOpenIds, multiple, isActive, onChange}: UseAccordionStateProps): AccordionState => {
-	const [state, setState] = useState<AccordionState>({openIds: defaultOpenIds, focusedIndex: 0});
+const useAccordionState = ({
+	items,
+	defaultOpenIds,
+	multiple,
+	isActive,
+	onChange,
+}: UseAccordionStateProps): AccordionState => {
+	const [state, setState] = useState<AccordionState>({
+		openIds: defaultOpenIds,
+		focusedIndex: 0,
+	});
 	// Key events can outpace renders, so each one reads the newest state, not the one from the last render.
 	const latestStateRef = useRef(state);
 
@@ -204,9 +204,12 @@ function AccordionSection({
 	);
 }
 
+// Shared empty default, so the prop has a stable identity from one render to the next.
+const noOpenIds: string[] = [];
+
 export function Accordion({
 	items,
-	defaultOpenIds = [],
+	defaultOpenIds = noOpenIds,
 	multiple = false,
 	isActive = true,
 	onChange,

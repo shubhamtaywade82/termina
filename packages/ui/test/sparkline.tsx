@@ -1,18 +1,23 @@
-import React from 'react';
 import test, {type TestContext} from 'node:test';
+import React from 'react';
 import chalk from 'chalk';
 import delay from 'delay';
 import stripAnsi from 'strip-ansi';
 import {Box, Text} from '@nemesis-oss/termina-core';
-import {render} from './helpers/render.js';
 import {Sparkline} from '../source/components/sparkline/index.js';
 import {ThemeProvider, defaultTheme, extendTheme} from '../source/theme.js';
+import {render} from './helpers/render.js';
 
 // Mirrors the color of the bars() theme style, so each frame compares as one string.
 const bars = (blocks: string): string => chalk.cyan(blocks);
 
-const requestsPerSecond = [42, 45, 51, 48, 63, 70, 66, 58, 61, 77, 84, 79, 71, 68, 74, 88];
-const p95LatencyMs = [120, 118, 131, 127, 140, 152, 149, 138, 133, 128, 126, 124, 130, 129, 127, 125];
+const requestsPerSecond = [
+	42, 45, 51, 48, 63, 70, 66, 58, 61, 77, 84, 79, 71, 68, 74, 88,
+];
+const p95LatencyMs = [
+	120, 118, 131, 127, 140, 152, 149, 138, 133, 128, 126, 124, 130, 129, 127,
+	125,
+];
 const errorsPerMinute = [0, 1, 0, 0, 2, 1, 0, 0, 0, 5, 3, 1, 0, 0, 1, 0];
 
 test('draws one block per value, from lowest to highest', (t: TestContext) => {
@@ -60,7 +65,9 @@ test('draws the last width values, scaled between those values only', (t: TestCo
 });
 
 test('draws every value when width is larger than the data', (t: TestContext) => {
-	const {lastFrame} = render(<Sparkline data={[0, 1, 2, 3, 4, 5, 6, 7]} width={20} />);
+	const {lastFrame} = render(
+		<Sparkline data={[0, 1, 2, 3, 4, 5, 6, 7]} width={20} />,
+	);
 
 	t.assert.strictEqual(lastFrame(), bars('▁▂▃▄▅▆▇█'));
 });
@@ -80,14 +87,14 @@ test('draws nothing for empty data', (t: TestContext) => {
 });
 
 test('counts NaN as 0', (t: TestContext) => {
-	const {lastFrame} = render(<Sparkline data={[20, Number.NaN, 70]} />);
+	const {lastFrame} = render(<Sparkline data={[20, NaN, 70]} />);
 
 	t.assert.strictEqual(lastFrame(), bars('▃▁█'));
 });
 
 test('counts infinite values as 0', (t: TestContext) => {
 	const {lastFrame} = render(
-		<Sparkline data={[14, Number.POSITIVE_INFINITY, Number.NEGATIVE_INFINITY, 70]} />,
+		<Sparkline data={[14, Infinity, -Infinity, 70]} />,
 	);
 
 	t.assert.strictEqual(lastFrame(), bars('▂▁▁█'));
@@ -161,7 +168,9 @@ test('draws the bars in the color of a bars() theme override', (t: TestContext) 
 });
 
 test('scales values near the largest finite number without overflowing', (t: TestContext) => {
-	const {lastFrame} = render(<Sparkline data={[-Number.MAX_VALUE, 0, Number.MAX_VALUE]} />);
+	const {lastFrame} = render(
+		<Sparkline data={[-Number.MAX_VALUE, 0, Number.MAX_VALUE]} />,
+	);
 
 	t.assert.strictEqual(stripAnsi(lastFrame() ?? ''), '▁▅█');
 });

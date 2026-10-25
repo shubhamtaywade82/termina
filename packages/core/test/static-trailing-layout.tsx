@@ -6,7 +6,9 @@ for (const height of [0, 1, 2]) {
 	test(`renderToString preserves ${height} trailing dynamic rows after Static`, (t: TestContext) => {
 		const output = renderToString(
 			<>
-				<Static items={['A']}>{item => <Text key={item}>{item}</Text>}</Static>
+				<Static items={['A']}>
+					{(item) => <Text key={item}>{item}</Text>}
+				</Static>
 				<Box height={height} />
 			</>,
 		);
@@ -20,7 +22,7 @@ for (const staticText of ['', 'A', 'A\nB']) {
 		const output = renderToString(
 			<>
 				<Static items={['item']}>
-					{item => <Text key={item}>{staticText}</Text>}
+					{(item) => <Text key={item}>{staticText}</Text>}
 				</Static>
 				<Box height={1} />
 			</>,
@@ -39,7 +41,7 @@ for (const staticText of ['', 'A', 'A\nB']) {
 test('hidden dynamic content does not add a separator to Static output', (t: TestContext) => {
 	const output = renderToString(
 		<>
-			<Static items={['A']}>{item => <Text key={item}>{item}</Text>}</Static>
+			<Static items={['A']}>{(item) => <Text key={item}>{item}</Text>}</Static>
 			<Box display="none" height={1}>
 				<Text>Hidden</Text>
 			</Box>

@@ -1,10 +1,10 @@
 /**
-Column widths that fit a row of `available` columns separated by `gap` cells.
-
-Each column starts at its natural width. While the row is too wide, the widest column gives up one cell, so a short column keeps its width and a long one is the one that truncates. Every column keeps at least one cell, so a row can still be shrunk below its natural width when there is room for one cell per column. When the minimum does not fit, the result is still too wide and the caller's flex layout has to absorb the rest.
-
-An infinite `available` (a container that has not been measured yet) returns the natural widths.
-*/
+ * Column widths that fit a row of `available` columns separated by `gap` cells.
+ *
+ * Each column starts at its natural width. While the row is too wide, the widest column gives up one cell, so a short column keeps its width and a long one is the one that truncates. Every column keeps at least one cell, so a row can still be shrunk below its natural width when there is room for one cell per column. When the minimum does not fit, the result is still too wide and the caller's flex layout has to absorb the rest.
+ *
+ * An infinite `available` (a container that has not been measured yet) returns the natural widths.
+ */
 export const fitColumnWidths = (
 	widths: readonly number[],
 	gap: number,

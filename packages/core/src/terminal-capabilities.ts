@@ -15,7 +15,12 @@ export type TerminalCapabilities = {
 
 type Environment = Readonly<Record<string, string | undefined>>;
 
-const colorLevels: readonly ColorLevel[] = ['none', 'ansi16', 'ansi256', 'truecolor'];
+const colorLevels: readonly ColorLevel[] = [
+	'none',
+	'ansi16',
+	'ansi256',
+	'truecolor',
+];
 
 // Same parsing as chalk's supports-color: "true" or empty means basic color, "false" means none, and a number is capped at truecolor.
 const parseForcedLevel = (value: string | undefined): number | undefined => {
@@ -27,6 +32,8 @@ const parseForcedLevel = (value: string | undefined): number | undefined => {
 		return 0;
 	}
 
+	// FORCE_COLOR is read as its leading integer, so `2x` means level 2.
+	// eslint-disable-next-line unicorn/prefer-number-coercion -- parseInt reads that leading integer, which Number would reject.
 	const level = Number.parseInt(value, 10);
 	return Number.isNaN(level) ? 1 : Math.min(Math.max(level, 0), 3);
 };
@@ -46,7 +53,7 @@ const resolveColorLevel = (
 	isDumb: boolean,
 ): ColorLevel => {
 	// https://no-color.org: any non-empty value disables color. chalk ignores NO_COLOR; here it wins over FORCE_COLOR.
-	if (environment['NO_COLOR']) {
+	if (environment['NO_COLOR'] !== undefined && environment['NO_COLOR'] !== '') {
 		return 'none';
 	}
 
@@ -63,7 +70,9 @@ const resolveColorLevel = (
 		return 'none';
 	}
 
-	return colorLevels[Math.max(forcedLevel ?? 0, detectColorLevel(environment))]!;
+	return colorLevels[
+		Math.max(forcedLevel ?? 0, detectColorLevel(environment))
+	]!;
 };
 
 /**
@@ -72,20 +81,20 @@ Probes the environment once. Callers pick the features they need from the result
 export const detectTerminalCapabilities = (
 	environment: Environment,
 	stream: {readonly isTTY?: boolean},
-	inCi = Boolean(environment['CI']),
+	isInCi = Boolean(environment['CI']),
 ): TerminalCapabilities => {
 	const term = environment['TERM'] ?? '';
 	const isTty = stream.isTTY === true;
 	const isDumb = term === 'dumb';
 	const isLinuxConsole = term === 'linux';
-	const interactive = isTty && !isDumb && !inCi;
+	const isInteractive = isTty && !isDumb && !isInCi;
 
 	return {
-		interactive,
+		interactive: isInteractive,
 		colorLevel: resolveColorLevel(environment, isTty, isDumb),
-		synchronizedOutput: interactive && !isLinuxConsole,
-		alternateScreen: interactive,
-		mouse: interactive,
+		synchronizedOutput: isInteractive && !isLinuxConsole,
+		alternateScreen: isInteractive,
+		mouse: isInteractive,
 		hyperlinks: isTty && !isDumb && !isLinuxConsole,
 	};
 };

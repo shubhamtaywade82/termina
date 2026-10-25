@@ -1,3 +1,6 @@
+/* eslint-disable @typescript-eslint/no-restricted-types -- `object` covers arrays and functions, which `Record<string, unknown>` would reject. */
+/* eslint-disable @typescript-eslint/naming-convention -- JSONViewer is the exported component name, and its props type follows it. */
+/* eslint-disable @eslint-react/no-array-index-key -- A JSON line and its tokens are positional, and the same text can repeat. */
 import React from 'react';
 import {Box, Text} from '@nemesis-oss/termina-core';
 import {useComponentTheme} from '../../theme.js';
@@ -40,25 +43,42 @@ const punctuation = (text: string): Token => ({text, style: 'punctuation'});
 
 function formatScalar(value: unknown): Token {
 	switch (typeof value) {
-		case 'string':
+		case 'string': {
 			// JSON escaping keeps a newline inside a string from breaking the line.
 			return {text: JSON.stringify(value), style: 'string'};
-		case 'number':
+		}
+
+		case 'number': {
 			return {text: String(value), style: 'number'};
-		case 'bigint':
+		}
+
+		case 'bigint': {
 			return {text: `${value}n`, style: 'number'};
-		case 'boolean':
+		}
+
+		case 'boolean': {
 			return {text: String(value), style: 'boolean'};
-		case 'function':
-			return punctuation(`[Function ${value.name || '(anonymous)'}]`);
-		case 'symbol':
+		}
+
+		case 'function': {
+			return punctuation(
+				`[Function ${value.name === '' ? '(anonymous)' : value.name}]`,
+			);
+		}
+
+		case 'symbol': {
 			// Template literals throw on symbols, so String() is the safe conversion.
 			return punctuation(String(value));
-		case 'undefined':
+		}
+
+		case 'undefined': {
 			return {text: 'undefined', style: 'null'};
-		default:
-			// Only null is left: formatValue sends every other object to formatContainer.
+		}
+
+		case 'object': {
+			// FormatValue sends every object except null to formatContainer, so only null reaches this case.
 			return {text: 'null', style: 'null'};
+		}
 	}
 }
 
@@ -77,19 +97,18 @@ function formatValue(
 		return [[punctuation('[Circular]')]];
 	}
 
-	if (depth > options.maxDepth) {
-		return [[punctuation('...')]];
-	}
-
-	return formatContainer(value, depth, options, indent);
+	return depth > options.maxDepth
+		? [[punctuation('...')]]
+		: formatContainer(value, depth, options, indent);
 }
 
 function listEntries(value: object): Entry[] {
-	if (Array.isArray(value)) {
-		return [...value].map(child => ({child}));
-	}
-
-	return Object.entries(value).map(([key, child]) => ({key, child}));
+	return Array.isArray(value)
+		? [...(value as readonly unknown[])].map((child) => ({child}))
+		: Object.entries(value as Record<string, unknown>).map(([key, child]) => ({
+				key,
+				child,
+			}));
 }
 
 function decorateEntry(
@@ -175,7 +194,7 @@ export function JSONViewer({data, maxDepth = 8}: JSONViewerProps) {
 					{line.map((token, tokenIndex) => (
 						<Text
 							key={tokenIndex}
-							{...(token.style ? styles[token.style]() : {})}
+							{...(token.style === undefined ? {} : styles[token.style]())}
 						>
 							{token.text}
 						</Text>

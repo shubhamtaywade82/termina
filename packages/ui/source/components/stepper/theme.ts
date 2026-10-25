@@ -8,12 +8,10 @@ const theme = {
 		container: (): BoxProps => ({
 			flexDirection: 'column',
 		}),
-		icon: ({status}: {status: StepperStatus}): TextProps => {
-			if (status === 'pending') {
-				return {dimColor: true};
-			}
-
-			return {color: status === 'done' ? 'green' : 'blue'};
+		icon({status}: {status: StepperStatus}): TextProps {
+			return status === 'pending'
+				? {dimColor: true}
+				: {color: status === 'done' ? 'green' : 'blue'};
 		},
 		label: ({status}: {status: StepperStatus}): TextProps => ({
 			bold: status === 'current',

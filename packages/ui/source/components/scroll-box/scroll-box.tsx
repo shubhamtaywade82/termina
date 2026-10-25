@@ -1,4 +1,5 @@
-import React, {useRef, useState, type ReactNode} from 'react';
+/* eslint-disable @eslint-react/no-array-index-key -- The scrollbar is a fixed list of cells, identified by position. */
+import React, {useEffect, useRef, useState, type ReactNode} from 'react';
 import {
 	Box,
 	type DOMElement,
@@ -71,10 +72,10 @@ const scrollbarRows = (
 };
 
 /**
-A fixed-height viewport over taller content. Arrow keys scroll by a row, PageUp and PageDown by a viewport, and Home and End jump to the edges. With `render(..., {mouse: true})`, the mouse wheel scrolls by `wheelStep` rows inside the viewport.
-
-Keys are read only when stdin supports raw mode, so the box also renders under piped stdin and in CI.
-*/
+ * A fixed-height viewport over taller content. Arrow keys scroll by a row, PageUp and PageDown by a viewport, and Home and End jump to the edges. With `render(..., {mouse: true})`, the mouse wheel scrolls by `wheelStep` rows inside the viewport.
+ *
+ * Keys are read only when stdin supports raw mode, so the box also renders under piped stdin and in CI.
+ */
 export const ScrollBox = ({
 	height,
 	children,
@@ -93,6 +94,11 @@ export const ScrollBox = ({
 	const [isTailReleased, setIsTailReleased] = useState(false);
 	// Input events can arrive faster than React renders. Each scroll therefore moves from the latest offset, not from the one captured by the last render.
 	const latestOffsetRef = useRef(0);
+	// The offset the last render showed. A controlled parent that rejects a requested offset never re-renders, so this is what the next scroll falls back to.
+	const renderedOffsetRef = useRef(0);
+	const releaseRequestRef = useRef<ReturnType<typeof setTimeout> | undefined>(
+		undefined,
+	);
 
 	const isControlled = offset !== undefined;
 	const requestedOffset = isControlled ? offset : ownOffset;
@@ -105,6 +111,14 @@ export const ScrollBox = ({
 			: clamp(requestedOffset, 0, maxOffset);
 
 	latestOffsetRef.current = currentOffset;
+	renderedOffsetRef.current = currentOffset;
+
+	useEffect(
+		() => () => {
+			clearTimeout(releaseRequestRef.current);
+		},
+		[],
+	);
 
 	const scrollTo = (target: number): void => {
 		const next = clamp(target, 0, maxOffset);
@@ -114,7 +128,13 @@ export const ScrollBox = ({
 
 		latestOffsetRef.current = next;
 
-		if (!isControlled) {
+		if (isControlled) {
+			// A controlled offset is the parent's to set. The request stands for one turn of the event loop, so a burst of keys still steps from the latest request. After that, the next scroll starts from what the parent supplied, even if it refused this request.
+			clearTimeout(releaseRequestRef.current);
+			releaseRequestRef.current = setTimeout(() => {
+				latestOffsetRef.current = renderedOffsetRef.current;
+			}, 0);
+		} else {
 			setOwnOffset(next);
 		}
 
@@ -152,7 +172,7 @@ export const ScrollBox = ({
 		}
 	};
 
-	const showTrack = showScrollbar && maxOffset > 0;
+	const isTrackShown = showScrollbar && maxOffset > 0;
 
 	return (
 		<Box flexDirection="row" height={height}>
@@ -168,7 +188,7 @@ export const ScrollBox = ({
 					{children}
 				</Box>
 			</Box>
-			{showTrack ? (
+			{isTrackShown ? (
 				<Box flexDirection="column" width={1}>
 					{scrollbarRows(height, contentHeight, currentOffset, maxOffset).map(
 						(row, index) => (
