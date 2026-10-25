@@ -1,5 +1,6 @@
-import type { z } from 'zod';
-import type { GenUIRuntime } from './types.js';
+/* eslint-disable @typescript-eslint/naming-convention -- The GenUI* and createGenUI* names are public exports, so they keep their spelling. */
+import type {z} from 'zod';
+import type {GenUIRuntime} from './types.js';
 
 export type GenUIValidationResult = {
 	readonly success: boolean;
@@ -7,13 +8,13 @@ export type GenUIValidationResult = {
 };
 
 export type ExtendedGenUIRuntime = GenUIRuntime & {
-	readonly validate: (name: string, schema: z.ZodType<unknown>) => GenUIValidationResult;
+	readonly validate: (name: string, schema: z.ZodType) => GenUIValidationResult;
 };
 
 export function createGenUIRuntime(
 	initialValues: Record<string, unknown> = {},
 ): ExtendedGenUIRuntime {
-	const initialSnapshot = { ...initialValues };
+	const initialSnapshot = {...initialValues};
 	const state = new Map<string, unknown>(Object.entries(initialSnapshot));
 	const listeners = new Set<() => void>();
 
@@ -34,7 +35,7 @@ export function createGenUIRuntime(
 		},
 
 		getValues(): Record<string, unknown> {
-			return Object.fromEntries(state.entries());
+			return Object.fromEntries(state);
 		},
 
 		reset(): void {
@@ -42,15 +43,17 @@ export function createGenUIRuntime(
 			for (const [key, value] of Object.entries(initialSnapshot)) {
 				state.set(key, value);
 			}
+
 			notify();
 		},
 
-		validate(name: string, schema: z.ZodType<unknown>): GenUIValidationResult {
+		validate(name: string, schema: z.ZodType): GenUIValidationResult {
 			const value = state.get(name);
 			const parseResult = schema.safeParse(value);
 			if (parseResult.success) {
-				return { success: true };
+				return {success: true};
 			}
+
 			return {
 				success: false,
 				error: parseResult.error.issues[0]?.message ?? 'Invalid value',

@@ -1,7 +1,7 @@
-import { EventEmitter } from 'node:events';
-import { PassThrough } from 'node:stream';
-import type { ReactNode } from 'react';
-import { render as renderCore } from '@nemesis-oss/termina-core';
+import {EventEmitter} from 'node:events';
+import {PassThrough} from 'node:stream';
+import type {ReactNode} from 'react';
+import {render as renderCore} from '@nemesis-oss/termina-core';
 
 export function render(node: ReactNode) {
 	const frames: string[] = [];
@@ -19,16 +19,17 @@ export function render(node: ReactNode) {
 	stdout.columns = 100;
 	stdout.rows = 24;
 	let isRecording = true;
-	stdout.write = data => {
+	stdout.write = (data) => {
 		if (isRecording) {
 			frames.push(data);
 		}
+
 		return true;
 	};
 
 	const stdin = new PassThrough() as PassThrough & {
 		isTTY: boolean;
-		setRawMode: (mode: boolean) => void;
+		setRawMode: (isEnabled: boolean) => void;
 	};
 	stdin.isTTY = true;
 	stdin.setRawMode = () => {};
@@ -46,14 +47,14 @@ export function render(node: ReactNode) {
 		lastFrame: (): string | undefined => frames.at(-1),
 		frames,
 		stdin: {
-			write: (data: string) => {
+			write(data: string) {
 				stdin.write(data);
 			},
 		},
-		rerender: (next: ReactNode) => {
+		rerender(next: ReactNode) {
 			instance.rerender(next);
 		},
-		unmount: () => {
+		unmount() {
 			isRecording = false;
 			instance.unmount();
 		},

@@ -1,5 +1,5 @@
-import test, { type TestContext } from 'node:test';
-import { z } from 'zod';
+import test, {type TestContext} from 'node:test';
+import {z} from 'zod';
 import {
 	defineGenUIComponent,
 	createGenUIRegistry,
@@ -7,7 +7,7 @@ import {
 } from '../source/registry.js';
 
 test('defines a component and registers it', (t: TestContext) => {
-	const CustomCard = defineGenUIComponent({
+	const customCard = defineGenUIComponent({
 		name: 'CustomCard',
 		description: 'A custom card component',
 		schema: z.object({
@@ -17,20 +17,20 @@ test('defines a component and registers it', (t: TestContext) => {
 		render: () => null,
 	});
 
-	const registry = createGenUIRegistry([CustomCard]);
+	const registry = createGenUIRegistry([customCard]);
 	t.assert.strictEqual(registry.has('CustomCard'), true);
 	t.assert.strictEqual(registry.has('UnknownComp'), false);
 	t.assert.strictEqual(registry.get('CustomCard')?.name, 'CustomCard');
 });
 
 test('throws on duplicate component registration', (t: TestContext) => {
-	const Comp1 = defineGenUIComponent({
+	const first = defineGenUIComponent({
 		name: 'Dup',
 		description: 'First',
 		schema: z.object({}),
 		render: () => null,
 	});
-	const Comp2 = defineGenUIComponent({
+	const second = defineGenUIComponent({
 		name: 'Dup',
 		description: 'Second',
 		schema: z.object({}),
@@ -38,13 +38,13 @@ test('throws on duplicate component registration', (t: TestContext) => {
 	});
 
 	t.assert.throws(
-		() => createGenUIRegistry([Comp1, Comp2]),
+		() => createGenUIRegistry([first, second]),
 		/Component "Dup" is already registered/,
 	);
 });
 
 test('produces JSON Schema with component properties', (t: TestContext) => {
-	const Comp = defineGenUIComponent({
+	const infoBox = defineGenUIComponent({
 		name: 'InfoBox',
 		description: 'An info box',
 		schema: z.object({
@@ -53,12 +53,10 @@ test('produces JSON Schema with component properties', (t: TestContext) => {
 		render: () => null,
 	});
 
-	const registry = createGenUIRegistry([Comp]);
+	const registry = createGenUIRegistry([infoBox]);
 	const schema = registry.toJSONSchema();
-	t.assert.ok(schema);
-	t.assert.ok(schema['properties']);
-	const props = schema['properties'] as Record<string, unknown>;
-	t.assert.ok(props['InfoBox']);
+	t.assert.notStrictEqual(schema.properties, undefined);
+	t.assert.notStrictEqual(schema.properties?.['InfoBox'], undefined);
 });
 
 test('default registry contains core Termina UI components', (t: TestContext) => {
@@ -80,6 +78,10 @@ test('default registry contains core Termina UI components', (t: TestContext) =>
 	];
 
 	for (const name of expected) {
-		t.assert.strictEqual(defaultReg.has(name), true, `Missing expected component: ${name}`);
+		t.assert.strictEqual(
+			defaultReg.has(name),
+			true,
+			`Missing expected component: ${name}`,
+		);
 	}
 });

@@ -1,19 +1,22 @@
-import test, { type TestContext } from 'node:test';
-import { z } from 'zod';
-import { defineGenUIComponent, createGenUIRegistry } from '../source/registry.js';
-import { createLanguageAdapter } from '../source/adapter.js';
+import test, {type TestContext} from 'node:test';
+import {z} from 'zod';
+import {defineGenUIComponent, createGenUIRegistry} from '../source/registry.js';
+import {createLanguageAdapter} from '../source/adapter.js';
+import type {GenUIElementNode} from '../source/types.js';
 
-const Box = defineGenUIComponent({
+const childrenSchema = z.array(z.unknown()).optional();
+
+const boxComponent = defineGenUIComponent({
 	name: 'Box',
 	description: 'A layout box',
 	schema: z.object({
 		title: z.string(),
-		children: z.array(z.any()).optional(),
+		children: childrenSchema,
 	}),
 	render: () => null,
 });
 
-const Label = defineGenUIComponent({
+const labelComponent = defineGenUIComponent({
 	name: 'Label',
 	description: 'A text label',
 	schema: z.object({
@@ -22,7 +25,7 @@ const Label = defineGenUIComponent({
 	render: () => null,
 });
 
-const registry = createGenUIRegistry([Box, Label]);
+const registry = createGenUIRegistry([boxComponent, labelComponent]);
 
 test('parses a valid complete program to a GenUIElementNode tree', (t: TestContext) => {
 	const adapter = createLanguageAdapter(registry);
@@ -37,10 +40,10 @@ lbl = Label("Active")
 	t.assert.ok(result.root);
 	t.assert.strictEqual(result.root.name, 'Box');
 	t.assert.strictEqual(result.root.props['title'], 'Header');
-	const children = result.root.props['children'] as any[];
+	const children = result.root.props['children'] as GenUIElementNode[];
 	t.assert.strictEqual(children.length, 1);
-	t.assert.strictEqual(children[0].name, 'Label');
-	t.assert.strictEqual(children[0].props['text'], 'Active');
+	t.assert.strictEqual(children[0]?.name, 'Label');
+	t.assert.strictEqual(children[0]?.props['text'], 'Active');
 });
 
 test('detects incomplete streaming input without treating as fatal error', (t: TestContext) => {
@@ -58,8 +61,10 @@ test('rejects unknown components with informative error', (t: TestContext) => {
 	const result = adapter.parse(badCode);
 
 	t.assert.ok(result.errors.length > 0);
-	const err = result.errors.find(e => e.code.includes('unknown'));
-	t.assert.ok(err, 'Should have unknown component error');
+	const unknownError = result.errors.find((error) =>
+		error.code.includes('unknown'),
+	);
+	t.assert.ok(unknownError, 'Should have unknown component error');
 });
 
 test('rejects type mismatches in properties', (t: TestContext) => {
@@ -68,22 +73,24 @@ test('rejects type mismatches in properties', (t: TestContext) => {
 	const result = adapter.parse(badCode);
 
 	t.assert.ok(result.errors.length > 0);
-	const err = result.errors.find(e => e.code.includes('type') || e.code.includes('mismatch'));
-	t.assert.ok(err, 'Should report type mismatch error');
+	const mismatchError = result.errors.find(
+		(error) => error.code.includes('type') || error.code.includes('mismatch'),
+	);
+	t.assert.ok(mismatchError, 'Should report type mismatch error');
 });
 
 test('enforces maxStreamLength resource limit', (t: TestContext) => {
-	const adapter = createLanguageAdapter(registry, { maxStreamLength: 20 });
+	const adapter = createLanguageAdapter(registry, {maxStreamLength: 20});
 	const longCode = 'root = Box("Very long text that definitely exceeds limit")';
 	const result = adapter.parse(longCode);
 
-	t.assert.ok(result.errors.some(e => e.code === 'resource-limit'));
+	t.assert.ok(result.errors.some((error) => error.code === 'resource-limit'));
 	t.assert.strictEqual(result.root, null);
 });
 
 test('sanitizes terminal escape sequences in string props', (t: TestContext) => {
 	const adapter = createLanguageAdapter(registry);
-	const malicious = 'root = Label("Clean\u001B]0;Injected Title\u0007 Text")';
+	const malicious = 'root = Label("Clean\u{1B}]0;Injected Title\u{7} Text")';
 	const result = adapter.parse(malicious);
 
 	t.assert.ok(result.root);

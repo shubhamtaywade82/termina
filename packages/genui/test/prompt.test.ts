@@ -1,7 +1,11 @@
-import test, { type TestContext } from 'node:test';
-import { z } from 'zod';
-import { defineGenUIComponent, createGenUIRegistry, createDefaultRegistry } from '../source/registry.js';
-import { generateGenUIPrompt } from '../source/prompt.js';
+import test, {type TestContext} from 'node:test';
+import {z} from 'zod';
+import {
+	defineGenUIComponent,
+	createGenUIRegistry,
+	createDefaultRegistry,
+} from '../source/registry.js';
+import {generateGenUIPrompt} from '../source/prompt.js';
 
 test('generates deterministic system instructions', (t: TestContext) => {
 	const registry = createDefaultRegistry();
@@ -19,11 +23,13 @@ test('includes custom preamble and instructions', (t: TestContext) => {
 		preamble: 'You are a Kubernetes terminal monitoring assistant.',
 	});
 
-	t.assert.ok(prompt.includes('You are a Kubernetes terminal monitoring assistant.'));
+	t.assert.ok(
+		prompt.includes('You are a Kubernetes terminal monitoring assistant.'),
+	);
 });
 
 test('describes all registered components and their properties', (t: TestContext) => {
-	const CustomWidget = defineGenUIComponent({
+	const customWidget = defineGenUIComponent({
 		name: 'WidgetX',
 		description: 'A special telemetry widget',
 		schema: z.object({
@@ -33,7 +39,7 @@ test('describes all registered components and their properties', (t: TestContext
 		render: () => null,
 	});
 
-	const registry = createGenUIRegistry([CustomWidget]);
+	const registry = createGenUIRegistry([customWidget]);
 	const prompt = generateGenUIPrompt(registry);
 
 	t.assert.ok(prompt.includes('WidgetX'));
@@ -47,5 +53,9 @@ test('explains streaming rules and positional argument syntax', (t: TestContext)
 	const prompt = generateGenUIPrompt(registry);
 
 	t.assert.ok(prompt.includes('root =') || prompt.includes('root'));
-	t.assert.ok(prompt.includes('positional') || prompt.includes('Positional') || prompt.includes('order matters'));
+	t.assert.ok(
+		prompt.includes('positional') ||
+			prompt.includes('Positional') ||
+			prompt.includes('order matters'),
+	);
 });
