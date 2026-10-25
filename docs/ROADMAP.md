@@ -50,7 +50,7 @@ Status values: `open`, `in progress`, `done`, `deferred`.
 - Acceptance: `CHANGELOG.md` exists, `docs/RELEASING.md` describes the process, and CI runs `pnpm publish --dry-run` for both packages.
 
 ### R9. No starter template
-- Status: `open`
+- Status: `done`. `examples/starter` uses core for rendering, input and app control, and ui for `Header`, `Select`, `StatusMessage` and `KeyHint`. It typechecks with `pnpm typecheck`, which CI runs. It starts with `pnpm --filter termina-example-starter start`. Evidence: in a pseudo-terminal, Enter selects an option, the arrow keys move focus, and `q` exits with status 0.
 - Problem: a new developer has to assemble a project from the docs.
 - Acceptance: `examples/starter` contains a small app that uses core and ui. It typechecks and runs with `pnpm --filter ... start`, and CI typechecks it.
 
