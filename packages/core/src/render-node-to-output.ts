@@ -2,7 +2,7 @@ import widestLine from 'widest-line';
 import indentString from 'indent-string';
 import Yoga from 'yoga-layout';
 import wrapText from './wrap-text.js';
-import getMaxWidth from './get-max-width.js';
+import {getAvailableTextWidth} from './get-max-width.js';
 import squashTextNodes from './squash-text-nodes.js';
 import renderBorder from './render-border.js';
 import renderBackground from './render-background.js';
@@ -148,7 +148,7 @@ const renderNodeToOutput = (
 
 		if (text.length > 0) {
 			const currentWidth = widestLine(text);
-			const maxWidth = getMaxWidth(yogaNode);
+			const maxWidth = getAvailableTextWidth(yogaNode);
 
 			if (currentWidth > maxWidth) {
 				const textWrap = node.style.textWrap ?? 'wrap';
