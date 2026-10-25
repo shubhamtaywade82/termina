@@ -30,7 +30,7 @@ Status values: `open`, `in progress`, `done`, `deferred`.
 - Acceptance: `pnpm lint` runs in CI and exits 0 across all packages.
 
 ### R5. CI covers only Linux
-- Status: `in progress`. Done: the `test` job runs on all three platforms with `fail-fast: false`. The `env -u` prefix is replaced by `scripts/run-node-tests.mjs`. POSIX-only suites (signals, job control, `ps`) live in `packages/core/test/posix/` and the runner drops them on Windows. The uncaught-error restore test runs everywhere. `workflow_dispatch` lets a branch run CI without a pull request. Linux is green locally (core 1815 pass, 0 fail; ui 742 pass). The macOS and Windows results are not known yet.
+- Status: `done`. Done: the `test` job runs on all three platforms with `fail-fast: false`. The `env -u` prefix is replaced by `scripts/run-node-tests.mjs`. POSIX-only suites (signals, job control, `ps`) live in `packages/core/test/posix/` and the runner drops them on Windows. The uncaught-error restore test runs everywhere. `workflow_dispatch` lets a branch run CI without a pull request. Linux is green locally (core 1815 pass, 0 fail; ui 742 pass). Evidence: CI run 40220395851 on e67ec81 has `Test (ubuntu-latest)`, `Test (macos-latest)` and `Test (windows-latest)` all green. macOS went green only after the timing-sensitive core tests stopped asserting after fixed delays, so that run is the first one with all three green.
 - Problem: every CI job runs on `ubuntu-latest`. Terminal behavior differs on macOS and Windows, and the Windows pseudo-terminal path is untested. The package test scripts use `env -u ...`, which is not available on Windows shells.
 - Acceptance: the test job runs on `ubuntu-latest`, `macos-latest` and `windows-latest`, and all three are green.
 
