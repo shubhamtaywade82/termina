@@ -49,12 +49,12 @@
 	"dependencies": {
 		"@nemesis-oss/termina-core": "workspace:*",
 		"@nemesis-oss/termina-ui": "workspace:*",
-		"@openuidev/lang-core": "^1.0.1",
+		"@openuidev/lang-core": "^1.0.2",
 		"zod": "^4.6.7"
 	},
 	"devDependencies": {
 		"@sindresorhus/tsconfig": "^8.1.0",
-		"@types/node": "^26.6.3",
+		"@types/node": "^26.6.6",
 		"@types/react": "^19.3.0",
 		"chalk": "^6.0.1",
 		"delay": "^7.0.0",

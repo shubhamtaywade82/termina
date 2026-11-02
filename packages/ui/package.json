@@ -55,7 +55,7 @@
 	},
 	"devDependencies": {
 		"@sindresorhus/tsconfig": "^8.1.0",
-		"@types/node": "^26.6.3",
+		"@types/node": "^26.6.6",
 		"@types/react": "^19.3.0",
 		"@vdemedes/prettier-config": "^2.0.1",
 		"boxen": "^9.0.0",
