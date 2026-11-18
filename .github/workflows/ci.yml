@@ -137,7 +137,7 @@ jobs:
         run: pnpm --filter @nemesis-oss/termina-core run bench -- --out "$RUNNER_TEMP/render-benchmark.json"
 
       - name: Keep the benchmark report
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: render-benchmark
           path: ${{ runner.temp }}/render-benchmark.json
