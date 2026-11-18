@@ -1,6 +1,14 @@
 name: Publish
 
-# Publishes the workspace packages to npm when a semver tag is pushed. The job refuses to run unless every package is public and its version matches the tag.
+# Publishes the workspace packages to npm when a semver tag is pushed, via npm
+# trusted publishing (OIDC). Trusted-publisher entries on npmjs.com: workflow
+# filename `publish.yml`, one per package. No npm token is stored or used. The
+# job refuses to run unless every package is public and its version matches the tag.
+#
+# `pnpm pack` rewrites workspace: dependency ranges to concrete versions in each
+# tarball, and the job fails if any packed manifest still contains one. Each
+# tarball is then published with `npm publish`, which provides provenance.
+# Packages publish in dependency order: core, then ui, then genui.
 on:
   push:
     tags: ["v*"]
@@ -32,10 +40,12 @@ jobs:
         with:
           node-version-file: .node-version
           cache: pnpm
-          registry-url: https://registry.npmjs.org
+
+      - name: Pin npm for trusted publishing
+        run: npm install -g npm@^11.21.0
 
       - name: Install dependencies
-        run: pnpm install --frozen-lockfile
+        run: pnpm install --frozen-lockfile --ignore-scripts
 
       - name: Verify tag matches package versions and visibility
         run: node scripts/check-release.mjs "$GITHUB_REF_NAME"
@@ -49,8 +59,25 @@ jobs:
       - name: Test
         run: pnpm test
 
+      - name: Pack workspace packages
+        run: |
+          set -euo pipefail
+          rm -rf dist && mkdir -p dist
+          pnpm -r --filter './packages/*' pack --pack-destination dist
+          for t in dist/*.tgz; do
+            if tar -xOzf "$t" package/package.json | grep -q 'workspace:'; then
+              echo "::error::workspace: range leaked into $t"
+              exit 1
+            fi
+          done
+
       # Prerelease tags such as v1.0.0-beta.1 go to the `next` dist-tag, so `latest` only moves on stable releases.
-      - name: Publish workspace packages
-        run: pnpm -r --filter './packages/*' publish --access public --no-git-checks --tag ${{ contains(github.ref_name, '-') && 'next' || 'latest' }}
+      - name: Publish workspace packages (trusted publishing)
         env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+          DIST_TAG: ${{ contains(github.ref_name, '-') && 'next' || 'latest' }}
+        run: |
+          set -euo pipefail
+          for name in termina-core termina-ui termina-genui; do
+            tarball="$(ls dist/nemesis-oss-${name}-*.tgz)"
+            npm publish "$tarball" --access public --provenance --tag "$DIST_TAG" --ignore-scripts
+          done
